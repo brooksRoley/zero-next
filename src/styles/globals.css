@@ -25,3 +25,72 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+/* Reset some default styles */
+html, body, div, h1, h2, h3, p, ul, li {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Set full viewport height and white background */
+html, body {
+  height: 100%;
+  background-color: #fff;
+}
+
+/* Add sensible spacing on either side */
+.container {
+  max-width: 1200px; /* Adjust as needed */
+  margin: 0 auto;
+  padding: 0 20px; /* Adjust as needed */
+}
+
+/* Header styling */
+header {
+  background-color: #f0f0f0; /* Light gray background */
+  padding: 10px 0;
+  text-align: center;
+}
+
+/* Left-hand side table of contents */
+.sidebar {
+  width: 20%; /* Adjust as needed */
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #333; /* Dark background color */
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Main content area */
+.main-content {
+  margin-left: 20%; /* Same as sidebar width */
+  padding: 40px;
+}
+
+/* Add this to your existing CSS or create a new stylesheet */
+/* Assuming you have a class called "video-container" for styling the video */
+.video-container {
+  position: relative;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out;
+}
+
+/* Show the video container when the video is playing */
+.video-container.show {
+  max-height: 1000px; /* Adjust as needed */
+}
+
+/* Style the button */
+button {
+  background-color: #007bff; /* Blue color */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
