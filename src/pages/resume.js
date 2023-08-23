@@ -21,7 +21,17 @@ const Resume = () => {
         <p>Software Engineer</p>
         <p>brooksroley@gmail.com</p>
         <p>949-525-5124</p>
-        
+        <p>
+          <a href="https://www.linkedin.com/in/brooksroley/">linkedin</a>
+        </p>
+        <p>
+          <a href="https://www.github.com/brooksroley/">Github</a>
+        </p>
+        <p>
+          <a href="https://www.github.com/brooksroley/zero-credentials">This codebase</a>
+        </p>
+
+
         {showVideo ? (
           <video controls autoPlay onEnded={handleVideoEnd}>
             <source src="/highkick.mp4" type="video/mp4" />
