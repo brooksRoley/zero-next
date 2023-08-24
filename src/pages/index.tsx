@@ -6,17 +6,16 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-
-      <div className="header w-full items-center justify-between font-mono text-sm">
+    <main className="flex min-h-screen flex-col items-center justify-between p-4 mb-2">
+      <div className="header items-center justify-between font-mono">
         <h1>Hi, I am Brooks Roley</h1>
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 ">
-          Want to check for a prime?&nbsp;
+        <p className="flex justify-center border-b border-gray-300 text-sm mb-2">
+          Check for a prime: &nbsp;
           <code className="font-mono font-bold">/^1?$|^(11+?)\1+$/</code>
         </p>
-        <div className="flex h-48 w-full items-end justify-center">
+        <div className="flex">
           <Link
-            className="fixed right-0 top-0 bg-blue-500 m-4 text-white p-2 rounded"
+            className="bg-blue-900 w-full text-white p-2 rounded"
             href="https://github.com/brooksroley"
             target="_blank"
             rel="noopener noreferrer"
@@ -34,10 +33,10 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
+      <div className="grid text-center">
         <Link
           href="https://zero-chat-nine.vercel.app/"
-          className="bg-blue-500 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -56,7 +55,7 @@ export default function Home() {
             <Image
               className="relative"
               src="/water1.jpg"
-              alt="Next.js Logo"
+              alt="Stairs to the Ocean in Japan"
               width={180}
               height={37}
               priority
@@ -66,7 +65,7 @@ export default function Home() {
 
         <Link
           href="https://www.cl-asi.org/easi"
-          className="bg-blue-500 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -96,7 +95,7 @@ export default function Home() {
 
         <Link
           href="https://lolchess.gg/profile/na/zero400"
-          className="bg-blue-500 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -126,7 +125,7 @@ export default function Home() {
 
         <Link
           href="https://www.linkedin.com/in/brooksroley/"
-          className="bg-blue-500 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -153,10 +152,10 @@ export default function Home() {
             />
           </div>
         </Link>
+        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/posts/first-post">First Post</Link>
+        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/resume">Resume Uploaded with S3.</Link>
+        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/posts/post-form">Post Form</Link>
       </div>
-      <Link className="bg-blue-500 text-white m-2 p-2 rounded" href="/posts/first-post">First Post</Link>
-      <Link className="bg-blue-500 text-white m-2 p-2 rounded" href="/resume">Resume Uploaded with S3.</Link>
-      <Link className="bg-blue-500 text-white m-2 p-2 rounded" href="/posts/post-form">Post Form</Link>
     </main>
   )
 }
