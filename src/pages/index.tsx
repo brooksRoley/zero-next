@@ -14,9 +14,9 @@ export default function Home() {
           Want to check for a prime?&nbsp;
           <code className="font-mono font-bold">/^1?$|^(11+?)\1+$/</code>
         </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center">
+        <div className="flex h-48 w-full items-end justify-center">
           <Link
-            className="fixed right-0 top-0"
+            className="fixed right-0 top-0 bg-blue-500 m-4 text-white p-2 rounded"
             href="https://github.com/brooksroley"
             target="_blank"
             rel="noopener noreferrer"
@@ -37,7 +37,7 @@ export default function Home() {
       <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
         <Link
           href="https://zero-chat-nine.vercel.app/"
-          className=""
+          className="bg-blue-500 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -48,7 +48,7 @@ export default function Home() {
             </span>
           </h2>
           <p
-            className={`${inter.className} text-sm opacity-50`}
+            className={`${inter.className} text-sm`}
           >
             Check out my chat application :D. Learn about me by asking my chat bot what you would like to know and how to schedule for me and I will get back to you. Bear with me as I improve the accuracy.
           </p>
@@ -64,9 +64,9 @@ export default function Home() {
           </div>
         </Link>
 
-        <a
+        <Link
           href="https://www.cl-asi.org/easi"
-          className=""
+          className="bg-blue-500 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -77,7 +77,7 @@ export default function Home() {
             </span>
           </h2>
           <p
-            className={`${inter.className} text-sm opacity-50`}
+            className={`${inter.className} text-sm`}
           >
             Help childhood development and sensory integration by helping EASI. EASI is a non-profit organization that helps children with sensory integration issues.
           </p>
@@ -92,11 +92,11 @@ export default function Home() {
               priority
             />
           </div>
-        </a>
+        </Link>
 
         <Link
           href="https://lolchess.gg/profile/na/zero400"
-          className=""
+          className="bg-blue-500 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -126,7 +126,7 @@ export default function Home() {
 
         <Link
           href="https://www.linkedin.com/in/brooksroley/"
-          className=""
+          className="bg-blue-500 m-4 text-white p-2 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -137,7 +137,7 @@ export default function Home() {
             </span>
           </h2>
           <p
-            className={`${inter.className} text-sm opacity-50`}
+            className={`${inter.className} text-sm`}
           >
             Here is the best way to get ahold of me and schedule a time to chat.
           </p>
@@ -154,19 +154,9 @@ export default function Home() {
           </div>
         </Link>
       </div>
-
-      <p>
-        Here we have a little list of experimental pages. Call them a work in progress.
-      </p>
-      <p>
-        <Link href="/posts/first-post">First Post</Link>
-      </p>
-      <p>
-        <Link href="/resume">Resume Uploaded with S3.</Link>
-      </p>
-      <p>
-        <Link href="/posts/post-form">Post Form</Link>
-      </p>
+      <Link className="bg-blue-500 text-white m-2 p-2 rounded" href="/posts/first-post">First Post</Link>
+      <Link className="bg-blue-500 text-white m-2 p-2 rounded" href="/resume">Resume Uploaded with S3.</Link>
+      <Link className="bg-blue-500 text-white m-2 p-2 rounded" href="/posts/post-form">Post Form</Link>
     </main>
   )
 }
