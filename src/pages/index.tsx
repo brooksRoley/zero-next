@@ -13,27 +13,28 @@ export default function Home() {
           Check for a prime: &nbsp;
           <code className="font-mono font-bold">/^1?$|^(11+?)\1+$/</code>
         </p>
-        <div className="flex">
-          <Link
-            className="bg-blue-900 w-full text-white p-2 rounded"
-            href="https://github.com/brooksroley"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Want to get to my Github? {' '}
-            <Image
-              src="/facebook.jpeg"
-              alt="Facebook Offices - Zero"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </Link>
-        </div>
       </div>
 
       <div className="grid text-center">
+        <Link
+          className="bg-blue-900 text-white m-4 p-2 rounded"
+          href="https://github.com/brooksroley"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <h2 className={`${inter.className} text-2xl font-semibold`}>
+            Github {' '} <span>-&gt;</span>
+          </h2>
+          <Image
+            src="/facebook.jpeg"
+            alt="Facebook Offices - Zero"
+            className="dark:invert"
+            width={100}
+            height={24}
+            priority
+          />
+        </Link>
+
         <Link
           href="https://zero-chat-nine.vercel.app/"
           className="bg-blue-900 m-4 text-white p-2 rounded"
@@ -41,10 +42,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} text-2xl font-semibold`}>
-            Chat{' '}
-            <span className="">
-              -&gt;
-            </span>
+            Chat{' '}<span>-&gt;</span>
           </h2>
           <p
             className={`${inter.className} text-sm`}
@@ -62,6 +60,12 @@ export default function Home() {
             />
           </div>
         </Link>
+        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/resume">
+          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
+            Resume{' '}<span>-&gt;</span>
+          </h2>
+          <p>Something something something about something.</p>
+        </Link>
 
         <Link
           href="https://www.cl-asi.org/easi"
@@ -70,10 +74,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="">
-              -&gt;
-            </span>
+            Learn{' '}<span>-&gt;</span>
           </h2>
           <p
             className={`${inter.className} text-sm`}
@@ -153,7 +154,6 @@ export default function Home() {
           </div>
         </Link>
         <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/posts/first-post">First Post</Link>
-        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/resume">Resume Uploaded with S3.</Link>
         <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/posts/post-form">Post Form</Link>
       </div>
     </main>
