@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
+    Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  line-height: 1.6;
+  font-size: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -39,11 +58,10 @@ html, body {
   background-color: #fff;
 }
 
-/* Add sensible spacing on either side */
 .container {
-  max-width: 1200px; /* Adjust as needed */
-  margin: 0 auto;
-  padding: 0 20px; /* Adjust as needed */
+  max-width: 36rem;
+  padding: 0 1rem;
+  margin: 3rem auto 6rem;
 }
 
 /* Header styling */
@@ -93,4 +111,8 @@ button {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
+}
+
+img {
+  margin: auto;
 }

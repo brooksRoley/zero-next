@@ -17,7 +17,7 @@ export default function Home() {
 
       <div className="grid text-center">
         <Link
-          className="bg-blue-900 text-white m-4 p-2 rounded"
+          className="bg-blue-900 text-white m-4 p-4 rounded"
           href="https://github.com/brooksroley"
           target="_blank"
           rel="noopener noreferrer"
@@ -35,9 +35,9 @@ export default function Home() {
           />
         </Link>
 
-        <Link
+        {/* <Link
           href="https://zero-chat-nine.vercel.app/"
-          className="bg-blue-900 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -59,8 +59,8 @@ export default function Home() {
               priority
             />
           </div>
-        </Link>
-        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/resume">
+        </Link> */}
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/resume">
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
             Resume{' '}<span>-&gt;</span>
           </h2>
@@ -69,7 +69,7 @@ export default function Home() {
 
         <Link
           href="https://www.cl-asi.org/easi"
-          className="bg-blue-900 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -95,8 +95,8 @@ export default function Home() {
         </Link>
 
         <Link
-          href="https://lolchess.gg/profile/na/zero400"
-          className="bg-blue-900 m-4 text-white p-2 rounded"
+          href="https://lolchess.gg/profile/na/zerothot"
+          className="bg-blue-900 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -109,7 +109,8 @@ export default function Home() {
           <p
             className={`${inter.className} text-sm`}
           >
-            Play a game of Pente against an AI. I am still working on the AI so it is not the best yet.
+            I am working on a game of Pente to play against an AI.
+            I am still working on the AI so instead, here is a link my LolChess.
           </p>
 
           <div className="relative flex place-items-center">
@@ -126,12 +127,12 @@ export default function Home() {
 
         <Link
           href="https://www.linkedin.com/in/brooksroley/"
-          className="bg-blue-900 m-4 text-white p-2 rounded"
+          className="bg-blue-900 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Contact{' '}
+            Calendly{' '}
             <span className="inline-block transition-transform">
               -&gt;
             </span>
@@ -139,7 +140,7 @@ export default function Home() {
           <p
             className={`${inter.className} text-sm`}
           >
-            Here is the best way to get ahold of me and schedule a time to chat.
+            Schedule a time with me
           </p>
 
           <div className="relative flex place-items-center">
@@ -153,8 +154,9 @@ export default function Home() {
             />
           </div>
         </Link>
-        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/posts/first-post">First Post</Link>
-        <Link className="bg-blue-900 text-white m-4 p-2 rounded" href="/posts/post-form">Post Form</Link>
+        {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">First Post</Link> */}
+        {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link> */}
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">LinkedIn</Link>
       </div>
     </main>
   )

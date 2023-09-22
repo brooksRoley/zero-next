@@ -22,13 +22,13 @@ const Resume = () => {
         <p>brooksroley@gmail.com</p>
         <p>949-525-5124</p>
         <p>
-          <a href="https://www.linkedin.com/in/brooksroley/">linkedin</a>
+          <a href="/Brooks_Roley.pdf" download>Download Resume as PDF</a>
         </p>
         <p>
-          <a href="https://www.github.com/brooksroley/">Github</a>
+          <a href="https://www.github.com/brooksroley/">Link to Github</a>
         </p>
         <p>
-          <a href="https://www.github.com/brooksroley/zero-next">This codebase</a>
+          <a href="https://www.github.com/brooksroley/zero-next">Link to this repo</a>
         </p>
 
 
@@ -38,7 +38,7 @@ const Resume = () => {
             Your browser does not support the video tag.
           </video>
         ) : (
-          <button onClick={playVideo}>High Five?</button>
+          <button onClick={playVideo}>High kick video for fun</button>
         )}
       </div>
     </div>
