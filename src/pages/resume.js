@@ -12,11 +12,11 @@ const Resume = () => {
   };
 
   return (
-    <div className="container">
+    <div className="h-max p-8">
       <header>
         <h1>My Resume</h1>
       </header>
-      <div className="main-content">
+      <div className="main-content py-4">
         <h2>Brooks Roley</h2>
         <p>Software Engineer</p>
         <p>brooksroley@gmail.com</p>
@@ -31,16 +31,17 @@ const Resume = () => {
           <a href="https://www.github.com/brooksroley/zero-next">Link to this repo</a>
         </p>
 
-
-        {showVideo ? (
-          <video controls autoPlay onEnded={handleVideoEnd}>
-            <source src="/highkick.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        ) : (
-          <button onClick={playVideo}>High kick video for fun</button>
-        )}
       </div>
+
+      {showVideo ? (
+        <video controls autoPlay onEnded={handleVideoEnd}>
+          <source src="/highkick.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <button onClick={playVideo}>High kick video for fun</button>
+      )}
+
     </div>
   );
 };

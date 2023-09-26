@@ -136,6 +136,7 @@ export default function Home() {
 
         {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">First Post</Link> */}
         {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link> */}
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/Pente">Pente</Link>
         <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
           <h2 className={`${inter.className} mb-2 text-2xl font-semibold`}>
             LinkedIn

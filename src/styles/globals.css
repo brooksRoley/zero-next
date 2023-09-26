@@ -10,39 +10,17 @@ body {
     Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   line-height: 1.6;
   font-size: 18px;
+  width: 100vw;
 }
 
 * {
   box-sizing: border-box;
 }
 
-a {
-  color: #0070f3;
-  text-decoration: none;
-}
-
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
 }
 
 /* Reset some default styles */
@@ -52,18 +30,6 @@ html, body, div, h1, h2, h3, p, ul, li {
   border: 0;
 }
 
-/* Set full viewport height and white background */
-html, body {
-  height: 100%;
-  background-color: #fff;
-}
-
-.container {
-  max-width: 36rem;
-  padding: 0 1rem;
-  margin: 3rem auto 6rem;
-}
-
 /* Header styling */
 header {
   background-color: #f0f0f0; /* Light gray background */
@@ -71,42 +37,8 @@ header {
   text-align: center;
 }
 
-/* Left-hand side table of contents */
-.sidebar {
-  width: 20%; /* Adjust as needed */
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  background-color: #333; /* Dark background color */
-  color: #fff;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-/* Main content area */
-.main-content {
-  margin-left: 20%; /* Same as sidebar width */
-  padding: 40px;
-}
-
-/* Add this to your existing CSS or create a new stylesheet */
-/* Assuming you have a class called "video-container" for styling the video */
-.video-container {
-  position: relative;
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.3s ease-in-out;
-}
-
-/* Show the video container when the video is playing */
-.video-container.show {
-  max-height: 1000px; /* Adjust as needed */
-}
-
-/* Style the button */
 button {
-  background-color: #007bff; /* Blue color */
+  background-color: #007bff;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -115,4 +47,16 @@ button {
 
 img {
   margin: auto;
+}
+
+.layout {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #333; /* Dark background color */
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  width: 100vw;
 }

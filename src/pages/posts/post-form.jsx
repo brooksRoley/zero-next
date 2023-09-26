@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Layout from '../../components/layout';
 
 const PostForm = ({ onPost }) => {
   const [content, setContent] = useState('');
@@ -24,7 +25,7 @@ const PostForm = ({ onPost }) => {
   };
 
   return (
-    <div>
+    <Layout>
       <h2>Create a New Post</h2>
       <form onSubmit={handleSubmit}>
         <textarea
@@ -37,7 +38,7 @@ const PostForm = ({ onPost }) => {
         <br />
         <button type="submit">Post</button>
       </form>
-    </div>
+    </Layout>
   );
 };
 

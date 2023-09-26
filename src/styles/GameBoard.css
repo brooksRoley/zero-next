@@ -1,0 +1,21 @@
+.game-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #369c56;
+}
+
+.cell {
+    border: 1px solid #ccc;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+}
+
+.black {
+    background-color: black;
+}
+
+.white {
+    background-color: white;
+}
