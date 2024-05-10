@@ -8,14 +8,45 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 mb-2">
       <div className="header items-center justify-between font-mono">
-        <h1>Hi, I am Brooks Roley</h1>
+        <h1>Hi, my name is Brooks Roley.</h1>
+
         <p className="flex justify-center border-b border-gray-300 text-sm mb-2 mb-2">
           Check for a prime: &nbsp;
           <code className="font-mono font-bold w-6/12">/^1?$|^(11+?)\1+$/</code>
         </p>
       </div>
+      <div className="grid md:grid-cols-2 text-center">
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/resume">
+          <h2 className={`mb-2 text-2xl font-semibold`}>
+            Resume{' '}<span>-&gt;</span>
+          </h2>
+          <p className={`text-sm mb-2`}>
+            Download link for interested parties, plus a little fun.
+          </p>
+          <Image src="/coverphoto.jpeg" alt="Brooks Roley" width={150} height={50} />
+        </Link>
 
-      <div className="grid text-center">
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
+          <h2 className={`mb-2 text-2xl font-semibold`}>
+            LinkedIn{' '}<span>-&gt;</span>
+          </h2>
+          <p className={`text-sm mb-2`}>
+            Unlocking professional potential and fostering meaningful connections. Let us connect on and make things happen! 🌟
+          </p>
+          <div className="relative flex place-items-center">
+            <Image
+              className="relative"
+              src="/water1.jpg"
+              alt="Stairs to the Ocean in Japan"
+              width={180}
+              height={60}
+              priority
+            />
+          </div>
+        </Link>
+      </div>
+
+      <div className="grid md:grid-cols-3 text-center">
         <Link
           className="bg-blue-900 text-white m-4 p-4 rounded"
           href="https://github.com/brooksroley"
@@ -32,19 +63,9 @@ export default function Home() {
             src="/facebook.jpeg"
             alt="Facebook Offices"
             width={180}
-            height={40}
+            height={60}
             priority
           />
-        </Link>
-
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/resume">
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Resume{' '}<span>-&gt;</span>
-          </h2>
-          <p className={`text-sm mb-2`}>
-            Download link for interested parties, plus a little fun.
-          </p>
-          <Image src="/coverphoto.jpeg" alt="Brooks Roley" width={100} height={24} />
         </Link>
 
         <Link
@@ -62,7 +83,7 @@ export default function Home() {
           <p
             className={`text-sm mb-2`}
           >
-            I am working on a game of Pente to play against an AI. I am still working on the AI so instead, here is a link my LolChess.
+            I love a sense of competition and sharing my passions. Here is a link my LolChess which breaks down my pursuit of perfecting strategy in the game Teamfight Tactics.
           </p>
 
           <div className="relative flex place-items-center">
@@ -71,14 +92,14 @@ export default function Home() {
               src="/mountain.jpg"
               alt="Mountain in Japan"
               width={180}
-              height={40}
+              height={60}
               priority
             />
           </div>
         </Link>
 
         <Link
-          href="https://www.linkedin.com/in/brooksroley/"
+          href="https://calendly.com/brooksroley/"
           className="bg-blue-900 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
@@ -101,7 +122,7 @@ export default function Home() {
               src="/water2.jpg"
               alt="Ocean waves in Japan"
               width={180}
-              height={40}
+              height={60}
               priority
             />
           </div>
@@ -128,31 +149,29 @@ export default function Home() {
               src="/lion.jpg"
               alt="Petting lion in South Africa"
               width={180}
-              height={40}
+              height={60}
               priority
             />
           </div>
         </Link>
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            LinkedIn{' '}<span>-&gt;</span>
-          </h2>
+        
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">
+          First Post
           <p className={`text-sm mb-2`}>
-            Unlocking professional potential and fostering meaningful connections. Let us connect on and make things happen! 🌟
+            I am an athlete. I learned teamwork from a lifetime of basketball with my brother, teams, camps, and strangers.
           </p>
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/water1.jpg"
-              alt="Stairs to the Ocean in Japan"
-              width={180}
-              height={40}
-              priority
-            />
-          </div>
+          <Image
+            className="relative"
+            src="/marathon.png"
+            alt="Ball Logo"
+            width={180}
+            height={60}
+            priority
+          />
         </Link>
-        {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">First Post</Link> */}
+        
         {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link> */}
+
         <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/pente">
           <h2 className='mb-2 text-2xl font-semibold'>
             Pente{' '}<span>-&gt;</span>
@@ -166,7 +185,7 @@ export default function Home() {
               src="/pente.jpg"
               alt="Pente Board"
               width={180}
-              height={40}
+              height={60}
               priority
             />
           </div>
