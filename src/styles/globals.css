@@ -12,6 +12,13 @@ body {
   font-size: 18px;
   width: 100vw;
 }
+.named-bg{
+  background-image: url('/covertitle.jpg');
+  background-size: auto cover;
+  background-position: center;
+  height: 100vh;
+  width: 100%
+}
 
 * {
   box-sizing: border-box;

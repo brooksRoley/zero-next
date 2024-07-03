@@ -5,7 +5,54 @@ const DIRECTIONS = [
   { row: 1, col: 1 },  // diagonal /
   { row: 1, col: -1 }  // diagonal \
 ];
+// function checkForCaptures(board, row, col, currentPlayer):
+//     capturedPairs = 0
+//     directions = [(0,1), (1,0), (1,1), (1,-1)]  // right, down, diagonal down-right, diagonal down-left
 
+//     for (dx, dy) in directions:
+//         if checkCaptureInDirection(board, row, col, dx, dy, currentPlayer):
+//             capturedPairs += 1
+//         if checkCaptureInDirection(board, row, col, -dx, -dy, currentPlayer):
+//             capturedPairs += 1
+
+//     return capturedPairs
+
+// function checkCaptureInDirection(board, row, col, dx, dy, currentPlayer):
+//     opponent = getOpponentColor(currentPlayer)
+    
+//     // Check if the next two stones are opponent's and the third is current player's
+//     if isValidPosition(row + dx, col + dy) and
+//        isValidPosition(row + 2*dx, col + 2*dy) and
+//        isValidPosition(row + 3*dx, col + 3*dy) and
+//        board[row + dx][col + dy] == opponent and
+//        board[row + 2*dx][col + 2*dy] == opponent and
+//        board[row + 3*dx][col + 3*dy] == currentPlayer:
+        
+//         // Remove the captured stones
+//         board[row + dx][col + dy] = EMPTY
+//         board[row + 2*dx][col + 2*dy] = EMPTY
+        
+//         return true
+    
+//     return false
+
+// function isValidPosition(row, col):
+//     return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE
+
+// function getOpponentColor(player):
+//     return BLACK if player == WHITE else WHITE
+
+// function makeMove(board, row, col, currentPlayer):
+//     if board[row][col] != EMPTY:
+//         return false  // Invalid move
+
+//     board[row][col] = currentPlayer
+//     capturedPairs = checkForCaptures(board, row, col, currentPlayer)
+
+//     if capturedPairs >= 5:
+//         declareWinner(currentPlayer)
+
+//     return true
 const GameBoard = () => {
   const initialBoard = Array(19).fill(Array(19).fill(null));
   const [board, setBoard] = useState(initialBoard);

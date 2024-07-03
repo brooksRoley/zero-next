@@ -36,10 +36,10 @@ export default function Home() {
           <div className="relative flex place-items-center">
             <Image
               className="relative"
-              src="/water1.jpg"
-              alt="Stairs to the Ocean in Japan"
-              width={180}
-              height={60}
+              src="/BRBaller.png"
+              alt="Baller Logo: Brooks Roley"
+              width={200}
+              height={120}
               priority
             />
           </div>
@@ -119,8 +119,8 @@ export default function Home() {
           <div className="relative flex place-items-center">
             <Image
               className="relative"
-              src="/water2.jpg"
-              alt="Ocean waves in Japan"
+              src="/BRMinimalist.png"
+              alt="Design Icon BR"
               width={180}
               height={60}
               priority

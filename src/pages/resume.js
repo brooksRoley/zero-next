@@ -1,47 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
+import Link from 'next/link'
 
 const Resume = () => {
-  const [showVideo, setShowVideo] = useState(false);
-
-  const playVideo = () => {
-    setShowVideo(true);
-  };
-
-  const handleVideoEnd = () => {
-    setShowVideo(false);
-  };
-
   return (
-    <div className="h-max p-8">
+    <div className="h-max p-8 named-bg">
       <header>
-        <h1>My Resume</h1>
+        <h1>
+          <Link href="./..">
+            Back to a brief history of me
+          </Link>
+        </h1>
       </header>
       <div className="main-content py-4">
         <h2>Brooks Roley</h2>
         <p>Software Engineer</p>
         <p>brooksroley@gmail.com</p>
         <p>949-525-5124</p>
-        <p>
-          <a href="/Brooks_Roley.pdf" download>Download Resume as PDF</a>
-        </p>
-        <p>
-          <a href="https://www.github.com/brooksroley/">Link to Github</a>
-        </p>
-        <p>
-          <a href="https://www.github.com/brooksroley/zero-next">Link to this repo</a>
-        </p>
-
       </div>
-
-      {showVideo ? (
-        <video controls autoPlay onEnded={handleVideoEnd}>
-          <source src="/highkick.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      ) : (
-        <button onClick={playVideo}>High kick video for fun</button>
-      )}
-
+      <div className="main-content py-4">
+        <Link 
+          href="/Brooks_Roley.pdf"
+          download
+          className="block text-blue-600 hover:text-blue-800"
+        >
+            Download Resume as PDF
+        </Link>
+          <Link 
+            href="https://www.github.com/brooksroley/"
+            className="block text-blue-600 hover:text-blue-800"
+          >
+              Link to Github
+          </Link>
+          <Link 
+            href="https://www.github.com/brooksroley/zero-next"
+            className="block text-blue-600 hover:text-blue-800"
+          >
+              Link to this repo
+          </Link>
+      </div>
     </div>
   );
 };
