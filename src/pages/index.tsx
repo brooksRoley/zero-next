@@ -69,36 +69,6 @@ export default function Home() {
         </Link>
 
         <Link
-          href="https://lolchess.gg/profile/na/zerothot"
-          className="bg-blue-900 m-4 text-white p-4 rounded"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Play{' '}
-            <span className="inline-block">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`text-sm mb-2`}
-          >
-            I love a sense of competition and sharing my passions. Here is a link my LolChess which breaks down my pursuit of perfecting strategy in the game Teamfight Tactics.
-          </p>
-
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/mountain.jpg"
-              alt="Mountain in Japan"
-              width={180}
-              height={60}
-              priority
-            />
-          </div>
-        </Link>
-
-        <Link
           href="https://calendly.com/brooksroley/"
           className="bg-blue-900 m-4 text-white p-4 rounded"
           target="_blank"
@@ -154,25 +124,8 @@ export default function Home() {
             />
           </div>
         </Link>
-        
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">
-          First Post
-          <p className={`text-sm mb-2`}>
-            I am an athlete. I learned teamwork from a lifetime of basketball with my brother, teams, camps, and strangers.
-          </p>
-          <Image
-            className="relative"
-            src="/marathon.png"
-            alt="Ball Logo"
-            width={180}
-            height={60}
-            priority
-          />
-        </Link>
-        
-        {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link> */}
 
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/pente">
+        {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/pente">
           <h2 className='mb-2 text-2xl font-semibold'>
             Pente{' '}<span>-&gt;</span>
           </h2>
@@ -190,6 +143,53 @@ export default function Home() {
             />
           </div>
         </Link>
+
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">
+          First Post
+          <p className={`text-sm mb-2`}>
+            I am an athlete. I learned teamwork from a lifetime of basketball with my brother, teams, camps, and strangers.
+          </p>
+          <Image
+            className="relative"
+            src="/marathon.png"
+            alt="Ball Logo"
+            width={180}
+            height={60}
+            priority
+          />
+        </Link>
+        
+        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
+
+        <Link
+          href="https://lolchess.gg/profile/na/zero400"
+          className="bg-blue-900 m-4 text-white p-4 rounded"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <h2 className={`mb-2 text-2xl font-semibold`}>
+            Play{' '}
+            <span className="inline-block">
+              -&gt;
+            </span>
+          </h2>
+          <p
+            className={`text-sm mb-2`}
+          >
+            I love a sense of competition and sharing my passions. Here is a link my LolChess which breaks down my pursuit of perfecting strategy in the game Teamfight Tactics.
+          </p>
+
+          <div className="relative flex place-items-center">
+            <Image
+              className="relative"
+              src="/mountain.jpg"
+              alt="Mountain in Japan"
+              width={180}
+              height={60}
+              priority
+            />
+          </div>
+        </Link> */}
       </div>
     </main>
   )

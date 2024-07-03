@@ -6,7 +6,7 @@ const Resume = () => {
     <div className="h-max p-8 named-bg">
       <header>
         <h1>
-          <Link href="./..">
+          <Link href="/">
             Back to a brief history of me
           </Link>
         </h1>
@@ -25,18 +25,18 @@ const Resume = () => {
         >
             Download Resume as PDF
         </Link>
-          <Link 
-            href="https://www.github.com/brooksroley/"
-            className="block text-blue-600 hover:text-blue-800"
-          >
-              Link to Github
-          </Link>
-          <Link 
-            href="https://www.github.com/brooksroley/zero-next"
-            className="block text-blue-600 hover:text-blue-800"
-          >
-              Link to this repo
-          </Link>
+        <Link 
+          href="https://www.github.com/brooksroley/"
+          className="block text-blue-600 hover:text-blue-800"
+        >
+            Link to Github:
+        </Link>
+        <Link 
+          href="https://www.github.com/brooksroley/zero-next"
+          className="block text-blue-600 hover:text-blue-800"
+        >
+            Link to this repo
+        </Link>
       </div>
     </div>
   );

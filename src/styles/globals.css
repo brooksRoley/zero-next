@@ -11,6 +11,8 @@ body {
   line-height: 1.6;
   font-size: 18px;
   width: 100vw;
+  background-image: url('/BRtransparent.png');
+
 }
 .named-bg{
   background-image: url('/covertitle.jpg');
@@ -54,16 +56,4 @@ button {
 
 img {
   margin: auto;
-}
-
-.layout {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  background-color: #333; /* Dark background color */
-  color: #fff;
-  padding: 20px;
-  overflow-y: auto;
-  width: 100vw;
 }

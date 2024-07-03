@@ -8,10 +8,16 @@ export default function FirstPost() {
       <Head>
         <title>First Post</title>
       </Head>
-      <h1>First Post</h1>
+      <h1>I would love to take a second to talk about my history and what motivates me.</h1>
       <h2>
-        <Link href="/">Back to home</Link>
+
       </h2>
+
+      <Link 
+        href="/"
+      >
+        Back to home
+      </Link>
     </Layout>
   );
 }

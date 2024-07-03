@@ -1,3 +1,3 @@
 export default function Layout({ children }) {
-    return <div className="layout container">{children}</div>;
+    return <div className="container">{children}</div>;
 }
