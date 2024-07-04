@@ -7,7 +7,7 @@ const Resume = () => {
     <div className="h-max p-8 named-bg text-center">
       <header>
         <Link href="/">
-          Back to a brief history of me
+          A brief history of me
         </Link>
       </header>
       <div className="main-content py-4">
@@ -19,8 +19,7 @@ const Resume = () => {
         <h4>949-525-5124</h4>
       </div>
 
-      <div className="main-content py-4">
-        <div className="flex justify-center mb-4" ><MarioButton /></div>
+      <div className="main-content">
         <Link 
           href="/Brooks_Roley.pdf"
           download
@@ -40,6 +39,8 @@ const Resume = () => {
         >
             Link to this repo
         </Link>
+
+        <div className="flex justify-center mt-4"><MarioButton /></div>
       </div>
     </div>
   );
