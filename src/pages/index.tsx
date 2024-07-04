@@ -21,7 +21,7 @@ export default function Home() {
             Resume{' '}<span>-&gt;</span>
           </h2>
           <p className="text-sm mb-2">
-            Here is a download link for some of my experiences. &#128214; &#x1F4D6;
+            Click to learn more about my experiences! &#128214; &#x1F4D6;
           </p>
           <Image src="/cover.png" alt="Brooks Roley" width={200} height={100} />
         </Link>
@@ -57,13 +57,13 @@ export default function Home() {
             Github {' '} <span>-&gt;</span>
           </h2>
           <p className={`text-sm mb-2`}>
-            Coding dreams into reality, one commit at a time! Explore my projects and contributions on GitHub. 💻✨
+            Explore my projects and give me a message or a new issue on Github@💻✨
           </p>
           <Image
             src="/facebook.jpeg"
             alt="Facebook Offices"
-            width={180}
-            height={60}
+            width={200}
+            height={100}
             priority
           />
         </Link>
@@ -89,8 +89,8 @@ export default function Home() {
               className="relative"
               src="/BRMinimalist.png"
               alt="Design Icon BR"
-              width={180}
-              height={60}
+              width={200}
+              height={100}
               priority
             />
           </div>
@@ -101,14 +101,14 @@ export default function Home() {
             Blog in progress <span className="inline-block transition-transform">-&gt;</span>
           </h2>
           <p className={`text-sm mb-2`}>
-            A way to organize my thoughts and data and posts. Stay tuned for an interactive message wall.
+            Stay tuned for an interactive message wall to pull blog posts and take responses from users.
           </p>
           <Image
             className="relative"
             src="/marathon.png"
             alt="Ball Logo"
-            width={180}
-            height={60}
+            width={200}
+            height={100}
             priority
           />
         </Link>
@@ -133,8 +133,8 @@ export default function Home() {
               className="relative"
               src="/lion.jpg"
               alt="Petting lion in South Africa"
-              width={180}
-              height={60}
+              width={200}
+              height={100}
               priority
             />
           </div>
@@ -152,8 +152,8 @@ export default function Home() {
               className="relative"
               src="/pente.jpg"
               alt="Pente Board"
-              width={180}
-              height={60}
+              width={200}
+              height={100}
               priority
             />
           </div>
@@ -184,8 +184,8 @@ export default function Home() {
               className="relative"
               src="/mountain.jpg"
               alt="Mountain in Japan"
-              width={180}
-              height={60}
+              width={200}
+              height={100}
               priority
             />
           </div>
