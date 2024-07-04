@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link'
+import MarioButton from 'src/components/mario';
 
 const Resume = () => {
   return (
@@ -17,7 +18,9 @@ const Resume = () => {
         <p>brooksroley@gmail.com</p>
         <p>949-525-5124</p>
       </div>
+
       <div className="main-content py-4">
+        <div className="block mb-4" ><MarioButton /></div>
         <Link 
           href="/Brooks_Roley.pdf"
           download
