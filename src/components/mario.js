@@ -13,7 +13,7 @@ const MarioButton = () => {
   return (
     <button
       onClick={handleClick}
-      className="relative flex items-center justify-center w-16 h-16 bg-yellow-500 border-4 border-yellow-600 rounded-lg shadow-lg"
+      className="relative flex border-solid items-center justify-center w-16 h-16 bg-yellow-500 border-4 border-black rounded-lg shadow-lg"
     >
       <span className="absolute text-4xl font-bold text-white select-none">?</span>
       <span className="absolute w-full h-full border-2 border-white rounded-lg animate-ping"></span>

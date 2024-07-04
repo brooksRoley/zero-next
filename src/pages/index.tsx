@@ -16,17 +16,17 @@ export default function Home() {
         </p>
       </div>
       <div className="grid md:grid-cols-2 text-center">
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/resume">
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/resume">
           <h2 className={`mb-2 text-2xl font-semibold`}>
             Resume{' '}<span>-&gt;</span>
           </h2>
-          <p className={`text-sm mb-2`}>
-            Download link for interested parties, plus a little fun.
+          <p className="text-sm mb-2">
+            Here is a download link for some of my experiences. &#128214; &#x1F4D6;
           </p>
-          <Image src="/coverphoto.jpeg" alt="Brooks Roley" width={150} height={50} />
+          <Image src="/cover.jpg" alt="Brooks Roley" width={150} height={50} />
         </Link>
 
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
           <h2 className={`mb-2 text-2xl font-semibold`}>
             LinkedIn{' '}<span>-&gt;</span>
           </h2>
@@ -48,7 +48,7 @@ export default function Home() {
 
       <div className="grid md:grid-cols-3 text-center">
         <Link
-          className="bg-blue-900 text-white m-4 p-4 rounded"
+          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded"
           href="https://github.com/brooksroley"
           target="_blank"
           rel="noopener noreferrer"
@@ -70,7 +70,7 @@ export default function Home() {
 
         <Link
           href="https://calendly.com/brooksroley/"
-          className="bg-blue-900 m-4 text-white p-4 rounded"
+          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -83,7 +83,7 @@ export default function Home() {
           <p
             className={`text-sm mb-2`}
           >
-            Schedule a time on my calendar
+            Schedule a time on my calendar &#128197; &#x1F4C5;
           </p>
 
           <div className="relative flex place-items-center">
@@ -100,7 +100,7 @@ export default function Home() {
 
         <Link
           href="https://www.cl-asi.org/easi"
-          className="bg-blue-900 m-4 text-white p-4 rounded"
+          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -125,7 +125,7 @@ export default function Home() {
           </div>
         </Link>
 
-        {/* <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/pente">
+        {/* <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/pente">
           <h2 className='mb-2 text-2xl font-semibold'>
             Pente{' '}<span>-&gt;</span>
           </h2>
@@ -144,7 +144,7 @@ export default function Home() {
           </div>
         </Link>
 
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/first-post">
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/first-post">
           First Post
           <p className={`text-sm mb-2`}>
             I am an athlete. I learned teamwork from a lifetime of basketball with my brother, teams, camps, and strangers.
@@ -159,11 +159,11 @@ export default function Home() {
           />
         </Link>
         
-        <Link className="bg-blue-900 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
 
         <Link
           href="https://lolchess.gg/profile/na/zero400"
-          className="bg-blue-900 m-4 text-white p-4 rounded"
+          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
           target="_blank"
           rel="noopener noreferrer"
         >

@@ -4,7 +4,7 @@ import MarioButton from 'src/components/mario';
 
 const Resume = () => {
   return (
-    <div className="h-max p-8 named-bg text-center">
+    <div className="h-max p-8 w-full h-screen text-center">
       <header>
         <Link href="/">
           A brief history of me
@@ -31,13 +31,13 @@ const Resume = () => {
           href="https://www.github.com/brooksroley/"
           className="block text-blue-600 hover:text-blue-800"
         >
-            Link to Github:
+            My Github profile:
         </Link>
         <Link 
           href="https://www.github.com/brooksroley/zero-next"
           className="block text-blue-600 hover:text-blue-800"
         >
-            Link to this repo
+            { "See this site's code:" }
         </Link>
 
         <div className="flex justify-center mt-4"><MarioButton /></div>
