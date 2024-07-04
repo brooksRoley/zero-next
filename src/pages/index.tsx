@@ -36,10 +36,10 @@ export default function Home() {
           <div className="relative flex place-items-center">
             <Image
               className="relative"
-              src="/BRBaller.png"
-              alt="Baller Logo: Brooks Roley"
+              src="/BRMinimalist.png"
+              alt="Design Icon BR"
               width={200}
-              height={120}
+              height={100}
               priority
             />
           </div>
@@ -87,10 +87,10 @@ export default function Home() {
           <div className="relative flex place-items-center">
             <Image
               className="relative"
-              src="/BRMinimalist.png"
-              alt="Design Icon BR"
+              src="/BRBaller.png"
+              alt="Baller Logo: Brooks Roley"
               width={200}
-              height={100}
+              height={120}
               priority
             />
           </div>
