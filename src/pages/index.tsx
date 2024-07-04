@@ -31,7 +31,7 @@ export default function Home() {
             LinkedIn{' '}<span>-&gt;</span>
           </h2>
           <p className={`text-sm mb-2`}>
-            Unlocking professional potential and fostering meaningful connections. Let us connect on and make things happen! 🌟
+            Unlocking professional potential and fostering meaningful connections. Let us connect and make things happen! 🌟
           </p>
           <div className="relative flex place-items-center">
             <Image
@@ -95,7 +95,8 @@ export default function Home() {
             />
           </div>
         </Link>
-
+        
+        {/* 
         <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/first-post">
           <h2 className={`mb-2 text-2xl font-semibold`}>
             Blog in progress <span className="inline-block transition-transform">-&gt;</span>
@@ -112,6 +113,7 @@ export default function Home() {
             priority
           />
         </Link>
+         */}
         
         {/* <Link
           href="https://www.cl-asi.org/easi"
@@ -140,7 +142,7 @@ export default function Home() {
           </div>
         </Link> */}
 
-        {/* <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/pente">
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/pente">
           <h2 className='mb-2 text-2xl font-semibold'>
             Pente{' '}<span>-&gt;</span>
           </h2>
@@ -158,7 +160,7 @@ export default function Home() {
             />
           </div>
         </Link>
-
+{/* 
         <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
 
         <Link
