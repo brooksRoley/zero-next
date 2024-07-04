@@ -97,7 +97,7 @@ export default function Home() {
         </Link>
 
         <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/first-post">
-          <h2 className={`mb-2 text-2xl`}>
+          <h2 className={`mb-2 text-2xl font-semibold`}>
             Blog in progress <span className="inline-block transition-transform">-&gt;</span>
           </h2>
           <p className={`text-sm mb-2`}>
