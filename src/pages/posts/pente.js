@@ -135,7 +135,7 @@ const GameBoard = () => {
   };
 
   return (
-    <div>
+    <div className='m-2'>
       <div className="flex justify-center items-start gap-5">
         <div className="game-board">
           {board.map((row, rowIndex) => (
@@ -157,9 +157,13 @@ const GameBoard = () => {
           whiteCaptures={whiteCaptures}
         />
       </div>
-      <footer className="block">
-        <h1>Pente Rules</h1>
-        <p>Pente is a board game played on a 19x19 grid. The objective is to be the first player to either align five stones in a row or capture five pairs of your opponent's stones. Here are the basic rules:</p>
+      <footer className="block m-2 align bg-gray-200 p-4">
+        <h1 className='font-bold text-2xl text-blue-600'>Pente Rules</h1>
+        <p>
+          Pente is a board game played on a 19x19 grid.
+          The objective is to be the first player to either align five stones in a row or capture five pairs of your opponent's stones.
+        </p>
+          <p>Here are the basic rules:</p>
         <ul>
             <li><strong>Setup:</strong> Players choose colors and place stones on the intersections of the grid. The center point is the starting position.</li>
             <li><strong>Turns:</strong> Players take turns placing one stone on an empty intersection.</li>

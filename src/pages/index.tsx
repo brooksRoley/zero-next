@@ -147,13 +147,13 @@ export default function Home() {
             Pente{' '}<span>-&gt;</span>
           </h2>
           <p className={`text-sm mb-2`}>
-            A favorite strategy game I love to play. I am still working on the AI to play against so bear with me.
+            Play a game of Pente, maybe learn the rules. AI and 4 players and ELO tracking coming.
           </p>
           <div className="relative flex place-items-center">
             <Image
               className="relative"
-              src="/pente.jpg"
-              alt="Pente Board"
+              src="/marathon.png"
+              alt="Marathon Celebration"
               width={200}
               height={100}
               priority
