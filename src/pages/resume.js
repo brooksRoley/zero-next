@@ -4,23 +4,23 @@ import MarioButton from 'src/components/mario';
 
 const Resume = () => {
   return (
-    <div className="h-max p-8 named-bg">
+    <div className="h-max p-8 named-bg text-center">
       <header>
-        <h1>
-          <Link href="/">
-            Back to a brief history of me
-          </Link>
-        </h1>
+        <Link href="/">
+          Back to a brief history of me
+        </Link>
       </header>
       <div className="main-content py-4">
-        <h2>Brooks Roley</h2>
-        <p>Software Engineer</p>
-        <p>brooksroley@gmail.com</p>
-        <p>949-525-5124</p>
+        <h1 className="text-2xl">Brooks Roley</h1>
+        <h2 className="text-xl">
+          <p>Software Engineer</p>
+        </h2>
+        <h3 className="text-lg">brooksroley@gmail.com</h3>
+        <h4>949-525-5124</h4>
       </div>
 
       <div className="main-content py-4">
-        <div className="block mb-4" ><MarioButton /></div>
+        <div className="flex justify-center mb-4" ><MarioButton /></div>
         <Link 
           href="/Brooks_Roley.pdf"
           download
