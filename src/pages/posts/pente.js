@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ScoreBoard from 'src/components/Scoreboard.js';
+import confetti from 'canvas-confetti';
 
 const BOARD_SIZE = 19;
 const EMPTY = 0;
@@ -117,6 +118,11 @@ const GameBoard = () => {
   };
 
   const endGame = (message) => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
     alert(message);
     if (currentPlayer === BLACK) {
       setBlackScore(prev => prev + 1);
@@ -135,7 +141,7 @@ const GameBoard = () => {
   };
 
   return (
-    <div className='m-2'>
+    <div className='p-2 bg-blue-100'>
       <div className="flex justify-center items-start gap-5">
         <div className="game-board">
           {board.map((row, rowIndex) => (
@@ -143,7 +149,7 @@ const GameBoard = () => {
               {row.map((cell, colIndex) => (
                 <button
                   key={colIndex}
-                  className={`flex-1 board-cell ${cell === BLACK ? 'black' : cell === WHITE ? 'white' : ''}`}
+                  className={`flex-1 ${ currentPlayer === WHITE ? 'hover:bg-white' : 'hover:bg-black' } board-cell ${cell === BLACK ? 'black' : cell === WHITE ? 'white' : ''}`}
                   onClick={() => handleClick(rowIndex, colIndex)}
                 />
               ))}
