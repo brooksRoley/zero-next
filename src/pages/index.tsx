@@ -23,7 +23,7 @@ export default function Home() {
           <p className="text-sm mb-2">
             Here is a download link for some of my experiences. &#128214; &#x1F4D6;
           </p>
-          <Image src="/cover.jpg" alt="Brooks Roley" width={150} height={50} />
+          <Image src="/cover.png" alt="Brooks Roley" width={200} height={100} />
         </Link>
 
         <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
@@ -76,9 +76,7 @@ export default function Home() {
         >
           <h2 className={`mb-2 text-2xl font-semibold`}>
             Calendly{' '}
-            <span className="inline-block transition-transform">
-              -&gt;
-            </span>
+            <span className="inline-block transition-transform">-&gt;</span>
           </h2>
           <p
             className={`text-sm mb-2`}
@@ -98,7 +96,24 @@ export default function Home() {
           </div>
         </Link>
 
-        <Link
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/first-post">
+          <h2 className={`mb-2 text-2xl`}>
+            Blog in progress <span className="inline-block transition-transform">-&gt;</span>
+          </h2>
+          <p className={`text-sm mb-2`}>
+            A way to organize my thoughts and data and posts. Stay tuned for an interactive message wall.
+          </p>
+          <Image
+            className="relative"
+            src="/marathon.png"
+            alt="Ball Logo"
+            width={180}
+            height={60}
+            priority
+          />
+        </Link>
+        
+        {/* <Link
           href="https://www.cl-asi.org/easi"
           className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
           target="_blank"
@@ -123,7 +138,7 @@ export default function Home() {
               priority
             />
           </div>
-        </Link>
+        </Link> */}
 
         {/* <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/pente">
           <h2 className='mb-2 text-2xl font-semibold'>
@@ -144,21 +159,6 @@ export default function Home() {
           </div>
         </Link>
 
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/first-post">
-          First Post
-          <p className={`text-sm mb-2`}>
-            I am an athlete. I learned teamwork from a lifetime of basketball with my brother, teams, camps, and strangers.
-          </p>
-          <Image
-            className="relative"
-            src="/marathon.png"
-            alt="Ball Logo"
-            width={180}
-            height={60}
-            priority
-          />
-        </Link>
-        
         <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
 
         <Link
