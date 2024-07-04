@@ -4,7 +4,7 @@ import MarioButton from 'src/components/mario';
 
 const Resume = () => {
   return (
-    <div className="h-max p-8 w-full h-screen text-center">
+    <div className="cover-photo h-max p-8 w-full h-screen text-center">
       <header>
         <Link href="/">
           A brief history of me
