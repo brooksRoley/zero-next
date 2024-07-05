@@ -141,8 +141,8 @@ const GameBoard = () => {
   };
 
   return (
-    <div className='p-2 bg-blue-100'>
-      <div className="flex justify-center items-start gap-5">
+    <div className='w-fit p-2 bg-blue-100'>
+      <div className="flex flex-col md:flex-row justify-center items-start gap-5">
         <div className="game-board">
           {board.map((row, rowIndex) => (
             <div key={rowIndex} className="flex">
