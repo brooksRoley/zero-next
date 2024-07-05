@@ -31,13 +31,13 @@ const Resume = () => {
           href="https://www.github.com/brooksroley/"
           className="block text-blue-600 hover:text-blue-800"
         >
-            My Github profile:
+            My Github profile
         </Link>
         <Link 
           href="https://www.github.com/brooksroley/zero-next"
           className="block text-blue-600 hover:text-blue-800"
         >
-            { "See this site's code:" }
+            { "See this site's code" }
         </Link>
 
         <div className="flex justify-center mt-4"><MarioButton /></div>

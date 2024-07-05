@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 const ScoreBoard = ({ blackScore, whiteScore, blackCaptures, whiteCaptures }) => {
   return (
@@ -13,6 +14,12 @@ const ScoreBoard = ({ blackScore, whiteScore, blackCaptures, whiteCaptures }) =>
         <p>Black: {blackCaptures}</p>
         <p>White: {whiteCaptures}</p>
       </div>
+
+      <Link
+        href="/"
+      >
+        Back to home
+      </Link>
     </div>
   );
 };

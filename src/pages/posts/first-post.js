@@ -35,7 +35,7 @@ export default function FirstPost() {
       <Link 
         href="/"
       >
-        Back to home
+        Back to profile page
       </Link>
     </Layout>
   );
