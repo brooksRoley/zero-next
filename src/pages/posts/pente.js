@@ -167,7 +167,7 @@ const GameBoard = () => {
         <h1 className='font-bold text-2xl text-blue-600'>Pente Rules</h1>
         <p>
           Pente is a board game played on a 19x19 grid.
-          The objective is to be the first player to either align five stones in a row or capture five pairs of your opponent's stones.
+          The objective is to be the first player to either align five stones in a row or capture five pairs of your opponent&apos;s stones.
         </p>
           <p>Here are the basic rules:</p>
         <ul>
@@ -176,11 +176,11 @@ const GameBoard = () => {
             <li><strong>Winning:</strong> A player wins by achieving one of two conditions:
                 <ul>
                     <li>Aligning five stones in a row (horizontally, vertically, or diagonally).</li>
-                    <li>Capturing five pairs of the opponent's stones.</li>
+                    <li>Capturing five pairs of the opponent&apos;s stones.</li>
                 </ul>
             </li>
-            <li><strong>Capturing Stones:</strong> Stones are captured by flanking a pair of the opponent's stones with your stones in a straight line.</li>
-            <li><strong>Pro Rules:</strong> For advanced play, the first player's second move must be at least three intersections away from the center.</li>
+            <li><strong>Capturing Stones:</strong> Stones are captured by flanking a pair of the opponent&apos;s stones with your stones in a straight line.</li>
+            <li><strong>Pro Rules:</strong> For advanced play, the first player&apos;s second move must be at least three intersections away from the center.</li>
         </ul>
       </footer>
     </div>
