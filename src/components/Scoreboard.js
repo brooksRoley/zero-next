@@ -4,13 +4,13 @@ import Link from 'next/link';
 const ScoreBoard = ({ blackScore, whiteScore, blackCaptures, whiteCaptures }) => {
   return (
     <div className="score-board">
-      <div className="score-section">
-        <h2>Score</h2>
+      <div className="mb-10">
+        <h2 className="mb-5">Score</h2>
         <p>Black: {blackScore}</p>
         <p>White: {whiteScore}</p>
       </div>
-      <div className="score-section">
-        <h2>Captures</h2>
+      <div className="mb-10">
+        <h2 className="mb-5">Captures</h2>
         <p>Black: {blackCaptures}</p>
         <p>White: {whiteCaptures}</p>
       </div>

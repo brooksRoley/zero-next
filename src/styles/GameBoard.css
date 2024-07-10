@@ -1,37 +1,72 @@
-  .game-board {
-    display: inline-block;
-    background-color: #e6c28c;
-    padding: 10px;
+.game-board {
+  display: inline-block;
+  background-color: #e6c28c;
+  padding: 10px;
+}
+.board-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.board-cell.black {
+  background-color: #000;
+}
+.board-cell.white {
+  background-color: #fff;
+}
+.score-board {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake-button:active {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes colorChange {
+  0% { background-color: #3490dc; }
+  50% { background-color: #38a169; }
+  100% { background-color: #3490dc; }
+}
+
+.color-change-button:active {
+  animation: colorChange 0.5s ease-in-out;
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.rotate-button:active {
+  animation: rotate 0.3s linear;
+}
+
+@keyframes backgroundZoom {
+  0% {
+    transform: scale(1);
   }
-  .board-cell {
-    width: 30px;
-    height: 30px;
-    border: 1px solid #000;
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
+  50% {
+    transform: scale(1.05);
   }
-  
-  .board-cell.black {
-    background-color: #000;
+  100% {
+    transform: scale(1);
   }
-  
-  .board-cell.white {
-    background-color: #fff;
-  }
-  
-  .score-board {
-    background-color: #f0f0f0;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  
-  .score-section {
-    margin-bottom: 20px;
-  }
-  
-  .score-section h2 {
-    margin-bottom: 10px;
-  }
+}
+
+.background-zoom {
+  animation: backgroundZoom 1s ease-in-out;
+}
