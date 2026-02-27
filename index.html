@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brooks Roley — Software Engineer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      [data-theme='brooks'] {
+        --text: #d5dfe5;
+        --text-sec: rgba(213, 223, 229, 0.55);
+        --accent1: #c9b1bd;
+        --accent2: #b49594;
+        --bg-a: #3a5244;
+        --bg-b: #567568;
+        --bg-c: #4a6358;
+        --bg-d: #3d5446;
+        --glass-bg: rgba(86, 117, 104, 0.25);
+        --glass-card: rgba(56, 85, 68, 0.4);
+        --glass-border: rgba(201, 177, 189, 0.18);
+        --glass-hl: rgba(201, 177, 189, 0.12);
+        --a1-rgb: 201, 177, 189;
+        --a2-rgb: 180, 149, 148;
+      }
+      [data-theme='ocean'] {
+        --text: #e0ecf4;
+        --text-sec: rgba(224, 236, 244, 0.55);
+        --accent1: #7ec8e3;
+        --accent2: #48a9a6;
+        --bg-a: #0a1628;
+        --bg-b: #0d2137;
+        --bg-c: #112a45;
+        --bg-d: #0a1a30;
+        --glass-bg: rgba(13, 33, 55, 0.35);
+        --glass-card: rgba(10, 22, 40, 0.5);
+        --glass-border: rgba(126, 200, 227, 0.18);
+        --glass-hl: rgba(126, 200, 227, 0.12);
+        --a1-rgb: 126, 200, 227;
+        --a2-rgb: 72, 169, 166;
+      }
+
+      body {
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        cursor: none;
+        background: linear-gradient(
+          145deg,
+          var(--bg-a) 0%,
+          var(--bg-b) 40%,
+          var(--bg-c) 70%,
+          var(--bg-d) 100%
+        );
+        transition: background 0.6s ease;
+      }
+      #app {
+        position: relative;
+        min-height: 100vh;
+      }
+
+      /* ── Nav ── */
+      .nav-pill {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 100px;
+        backdrop-filter: blur(14px);
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+      }
+      .nav-pill button {
+        color: var(--text-sec);
+        background: none;
+        border: none;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 6px 18px;
+        border-radius: 100px;
+        cursor: none;
+        transition: all 0.3s ease;
+      }
+      .nav-pill button:hover {
+        color: var(--text);
+      }
+      .nav-pill button.active {
+        background: var(--glass-hl);
+        color: var(--accent1);
+        border: 1px solid var(--glass-border);
+      }
+
+      /* ── Cursor ── */
+      .cursor-dot {
+        position: fixed;
+        width: 8px;
+        height: 8px;
+        background: var(--accent1);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 10px rgba(var(--a1-rgb), 0.4);
+        transition:
+          width 0.15s,
+          height 0.15s,
+          box-shadow 0.15s;
+      }
+      .cursor-dot.clicking {
+        width: 6px;
+        height: 6px;
+        box-shadow: 0 0 20px rgba(var(--a1-rgb), 0.7);
+      }
+      .cursor-ring {
+        position: fixed;
+        width: 34px;
+        height: 34px;
+        border: 1.5px solid rgba(var(--a1-rgb), 0.35);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.25s ease,
+          height 0.25s ease,
+          border-color 0.25s ease;
+      }
+      .cursor-ring.hovering {
+        width: 48px;
+        height: 48px;
+        border-color: var(--accent1);
+      }
+
+      .svg-filters {
+        position: absolute;
+        width: 0;
+        height: 0;
+      }
+      .liquid-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .glass-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: url(#goo) blur(40px);
+        opacity: 0.45;
+        mix-blend-mode: screen;
+        will-change: transform;
+        transition:
+          transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+          background 0.6s ease;
+      }
+
+      /* ── Hypnotic spiral canvas ── */
+      .spiral-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.12;
+        mix-blend-mode: screen;
+        transition: opacity 0.6s ease;
+      }
+      [data-theme='ocean'] .spiral-canvas {
+        opacity: 0.08;
+      }
+
+      /* ── Canvases ── */
+      .fx-canvas {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+      .fx-canvas.trail {
+        z-index: 1;
+      }
+      .fx-canvas.firework {
+        z-index: 9998;
+      }
+
+      /* ── Ocean draw canvas ── */
+      .ocean-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        cursor: none;
+      }
+      .ocean-canvas.hidden {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .ocean-canvas.visible {
+        pointer-events: auto;
+        opacity: 1;
+        transition: opacity 0.4s ease;
+      }
+
+      /* ── Ocean hint ── */
+      .ocean-hint {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9990;
+        font-size: 0.78rem;
+        color: var(--text-sec);
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 100px;
+        padding: 8px 20px;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+      }
+      .ocean-hint.show {
+        opacity: 1;
+      }
+
+      /* ── Stone-skip ripple ── */
+      .skip-ripple {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 2;
+        border: 1.5px solid rgba(var(--a1-rgb), 0.6);
+        box-shadow:
+          0 0 8px rgba(var(--a1-rgb), 0.15),
+          inset 0 0 4px rgba(var(--a1-rgb), 0.06);
+        animation: skipExpand 1.4s cubic-bezier(0.2, 0.6, 0.35, 1) forwards;
+      }
+      .skip-ripple.alt {
+        border-color: rgba(var(--a2-rgb), 0.5);
+        box-shadow:
+          0 0 8px rgba(var(--a2-rgb), 0.12),
+          inset 0 0 4px rgba(var(--a2-rgb), 0.05);
+      }
+      .skip-dot {
+        position: fixed;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 3;
+        background: rgba(var(--a1-rgb), 0.7);
+        box-shadow: 0 0 6px rgba(var(--a1-rgb), 0.3);
+        animation: skipDotFade 0.5s ease-out forwards;
+      }
+      @keyframes skipExpand {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0.7;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0;
+        }
+      }
+      @keyframes skipDotFade {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(0.3);
+          opacity: 0;
+        }
+      }
+
+      /* ── Click ripple ── */
+      .click-ripple {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 2;
+        border: 2px solid rgba(var(--a1-rgb), 0.8);
+        box-shadow:
+          0 0 16px rgba(var(--a1-rgb), 0.3),
+          inset 0 0 8px rgba(var(--a1-rgb), 0.1);
+        animation: clickExpand 1.8s cubic-bezier(0.15, 0.6, 0.3, 1) forwards;
+      }
+      .click-ripple.inner {
+        border-width: 1.5px;
+        border-color: rgba(var(--a2-rgb), 0.6);
+        box-shadow: 0 0 12px rgba(var(--a2-rgb), 0.2);
+        animation-delay: 0.1s;
+      }
+      @keyframes clickExpand {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0.9;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0;
+        }
+      }
+
+      /* ── Content ── */
+      .content {
+        position: relative;
+        z-index: 3;
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 80px 24px 120px;
+      }
+      .resume-header {
+        text-align: center;
+        margin-bottom: 64px;
+        animation: fadeUp 0.8s ease both;
+      }
+      .resume-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.4rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        background: linear-gradient(
+          135deg,
+          var(--text) 0%,
+          var(--accent1) 50%,
+          var(--accent2) 100%
+        );
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 6s ease infinite;
+      }
+      .resume-header .subtitle {
+        font-size: 1rem;
+        color: var(--text-sec);
+        margin-top: 12px;
+        font-weight: 300;
+        letter-spacing: 0.08em;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+      }
+      .contact-row {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+      }
+      .contact-link {
+        color: var(--text-sec);
+        text-decoration: none;
+        font-size: 0.84rem;
+        font-weight: 500;
+        padding: 6px 16px;
+        border: 1px solid var(--glass-border);
+        border-radius: 100px;
+        backdrop-filter: blur(10px);
+        background: var(--glass-bg);
+        transition: all 0.3s ease;
+        cursor: none;
+      }
+      .contact-link:hover {
+        background: var(--glass-hl);
+        border-color: var(--accent1);
+        box-shadow: 0 0 20px rgba(var(--a1-rgb), 0.12);
+      }
+      @keyframes shimmer {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .drawer {
+        margin-bottom: 12px;
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        backdrop-filter: blur(16px);
+        background: var(--glass-card);
+        overflow: hidden;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s,
+          background 0.6s;
+        animation: fadeUp 0.6s ease both;
+      }
+      .drawer:hover {
+        border-color: rgba(var(--a1-rgb), 0.22);
+        box-shadow: 0 4px 30px rgba(var(--a1-rgb), 0.05);
+      }
+      .drawer.open {
+        border-color: rgba(var(--a1-rgb), 0.28);
+        box-shadow:
+          0 8px 40px rgba(0, 0, 0, 0.25),
+          0 0 40px rgba(var(--a1-rgb), 0.05);
+      }
+      .drawer-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 28px;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        cursor: none;
+        text-align: left;
+        transition: background 0.2s;
+      }
+      .drawer-trigger:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .drawer-trigger .label {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .drawer-trigger .icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(var(--a1-rgb), 0.1);
+        color: var(--accent1);
+        font-size: 1rem;
+      }
+      .chevron {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        color: var(--text-sec);
+      }
+      .drawer.open .chevron {
+        transform: rotate(180deg);
+      }
+      .drawer-body {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+          padding 0.4s ease;
+        padding: 0 28px;
+      }
+      .drawer.open .drawer-body {
+        max-height: 2000px;
+        padding: 0 28px 28px;
+      }
+      .drawer-body p {
+        color: rgba(213, 223, 229, 0.7);
+        font-size: 0.92rem;
+        line-height: 1.7;
+      }
+      .drawer-body h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 16px 0 4px;
+        color: var(--text);
+      }
+      .drawer-body h3:first-child {
+        margin-top: 0;
+      }
+      .drawer-body .role {
+        color: var(--accent1);
+        font-weight: 500;
+        font-size: 0.88rem;
+      }
+      .drawer-body .dates {
+        font-size: 0.82rem;
+        color: var(--text-sec);
+        opacity: 0.7;
+        margin-bottom: 6px;
+      }
+      .drawer-body .faded {
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 400;
+        font-size: 0.85rem;
+        opacity: 0.4;
+      }
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .tag {
+        padding: 4px 14px;
+        border-radius: 100px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        background: rgba(var(--a1-rgb), 0.08);
+        color: var(--accent1);
+        border: 1px solid rgba(var(--a1-rgb), 0.18);
+      }
+      .tag.a2 {
+        background: rgba(var(--a2-rgb), 0.08);
+        color: var(--accent2);
+        border-color: rgba(var(--a2-rgb), 0.18);
+      }
+      .skill-cat {
+        margin-bottom: 16px;
+      }
+      .skill-cat:last-child {
+        margin-bottom: 0;
+      }
+      .skill-cat-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--accent2);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+      }
+      .entry + .entry {
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(var(--a1-rgb), 0.1);
+      }
+      .resume-footer {
+        text-align: center;
+        margin-top: 60px;
+        color: var(--text-sec);
+        font-size: 0.8rem;
+        opacity: 0.5;
+        animation: fadeUp 0.8s ease 0.6s both;
+      }
+
+      /* ── Page transition ── */
+      .page-fade-enter-active,
+      .page-fade-leave-active {
+        transition: opacity 0.35s ease;
+      }
+      .page-fade-enter-from,
+      .page-fade-leave-to {
+        opacity: 0;
+      }
+
+      /* ── Profile photo (Ocean header) ── */
+      .profile-photo-wrap {
+        display: flex;
+        justify-content: center;
+        margin: 16px 0 20px;
+        animation: fadeUp 0.55s ease 0.15s both;
+      }
+      .profile-photo {
+        width: 88px;
+        height: 88px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid rgba(var(--a1-rgb), 0.45);
+        box-shadow: 0 0 28px rgba(var(--a1-rgb), 0.18), 0 0 60px rgba(var(--a1-rgb), 0.06);
+      }
+
+      /* ── About quote ── */
+      .about-quote {
+        text-align: center;
+        margin-top: 16px;
+        padding: 12px 0 0;
+        border-top: 1px solid rgba(var(--a1-rgb), 0.12);
+      }
+      .about-quote code {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.82rem;
+        color: var(--accent2);
+        background: rgba(var(--a1-rgb), 0.07);
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(var(--a1-rgb), 0.12);
+      }
+
+      /* ── Game cards ── */
+      .game-card {
+        background: rgba(var(--a1-rgb), 0.05);
+        border: 1px solid rgba(var(--a1-rgb), 0.13);
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      .game-card + .game-card { margin-top: 10px; }
+      .game-card:hover {
+        border-color: rgba(var(--a1-rgb), 0.26);
+        box-shadow: 0 4px 20px rgba(var(--a1-rgb), 0.06);
+      }
+      .game-card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 3px;
+      }
+      .game-card-status {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--accent2);
+        margin-bottom: 8px;
+      }
+      .game-card-link {
+        display: inline-block;
+        margin-top: 10px;
+        color: var(--accent1);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 500;
+        border: 1px solid rgba(var(--a1-rgb), 0.18);
+        padding: 4px 12px;
+        border-radius: 100px;
+        transition: border-color 0.25s, background 0.25s;
+        cursor: none;
+      }
+      .game-card-link:hover {
+        border-color: rgba(var(--a1-rgb), 0.4);
+        background: rgba(var(--a1-rgb), 0.07);
+      }
+
+      /* ── Gallery grid ── */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .gallery-item {
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: 8px;
+        cursor: none;
+        border: 1px solid rgba(var(--a1-rgb), 0.1);
+        transition: border-color 0.22s, transform 0.22s;
+        background: rgba(var(--a1-rgb), 0.04);
+        position: relative;
+      }
+      .gallery-item:hover {
+        border-color: rgba(var(--a1-rgb), 0.32);
+        transform: scale(1.03);
+        z-index: 4;
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+        display: block;
+      }
+      .gallery-item:hover img { transform: scale(1.07); }
+
+      /* ── Lightbox ── */
+      .lightbox-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(2, 5, 12, 0.9);
+        backdrop-filter: blur(18px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.2s ease both;
+        cursor: none;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      .lightbox-img {
+        max-width: 88vw;
+        max-height: 84vh;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 0 100px rgba(var(--a1-rgb), 0.15), 0 0 200px rgba(0,0,0,0.6);
+        animation: fadeUp 0.22s ease both;
+      }
+      .lightbox-close {
+        position: fixed;
+        top: 22px;
+        right: 22px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(var(--a1-rgb), 0.22);
+        color: var(--text);
+        font-size: 1.25rem;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        cursor: none;
+        transition: background 0.18s, border-color 0.18s;
+        padding: 0;
+        line-height: 1;
+        font-family: 'DM Sans', sans-serif;
+      }
+      .lightbox-close:hover {
+        background: rgba(var(--a1-rgb), 0.12);
+        border-color: rgba(var(--a1-rgb), 0.38);
+      }
+    </style>
+  </head>
+  <body data-theme="brooks">
+    <div id="app">
+      <svg class="svg-filters">
+        <defs>
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix
+              in="blur"
+              mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8"
+              result="goo"
+            />
+            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+          </filter>
+        </defs>
+      </svg>
+
+      <nav class="nav-pill">
+        <button :class="{ active: page === 'brooks' }" @click="setPage('brooks')">
+          Deep Forest
+        </button>
+        <button :class="{ active: page === 'ocean' }" @click="setPage('ocean')">
+          Deep Ocean
+        </button>
+      </nav>
+
+      <!-- Hypnotic spiral background -->
+      <canvas ref="spiralCanvas" class="spiral-canvas"></canvas>
+
+      <div class="liquid-bg">
+        <div
+          v-for="orb in orbs"
+          :key="orb.id"
+          class="glass-orb"
+          :style="{ width: orb.size+'px', height: orb.size+'px',
+        background: 'radial-gradient(circle,'+orb.color+', transparent 70%)',
+        left: orb.baseX+'%', top: orb.baseY+'%',
+        transform: 'translate('+orb.offsetX+'px,'+orb.offsetY+'px)' }"
+        ></div>
+      </div>
+
+      <canvas ref="trailCanvas" class="fx-canvas trail"></canvas>
+      <canvas ref="fwCanvas" class="fx-canvas firework"></canvas>
+
+      <!-- Ocean interactive drawing canvas -->
+      <canvas
+        ref="oceanCanvas"
+        class="ocean-canvas"
+        :class="page === 'ocean' ? 'visible' : 'hidden'"
+      ></canvas>
+
+      <!-- Ocean hint -->
+      <div class="ocean-hint" :class="{ show: page === 'ocean' }">
+        Click &amp; drag to draw &mdash; waves fade like tides &mdash; hold shift for bioluminescent burst
+      </div>
+
+      <!-- Stone-skip ripples -->
+      <div
+        v-for="r in skipRipples"
+        :key="r.id"
+        class="skip-ripple"
+        :class="{ alt: r.alt }"
+        :style="{ left: r.x+'px', top: r.y+'px', width: r.size+'px', height: r.size+'px' }"
+      ></div>
+      <div
+        v-for="d in skipDots"
+        :key="d.id"
+        class="skip-dot"
+        :style="{ left: d.x+'px', top: d.y+'px' }"
+      ></div>
+
+      <!-- Click ripples -->
+      <div
+        v-for="r in clickRipples"
+        :key="r.id"
+        class="click-ripple"
+        :class="{ inner: r.inner }"
+        :style="{ left: r.x+'px', top: r.y+'px', width: r.size+'px', height: r.size+'px', animationDelay: r.delay }"
+      ></div>
+
+      <!-- Lightbox -->
+      <div class="lightbox-overlay" v-if="lightboxSrc" @click.self="lightboxSrc = ''">
+        <button class="lightbox-close" @click="lightboxSrc = ''">&#215;</button>
+        <img :src="lightboxSrc" class="lightbox-img" />
+      </div>
+
+      <!-- Cursor -->
+      <div
+        class="cursor-dot"
+        :class="{ clicking: cursorClicking }"
+        :style="{ left: cursor.x+'px', top: cursor.y+'px' }"
+      ></div>
+      <div
+        class="cursor-ring"
+        :class="{ hovering: cursor.hovering }"
+        :style="{ left: cursorLag.x+'px', top: cursorLag.y+'px' }"
+      ></div>
+
+      <!-- Page content -->
+      <transition name="page-fade" mode="out-in">
+        <div class="content" :key="page">
+          <header class="resume-header">
+            <h1>{{ activePerson.name }}</h1>
+            <div v-if="page === 'ocean'" class="profile-photo-wrap">
+              <img src="/cover.png" class="profile-photo" alt="Brooks Roley" />
+            </div>
+            <p class="subtitle">{{ activePerson.subtitle }}</p>
+            <div class="contact-row">
+              <a
+                v-for="lnk in activePerson.links"
+                :key="lnk.label"
+                :href="lnk.href"
+                target="_blank"
+                class="contact-link"
+                @click.prevent="onClickFx"
+                >{{ lnk.label }}</a
+              >
+            </div>
+          </header>
+          <div
+            v-for="(sec, i) in activePerson.sections"
+            :key="sec.id"
+            class="drawer"
+            :class="{ open: sec.open }"
+            :style="{ animationDelay: (0.15 + i * 0.1) + 's' }"
+          >
+            <button class="drawer-trigger" @click="sec.open = !sec.open">
+              <span class="label">
+                <span class="icon" v-html="sec.icon"></span>{{ sec.title }}
+              </span>
+              <svg
+                class="chevron"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div class="drawer-body" v-html="sec.content"></div>
+          </div>
+          <footer class="resume-footer">
+            A little better everyday. &middot; {{ new Date().getFullYear() }}
+          </footer>
+        </div>
+      </transition>
+    </div>
+
+    <script>
+      const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch } = Vue
+
+      createApp({
+        setup() {
+          const page = ref('brooks')
+          const lightboxSrc = ref('')
+
+          const brooksData = reactive({
+            name: 'Brooks Roley',
+            subtitle:
+              'Adaptable and impact-driven Software Engineer with experience across early-stage startups and mission-driven companies.',
+            links: [
+              { label: 'Schedule a Chat', href: 'https://calendly.com/brooksroley/' },
+              { label: 'brooksroley@gmail.com', href: 'mailto:brooksroley@gmail.com' },
+              { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brooksroley' },
+              { label: 'GitHub', href: 'https://github.com/brooksroley' }
+            ],
+            sections: [
+              {
+                id: 'exp',
+                title: 'Experience',
+                open: false,
+                icon: '&#9638;',
+                content: `
+          <div class="entry"><h3>Zoox</h3><div class="role">Software Engineer</div><div class="dates">Sep 2024 &ndash; Mar 2025</div>
+            <p>Managed the OnCall notification system for the SRE team using Vue, Python FastAPI, AWS, OpsGenie, Slack, Terraform, Vault, and Grafana.</p>
+            <p style="margin-top:6px">Integrated Zoox Intelligence AI into the OnCall app and Slack to improve developer experience via Vite, Vuetify, and Continue.</p></div>
+          <div class="entry"><h3>Grove Collaborative</h3><div class="role">Software Engineer II</div><div class="dates">2019 &ndash; 2023</div>
+            <p>Scrum Lead across cross-functional teams focused on discovery, personalization, and user engagement.</p>
+            <p style="margin-top:6px">Built high-performance homepage service with AWS Sagemaker &mdash; 150ms response times via smart caching, async workflows, and a custom admin UI.</p>
+            <p style="margin-top:6px">Led migration from Backbone.js to Vue Composition API and Vue-Router, reducing bundle sizes and improving page loads.</p>
+            <p style="margin-top:6px">Partnered with A360 to lead site-wide WCAG compliance remediation.</p>
+            <p style="margin-top:6px">Unified product tile components to streamline data fetching, performance, accessibility, and styling.</p></div>
+          <div class="entry"><h3>Zipongo <span class="faded">(now Foodsmart)</span></h3><div class="role">Senior Software Engineer</div><div class="dates">2017 &ndash; 2019</div>
+            <p>Full-stack features with product and clinical teams delivering high-impact healthcare tools.</p>
+            <p style="margin-top:6px">Led frontend for secure RBAC interfaces &mdash; React, Redux, Node.js, SAML/SSO for HIPAA compliance.</p>
+            <p style="margin-top:6px">Built admin tools for providers to create personalized nutrition and diet plans.</p></div>
+          <div class="entry"><h3>SigFig</h3><div class="role">Front End Software Engineer</div><div class="dates">2016 &ndash; 2017</div>
+            <p>Dynamic Angular/TypeScript interfaces for banking partners (Wells Fargo), accessibility and i18n focus.</p>
+            <p style="margin-top:6px">Built behavioral analytics layer for product insights and optimization.</p></div>
+          <div class="entry"><h3>Limelight Health <span class="faded">(now FINEOS)</span></h3><div class="role">Software Engineer</div><div class="dates">2015 &ndash; 2016</div>
+            <p>Early hire on Node.js MEAN stack platform for employer insurance quotes.</p>
+            <p style="margin-top:6px">Built PDF generation service with PHP and D3.js across Medical, Dental, Vision, and Life products.</p></div>
+          <div class="entry"><h3>Dev Bootcamp</h3><div class="role">Phase 0 Instructor</div><div class="dates">2014 &ndash; 2015</div>
+            <p>Remote tutor teaching full-stack web development (JavaScript, Ruby on Rails).</p></div>
+          <div class="entry"><h3>Laguna Canyon Foundation</h3><div class="role">Education Leader</div><div class="dates">2013 &ndash; 2014</div></div>`
+              },
+              {
+                id: 'skills',
+                title: 'Technical Skills',
+                open: false,
+                icon: '&#11041;',
+                content: `
+          <div class="skill-cat"><div class="skill-cat-label">Languages &amp; Frameworks</div><div class="tag-row">
+            <span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Python</span><span class="tag">Node.js</span>
+            <span class="tag">Vue</span><span class="tag">React</span><span class="tag">Angular</span><span class="tag">Django</span>
+            <span class="tag">FastAPI</span><span class="tag">D3.js</span></div></div>
+          <div class="skill-cat"><div class="skill-cat-label">Infrastructure &amp; Tools</div><div class="tag-row">
+            <span class="tag a2">AWS (S3, Sagemaker)</span><span class="tag a2">Docker</span><span class="tag a2">Kubernetes</span>
+            <span class="tag a2">Git</span><span class="tag a2">Bash</span><span class="tag a2">Webpack</span>
+            <span class="tag a2">Babel</span><span class="tag a2">Terraform</span></div></div>
+          <div class="skill-cat"><div class="skill-cat-label">Data &amp; Databases</div><div class="tag-row">
+            <span class="tag">SQL</span><span class="tag">PostgreSQL</span><span class="tag">MySQL</span><span class="tag">SQLite</span>
+            <span class="tag">Redis</span><span class="tag">Memcached</span><span class="tag">Snowflake</span><span class="tag">Celery</span></div></div>
+          <div class="skill-cat"><div class="skill-cat-label">Standards</div><div class="tag-row">
+            <span class="tag a2">WCAG</span><span class="tag a2">A/B Testing</span><span class="tag a2">HIPAA</span><span class="tag a2">SSO/SAML</span></div></div>
+          <div class="skill-cat"><div class="skill-cat-label">DevOps</div><div class="tag-row">
+            <span class="tag">Datadog</span><span class="tag">Grafana</span><span class="tag">CI/CD</span></div></div>`
+              },
+              {
+                id: 'edu',
+                title: 'Education',
+                open: false,
+                icon: '&#9671;',
+                content: `
+          <div class="entry"><h3>Sonoma State University</h3><div class="role">B.S. Computer Science</div><div class="dates">2013</div></div>`
+              }
+            ]
+          })
+
+          const oceanData = reactive({
+            name: 'Brooks Roley',
+            subtitle:
+              'Engineer, game designer, perpetual explorer. The ocean below responds to your touch — drag to paint, shift+click for bioluminescence.',
+            links: [
+              { label: 'Schedule a Chat', href: 'https://calendly.com/brooksroley/' },
+              { label: 'brooksroley@gmail.com', href: 'mailto:brooksroley@gmail.com' },
+              { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brooksroley' },
+              { label: 'GitHub', href: 'https://github.com/brooksroley' }
+            ],
+            sections: [
+              {
+                id: 'about',
+                title: 'About',
+                open: false,
+                icon: '&#9670;',
+                content: `
+          <p>Software engineer with a decade of experience building products across healthcare, fintech, sustainability, and autonomous vehicles. I care deeply about craft, accessibility, and the moments where technology feels genuinely alive.</p>
+          <p style="margin-top:10px">Outside of work: obsessive strategy gamer, two-time marathoner, and probably the only person who thinks a prime-checking regex is beautiful.</p>
+          <div class="about-quote"><code>/^1?$|^(11+?)\\1+$/</code></div>`
+              },
+              {
+                id: 'games',
+                title: 'Games &amp; Play',
+                open: false,
+                icon: '&#9632;',
+                content: `
+          <div class="game-card">
+            <div class="game-card-title">Pente</div>
+            <div class="game-card-status">Playable Now</div>
+            <p style="font-size:0.9rem;color:var(--text-sec)">Classic 19&times;19 strategy: align five stones or capture five pairs. Two players, pure tactics, no luck.</p>
+            <a href="/posts/pente" class="game-card-link">Play Pente &rarr;</a>
+          </div>
+          <div class="game-card">
+            <div class="game-card-title">Team Ball Tactics</div>
+            <div class="game-card-status">In Design</div>
+            <p style="font-size:0.9rem;color:var(--text-sec)">5v5 and 10v10 strategy with salary cap economics, draft lottery mechanics, and deep roster management.</p>
+          </div>
+          <div class="game-card">
+            <div class="game-card-title">The ? Block</div>
+            <div class="game-card-status">Easter Egg</div>
+            <p style="font-size:0.9rem;color:var(--text-sec)">A Mario-inspired mystery button hiding on the resume page. Hit it for a surprise.</p>
+            <a href="/resume" class="game-card-link">Find it &rarr;</a>
+          </div>`
+              },
+              {
+                id: 'projects',
+                title: 'Side Projects',
+                open: false,
+                icon: '&#9733;',
+                content: `
+          <div class="entry"><h3>This Site</h3><div class="role">Generative Art &amp; Portfolio</div><div class="dates">2023 &ndash; Present</div>
+            <p>Built with Vue 3 (CDN, no build step) and raw Canvas APIs. The forest spiral, ocean bioluminescence, stone-skip ripples, and cursor trail are all custom animation systems — no libraries.</p></div>
+          <div class="entry"><h3>Stage Finder</h3><div class="role">Search API</div><div class="dates">Experimental</div>
+            <p>A Next.js API route for filtering studio stages by location and date availability, built around a JSON data contract.</p></div>
+          <div class="entry"><h3>Brainroot</h3><div class="role">Concept / Satire</div><div class="dates">2024</div>
+            <p>Placeholder product page for a fictional nootropic sparkling water. Because sometimes the best project is a joke that looks real.</p></div>`
+              },
+              {
+                id: 'gallery',
+                title: 'Gallery',
+                open: false,
+                icon: '&#9711;',
+                content: `
+          <div class="gallery-grid">
+            <div class="gallery-item" data-src="/coverphoto.jpeg"><img src="/coverphoto.jpeg" alt="Portrait" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/cover.png"><img src="/cover.png" alt="Brooks Roley" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/covertitle.jpg"><img src="/covertitle.jpg" alt="Cover" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/lion.jpg"><img src="/lion.jpg" alt="South Africa" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/mountain.jpg"><img src="/mountain.jpg" alt="Japan" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/marathon.png"><img src="/marathon.png" alt="Marathon" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/facebook.jpeg"><img src="/facebook.jpeg" alt="Facebook Offices" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/water1.jpg"><img src="/water1.jpg" alt="Water" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/water2.jpg"><img src="/water2.jpg" alt="Water" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/BRBaller.png"><img src="/BRBaller.png" alt="BR Baller" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/BRMinimalist.png"><img src="/BRMinimalist.png" alt="BR Minimalist" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/BRLogoBox.png"><img src="/BRLogoBox.png" alt="BR Logo" loading="lazy" /></div>
+            <div class="gallery-item" data-src="/BRLogoTransparent.png"><img src="/BRLogoTransparent.png" alt="BR Logo Clear" loading="lazy" /></div>
+          </div>`
+              }
+            ]
+          })
+
+          const activePerson = computed(() => (page.value === 'brooks' ? brooksData : oceanData))
+
+          const orbColors = {
+            brooks: [
+              'rgba(201,177,189,0.35)',
+              'rgba(127,145,114,0.45)',
+              'rgba(180,149,148,0.35)',
+              'rgba(201,177,189,0.25)',
+              'rgba(127,145,114,0.3)',
+              'rgba(180,149,148,0.2)'
+            ],
+            ocean: [
+              'rgba(126,200,227,0.25)',
+              'rgba(72,169,166,0.3)',
+              'rgba(30,90,140,0.35)',
+              'rgba(126,200,227,0.15)',
+              'rgba(72,169,166,0.2)',
+              'rgba(20,60,110,0.25)'
+            ]
+          }
+          const trailPalettes = {
+            brooks: { a1: [201, 177, 189], a2: [180, 149, 148] },
+            ocean: { a1: [126, 200, 227], a2: [72, 169, 166] }
+          }
+          const fwPalettes = {
+            brooks: ['#C9B1BD', '#B49594', '#D5DFE5', '#e0c8d6', '#d4aeac', '#a8c4a0', '#fff'],
+            ocean: ['#7ec8e3', '#48a9a6', '#e0ecf4', '#3dd6d0', '#5bc0eb', '#b8f3ff', '#fff']
+          }
+          let trailPal = trailPalettes.brooks
+          let fwPal = fwPalettes.brooks
+
+          const orbs = reactive([
+            { id: 0, size: 360, baseX: 10, baseY: 15, color: orbColors.brooks[0], offsetX: 0, offsetY: 0 },
+            { id: 1, size: 280, baseX: 72, baseY: 10, color: orbColors.brooks[1], offsetX: 0, offsetY: 0 },
+            { id: 2, size: 320, baseX: 45, baseY: 55, color: orbColors.brooks[2], offsetX: 0, offsetY: 0 },
+            { id: 3, size: 240, baseX: 85, baseY: 65, color: orbColors.brooks[3], offsetX: 0, offsetY: 0 },
+            { id: 4, size: 200, baseX: 25, baseY: 80, color: orbColors.brooks[4], offsetX: 0, offsetY: 0 },
+            { id: 5, size: 180, baseX: 60, baseY: 85, color: orbColors.brooks[5], offsetX: 0, offsetY: 0 }
+          ])
+
+          function setPage(p) {
+            if (page.value === p) return
+            page.value = p
+            document.body.setAttribute('data-theme', p)
+            trailPal = trailPalettes[p]
+            fwPal = fwPalettes[p]
+            orbColors[p].forEach((c, i) => { orbs[i].color = c })
+            brooksData.sections.forEach((s) => (s.open = false))
+            oceanData.sections.forEach((s) => (s.open = false))
+          }
+
+          /* ═══ CURSOR ═══ */
+          const cursor = reactive({ x: -100, y: -100, hovering: false })
+          const cursorLag = reactive({ x: -100, y: -100 })
+          const cursorClicking = ref(false)
+          let lagRAF
+          function updateLag() {
+            cursorLag.x += (cursor.x - cursorLag.x) * 0.15
+            cursorLag.y += (cursor.y - cursorLag.y) * 0.15
+            lagRAF = requestAnimationFrame(updateLag)
+          }
+
+          /* ═══ HYPNOTIC SPIRAL ═══
+           * z = cos(r + theta) in polar → cos(sqrt(x²+y²) + atan2(y,x))
+           * Rendered as contour lines (where z crosses 0) with slow time animation.
+           */
+          const spiralCanvas = ref(null)
+          let spiralCtx = null
+          let spiralTime = 0
+          let spiralRAF
+
+          function renderSpiral() {
+            if (!spiralCtx) { spiralRAF = requestAnimationFrame(renderSpiral); return }
+            const canvas = spiralCanvas.value
+            const w = canvas.width, h = canvas.height
+            const ctx = spiralCtx
+
+            // Use offscreen imageData for performance
+            const imgData = ctx.createImageData(w, h)
+            const data = imgData.data
+            const cx = w / 2, cy = h / 2
+            // Scale factor — how zoomed in the spiral is
+            const scale = Math.min(w, h) / 14
+            const t = spiralTime
+
+            for (let py = 0; py < h; py += 2) {
+              for (let px = 0; px < w; px += 2) {
+                const x = (px - cx) / scale
+                const y = (py - cy) / scale
+                const r = Math.sqrt(x * x + y * y)
+                const theta = Math.atan2(y, x)
+
+                // The formula: z = cos(r + theta - time)
+                // Time makes it slowly rotate/pulse
+                const z = Math.cos(r + theta - t * 0.4)
+
+                // Contour line detection: where z is near 0
+                // Use the absolute value to create line thickness
+                const lineWidth = 0.15
+                const intensity = Math.max(0, 1 - Math.abs(z) / lineWidth)
+
+                // Distance-based fade
+                const maxR = Math.min(w, h) / (2 * scale)
+                const distFade = Math.max(0, 1 - (r / maxR) * 0.7)
+
+                const brightness = intensity * distFade * 255
+
+                if (brightness > 2) {
+                  const idx = (py * w + px) * 4
+                  // Fill a 2x2 block for the step=2 sampling
+                  for (let dy = 0; dy < 2 && py + dy < h; dy++) {
+                    for (let dx = 0; dx < 2 && px + dx < w; dx++) {
+                      const i = ((py + dy) * w + (px + dx)) * 4
+                      data[i] = page.value === 'ocean' ? brightness * 0.5 : brightness * 0.8
+                      data[i + 1] = page.value === 'ocean' ? brightness * 0.85 : brightness * 0.72
+                      data[i + 2] = brightness
+                      data[i + 3] = brightness * 0.9
+                    }
+                  }
+                }
+              }
+            }
+
+            ctx.putImageData(imgData, 0, 0)
+            spiralTime += 0.015
+            spiralRAF = requestAnimationFrame(renderSpiral)
+          }
+
+
+          /* ═══ OCEAN INTERACTIVE CANVAS ═══
+           * Click & drag to draw fading ocean-themed trails.
+           * Shift+click for bioluminescent burst.
+           * All strokes fade over time like tides receding.
+           */
+          const oceanCanvas = ref(null)
+          let oCtx = null
+          let oceanStrokes = [] // { points: [{x,y,t}], color, width, birth }
+          let oceanParticles = [] // bioluminescent burst particles
+          let oceanDrawing = false
+          let currentStroke = null
+          let oceanRAF
+
+          function oceanColor() {
+            const hue = 170 + Math.random() * 40 // 170-210: teal to blue
+            const sat = 60 + Math.random() * 30
+            const light = 55 + Math.random() * 20
+            return { h: hue, s: sat, l: light }
+          }
+
+          function spawnBioluminescence(x, y) {
+            const count = 40 + Math.floor(Math.random() * 30)
+            for (let i = 0; i < count; i++) {
+              const angle = Math.random() * Math.PI * 2
+              const speed = 1 + Math.random() * 4
+              const hue = 170 + Math.random() * 50
+              oceanParticles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1,
+                decay: 0.008 + Math.random() * 0.012,
+                size: 2 + Math.random() * 4,
+                hue,
+                trail: []
+              })
+            }
+          }
+
+          function renderOcean() {
+            if (!oCtx || page.value !== 'ocean') {
+              oceanRAF = requestAnimationFrame(renderOcean)
+              return
+            }
+            const canvas = oceanCanvas.value
+            const w = canvas.width, h = canvas.height
+
+            // Fade existing content (creates the receding tide effect)
+            oCtx.fillStyle = 'rgba(10, 22, 40, 0.025)'
+            oCtx.fillRect(0, 0, w, h)
+
+            const now = performance.now()
+
+            // Draw strokes
+            for (let si = oceanStrokes.length - 1; si >= 0; si--) {
+              const stroke = oceanStrokes[si]
+              const age = (now - stroke.birth) / 1000
+              if (age > 12) { oceanStrokes.splice(si, 1); continue }
+
+              const fade = Math.max(0, 1 - age / 12)
+              const pts = stroke.points
+              if (pts.length < 2) continue
+
+              oCtx.beginPath()
+              oCtx.moveTo(pts[0].x, pts[0].y)
+              for (let i = 1; i < pts.length; i++) {
+                const xc = (pts[i - 1].x + pts[i].x) / 2
+                const yc = (pts[i - 1].y + pts[i].y) / 2
+                oCtx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, xc, yc)
+              }
+
+              const { h: hue, s, l } = stroke.color
+              // Animated hue shift over time
+              const animHue = hue + Math.sin(age * 0.5) * 15
+              oCtx.strokeStyle = `hsla(${animHue}, ${s}%, ${l}%, ${fade * 0.7})`
+              oCtx.lineWidth = stroke.width * (0.5 + fade * 0.5)
+              oCtx.lineCap = 'round'
+              oCtx.lineJoin = 'round'
+              oCtx.stroke()
+
+              // Glow pass
+              oCtx.strokeStyle = `hsla(${animHue}, ${s + 10}%, ${l + 15}%, ${fade * 0.15})`
+              oCtx.lineWidth = stroke.width * 3 * fade
+              oCtx.stroke()
+            }
+
+            // Update and draw bioluminescent particles
+            for (let i = oceanParticles.length - 1; i >= 0; i--) {
+              const p = oceanParticles[i]
+              p.x += p.vx
+              p.y += p.vy
+              p.vx *= 0.985
+              p.vy *= 0.985
+              p.life -= p.decay
+
+              if (p.life <= 0) { oceanParticles.splice(i, 1); continue }
+
+              // Main dot
+              const alpha = p.life * 0.8
+              oCtx.beginPath()
+              oCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2)
+              oCtx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${alpha})`
+              oCtx.fill()
+
+              // Glow
+              oCtx.beginPath()
+              oCtx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2)
+              oCtx.fillStyle = `hsla(${p.hue}, 90%, 80%, ${alpha * 0.15})`
+              oCtx.fill()
+            }
+
+            oceanRAF = requestAnimationFrame(renderOcean)
+          }
+
+          function onOceanDown(e) {
+            if (page.value !== 'ocean') return
+            if (e.shiftKey) {
+              spawnBioluminescence(e.clientX, e.clientY)
+              return
+            }
+            oceanDrawing = true
+            const color = oceanColor()
+            const width = 3 + Math.random() * 5
+            currentStroke = {
+              points: [{ x: e.clientX, y: e.clientY }],
+              color, width, birth: performance.now()
+            }
+            oceanStrokes.push(currentStroke)
+          }
+
+          function onOceanMove(e) {
+            if (!oceanDrawing || !currentStroke) return
+            currentStroke.points.push({ x: e.clientX, y: e.clientY })
+          }
+
+          function onOceanUp() {
+            oceanDrawing = false
+            currentStroke = null
+          }
+
+
+          /* ═══ STONE-SKIP RIPPLE SYSTEM ═══ */
+          const skipRipples = ref([])
+          const skipDots = ref([])
+          let skipId = 0
+          let lastSkipX = 0, lastSkipY = 0
+          const SKIP_DIST = 80
+          let altToggle = false
+
+          function spawnSkip(x, y) {
+            const id = skipId++
+            const size = 60 + Math.random() * 40
+            skipRipples.value.push({ id, x, y, size, alt: altToggle })
+            skipDots.value.push({ id: id + 100000, x, y })
+            altToggle = !altToggle
+            setTimeout(() => {
+              skipRipples.value = skipRipples.value.filter((r) => r.id !== id)
+              skipDots.value = skipDots.value.filter((d) => d.id !== id + 100000)
+            }, 1500)
+          }
+
+          /* ═══ CLICK RIPPLE ═══ */
+          const clickRipples = ref([])
+          let clickId = 0
+          function spawnClickRipple(x, y) {
+            const id1 = clickId++, id2 = clickId++
+            const size = 140 + Math.random() * 60
+            clickRipples.value.push(
+              { id: id1, x, y, size, inner: false, delay: '0s' },
+              { id: id2, x, y, size: size * 0.6, inner: true, delay: '0.1s' }
+            )
+            setTimeout(() => {
+              clickRipples.value = clickRipples.value.filter((r) => r.id !== id1 && r.id !== id2)
+            }, 2000)
+          }
+
+          /* ═══ SUBTLE TRAIL (canvas) ═══ */
+          const trailCanvas = ref(null)
+          let tCtx = null
+          const trail = []
+          const TRAIL_MAX = 40
+          const TRAIL_LIFE = 40
+
+          function updateTrail() {
+            if (!tCtx) { requestAnimationFrame(updateTrail); return }
+            tCtx.clearRect(0, 0, trailCanvas.value.width, trailCanvas.value.height)
+            for (let i = trail.length - 1; i >= 0; i--) {
+              trail[i].age++
+              if (trail[i].age > TRAIL_LIFE) trail.splice(i, 1)
+            }
+            if (trail.length < 2) { requestAnimationFrame(updateTrail); return }
+            for (let i = 1; i < trail.length; i++) {
+              const p0 = trail[i - 1], p1 = trail[i]
+              const life = 1 - p1.age / TRAIL_LIFE
+              if (life <= 0) continue
+              const w = life * 6 + 1
+              const col = i % 2 === 0 ? trailPal.a1 : trailPal.a2
+              tCtx.beginPath()
+              tCtx.moveTo(p0.x, p0.y)
+              tCtx.lineTo(p1.x, p1.y)
+              tCtx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${life * 0.3})`
+              tCtx.lineWidth = w
+              tCtx.lineCap = 'round'
+              tCtx.stroke()
+            }
+            for (let i = 1; i < trail.length; i++) {
+              const p0 = trail[i - 1], p1 = trail[i]
+              const life = 1 - p1.age / TRAIL_LIFE
+              if (life <= 0) continue
+              tCtx.beginPath()
+              tCtx.moveTo(p0.x, p0.y)
+              tCtx.lineTo(p1.x, p1.y)
+              tCtx.strokeStyle = `rgba(${trailPal.a1[0]},${trailPal.a1[1]},${trailPal.a1[2]},${life * 0.08})`
+              tCtx.lineWidth = life * 16 + 4
+              tCtx.lineCap = 'round'
+              tCtx.stroke()
+            }
+            requestAnimationFrame(updateTrail)
+          }
+
+          /* ═══ FIREWORKS ═══ */
+          const fwCanvas = ref(null)
+          let fCtx = null, particles = []
+          class Particle {
+            constructor(x, y, color) {
+              this.x = x; this.y = y
+              const a = Math.random() * Math.PI * 2, s = 2 + Math.random() * 5
+              this.vx = Math.cos(a) * s
+              this.vy = Math.sin(a) * s
+              this.life = 1
+              this.decay = 0.015 + Math.random() * 0.02
+              this.size = 1.5 + Math.random() * 2.5
+              this.color = color
+              this.gravity = 0.03
+            }
+            update() {
+              this.x += this.vx; this.y += this.vy
+              this.vy += this.gravity
+              this.vx *= 0.98; this.vy *= 0.98
+              this.life -= this.decay
+            }
+            draw(ctx) {
+              ctx.globalAlpha = Math.max(0, this.life)
+              ctx.fillStyle = this.color
+              ctx.beginPath()
+              ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2)
+              ctx.fill()
+            }
+          }
+          function spawnFirework(x, y) {
+            const n = 35 + Math.floor(Math.random() * 20)
+            for (let i = 0; i < n; i++)
+              particles.push(new Particle(x, y, fwPal[Math.floor(Math.random() * fwPal.length)]))
+          }
+          function animateFw() {
+            if (!fCtx) { requestAnimationFrame(animateFw); return }
+            fCtx.clearRect(0, 0, fwCanvas.value.width, fwCanvas.value.height)
+            particles = particles.filter((p) => p.life > 0)
+            for (const p of particles) { p.update(); p.draw(fCtx) }
+            fCtx.globalAlpha = 1
+            requestAnimationFrame(animateFw)
+          }
+
+          /* ═══ EVENT HANDLERS ═══ */
+          function onClickFx(e) {
+            const r = e.target.getBoundingClientRect()
+            const cx = r.left + r.width / 2, cy = r.top + r.height / 2
+            spawnFirework(cx, cy)
+            spawnClickRipple(cx, cy)
+          }
+
+          function onMouseMove(e) {
+            cursor.x = e.clientX
+            cursor.y = e.clientY
+            cursor.hovering = !!e.target.closest(
+              'a, button, .contact-link, .drawer-trigger, .nav-pill button'
+            )
+            const cx = e.clientX / window.innerWidth, cy = e.clientY / window.innerHeight
+            orbs.forEach((o, i) => {
+              const s = 25 + i * 10
+              o.offsetX = (cx - 0.5) * -s
+              o.offsetY = (cy - 0.5) * -s
+            })
+            trail.push({ x: e.clientX, y: e.clientY, age: 0 })
+            if (trail.length > TRAIL_MAX) trail.shift()
+            const dx = e.clientX - lastSkipX, dy = e.clientY - lastSkipY
+            const dist = Math.sqrt(dx * dx + dy * dy)
+            if (dist >= SKIP_DIST) {
+              spawnSkip(e.clientX, e.clientY)
+              lastSkipX = e.clientX; lastSkipY = e.clientY
+            }
+            // Ocean drag drawing
+            onOceanMove(e)
+          }
+
+          function onClick(e) {
+            cursorClicking.value = true
+            setTimeout(() => { cursorClicking.value = false }, 150)
+            // Gallery item → open lightbox
+            const galleryItem = e.target.closest('.gallery-item')
+            if (galleryItem) {
+              lightboxSrc.value = galleryItem.dataset.src
+              return
+            }
+            // Suppress effects while lightbox is open
+            if (lightboxSrc.value) return
+            if (e.target.closest('a, button, .contact-link, .drawer-trigger, .nav-pill button')) {
+              spawnFirework(e.clientX, e.clientY)
+              spawnClickRipple(e.clientX, e.clientY)
+            }
+          }
+
+          function onKeyDown(e) {
+            if (e.key === 'Escape' && lightboxSrc.value) lightboxSrc.value = ''
+          }
+
+          function onMouseDown(e) {
+            // Ocean canvas drawing
+            if (page.value === 'ocean' && !e.target.closest('a, button, .contact-link, .drawer-trigger, .nav-pill button, .drawer')) {
+              onOceanDown(e)
+            }
+          }
+
+          function onMouseUp(e) {
+            onOceanUp()
+          }
+
+          function handleResize() {
+            const w = window.innerWidth, h = window.innerHeight
+            if (fwCanvas.value) { fwCanvas.value.width = w; fwCanvas.value.height = h }
+            if (trailCanvas.value) { trailCanvas.value.width = w; trailCanvas.value.height = h }
+            if (spiralCanvas.value) { spiralCanvas.value.width = w; spiralCanvas.value.height = h }
+            if (oceanCanvas.value) { oceanCanvas.value.width = w; oceanCanvas.value.height = h }
+          }
+
+          onMounted(() => {
+            const w = window.innerWidth, h = window.innerHeight
+
+            // FX canvases
+            const fc = fwCanvas.value, tc = trailCanvas.value
+            fc.width = tc.width = w; fc.height = tc.height = h
+            fCtx = fc.getContext('2d')
+            tCtx = tc.getContext('2d')
+
+            // Spiral canvas
+            const sc = spiralCanvas.value
+            sc.width = w; sc.height = h
+            spiralCtx = sc.getContext('2d')
+
+            // Ocean canvas
+            const oc = oceanCanvas.value
+            oc.width = w; oc.height = h
+            oCtx = oc.getContext('2d')
+            // Fill with dark ocean color initially
+            oCtx.fillStyle = 'rgba(10, 22, 40, 1)'
+            oCtx.fillRect(0, 0, w, h)
+
+            lastSkipX = w / 2; lastSkipY = h / 2
+
+            // Start all animation loops
+            animateFw()
+            updateTrail()
+            updateLag()
+            renderSpiral()
+            renderOcean()
+
+            window.addEventListener('mousemove', onMouseMove)
+            window.addEventListener('click', onClick)
+            window.addEventListener('mousedown', onMouseDown)
+            window.addEventListener('mouseup', onMouseUp)
+            window.addEventListener('resize', handleResize)
+            window.addEventListener('keydown', onKeyDown)
+          })
+
+          onUnmounted(() => {
+            window.removeEventListener('mousemove', onMouseMove)
+            window.removeEventListener('click', onClick)
+            window.removeEventListener('mousedown', onMouseDown)
+            window.removeEventListener('mouseup', onMouseUp)
+            window.removeEventListener('resize', handleResize)
+            window.removeEventListener('keydown', onKeyDown)
+            cancelAnimationFrame(lagRAF)
+            cancelAnimationFrame(spiralRAF)
+            cancelAnimationFrame(oceanRAF)
+          })
+
+          return {
+            page, setPage, activePerson, orbs,
+            cursor, cursorLag, cursorClicking,
+            skipRipples, skipDots, clickRipples,
+            trailCanvas, fwCanvas, spiralCanvas, oceanCanvas,
+            onClickFx, lightboxSrc
+          }
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
