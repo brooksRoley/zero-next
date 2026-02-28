@@ -160,6 +160,15 @@ export default function Home() {
             />
           </div>
         </Link>
+
+        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/nanu-pika-td">
+          <h2 className='mb-2 text-2xl font-semibold'>
+            Nanu &amp; Pika TD{' '}<span>-&gt;</span>
+          </h2>
+          <p className={`text-sm mb-2`}>
+            Tower defense with cat wizards. Place towers, survive ant waves, level up. &#x1F431;&#x1F9D9;&#x200D;&#x2642;&#xFE0F;
+          </p>
+        </Link>
 {/* 
         <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
 
