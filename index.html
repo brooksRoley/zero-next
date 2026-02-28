@@ -18,7 +18,7 @@
         box-sizing: border-box;
       }
 
-      [data-theme='brooks'] {
+      [data-theme="brooks"] {
         --text: #d5dfe5;
         --text-sec: rgba(213, 223, 229, 0.55);
         --accent1: #c9b1bd;
@@ -34,7 +34,7 @@
         --a1-rgb: 201, 177, 189;
         --a2-rgb: 180, 149, 148;
       }
-      [data-theme='ocean'] {
+      [data-theme="ocean"] {
         --text: #e0ecf4;
         --text-sec: rgba(224, 236, 244, 0.55);
         --accent1: #7ec8e3;
@@ -52,7 +52,7 @@
       }
 
       body {
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
         color: var(--text);
         min-height: 100vh;
         overflow-x: hidden;
@@ -89,7 +89,7 @@
         color: var(--text-sec);
         background: none;
         border: none;
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
         font-size: 0.82rem;
         font-weight: 500;
         padding: 6px 18px;
@@ -180,7 +180,7 @@
         mix-blend-mode: screen;
         transition: opacity 0.6s ease;
       }
-      [data-theme='ocean'] .spiral-canvas {
+      [data-theme="ocean"] .spiral-canvas {
         opacity: 0.08;
       }
 
@@ -330,7 +330,7 @@
         animation: fadeUp 0.8s ease both;
       }
       .resume-header h1 {
-        font-family: 'Playfair Display', serif;
+        font-family: "Playfair Display", serif;
         font-size: 3.4rem;
         font-weight: 900;
         letter-spacing: -0.02em;
@@ -434,7 +434,7 @@
         background: none;
         border: none;
         color: var(--text);
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
         font-size: 1.05rem;
         font-weight: 600;
         letter-spacing: 0.04em;
@@ -488,7 +488,7 @@
         line-height: 1.7;
       }
       .drawer-body h3 {
-        font-family: 'Playfair Display', serif;
+        font-family: "Playfair Display", serif;
         font-size: 1.1rem;
         font-weight: 700;
         margin: 16px 0 4px;
@@ -509,7 +509,7 @@
         margin-bottom: 6px;
       }
       .drawer-body .faded {
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
         font-weight: 400;
         font-size: 0.85rem;
         opacity: 0.4;
@@ -585,7 +585,9 @@
         object-fit: cover;
         border-radius: 50%;
         border: 2px solid rgba(var(--a1-rgb), 0.45);
-        box-shadow: 0 0 28px rgba(var(--a1-rgb), 0.18), 0 0 60px rgba(var(--a1-rgb), 0.06);
+        box-shadow:
+          0 0 28px rgba(var(--a1-rgb), 0.18),
+          0 0 60px rgba(var(--a1-rgb), 0.06);
       }
 
       /* ── About quote ── */
@@ -596,7 +598,7 @@
         border-top: 1px solid rgba(var(--a1-rgb), 0.12);
       }
       .about-quote code {
-        font-family: 'Courier New', Courier, monospace;
+        font-family: "Courier New", Courier, monospace;
         font-size: 0.82rem;
         color: var(--accent2);
         background: rgba(var(--a1-rgb), 0.07);
@@ -611,15 +613,19 @@
         border: 1px solid rgba(var(--a1-rgb), 0.13);
         border-radius: 12px;
         padding: 16px 20px;
-        transition: border-color 0.3s, box-shadow 0.3s;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
       }
-      .game-card + .game-card { margin-top: 10px; }
+      .game-card + .game-card {
+        margin-top: 10px;
+      }
       .game-card:hover {
         border-color: rgba(var(--a1-rgb), 0.26);
         box-shadow: 0 4px 20px rgba(var(--a1-rgb), 0.06);
       }
       .game-card-title {
-        font-family: 'Playfair Display', serif;
+        font-family: "Playfair Display", serif;
         font-size: 1rem;
         font-weight: 700;
         color: var(--text);
@@ -643,7 +649,9 @@
         border: 1px solid rgba(var(--a1-rgb), 0.18);
         padding: 4px 12px;
         border-radius: 100px;
-        transition: border-color 0.25s, background 0.25s;
+        transition:
+          border-color 0.25s,
+          background 0.25s;
         cursor: none;
       }
       .game-card-link:hover {
@@ -664,7 +672,9 @@
         border-radius: 8px;
         cursor: none;
         border: 1px solid rgba(var(--a1-rgb), 0.1);
-        transition: border-color 0.22s, transform 0.22s;
+        transition:
+          border-color 0.22s,
+          transform 0.22s;
         background: rgba(var(--a1-rgb), 0.04);
         position: relative;
       }
@@ -680,7 +690,9 @@
         transition: transform 0.35s ease;
         display: block;
       }
-      .gallery-item:hover img { transform: scale(1.07); }
+      .gallery-item:hover img {
+        transform: scale(1.07);
+      }
 
       /* ── Lightbox ── */
       .lightbox-overlay {
@@ -696,22 +708,28 @@
         cursor: none;
       }
       @keyframes fadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
       .lightbox-img {
         max-width: 88vw;
         max-height: 84vh;
         object-fit: contain;
         border-radius: 10px;
-        box-shadow: 0 0 100px rgba(var(--a1-rgb), 0.15), 0 0 200px rgba(0,0,0,0.6);
+        box-shadow:
+          0 0 100px rgba(var(--a1-rgb), 0.15),
+          0 0 200px rgba(0, 0, 0, 0.6);
         animation: fadeUp 0.22s ease both;
       }
       .lightbox-close {
         position: fixed;
         top: 22px;
         right: 22px;
-        background: rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(var(--a1-rgb), 0.22);
         color: var(--text);
         font-size: 1.25rem;
@@ -722,10 +740,12 @@
         justify-content: center;
         border-radius: 50%;
         cursor: none;
-        transition: background 0.18s, border-color 0.18s;
+        transition:
+          background 0.18s,
+          border-color 0.18s;
         padding: 0;
         line-height: 1;
-        font-family: 'DM Sans', sans-serif;
+        font-family: "DM Sans", sans-serif;
       }
       .lightbox-close:hover {
         background: rgba(var(--a1-rgb), 0.12);
@@ -738,7 +758,11 @@
       <svg class="svg-filters">
         <defs>
           <filter id="goo">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feGaussianBlur
+              in="SourceGraphic"
+              stdDeviation="10"
+              result="blur"
+            />
             <feColorMatrix
               in="blur"
               mode="matrix"
@@ -751,11 +775,14 @@
       </svg>
 
       <nav class="nav-pill">
-        <button :class="{ active: page === 'brooks' }" @click="setPage('brooks')">
+        <button
+          :class="{ active: page === 'brooks' }"
+          @click="setPage('brooks')"
+        >
           Deep Forest
         </button>
         <button :class="{ active: page === 'ocean' }" @click="setPage('ocean')">
-          Deep Ocean
+          Tall Ocean
         </button>
       </nav>
 
@@ -786,7 +813,8 @@
 
       <!-- Ocean hint -->
       <div class="ocean-hint" :class="{ show: page === 'ocean' }">
-        Click &amp; drag to draw &mdash; waves fade like tides &mdash; hold shift for bioluminescent burst
+        Click &amp; drag to draw &mdash; waves fade like tides &mdash; hold
+        shift for bioluminescent burst
       </div>
 
       <!-- Stone-skip ripples -->
@@ -814,7 +842,11 @@
       ></div>
 
       <!-- Lightbox -->
-      <div class="lightbox-overlay" v-if="lightboxSrc" @click.self="lightboxSrc = ''">
+      <div
+        class="lightbox-overlay"
+        v-if="lightboxSrc"
+        @click.self="lightboxSrc = ''"
+      >
         <button class="lightbox-close" @click="lightboxSrc = ''">&#215;</button>
         <img :src="lightboxSrc" class="lightbox-img" />
       </div>
@@ -883,29 +915,46 @@
     </div>
 
     <script>
-      const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch } = Vue
+      const {
+        createApp,
+        ref,
+        reactive,
+        computed,
+        onMounted,
+        onUnmounted,
+        watch,
+      } = Vue;
 
       createApp({
         setup() {
-          const page = ref('brooks')
-          const lightboxSrc = ref('')
+          const page = ref("brooks");
+          const lightboxSrc = ref("");
 
           const brooksData = reactive({
-            name: 'Brooks Roley',
+            name: "Brooks Roley",
             subtitle:
-              'Adaptable and impact-driven Software Engineer with experience across early-stage startups and mission-driven companies.',
+              "Adaptable and impact-driven Software Engineer with experience across early-stage startups and mission-driven companies.",
             links: [
-              { label: 'Schedule a Chat', href: 'https://calendly.com/brooksroley/' },
-              { label: 'brooksroley@gmail.com', href: 'mailto:brooksroley@gmail.com' },
-              { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brooksroley' },
-              { label: 'GitHub', href: 'https://github.com/brooksroley' }
+              {
+                label: "Schedule a Chat",
+                href: "https://calendly.com/brooksroley/",
+              },
+              {
+                label: "brooksroley@gmail.com",
+                href: "mailto:brooksroley@gmail.com",
+              },
+              {
+                label: "LinkedIn",
+                href: "https://www.linkedin.com/in/brooksroley",
+              },
+              { label: "GitHub", href: "https://github.com/brooksroley" },
             ],
             sections: [
               {
-                id: 'exp',
-                title: 'Experience',
+                id: "exp",
+                title: "Experience",
                 open: false,
-                icon: '&#9638;',
+                icon: "&#9638;",
                 content: `
           <div class="entry"><h3>Zoox</h3><div class="role">Software Engineer</div><div class="dates">Sep 2024 &ndash; Mar 2025</div>
             <p>Managed the OnCall notification system for the SRE team using Vue, Python FastAPI, AWS, OpsGenie, Slack, Terraform, Vault, and Grafana.</p>
@@ -928,13 +977,13 @@
             <p style="margin-top:6px">Built PDF generation service with PHP and D3.js across Medical, Dental, Vision, and Life products.</p></div>
           <div class="entry"><h3>Dev Bootcamp</h3><div class="role">Phase 0 Instructor</div><div class="dates">2014 &ndash; 2015</div>
             <p>Remote tutor teaching full-stack web development (JavaScript, Ruby on Rails).</p></div>
-          <div class="entry"><h3>Laguna Canyon Foundation</h3><div class="role">Education Leader</div><div class="dates">2013 &ndash; 2014</div></div>`
+          <div class="entry"><h3>Laguna Canyon Foundation</h3><div class="role">Education Leader</div><div class="dates">2013 &ndash; 2014</div></div>`,
               },
               {
-                id: 'skills',
-                title: 'Technical Skills',
+                id: "skills",
+                title: "Technical Skills",
                 open: false,
-                icon: '&#11041;',
+                icon: "&#11041;",
                 content: `
           <div class="skill-cat"><div class="skill-cat-label">Languages &amp; Frameworks</div><div class="tag-row">
             <span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Python</span><span class="tag">Node.js</span>
@@ -950,45 +999,54 @@
           <div class="skill-cat"><div class="skill-cat-label">Standards</div><div class="tag-row">
             <span class="tag a2">WCAG</span><span class="tag a2">A/B Testing</span><span class="tag a2">HIPAA</span><span class="tag a2">SSO/SAML</span></div></div>
           <div class="skill-cat"><div class="skill-cat-label">DevOps</div><div class="tag-row">
-            <span class="tag">Datadog</span><span class="tag">Grafana</span><span class="tag">CI/CD</span></div></div>`
+            <span class="tag">Datadog</span><span class="tag">Grafana</span><span class="tag">CI/CD</span></div></div>`,
               },
               {
-                id: 'edu',
-                title: 'Education',
+                id: "edu",
+                title: "Education",
                 open: false,
-                icon: '&#9671;',
+                icon: "&#9671;",
                 content: `
-          <div class="entry"><h3>Sonoma State University</h3><div class="role">B.S. Computer Science</div><div class="dates">2013</div></div>`
-              }
-            ]
-          })
+          <div class="entry"><h3>Sonoma State University</h3><div class="role">B.S. Computer Science</div><div class="dates">2013</div></div>`,
+              },
+            ],
+          });
 
           const oceanData = reactive({
-            name: 'Brooks Roley',
+            name: "Brooks Roley",
             subtitle:
-              'Engineer, game designer, perpetual explorer. The ocean below responds to your touch — drag to paint, shift+click for bioluminescence.',
+              "Engineer, game designer, perpetual explorer. The ocean below responds to your touch — drag to paint, shift+click for bioluminescence.",
             links: [
-              { label: 'Schedule a Chat', href: 'https://calendly.com/brooksroley/' },
-              { label: 'brooksroley@gmail.com', href: 'mailto:brooksroley@gmail.com' },
-              { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brooksroley' },
-              { label: 'GitHub', href: 'https://github.com/brooksroley' }
+              {
+                label: "Schedule a Chat",
+                href: "https://calendly.com/brooksroley/",
+              },
+              {
+                label: "brooksroley@gmail.com",
+                href: "mailto:brooksroley@gmail.com",
+              },
+              {
+                label: "LinkedIn",
+                href: "https://www.linkedin.com/in/brooksroley",
+              },
+              { label: "GitHub", href: "https://github.com/brooksroley" },
             ],
             sections: [
               {
-                id: 'about',
-                title: 'About',
+                id: "about",
+                title: "About",
                 open: false,
-                icon: '&#9670;',
+                icon: "&#9670;",
                 content: `
           <p>Software engineer with a decade of experience building products across healthcare, fintech, sustainability, and autonomous vehicles. I care deeply about craft, accessibility, and the moments where technology feels genuinely alive.</p>
           <p style="margin-top:10px">Outside of work: obsessive strategy gamer, two-time marathoner, and probably the only person who thinks a prime-checking regex is beautiful.</p>
-          <div class="about-quote"><code>/^1?$|^(11+?)\\1+$/</code></div>`
+          <div class="about-quote"><code>/^1?$|^(11+?)\\1+$/</code></div>`,
               },
               {
-                id: 'games',
-                title: 'Games &amp; Play',
+                id: "games",
+                title: "Games &amp; Play",
                 open: false,
-                icon: '&#9632;',
+                icon: "&#9632;",
                 content: `
           <div class="game-card">
             <div class="game-card-title">Pente</div>
@@ -1006,26 +1064,26 @@
             <div class="game-card-status">Easter Egg</div>
             <p style="font-size:0.9rem;color:var(--text-sec)">A Mario-inspired mystery button hiding on the resume page. Hit it for a surprise.</p>
             <a href="/resume" class="game-card-link">Find it &rarr;</a>
-          </div>`
+          </div>`,
               },
               {
-                id: 'projects',
-                title: 'Side Projects',
+                id: "projects",
+                title: "Side Projects",
                 open: false,
-                icon: '&#9733;',
+                icon: "&#9733;",
                 content: `
           <div class="entry"><h3>This Site</h3><div class="role">Generative Art &amp; Portfolio</div><div class="dates">2023 &ndash; Present</div>
             <p>Built with Vue 3 (CDN, no build step) and raw Canvas APIs. The forest spiral, ocean bioluminescence, stone-skip ripples, and cursor trail are all custom animation systems — no libraries.</p></div>
           <div class="entry"><h3>Stage Finder</h3><div class="role">Search API</div><div class="dates">Experimental</div>
             <p>A Next.js API route for filtering studio stages by location and date availability, built around a JSON data contract.</p></div>
-          <div class="entry"><h3>Brainroot</h3><div class="role">Concept / Satire</div><div class="dates">2024</div>
-            <p>Placeholder product page for a fictional nootropic sparkling water. Because sometimes the best project is a joke that looks real.</p></div>`
+          <div class="entry"><h3>Brainroot</h3><div class="role">Concept</div><div class="dates">2024</div>
+            <p>Placeholder product page for a nootropic sparkling water.</p></div>`,
               },
               {
-                id: 'gallery',
-                title: 'Gallery',
+                id: "gallery",
+                title: "Gallery",
                 open: false,
-                icon: '&#9711;',
+                icon: "&#9711;",
                 content: `
           <div class="gallery-grid">
             <div class="gallery-item" data-src="/coverphoto.jpeg"><img src="/coverphoto.jpeg" alt="Portrait" loading="lazy" /></div>
@@ -1041,535 +1099,703 @@
             <div class="gallery-item" data-src="/BRMinimalist.png"><img src="/BRMinimalist.png" alt="BR Minimalist" loading="lazy" /></div>
             <div class="gallery-item" data-src="/BRLogoBox.png"><img src="/BRLogoBox.png" alt="BR Logo" loading="lazy" /></div>
             <div class="gallery-item" data-src="/BRLogoTransparent.png"><img src="/BRLogoTransparent.png" alt="BR Logo Clear" loading="lazy" /></div>
-          </div>`
-              }
-            ]
-          })
+          </div>`,
+              },
+            ],
+          });
 
-          const activePerson = computed(() => (page.value === 'brooks' ? brooksData : oceanData))
+          const activePerson = computed(() =>
+            page.value === "brooks" ? brooksData : oceanData,
+          );
 
           const orbColors = {
             brooks: [
-              'rgba(201,177,189,0.35)',
-              'rgba(127,145,114,0.45)',
-              'rgba(180,149,148,0.35)',
-              'rgba(201,177,189,0.25)',
-              'rgba(127,145,114,0.3)',
-              'rgba(180,149,148,0.2)'
+              "rgba(201,177,189,0.35)",
+              "rgba(127,145,114,0.45)",
+              "rgba(180,149,148,0.35)",
+              "rgba(201,177,189,0.25)",
+              "rgba(127,145,114,0.3)",
+              "rgba(180,149,148,0.2)",
             ],
             ocean: [
-              'rgba(126,200,227,0.25)',
-              'rgba(72,169,166,0.3)',
-              'rgba(30,90,140,0.35)',
-              'rgba(126,200,227,0.15)',
-              'rgba(72,169,166,0.2)',
-              'rgba(20,60,110,0.25)'
-            ]
-          }
+              "rgba(126,200,227,0.25)",
+              "rgba(72,169,166,0.3)",
+              "rgba(30,90,140,0.35)",
+              "rgba(126,200,227,0.15)",
+              "rgba(72,169,166,0.2)",
+              "rgba(20,60,110,0.25)",
+            ],
+          };
           const trailPalettes = {
             brooks: { a1: [201, 177, 189], a2: [180, 149, 148] },
-            ocean: { a1: [126, 200, 227], a2: [72, 169, 166] }
-          }
+            ocean: { a1: [126, 200, 227], a2: [72, 169, 166] },
+          };
           const fwPalettes = {
-            brooks: ['#C9B1BD', '#B49594', '#D5DFE5', '#e0c8d6', '#d4aeac', '#a8c4a0', '#fff'],
-            ocean: ['#7ec8e3', '#48a9a6', '#e0ecf4', '#3dd6d0', '#5bc0eb', '#b8f3ff', '#fff']
-          }
-          let trailPal = trailPalettes.brooks
-          let fwPal = fwPalettes.brooks
+            brooks: [
+              "#C9B1BD",
+              "#B49594",
+              "#D5DFE5",
+              "#e0c8d6",
+              "#d4aeac",
+              "#a8c4a0",
+              "#fff",
+            ],
+            ocean: [
+              "#7ec8e3",
+              "#48a9a6",
+              "#e0ecf4",
+              "#3dd6d0",
+              "#5bc0eb",
+              "#b8f3ff",
+              "#fff",
+            ],
+          };
+          let trailPal = trailPalettes.brooks;
+          let fwPal = fwPalettes.brooks;
 
           const orbs = reactive([
-            { id: 0, size: 360, baseX: 10, baseY: 15, color: orbColors.brooks[0], offsetX: 0, offsetY: 0 },
-            { id: 1, size: 280, baseX: 72, baseY: 10, color: orbColors.brooks[1], offsetX: 0, offsetY: 0 },
-            { id: 2, size: 320, baseX: 45, baseY: 55, color: orbColors.brooks[2], offsetX: 0, offsetY: 0 },
-            { id: 3, size: 240, baseX: 85, baseY: 65, color: orbColors.brooks[3], offsetX: 0, offsetY: 0 },
-            { id: 4, size: 200, baseX: 25, baseY: 80, color: orbColors.brooks[4], offsetX: 0, offsetY: 0 },
-            { id: 5, size: 180, baseX: 60, baseY: 85, color: orbColors.brooks[5], offsetX: 0, offsetY: 0 }
-          ])
+            {
+              id: 0,
+              size: 360,
+              baseX: 10,
+              baseY: 15,
+              color: orbColors.brooks[0],
+              offsetX: 0,
+              offsetY: 0,
+            },
+            {
+              id: 1,
+              size: 280,
+              baseX: 72,
+              baseY: 10,
+              color: orbColors.brooks[1],
+              offsetX: 0,
+              offsetY: 0,
+            },
+            {
+              id: 2,
+              size: 320,
+              baseX: 45,
+              baseY: 55,
+              color: orbColors.brooks[2],
+              offsetX: 0,
+              offsetY: 0,
+            },
+            {
+              id: 3,
+              size: 240,
+              baseX: 85,
+              baseY: 65,
+              color: orbColors.brooks[3],
+              offsetX: 0,
+              offsetY: 0,
+            },
+            {
+              id: 4,
+              size: 200,
+              baseX: 25,
+              baseY: 80,
+              color: orbColors.brooks[4],
+              offsetX: 0,
+              offsetY: 0,
+            },
+            {
+              id: 5,
+              size: 180,
+              baseX: 60,
+              baseY: 85,
+              color: orbColors.brooks[5],
+              offsetX: 0,
+              offsetY: 0,
+            },
+          ]);
 
           function setPage(p) {
-            if (page.value === p) return
-            page.value = p
-            document.body.setAttribute('data-theme', p)
-            trailPal = trailPalettes[p]
-            fwPal = fwPalettes[p]
-            orbColors[p].forEach((c, i) => { orbs[i].color = c })
-            brooksData.sections.forEach((s) => (s.open = false))
-            oceanData.sections.forEach((s) => (s.open = false))
+            if (page.value === p) return;
+            page.value = p;
+            document.body.setAttribute("data-theme", p);
+            trailPal = trailPalettes[p];
+            fwPal = fwPalettes[p];
+            orbColors[p].forEach((c, i) => {
+              orbs[i].color = c;
+            });
+            brooksData.sections.forEach((s) => (s.open = false));
+            oceanData.sections.forEach((s) => (s.open = false));
           }
 
           /* ═══ CURSOR ═══ */
-          const cursor = reactive({ x: -100, y: -100, hovering: false })
-          const cursorLag = reactive({ x: -100, y: -100 })
-          const cursorClicking = ref(false)
-          let lagRAF
+          const cursor = reactive({ x: -100, y: -100, hovering: false });
+          const cursorLag = reactive({ x: -100, y: -100 });
+          const cursorClicking = ref(false);
+          let lagRAF;
           function updateLag() {
-            cursorLag.x += (cursor.x - cursorLag.x) * 0.15
-            cursorLag.y += (cursor.y - cursorLag.y) * 0.15
-            lagRAF = requestAnimationFrame(updateLag)
+            cursorLag.x += (cursor.x - cursorLag.x) * 0.15;
+            cursorLag.y += (cursor.y - cursorLag.y) * 0.15;
+            lagRAF = requestAnimationFrame(updateLag);
           }
 
           /* ═══ HYPNOTIC SPIRAL ═══
            * z = cos(r + theta) in polar → cos(sqrt(x²+y²) + atan2(y,x))
            * Rendered as contour lines (where z crosses 0) with slow time animation.
            */
-          const spiralCanvas = ref(null)
-          let spiralCtx = null
-          let spiralTime = 0
-          let spiralRAF
+          const spiralCanvas = ref(null);
+          let spiralCtx = null;
+          let spiralTime = 0;
+          let spiralRAF;
 
           function renderSpiral() {
-            if (!spiralCtx) { spiralRAF = requestAnimationFrame(renderSpiral); return }
-            const canvas = spiralCanvas.value
-            const w = canvas.width, h = canvas.height
-            const ctx = spiralCtx
+            if (!spiralCtx) {
+              spiralRAF = requestAnimationFrame(renderSpiral);
+              return;
+            }
+            const canvas = spiralCanvas.value;
+            const w = canvas.width,
+              h = canvas.height;
+            const ctx = spiralCtx;
 
             // Use offscreen imageData for performance
-            const imgData = ctx.createImageData(w, h)
-            const data = imgData.data
-            const cx = w / 2, cy = h / 2
+            const imgData = ctx.createImageData(w, h);
+            const data = imgData.data;
+            const cx = w / 2,
+              cy = h / 2;
             // Scale factor — how zoomed in the spiral is
-            const scale = Math.min(w, h) / 14
-            const t = spiralTime
+            const scale = Math.min(w, h) / 14;
+            const t = spiralTime;
 
             for (let py = 0; py < h; py += 2) {
               for (let px = 0; px < w; px += 2) {
-                const x = (px - cx) / scale
-                const y = (py - cy) / scale
-                const r = Math.sqrt(x * x + y * y)
-                const theta = Math.atan2(y, x)
+                const x = (px - cx) / scale;
+                const y = (py - cy) / scale;
+                const r = Math.sqrt(x * x + y * y);
+                const theta = Math.atan2(y, x);
 
                 // The formula: z = cos(r + theta - time)
                 // Time makes it slowly rotate/pulse
-                const z = Math.cos(r + theta - t * 0.4)
+                const z = Math.cos(r + theta - t * 0.4);
 
                 // Contour line detection: where z is near 0
                 // Use the absolute value to create line thickness
-                const lineWidth = 0.15
-                const intensity = Math.max(0, 1 - Math.abs(z) / lineWidth)
+                const lineWidth = 0.15;
+                const intensity = Math.max(0, 1 - Math.abs(z) / lineWidth);
 
                 // Distance-based fade
-                const maxR = Math.min(w, h) / (2 * scale)
-                const distFade = Math.max(0, 1 - (r / maxR) * 0.7)
+                const maxR = Math.min(w, h) / (2 * scale);
+                const distFade = Math.max(0, 1 - (r / maxR) * 0.7);
 
-                const brightness = intensity * distFade * 255
+                const brightness = intensity * distFade * 255;
 
                 if (brightness > 2) {
-                  const idx = (py * w + px) * 4
+                  const idx = (py * w + px) * 4;
                   // Fill a 2x2 block for the step=2 sampling
                   for (let dy = 0; dy < 2 && py + dy < h; dy++) {
                     for (let dx = 0; dx < 2 && px + dx < w; dx++) {
-                      const i = ((py + dy) * w + (px + dx)) * 4
-                      data[i] = page.value === 'ocean' ? brightness * 0.5 : brightness * 0.8
-                      data[i + 1] = page.value === 'ocean' ? brightness * 0.85 : brightness * 0.72
-                      data[i + 2] = brightness
-                      data[i + 3] = brightness * 0.9
+                      const i = ((py + dy) * w + (px + dx)) * 4;
+                      data[i] =
+                        page.value === "ocean"
+                          ? brightness * 0.5
+                          : brightness * 0.8;
+                      data[i + 1] =
+                        page.value === "ocean"
+                          ? brightness * 0.85
+                          : brightness * 0.72;
+                      data[i + 2] = brightness;
+                      data[i + 3] = brightness * 0.9;
                     }
                   }
                 }
               }
             }
 
-            ctx.putImageData(imgData, 0, 0)
-            spiralTime += 0.015
-            spiralRAF = requestAnimationFrame(renderSpiral)
+            ctx.putImageData(imgData, 0, 0);
+            spiralTime += 0.015;
+            spiralRAF = requestAnimationFrame(renderSpiral);
           }
-
 
           /* ═══ OCEAN INTERACTIVE CANVAS ═══
            * Click & drag to draw fading ocean-themed trails.
            * Shift+click for bioluminescent burst.
            * All strokes fade over time like tides receding.
            */
-          const oceanCanvas = ref(null)
-          let oCtx = null
-          let oceanStrokes = [] // { points: [{x,y,t}], color, width, birth }
-          let oceanParticles = [] // bioluminescent burst particles
-          let oceanDrawing = false
-          let currentStroke = null
-          let oceanRAF
+          const oceanCanvas = ref(null);
+          let oCtx = null;
+          let oceanStrokes = []; // { points: [{x,y,t}], color, width, birth }
+          let oceanParticles = []; // bioluminescent burst particles
+          let oceanDrawing = false;
+          let currentStroke = null;
+          let oceanRAF;
 
           function oceanColor() {
-            const hue = 170 + Math.random() * 40 // 170-210: teal to blue
-            const sat = 60 + Math.random() * 30
-            const light = 55 + Math.random() * 20
-            return { h: hue, s: sat, l: light }
+            const hue = 170 + Math.random() * 40; // 170-210: teal to blue
+            const sat = 60 + Math.random() * 30;
+            const light = 55 + Math.random() * 20;
+            return { h: hue, s: sat, l: light };
           }
 
           function spawnBioluminescence(x, y) {
-            const count = 40 + Math.floor(Math.random() * 30)
+            const count = 40 + Math.floor(Math.random() * 30);
             for (let i = 0; i < count; i++) {
-              const angle = Math.random() * Math.PI * 2
-              const speed = 1 + Math.random() * 4
-              const hue = 170 + Math.random() * 50
+              const angle = Math.random() * Math.PI * 2;
+              const speed = 1 + Math.random() * 4;
+              const hue = 170 + Math.random() * 50;
               oceanParticles.push({
-                x, y,
+                x,
+                y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 life: 1,
                 decay: 0.008 + Math.random() * 0.012,
                 size: 2 + Math.random() * 4,
                 hue,
-                trail: []
-              })
+                trail: [],
+              });
             }
           }
 
           function renderOcean() {
-            if (!oCtx || page.value !== 'ocean') {
-              oceanRAF = requestAnimationFrame(renderOcean)
-              return
+            if (!oCtx || page.value !== "ocean") {
+              oceanRAF = requestAnimationFrame(renderOcean);
+              return;
             }
-            const canvas = oceanCanvas.value
-            const w = canvas.width, h = canvas.height
+            const canvas = oceanCanvas.value;
+            const w = canvas.width,
+              h = canvas.height;
 
             // Fade existing content (creates the receding tide effect)
-            oCtx.fillStyle = 'rgba(10, 22, 40, 0.025)'
-            oCtx.fillRect(0, 0, w, h)
+            oCtx.fillStyle = "rgba(10, 22, 40, 0.025)";
+            oCtx.fillRect(0, 0, w, h);
 
-            const now = performance.now()
+            const now = performance.now();
 
             // Draw strokes
             for (let si = oceanStrokes.length - 1; si >= 0; si--) {
-              const stroke = oceanStrokes[si]
-              const age = (now - stroke.birth) / 1000
-              if (age > 12) { oceanStrokes.splice(si, 1); continue }
-
-              const fade = Math.max(0, 1 - age / 12)
-              const pts = stroke.points
-              if (pts.length < 2) continue
-
-              oCtx.beginPath()
-              oCtx.moveTo(pts[0].x, pts[0].y)
-              for (let i = 1; i < pts.length; i++) {
-                const xc = (pts[i - 1].x + pts[i].x) / 2
-                const yc = (pts[i - 1].y + pts[i].y) / 2
-                oCtx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, xc, yc)
+              const stroke = oceanStrokes[si];
+              const age = (now - stroke.birth) / 1000;
+              if (age > 12) {
+                oceanStrokes.splice(si, 1);
+                continue;
               }
 
-              const { h: hue, s, l } = stroke.color
+              const fade = Math.max(0, 1 - age / 12);
+              const pts = stroke.points;
+              if (pts.length < 2) continue;
+
+              oCtx.beginPath();
+              oCtx.moveTo(pts[0].x, pts[0].y);
+              for (let i = 1; i < pts.length; i++) {
+                const xc = (pts[i - 1].x + pts[i].x) / 2;
+                const yc = (pts[i - 1].y + pts[i].y) / 2;
+                oCtx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, xc, yc);
+              }
+
+              const { h: hue, s, l } = stroke.color;
               // Animated hue shift over time
-              const animHue = hue + Math.sin(age * 0.5) * 15
-              oCtx.strokeStyle = `hsla(${animHue}, ${s}%, ${l}%, ${fade * 0.7})`
-              oCtx.lineWidth = stroke.width * (0.5 + fade * 0.5)
-              oCtx.lineCap = 'round'
-              oCtx.lineJoin = 'round'
-              oCtx.stroke()
+              const animHue = hue + Math.sin(age * 0.5) * 15;
+              oCtx.strokeStyle = `hsla(${animHue}, ${s}%, ${l}%, ${fade * 0.7})`;
+              oCtx.lineWidth = stroke.width * (0.5 + fade * 0.5);
+              oCtx.lineCap = "round";
+              oCtx.lineJoin = "round";
+              oCtx.stroke();
 
               // Glow pass
-              oCtx.strokeStyle = `hsla(${animHue}, ${s + 10}%, ${l + 15}%, ${fade * 0.15})`
-              oCtx.lineWidth = stroke.width * 3 * fade
-              oCtx.stroke()
+              oCtx.strokeStyle = `hsla(${animHue}, ${s + 10}%, ${l + 15}%, ${fade * 0.15})`;
+              oCtx.lineWidth = stroke.width * 3 * fade;
+              oCtx.stroke();
             }
 
             // Update and draw bioluminescent particles
             for (let i = oceanParticles.length - 1; i >= 0; i--) {
-              const p = oceanParticles[i]
-              p.x += p.vx
-              p.y += p.vy
-              p.vx *= 0.985
-              p.vy *= 0.985
-              p.life -= p.decay
+              const p = oceanParticles[i];
+              p.x += p.vx;
+              p.y += p.vy;
+              p.vx *= 0.985;
+              p.vy *= 0.985;
+              p.life -= p.decay;
 
-              if (p.life <= 0) { oceanParticles.splice(i, 1); continue }
+              if (p.life <= 0) {
+                oceanParticles.splice(i, 1);
+                continue;
+              }
 
               // Main dot
-              const alpha = p.life * 0.8
-              oCtx.beginPath()
-              oCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2)
-              oCtx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${alpha})`
-              oCtx.fill()
+              const alpha = p.life * 0.8;
+              oCtx.beginPath();
+              oCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+              oCtx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${alpha})`;
+              oCtx.fill();
 
               // Glow
-              oCtx.beginPath()
-              oCtx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2)
-              oCtx.fillStyle = `hsla(${p.hue}, 90%, 80%, ${alpha * 0.15})`
-              oCtx.fill()
+              oCtx.beginPath();
+              oCtx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2);
+              oCtx.fillStyle = `hsla(${p.hue}, 90%, 80%, ${alpha * 0.15})`;
+              oCtx.fill();
             }
 
-            oceanRAF = requestAnimationFrame(renderOcean)
+            oceanRAF = requestAnimationFrame(renderOcean);
           }
 
           function onOceanDown(e) {
-            if (page.value !== 'ocean') return
+            if (page.value !== "ocean") return;
             if (e.shiftKey) {
-              spawnBioluminescence(e.clientX, e.clientY)
-              return
+              spawnBioluminescence(e.clientX, e.clientY);
+              return;
             }
-            oceanDrawing = true
-            const color = oceanColor()
-            const width = 3 + Math.random() * 5
+            oceanDrawing = true;
+            const color = oceanColor();
+            const width = 3 + Math.random() * 5;
             currentStroke = {
               points: [{ x: e.clientX, y: e.clientY }],
-              color, width, birth: performance.now()
-            }
-            oceanStrokes.push(currentStroke)
+              color,
+              width,
+              birth: performance.now(),
+            };
+            oceanStrokes.push(currentStroke);
           }
 
           function onOceanMove(e) {
-            if (!oceanDrawing || !currentStroke) return
-            currentStroke.points.push({ x: e.clientX, y: e.clientY })
+            if (!oceanDrawing || !currentStroke) return;
+            currentStroke.points.push({ x: e.clientX, y: e.clientY });
           }
 
           function onOceanUp() {
-            oceanDrawing = false
-            currentStroke = null
+            oceanDrawing = false;
+            currentStroke = null;
           }
 
-
           /* ═══ STONE-SKIP RIPPLE SYSTEM ═══ */
-          const skipRipples = ref([])
-          const skipDots = ref([])
-          let skipId = 0
-          let lastSkipX = 0, lastSkipY = 0
-          const SKIP_DIST = 80
-          let altToggle = false
+          const skipRipples = ref([]);
+          const skipDots = ref([]);
+          let skipId = 0;
+          let lastSkipX = 0,
+            lastSkipY = 0;
+          const SKIP_DIST = 80;
+          let altToggle = false;
 
           function spawnSkip(x, y) {
-            const id = skipId++
-            const size = 60 + Math.random() * 40
-            skipRipples.value.push({ id, x, y, size, alt: altToggle })
-            skipDots.value.push({ id: id + 100000, x, y })
-            altToggle = !altToggle
+            const id = skipId++;
+            const size = 60 + Math.random() * 40;
+            skipRipples.value.push({ id, x, y, size, alt: altToggle });
+            skipDots.value.push({ id: id + 100000, x, y });
+            altToggle = !altToggle;
             setTimeout(() => {
-              skipRipples.value = skipRipples.value.filter((r) => r.id !== id)
-              skipDots.value = skipDots.value.filter((d) => d.id !== id + 100000)
-            }, 1500)
+              skipRipples.value = skipRipples.value.filter((r) => r.id !== id);
+              skipDots.value = skipDots.value.filter(
+                (d) => d.id !== id + 100000,
+              );
+            }, 1500);
           }
 
           /* ═══ CLICK RIPPLE ═══ */
-          const clickRipples = ref([])
-          let clickId = 0
+          const clickRipples = ref([]);
+          let clickId = 0;
           function spawnClickRipple(x, y) {
-            const id1 = clickId++, id2 = clickId++
-            const size = 140 + Math.random() * 60
+            const id1 = clickId++,
+              id2 = clickId++;
+            const size = 140 + Math.random() * 60;
             clickRipples.value.push(
-              { id: id1, x, y, size, inner: false, delay: '0s' },
-              { id: id2, x, y, size: size * 0.6, inner: true, delay: '0.1s' }
-            )
+              { id: id1, x, y, size, inner: false, delay: "0s" },
+              { id: id2, x, y, size: size * 0.6, inner: true, delay: "0.1s" },
+            );
             setTimeout(() => {
-              clickRipples.value = clickRipples.value.filter((r) => r.id !== id1 && r.id !== id2)
-            }, 2000)
+              clickRipples.value = clickRipples.value.filter(
+                (r) => r.id !== id1 && r.id !== id2,
+              );
+            }, 2000);
           }
 
           /* ═══ SUBTLE TRAIL (canvas) ═══ */
-          const trailCanvas = ref(null)
-          let tCtx = null
-          const trail = []
-          const TRAIL_MAX = 40
-          const TRAIL_LIFE = 40
+          const trailCanvas = ref(null);
+          let tCtx = null;
+          const trail = [];
+          const TRAIL_MAX = 40;
+          const TRAIL_LIFE = 40;
 
           function updateTrail() {
-            if (!tCtx) { requestAnimationFrame(updateTrail); return }
-            tCtx.clearRect(0, 0, trailCanvas.value.width, trailCanvas.value.height)
+            if (!tCtx) {
+              requestAnimationFrame(updateTrail);
+              return;
+            }
+            tCtx.clearRect(
+              0,
+              0,
+              trailCanvas.value.width,
+              trailCanvas.value.height,
+            );
             for (let i = trail.length - 1; i >= 0; i--) {
-              trail[i].age++
-              if (trail[i].age > TRAIL_LIFE) trail.splice(i, 1)
+              trail[i].age++;
+              if (trail[i].age > TRAIL_LIFE) trail.splice(i, 1);
             }
-            if (trail.length < 2) { requestAnimationFrame(updateTrail); return }
-            for (let i = 1; i < trail.length; i++) {
-              const p0 = trail[i - 1], p1 = trail[i]
-              const life = 1 - p1.age / TRAIL_LIFE
-              if (life <= 0) continue
-              const w = life * 6 + 1
-              const col = i % 2 === 0 ? trailPal.a1 : trailPal.a2
-              tCtx.beginPath()
-              tCtx.moveTo(p0.x, p0.y)
-              tCtx.lineTo(p1.x, p1.y)
-              tCtx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${life * 0.3})`
-              tCtx.lineWidth = w
-              tCtx.lineCap = 'round'
-              tCtx.stroke()
+            if (trail.length < 2) {
+              requestAnimationFrame(updateTrail);
+              return;
             }
             for (let i = 1; i < trail.length; i++) {
-              const p0 = trail[i - 1], p1 = trail[i]
-              const life = 1 - p1.age / TRAIL_LIFE
-              if (life <= 0) continue
-              tCtx.beginPath()
-              tCtx.moveTo(p0.x, p0.y)
-              tCtx.lineTo(p1.x, p1.y)
-              tCtx.strokeStyle = `rgba(${trailPal.a1[0]},${trailPal.a1[1]},${trailPal.a1[2]},${life * 0.08})`
-              tCtx.lineWidth = life * 16 + 4
-              tCtx.lineCap = 'round'
-              tCtx.stroke()
+              const p0 = trail[i - 1],
+                p1 = trail[i];
+              const life = 1 - p1.age / TRAIL_LIFE;
+              if (life <= 0) continue;
+              const w = life * 6 + 1;
+              const col = i % 2 === 0 ? trailPal.a1 : trailPal.a2;
+              tCtx.beginPath();
+              tCtx.moveTo(p0.x, p0.y);
+              tCtx.lineTo(p1.x, p1.y);
+              tCtx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${life * 0.3})`;
+              tCtx.lineWidth = w;
+              tCtx.lineCap = "round";
+              tCtx.stroke();
             }
-            requestAnimationFrame(updateTrail)
+            for (let i = 1; i < trail.length; i++) {
+              const p0 = trail[i - 1],
+                p1 = trail[i];
+              const life = 1 - p1.age / TRAIL_LIFE;
+              if (life <= 0) continue;
+              tCtx.beginPath();
+              tCtx.moveTo(p0.x, p0.y);
+              tCtx.lineTo(p1.x, p1.y);
+              tCtx.strokeStyle = `rgba(${trailPal.a1[0]},${trailPal.a1[1]},${trailPal.a1[2]},${life * 0.08})`;
+              tCtx.lineWidth = life * 16 + 4;
+              tCtx.lineCap = "round";
+              tCtx.stroke();
+            }
+            requestAnimationFrame(updateTrail);
           }
 
           /* ═══ FIREWORKS ═══ */
-          const fwCanvas = ref(null)
-          let fCtx = null, particles = []
+          const fwCanvas = ref(null);
+          let fCtx = null,
+            particles = [];
           class Particle {
             constructor(x, y, color) {
-              this.x = x; this.y = y
-              const a = Math.random() * Math.PI * 2, s = 2 + Math.random() * 5
-              this.vx = Math.cos(a) * s
-              this.vy = Math.sin(a) * s
-              this.life = 1
-              this.decay = 0.015 + Math.random() * 0.02
-              this.size = 1.5 + Math.random() * 2.5
-              this.color = color
-              this.gravity = 0.03
+              this.x = x;
+              this.y = y;
+              const a = Math.random() * Math.PI * 2,
+                s = 2 + Math.random() * 5;
+              this.vx = Math.cos(a) * s;
+              this.vy = Math.sin(a) * s;
+              this.life = 1;
+              this.decay = 0.015 + Math.random() * 0.02;
+              this.size = 1.5 + Math.random() * 2.5;
+              this.color = color;
+              this.gravity = 0.03;
             }
             update() {
-              this.x += this.vx; this.y += this.vy
-              this.vy += this.gravity
-              this.vx *= 0.98; this.vy *= 0.98
-              this.life -= this.decay
+              this.x += this.vx;
+              this.y += this.vy;
+              this.vy += this.gravity;
+              this.vx *= 0.98;
+              this.vy *= 0.98;
+              this.life -= this.decay;
             }
             draw(ctx) {
-              ctx.globalAlpha = Math.max(0, this.life)
-              ctx.fillStyle = this.color
-              ctx.beginPath()
-              ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2)
-              ctx.fill()
+              ctx.globalAlpha = Math.max(0, this.life);
+              ctx.fillStyle = this.color;
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+              ctx.fill();
             }
           }
           function spawnFirework(x, y) {
-            const n = 35 + Math.floor(Math.random() * 20)
+            const n = 35 + Math.floor(Math.random() * 20);
             for (let i = 0; i < n; i++)
-              particles.push(new Particle(x, y, fwPal[Math.floor(Math.random() * fwPal.length)]))
+              particles.push(
+                new Particle(
+                  x,
+                  y,
+                  fwPal[Math.floor(Math.random() * fwPal.length)],
+                ),
+              );
           }
           function animateFw() {
-            if (!fCtx) { requestAnimationFrame(animateFw); return }
-            fCtx.clearRect(0, 0, fwCanvas.value.width, fwCanvas.value.height)
-            particles = particles.filter((p) => p.life > 0)
-            for (const p of particles) { p.update(); p.draw(fCtx) }
-            fCtx.globalAlpha = 1
-            requestAnimationFrame(animateFw)
+            if (!fCtx) {
+              requestAnimationFrame(animateFw);
+              return;
+            }
+            fCtx.clearRect(0, 0, fwCanvas.value.width, fwCanvas.value.height);
+            particles = particles.filter((p) => p.life > 0);
+            for (const p of particles) {
+              p.update();
+              p.draw(fCtx);
+            }
+            fCtx.globalAlpha = 1;
+            requestAnimationFrame(animateFw);
           }
 
           /* ═══ EVENT HANDLERS ═══ */
           function onClickFx(e) {
-            const r = e.target.getBoundingClientRect()
-            const cx = r.left + r.width / 2, cy = r.top + r.height / 2
-            spawnFirework(cx, cy)
-            spawnClickRipple(cx, cy)
+            const r = e.target.getBoundingClientRect();
+            const cx = r.left + r.width / 2,
+              cy = r.top + r.height / 2;
+            spawnFirework(cx, cy);
+            spawnClickRipple(cx, cy);
           }
 
           function onMouseMove(e) {
-            cursor.x = e.clientX
-            cursor.y = e.clientY
+            cursor.x = e.clientX;
+            cursor.y = e.clientY;
             cursor.hovering = !!e.target.closest(
-              'a, button, .contact-link, .drawer-trigger, .nav-pill button'
-            )
-            const cx = e.clientX / window.innerWidth, cy = e.clientY / window.innerHeight
+              "a, button, .contact-link, .drawer-trigger, .nav-pill button",
+            );
+            const cx = e.clientX / window.innerWidth,
+              cy = e.clientY / window.innerHeight;
             orbs.forEach((o, i) => {
-              const s = 25 + i * 10
-              o.offsetX = (cx - 0.5) * -s
-              o.offsetY = (cy - 0.5) * -s
-            })
-            trail.push({ x: e.clientX, y: e.clientY, age: 0 })
-            if (trail.length > TRAIL_MAX) trail.shift()
-            const dx = e.clientX - lastSkipX, dy = e.clientY - lastSkipY
-            const dist = Math.sqrt(dx * dx + dy * dy)
+              const s = 25 + i * 10;
+              o.offsetX = (cx - 0.5) * -s;
+              o.offsetY = (cy - 0.5) * -s;
+            });
+            trail.push({ x: e.clientX, y: e.clientY, age: 0 });
+            if (trail.length > TRAIL_MAX) trail.shift();
+            const dx = e.clientX - lastSkipX,
+              dy = e.clientY - lastSkipY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist >= SKIP_DIST) {
-              spawnSkip(e.clientX, e.clientY)
-              lastSkipX = e.clientX; lastSkipY = e.clientY
+              spawnSkip(e.clientX, e.clientY);
+              lastSkipX = e.clientX;
+              lastSkipY = e.clientY;
             }
             // Ocean drag drawing
-            onOceanMove(e)
+            onOceanMove(e);
           }
 
           function onClick(e) {
-            cursorClicking.value = true
-            setTimeout(() => { cursorClicking.value = false }, 150)
+            cursorClicking.value = true;
+            setTimeout(() => {
+              cursorClicking.value = false;
+            }, 150);
             // Gallery item → open lightbox
-            const galleryItem = e.target.closest('.gallery-item')
+            const galleryItem = e.target.closest(".gallery-item");
             if (galleryItem) {
-              lightboxSrc.value = galleryItem.dataset.src
-              return
+              lightboxSrc.value = galleryItem.dataset.src;
+              return;
             }
             // Suppress effects while lightbox is open
-            if (lightboxSrc.value) return
-            if (e.target.closest('a, button, .contact-link, .drawer-trigger, .nav-pill button')) {
-              spawnFirework(e.clientX, e.clientY)
-              spawnClickRipple(e.clientX, e.clientY)
+            if (lightboxSrc.value) return;
+            if (
+              e.target.closest(
+                "a, button, .contact-link, .drawer-trigger, .nav-pill button",
+              )
+            ) {
+              spawnFirework(e.clientX, e.clientY);
+              spawnClickRipple(e.clientX, e.clientY);
             }
           }
 
           function onKeyDown(e) {
-            if (e.key === 'Escape' && lightboxSrc.value) lightboxSrc.value = ''
+            if (e.key === "Escape" && lightboxSrc.value) lightboxSrc.value = "";
           }
 
           function onMouseDown(e) {
             // Ocean canvas drawing
-            if (page.value === 'ocean' && !e.target.closest('a, button, .contact-link, .drawer-trigger, .nav-pill button, .drawer')) {
-              onOceanDown(e)
+            if (
+              page.value === "ocean" &&
+              !e.target.closest(
+                "a, button, .contact-link, .drawer-trigger, .nav-pill button, .drawer",
+              )
+            ) {
+              onOceanDown(e);
             }
           }
 
           function onMouseUp(e) {
-            onOceanUp()
+            onOceanUp();
           }
 
           function handleResize() {
-            const w = window.innerWidth, h = window.innerHeight
-            if (fwCanvas.value) { fwCanvas.value.width = w; fwCanvas.value.height = h }
-            if (trailCanvas.value) { trailCanvas.value.width = w; trailCanvas.value.height = h }
-            if (spiralCanvas.value) { spiralCanvas.value.width = w; spiralCanvas.value.height = h }
-            if (oceanCanvas.value) { oceanCanvas.value.width = w; oceanCanvas.value.height = h }
+            const w = window.innerWidth,
+              h = window.innerHeight;
+            if (fwCanvas.value) {
+              fwCanvas.value.width = w;
+              fwCanvas.value.height = h;
+            }
+            if (trailCanvas.value) {
+              trailCanvas.value.width = w;
+              trailCanvas.value.height = h;
+            }
+            if (spiralCanvas.value) {
+              spiralCanvas.value.width = w;
+              spiralCanvas.value.height = h;
+            }
+            if (oceanCanvas.value) {
+              oceanCanvas.value.width = w;
+              oceanCanvas.value.height = h;
+            }
           }
 
           onMounted(() => {
-            const w = window.innerWidth, h = window.innerHeight
+            const w = window.innerWidth,
+              h = window.innerHeight;
 
             // FX canvases
-            const fc = fwCanvas.value, tc = trailCanvas.value
-            fc.width = tc.width = w; fc.height = tc.height = h
-            fCtx = fc.getContext('2d')
-            tCtx = tc.getContext('2d')
+            const fc = fwCanvas.value,
+              tc = trailCanvas.value;
+            fc.width = tc.width = w;
+            fc.height = tc.height = h;
+            fCtx = fc.getContext("2d");
+            tCtx = tc.getContext("2d");
 
             // Spiral canvas
-            const sc = spiralCanvas.value
-            sc.width = w; sc.height = h
-            spiralCtx = sc.getContext('2d')
+            const sc = spiralCanvas.value;
+            sc.width = w;
+            sc.height = h;
+            spiralCtx = sc.getContext("2d");
 
             // Ocean canvas
-            const oc = oceanCanvas.value
-            oc.width = w; oc.height = h
-            oCtx = oc.getContext('2d')
+            const oc = oceanCanvas.value;
+            oc.width = w;
+            oc.height = h;
+            oCtx = oc.getContext("2d");
             // Fill with dark ocean color initially
-            oCtx.fillStyle = 'rgba(10, 22, 40, 1)'
-            oCtx.fillRect(0, 0, w, h)
+            oCtx.fillStyle = "rgba(10, 22, 40, 1)";
+            oCtx.fillRect(0, 0, w, h);
 
-            lastSkipX = w / 2; lastSkipY = h / 2
+            lastSkipX = w / 2;
+            lastSkipY = h / 2;
 
             // Start all animation loops
-            animateFw()
-            updateTrail()
-            updateLag()
-            renderSpiral()
-            renderOcean()
+            animateFw();
+            updateTrail();
+            updateLag();
+            renderSpiral();
+            renderOcean();
 
-            window.addEventListener('mousemove', onMouseMove)
-            window.addEventListener('click', onClick)
-            window.addEventListener('mousedown', onMouseDown)
-            window.addEventListener('mouseup', onMouseUp)
-            window.addEventListener('resize', handleResize)
-            window.addEventListener('keydown', onKeyDown)
-          })
+            window.addEventListener("mousemove", onMouseMove);
+            window.addEventListener("click", onClick);
+            window.addEventListener("mousedown", onMouseDown);
+            window.addEventListener("mouseup", onMouseUp);
+            window.addEventListener("resize", handleResize);
+            window.addEventListener("keydown", onKeyDown);
+          });
 
           onUnmounted(() => {
-            window.removeEventListener('mousemove', onMouseMove)
-            window.removeEventListener('click', onClick)
-            window.removeEventListener('mousedown', onMouseDown)
-            window.removeEventListener('mouseup', onMouseUp)
-            window.removeEventListener('resize', handleResize)
-            window.removeEventListener('keydown', onKeyDown)
-            cancelAnimationFrame(lagRAF)
-            cancelAnimationFrame(spiralRAF)
-            cancelAnimationFrame(oceanRAF)
-          })
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("click", onClick);
+            window.removeEventListener("mousedown", onMouseDown);
+            window.removeEventListener("mouseup", onMouseUp);
+            window.removeEventListener("resize", handleResize);
+            window.removeEventListener("keydown", onKeyDown);
+            cancelAnimationFrame(lagRAF);
+            cancelAnimationFrame(spiralRAF);
+            cancelAnimationFrame(oceanRAF);
+          });
 
           return {
-            page, setPage, activePerson, orbs,
-            cursor, cursorLag, cursorClicking,
-            skipRipples, skipDots, clickRipples,
-            trailCanvas, fwCanvas, spiralCanvas, oceanCanvas,
-            onClickFx, lightboxSrc
-          }
-        }
-      }).mount('#app')
+            page,
+            setPage,
+            activePerson,
+            orbs,
+            cursor,
+            cursorLag,
+            cursorClicking,
+            skipRipples,
+            skipDots,
+            clickRipples,
+            trailCanvas,
+            fwCanvas,
+            spiralCanvas,
+            oceanCanvas,
+            onClickFx,
+            lightboxSrc,
+          };
+        },
+      }).mount("#app");
     </script>
   </body>
 </html>
