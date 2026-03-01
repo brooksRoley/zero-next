@@ -17,10 +17,10 @@ const SELL_REFUND=0.55;
 
 // ─── Tower Tiers ─────────────────────────────────────────────────────────────
 const TIERS=[
-  {id:"apprentice",name:"Apprentice",emoji:"🔮",cost:25,baseDmg:10,range:2.0,cooldown:900,splash:0,slow:0,desc:"Cheap all-rounder",hueBase:210,color:"#7eb8ff"},
-  {id:"pyromancer",name:"Pyromancer",emoji:"🔥",cost:60,baseDmg:18,range:2.0,cooldown:1100,splash:0.9,slow:0,desc:"Area damage",hueBase:10,color:"#ff7755"},
-  {id:"frostclaw",name:"Frostclaw",emoji:"❄️",cost:50,baseDmg:7,range:3.0,cooldown:600,splash:0,slow:800,desc:"Slows, fast",hueBase:190,color:"#55ddff"},
-  {id:"archsage",name:"Archsage",emoji:"⚡",cost:110,baseDmg:40,range:2.5,cooldown:1800,splash:1.2,slow:0,desc:"Devastating",hueBase:55,color:"#ffdd44"},
+  {id:"apprentice",name:"Apprentice",emoji:"🔮",cost:20,baseDmg:10,range:2.0,cooldown:800,splash:0.2,slow:0,desc:"Cheap all-rounder",hueBase:210,color:"#7eb8ff"},
+  {id:"pyromancer",name:"Pyromancer",emoji:"🔥",cost:60,baseDmg:18,range:2.0,cooldown:1000,splash:0.9,slow:0,desc:"Area damage",hueBase:10,color:"#d14624"},
+  {id:"frostclaw",name:"Frostclaw",emoji:"❄️",cost:50,baseDmg:7,range:3.5,cooldown:600,splash:0.2,slow:800,desc:"Slows, fast",hueBase:190,color:"#55ddff"},
+  {id:"archsage",name:"Archsage",emoji:"⚡",cost:100,baseDmg:40,range:3.0,cooldown:1700,splash:1.2,slow:0,desc:"Devastating",hueBase:55,color:"#ffdd44"},
 ];
 
 const upgradeCost=(tier,lvl)=>Math.floor(tier.cost*0.5*Math.pow(lvl,1.4));
@@ -423,6 +423,8 @@ export default function NanuPikaAdventures(){
   const [started,setStarted]=useState(false);
   const [ui,setUi]=useState({gold:0,lives:0,wave:1,phase:"prep",antsLeft:0,score:0,towerCount:0,mapName:"",balance:null,maxWaves:20});
   const [canvasScale,setCanvasScale]=useState(1);
+  const [activeTooltip,setActiveTooltip]=useState(null);
+  const footerRef=useRef(null);
 
   const schema=BOARD_SCHEMAS[boardIdx];
   const cW=schema.cols*schema.cell, cH=schema.rows*schema.cell;
@@ -430,9 +432,10 @@ export default function NanuPikaAdventures(){
   // Responsive scaling
   useEffect(()=>{
     function resize(){
+      const footerH=footerRef.current?.offsetHeight||160;
       const maxW=Math.min(window.innerWidth-16, 1440);
-      const maxH=window.innerHeight*0.55;
-      const scale=Math.min(maxW/cW, maxH/cH, 1);
+      const maxH=window.innerHeight-footerH-8;
+      const scale=Math.min(maxW/cW, maxH/cH, 1.2);
       setCanvasScale(scale);
     }
     resize();window.addEventListener("resize",resize);return()=>window.removeEventListener("resize",resize);
@@ -561,75 +564,106 @@ export default function NanuPikaAdventures(){
   );
 
   // ─── Game UI ───────────────────────────────────────────────────────────────
+  const statChips=[
+    {id:"gold", icon:"💰",label:"Gold", value:ui.gold,               color:"#ffd700",tooltip:"Earn gold by defeating ants and completing waves. Use it to place and upgrade towers."},
+    {id:"lives",icon:"❤️",label:"Lives",value:ui.lives,              color:"#ff6b6b",tooltip:"Lives remaining. Each ant that escapes costs one life. Reach zero and it's Game Over!"},
+    {id:"wave", icon:"🌊",label:"Wave", value:`${ui.wave}/${ui.maxWaves}`,color:"#79c0ff",tooltip:"Current wave out of total. Ants get faster and tougher each wave. You earn a gold bonus between waves."},
+    {id:"ants", icon:"🐜",label:"Ants", value:ui.antsLeft,           color:"#c9a96e",tooltip:"Ants remaining in this wave (spawning + alive). Defeat them all to clear the wave."},
+    {id:"score",icon:"⭐",label:"Score",value:ui.score,              color:"#7ee87e",tooltip:"Score from kills and wave completions. Earn bonus points for remaining lives and gold at victory."},
+  ];
   return(
-    <div ref={containerRef} style={{display:"flex",flexDirection:"column",alignItems:"center",background:"linear-gradient(160deg,#0d1117,#161b22,#1a2332)",minHeight:"100vh",fontFamily:"'Trebuchet MS',sans-serif",color:"#c9d1d9",padding:"6px 4px",userSelect:"none",touchAction:"manipulation"}}>
-      {/* HUD - compact for mobile */}
-      <div style={{display:"flex",gap:"8px",alignItems:"center",marginBottom:"3px",fontSize:"11px",flexWrap:"wrap",justifyContent:"center",background:"rgba(255,255,255,0.04)",borderRadius:"8px",padding:"3px 10px",maxWidth:"100%"}}>
-        <span style={{color:"#ffd700",fontWeight:700}}>💰{ui.gold}</span>
-        <span style={{color:"#ff6b6b",fontWeight:700}}>❤️{ui.lives}</span>
-        <span style={{color:"#79c0ff"}}>⚔️{ui.wave}/{ui.maxWaves}</span>
-        <span style={{color:"#c9a96e"}}>🐜{ui.antsLeft}</span>
-        <span style={{color:"#7ee87e"}}>⭐{ui.score}</span>
-        <span style={{color:"#555",fontSize:"9px"}}>{ui.mapName}</span>
+    <div ref={containerRef} onClick={()=>setActiveTooltip(null)} style={{display:"flex",flexDirection:"column",height:"100dvh",overflow:"hidden",background:"linear-gradient(160deg,#0d1117,#161b22,#1a2332)",fontFamily:"'Trebuchet MS',sans-serif",color:"#c9d1d9",userSelect:"none",touchAction:"manipulation"}}>
+
+      {/* ── Canvas area (fills remaining space) ── */}
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",minHeight:0}}>
+        <canvas ref={canvasRef} width={cW} height={cH}
+          onClick={handleClick} onMouseMove={handleMove} onContextMenu={handleRightClick}
+          onTouchStart={handleTouchStart}
+          style={{
+            borderRadius:"10px",border:"2px solid rgba(255,255,255,0.08)",
+            boxShadow:"0 4px 32px rgba(0,0,0,0.6)",cursor:"crosshair",
+            width:cW*canvasScale,height:cH*canvasScale,
+            maxWidth:"100%",touchAction:"none",display:"block",
+          }}/>
       </div>
 
-      {/* Tier selector - scrollable row on mobile */}
-      <div style={{display:"flex",gap:"4px",marginBottom:"3px",overflowX:"auto",maxWidth:"100%",WebkitOverflowScrolling:"touch",padding:"2px 4px"}}>
-        {TIERS.map((t,i)=>{
-          const active=i===selectedTier,afford=ui.gold>=t.cost;
-          return(<button key={t.id} onClick={()=>{setSelectedTier(i);setSelTower(null);}} style={{
-            padding:"3px 7px",fontSize:"10px",fontWeight:active?800:500,flexShrink:0,
-            background:active?`linear-gradient(135deg,${t.color}33,${t.color}18)`:"rgba(255,255,255,0.04)",
-            color:afford?t.color:"#555",border:active?`2px solid ${t.color}88`:"2px solid transparent",
-            borderRadius:"6px",cursor:"pointer",minWidth:"90px",textAlign:"left",opacity:afford?1:0.6}}>
-            <div style={{fontSize:"11px"}}>{t.emoji}{t.name}</div>
-            <div style={{fontSize:"8px",color:"#777"}}>{t.cost}g·{t.baseDmg}d{t.splash>0?"·💥":""}{t.slow?"·🧊":""}</div>
-          </button>);
-        })}
-        {selTD&&selTI&&(
-          <div style={{padding:"3px 8px",fontSize:"9px",background:`${selTI.color}15`,border:`1px solid ${selTI.color}55`,borderRadius:"6px",flexShrink:0,minWidth:"120px"}}>
-            <div style={{fontSize:"11px",color:selTI.color,fontWeight:700}}>{selTI.emoji}Lv.{selTD.level}</div>
-            <div style={{color:"#aaa"}}>Dmg:{towerDmg(selTI,selTD.level)}→<span style={{color:"#7f7"}}>{towerDmg(selTI,selTD.level+1)}</span></div>
-            <div style={{display:"flex",gap:"3px",marginTop:"2px"}}>
-              <button onClick={()=>upgradeTower(selTower.row,selTower.col)} disabled={ui.gold<upCost} style={{...btn,padding:"2px 8px",fontSize:"9px",background:ui.gold>=upCost?"linear-gradient(135deg,#43e97b,#38f9d7)":"#333",color:ui.gold>=upCost?"#0d1117":"#666"}}>⬆{upCost}g</button>
-              {ui.phase==="prep"&&<button onClick={()=>sellTower(selTower.row,selTower.col)} style={{...btn,padding:"2px 6px",fontSize:"9px",background:"rgba(255,80,80,0.2)",color:"#f88"}}>Sell</button>}
+      {/* ── Footer: HUD + controls ── */}
+      <div ref={footerRef} style={{flexShrink:0,padding:"5px 4px 6px",borderTop:"1px solid rgba(255,255,255,0.06)",background:"rgba(10,14,22,0.8)",display:"flex",flexDirection:"column",gap:"4px",alignItems:"center"}}>
+
+        {/* HUD stat chips with tooltips */}
+        <div style={{display:"flex",gap:"5px",alignItems:"stretch",flexWrap:"wrap",justifyContent:"center",maxWidth:"100%"}}>
+          {statChips.map(chip=>(
+            <div key={chip.id} style={{position:"relative"}}
+              onMouseEnter={()=>setActiveTooltip(chip.id)}
+              onMouseLeave={()=>setActiveTooltip(null)}
+              onClick={(e)=>{e.stopPropagation();setActiveTooltip(v=>v===chip.id?null:chip.id);}}
+            >
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"4px 10px",background:"rgba(255,255,255,0.05)",border:`1px solid ${activeTooltip===chip.id?chip.color+"55":chip.color+"22"}`,borderRadius:"8px",minWidth:"52px",cursor:"help",transition:"border-color 0.15s"}}>
+                <span style={{fontSize:"14px",lineHeight:1.3}}>{chip.icon}</span>
+                <span style={{fontSize:"16px",fontWeight:800,color:chip.color,lineHeight:1.1}}>{chip.value}</span>
+                <span style={{fontSize:"8px",color:"#777",letterSpacing:"0.05em",textTransform:"uppercase",marginTop:"1px"}}>{chip.label}</span>
+              </div>
+              {activeTooltip===chip.id&&(
+                <div style={{position:"absolute",bottom:"calc(100% + 8px)",left:"50%",transform:"translateX(-50%)",background:"rgba(12,18,28,0.98)",border:`1px solid ${chip.color}44`,borderRadius:"9px",padding:"9px 13px",fontSize:"11px",color:"#c9d1d9",zIndex:200,boxShadow:`0 6px 24px rgba(0,0,0,0.7)`,width:"180px",textAlign:"center",pointerEvents:"none"}}>
+                  <div style={{fontWeight:700,color:chip.color,marginBottom:"5px",fontSize:"12px"}}>{chip.icon} {chip.label}</div>
+                  <div style={{lineHeight:1.5,color:"#aaa"}}>{chip.tooltip}</div>
+                  <div style={{position:"absolute",top:"100%",left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:`5px solid ${chip.color}44`}}/>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
+          ))}
+          <div style={{display:"flex",alignItems:"center",padding:"4px 8px",fontSize:"9px",color:"#555",letterSpacing:"0.04em"}}>{ui.mapName}</div>
+        </div>
 
-      {/* Action buttons */}
-      <div style={{display:"flex",gap:"5px",marginBottom:"3px",flexWrap:"wrap",justifyContent:"center"}}>
-        {ui.phase==="prep"&&(<>
-          <button onClick={startWave} style={{...btn,background:"linear-gradient(135deg,#43e97b,#38f9d7)",color:"#0d1117"}}>⚔️ Wave {ui.wave}</button>
-          <button onClick={restartLevel} style={{...btn,background:"rgba(255,255,255,0.08)",color:"#aaa",fontSize:"11px"}}>🔄 Reset</button>
-          <button onClick={()=>initGame()} style={{...btn,background:"rgba(255,255,255,0.06)",color:"#777",fontSize:"10px"}}>🗺️ Map</button>
-          <button onClick={()=>{setStarted(false);}} style={{...btn,background:"rgba(255,255,255,0.04)",color:"#555",fontSize:"10px"}}>⚙️ Board</button>
-        </>)}
-        {(ui.phase==="gameover"||ui.phase==="victory")&&(<>
-          <button onClick={()=>initGame()} style={{...btn,background:"linear-gradient(135deg,#f093fb,#f5576c)",color:"#fff"}}>🔄 Again</button>
-          <button onClick={()=>setStarted(false)} style={{...btn,background:"rgba(255,255,255,0.06)",color:"#888"}}>⚙️ Board</button>
-        </>)}
-        {ui.phase==="wave"&&<div style={{padding:"5px 12px",fontSize:"10px",background:"rgba(255,255,255,0.06)",borderRadius:"8px",animation:"pulse 1.8s infinite"}}>⚡ Wave {ui.wave}...</div>}
-      </div>
+        {/* Tier selector */}
+        <div style={{display:"flex",gap:"4px",overflowX:"auto",maxWidth:"100%",WebkitOverflowScrolling:"touch",padding:"0 4px",alignItems:"stretch"}}>
+          {TIERS.map((t,i)=>{
+            const active=i===selectedTier,afford=ui.gold>=t.cost;
+            return(<button key={t.id} onClick={()=>{setSelectedTier(i);setSelTower(null);}} style={{
+              padding:"4px 8px",fontSize:"10px",fontWeight:active?800:500,flexShrink:0,
+              background:active?`linear-gradient(135deg,${t.color}30,${t.color}15)`:"rgba(255,255,255,0.04)",
+              color:afford?t.color:"#555",border:active?`2px solid ${t.color}80`:"2px solid transparent",
+              borderRadius:"7px",cursor:"pointer",minWidth:"88px",textAlign:"left",opacity:afford?1:0.6,
+              transition:"all 0.15s"}}>
+              <div style={{fontSize:"12px",fontWeight:700}}>{t.emoji} {t.name}</div>
+              <div style={{fontSize:"8px",color:afford?"#888":"#444",marginTop:"1px"}}>{t.cost}g · {t.baseDmg}dmg{t.splash>0?" · 💥":""}{t.slow?" · 🧊":""}</div>
+              <div style={{fontSize:"8px",color:afford?"#666":"#333",fontStyle:"italic",marginTop:"1px"}}>{t.desc}</div>
+            </button>);
+          })}
+          {selTD&&selTI&&(
+            <div style={{padding:"4px 10px",fontSize:"9px",background:`${selTI.color}12`,border:`1px solid ${selTI.color}55`,borderRadius:"7px",flexShrink:0,minWidth:"120px"}}>
+              <div style={{fontSize:"11px",color:selTI.color,fontWeight:700,marginBottom:"2px"}}>{selTI.emoji} Lv.{selTD.level}</div>
+              <div style={{color:"#aaa"}}>Dmg: <b style={{color:"#ddd"}}>{towerDmg(selTI,selTD.level)}</b> → <b style={{color:"#7f7"}}>{towerDmg(selTI,selTD.level+1)}</b></div>
+              <div style={{display:"flex",gap:"3px",marginTop:"4px"}}>
+                <button onClick={()=>upgradeTower(selTower.row,selTower.col)} disabled={ui.gold<upCost} style={{...btn,padding:"2px 8px",fontSize:"9px",background:ui.gold>=upCost?"linear-gradient(135deg,#43e97b,#38f9d7)":"#333",color:ui.gold>=upCost?"#0d1117":"#555"}}>⬆ {upCost}g</button>
+                {ui.phase==="prep"&&<button onClick={()=>sellTower(selTower.row,selTower.col)} style={{...btn,padding:"2px 6px",fontSize:"9px",background:"rgba(255,80,80,0.18)",color:"#f88"}}>Sell</button>}
+              </div>
+            </div>
+          )}
+        </div>
 
-      {/* Canvas - responsive */}
-      <canvas ref={canvasRef} width={cW} height={cH}
-        onClick={handleClick} onMouseMove={handleMove} onContextMenu={handleRightClick}
-        onTouchStart={handleTouchStart}
-        style={{
-          borderRadius:"8px",border:"2px solid rgba(255,255,255,0.08)",
-          boxShadow:"0 3px 30px rgba(0,0,0,0.5)",cursor:"crosshair",
-          width:cW*canvasScale,height:cH*canvasScale,
-          maxWidth:"100%",touchAction:"none",
-        }}/>
+        {/* Action buttons */}
+        <div style={{display:"flex",gap:"5px",flexWrap:"wrap",justifyContent:"center"}}>
+          {ui.phase==="prep"&&(<>
+            <button onClick={startWave} style={{...btn,background:"linear-gradient(135deg,#43e97b,#38f9d7)",color:"#0d1117",padding:"7px 18px"}}>⚔️ Wave {ui.wave}</button>
+            <button onClick={restartLevel} style={{...btn,background:"rgba(255,255,255,0.08)",color:"#aaa",fontSize:"11px"}}>🔄 Reset</button>
+            <button onClick={()=>initGame()} style={{...btn,background:"rgba(255,255,255,0.06)",color:"#777",fontSize:"10px"}}>🗺️ Map</button>
+            <button onClick={()=>{setStarted(false);}} style={{...btn,background:"rgba(255,255,255,0.04)",color:"#555",fontSize:"10px"}}>⚙️</button>
+          </>)}
+          {(ui.phase==="gameover"||ui.phase==="victory")&&(<>
+            <button onClick={()=>initGame()} style={{...btn,background:"linear-gradient(135deg,#f093fb,#f5576c)",color:"#fff",padding:"7px 18px"}}>🔄 Again</button>
+            <button onClick={()=>setStarted(false)} style={{...btn,background:"rgba(255,255,255,0.06)",color:"#888"}}>⚙️ Board</button>
+          </>)}
+          {ui.phase==="wave"&&<div style={{padding:"5px 14px",fontSize:"11px",background:"rgba(255,100,100,0.06)",border:"1px solid rgba(255,100,100,0.18)",borderRadius:"8px",animation:"pulse 1.8s infinite",color:"#ff9999"}}>⚡ Wave {ui.wave} in progress…</div>}
+        </div>
 
-      {/* Compact legend */}
-      <div style={{marginTop:"4px",fontSize:"9px",color:"#444",display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"center"}}>
-        <span style={{color:"#6a9f45"}}>Tap: place/select</span>
-        <span style={{color:"#b89060"}}>Tap tower: upgrade</span>
-        <span style={{color:"#666"}}>Right-click: sell</span>
-        <span style={{color:"#555"}}>{schema.label} {schema.cols}×{schema.rows}</span>
+        {/* Legend */}
+        <div style={{fontSize:"9px",color:"#444",display:"flex",gap:"10px",flexWrap:"wrap",justifyContent:"center"}}>
+          <span style={{color:"#4a8040"}}>Tap forest: place tower</span>
+          <span style={{color:"#907040"}}>Tap tower: select/upgrade</span>
+          <span style={{color:"#666"}}>Right-click: sell</span>
+          <span style={{color:"#555"}}>{schema.label} · {schema.cols}×{schema.rows}</span>
+        </div>
       </div>
 
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}@keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}`}</style>
