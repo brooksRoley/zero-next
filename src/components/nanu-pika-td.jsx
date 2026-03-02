@@ -13,7 +13,7 @@ const BOARD_SCHEMAS = [
 ];
 
 const FOREST=0,ROAD=1,OBSTACLE=2;
-const SELL_REFUND=0.55;
+const SELL_REFUND=0.7;
 
 // ─── Tower Tiers ─────────────────────────────────────────────────────────────
 const TIERS=[
@@ -447,11 +447,11 @@ export default function NanuPikaAdventures(){
     const{grid,path}=generateMap(idx,s.cols,s.rows);
     const seedGrid=Array.from({length:s.rows},(_,r)=>Array.from({length:s.cols},(_,c)=>r*s.cols+c+idx*997+42));
     terrainRef.current=buildTerrainCache(grid,seedGrid,s.cols,s.rows,s.cell);
-    gameRef.current={grid,path,cols:s.cols,rows:s.rows,cell:s.cell,towers:[],ants:[],projectiles:[],particles:[],gold:s.startGold,lives:s.lives,wave:1,phase:"prep",score:0,spawnTimer:0,spawned:0,ws:waveSize(1),lastTick:performance.now(),seedGrid,hoverCell:null,levelStartGold:s.startGold,maxWaves:s.waves};
+    gameRef.current={grid,path,cols:s.cols,rows:s.rows,cell:s.cell,towers:[],ants:[],projectiles:[],particles:[],gold:s.startGold,lives:s.lives,wave:1,phase:"prep",score:0,spawnTimer:0,spawned:0,ws:waveSize(1),lastTick:performance.now(),seedGrid,hoverCell:null,levelStartGold:s.startGold,levelStartLives:s.lives,maxWaves:s.waves};
     setSelTower(null);setUi({gold:s.startGold,lives:s.lives,wave:1,phase:"prep",antsLeft:waveSize(1),score:0,towerCount:0,mapName:MAP_TEMPLATES[idx].name,balance:null,maxWaves:s.waves});
   },[boardIdx]);
 
-  const restartLevel=useCallback(()=>{const g=gameRef.current;if(!g||g.phase==="wave")return;g.towers=[];g.gold=g.levelStartGold;g.ants=[];g.projectiles=[];g.particles=[];g.phase="prep";g.spawned=0;g.spawnTimer=0;setSelTower(null);setUi(s=>({...s,gold:g.levelStartGold,phase:"prep",antsLeft:g.ws,towerCount:0}));},[]);
+  const restartLevel=useCallback(()=>{const g=gameRef.current;if(!g||g.phase==="wave")return;g.towers=[];g.gold=g.levelStartGold;g.lives=g.levelStartLives;g.ants=[];g.projectiles=[];g.particles=[];g.phase="prep";g.spawned=0;g.spawnTimer=0;g.ws=waveSize(g.wave);setSelTower(null);setUi(s=>({...s,gold:g.levelStartGold,lives:g.levelStartLives,phase:"prep",antsLeft:g.ws,towerCount:0}));},[]);
 
   const placeTower=useCallback((row,col)=>{const g=gameRef.current;if(!g||g.phase==="gameover"||g.phase==="victory")return false;if(g.grid[row][col]!==FOREST||g.towers.some(t=>t.row===row&&t.col===col))return false;const tier=TIERS[selectedTier];if(g.gold<tier.cost)return false;g.gold-=tier.cost;g.towers.push({row,col,tierId:tier.id,tierIdx:selectedTier,level:1,range:tier.range,cooldown:tier.cooldown,splash:tier.splash,slow:tier.slow,lastFired:0,state:"idle",attackTimer:0,id:Date.now()+Math.random(),hue:tier.hueBase+Math.floor(Math.random()*30-15)});setUi(s=>({...s,gold:g.gold,towerCount:g.towers.length}));return true;},[selectedTier]);
 
@@ -497,7 +497,7 @@ export default function NanuPikaAdventures(){
         if(g.spawned>=g.ws&&(g.ants.length===0||g.ants.every(a=>a.dead))){
           if(g.lives<=0){g.phase="gameover";setUi(s=>({...s,phase:"gameover",lives:0,gold:g.gold,score:g.score}));}
           else if(g.wave>=g.maxWaves){g.phase="victory";g.score+=g.lives*100+g.gold;setUi(s=>({...s,phase:"victory",gold:g.gold,score:g.score+g.lives*100+g.gold}));}
-          else{g.wave++;g.gold+=waveBonus(g.wave-1);g.phase="prep";g.ws=waveSize(g.wave);g.ants=[];g.particles=[];g.projectiles=[];g.levelStartGold=g.gold;setUi(s=>({...s,gold:g.gold,lives:g.lives,wave:g.wave,phase:"prep",antsLeft:g.ws,score:g.score,towerCount:g.towers.length,balance:null}));}
+          else{g.wave++;g.gold+=waveBonus(g.wave-1);g.phase="prep";g.ws=waveSize(g.wave);g.ants=[];g.particles=[];g.projectiles=[];g.levelStartGold=g.gold;g.levelStartLives=g.lives;setUi(s=>({...s,gold:g.gold,lives:g.lives,wave:g.wave,phase:"prep",antsLeft:g.ws,score:g.score,towerCount:g.towers.length,balance:null}));}
         }else{const alive=g.ants.filter(a=>!a.dead).length;setUi(s=>({...s,gold:g.gold,lives:g.lives,antsLeft:g.ws-g.spawned+alive,score:g.score}));}
       }
       // DRAW: terrain from cache
@@ -651,7 +651,8 @@ export default function NanuPikaAdventures(){
             <button onClick={()=>{setStarted(false);}} style={{...btn,background:"rgba(255,255,255,0.04)",color:"#555",fontSize:"10px"}}>⚙️</button>
           </>)}
           {(ui.phase==="gameover"||ui.phase==="victory")&&(<>
-            <button onClick={()=>initGame()} style={{...btn,background:"linear-gradient(135deg,#f093fb,#f5576c)",color:"#fff",padding:"7px 18px"}}>🔄 Again</button>
+            {ui.phase==="gameover"&&<button onClick={restartLevel} style={{...btn,background:"linear-gradient(135deg,#f7971e,#ffd200)",color:"#0d1117",padding:"7px 18px"}}>↩️ Retry Wave {ui.wave}</button>}
+            <button onClick={()=>initGame()} style={{...btn,background:"linear-gradient(135deg,#f093fb,#f5576c)",color:"#fff",padding:"7px 18px"}}>🔄 New Game</button>
             <button onClick={()=>setStarted(false)} style={{...btn,background:"rgba(255,255,255,0.06)",color:"#888"}}>⚙️ Board</button>
           </>)}
           {ui.phase==="wave"&&<div style={{padding:"5px 14px",fontSize:"11px",background:"rgba(255,100,100,0.06)",border:"1px solid rgba(255,100,100,0.18)",borderRadius:"8px",animation:"pulse 1.8s infinite",color:"#ff9999"}}>⚡ Wave {ui.wave} in progress…</div>}
