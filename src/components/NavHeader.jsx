@@ -53,7 +53,7 @@ export default function NavHeader() {
             alt="Brooks Roley"
             width={100}
             height={40}
-            className="h-7 sm:h-9 w-auto brightness-0 invert"
+            className="w-auto brightness-0 invert"
             priority
           />
         </Link>

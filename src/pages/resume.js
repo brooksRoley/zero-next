@@ -16,11 +16,10 @@ const Resume = () => {
         {/* Identity card */}
         <Reveal>
           <div className="w-full rounded-2xl bg-forest-900/85 backdrop-blur-md shadow-xl border border-forest-700/40 p-6 sm:p-8 text-center">
-            <p className="text-xs sm:text-sm uppercase tracking-widest text-forest-400 mb-3">A brief history of me</p>
+            <p className="text-xs sm:text-sm uppercase tracking-widest text-white mb-3">A brief history of me</p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Brooks Roley</h1>
             <p className="text-lg text-candy-400 font-medium mt-1">Software Engineer</p>
             <p className="text-sm text-forest-300 mt-3">brooksroley@gmail.com</p>
-            <p className="text-sm text-forest-300">949-525-5124</p>
           </div>
         </Reveal>
 
