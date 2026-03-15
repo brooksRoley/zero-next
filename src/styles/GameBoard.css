@@ -1,31 +1,200 @@
+/* ── Board ── */
 .game-board {
   display: inline-block;
-  background-color: #e6c28c;
-  padding: 10px;
+  padding: 6px;
+  border-radius: 12px;
+  max-width: 100%;
+  /* Wood grain base + subtle grain texture */
+  background:
+    repeating-linear-gradient(
+      87deg,
+      transparent,
+      transparent 8px,
+      rgba(160,120,60,0.08) 8px,
+      rgba(160,120,60,0.08) 9px
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent,
+      transparent 12px,
+      rgba(120,80,30,0.05) 12px,
+      rgba(120,80,30,0.05) 13px
+    ),
+    linear-gradient(175deg, #dfc48b 0%, #c9a65a 40%, #dbb878 70%, #d4b06a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 4px 20px rgba(0,0,0,0.3),
+    0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
 }
+
+.game-board.board-shake {
+  animation: boardShake 0.35s ease-out;
+}
+
+/* ── Cells ── */
 .board-cell {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #000;
+  width: clamp(16px, 4.5vw, 30px);
+  height: clamp(16px, 4.5vw, 30px);
+  border: 1px solid rgba(0,0,0,0.18);
   background-color: transparent;
   padding: 0;
   margin: 0;
   cursor: pointer;
+  transition: background-color 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: visible;
 }
+
+/* Intersection cross-marks — subtle grid dots at corners */
+.board-cell::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 3px;
+  height: 3px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Ghost stone preview ── */
+.board-cell:not(.black):not(.white)::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.board-cell:not(.black):not(.white):hover::after {
+  opacity: 1;
+}
+
+.board-hover-black .board-cell:not(.black):not(.white)::after {
+  background: radial-gradient(circle at 38% 35%, rgba(80,80,80,0.4) 0%, rgba(26,26,26,0.35) 50%, rgba(0,0,0,0.15) 100%);
+}
+.board-hover-white .board-cell:not(.black):not(.white)::after {
+  background: radial-gradient(circle at 38% 35%, rgba(255,255,255,0.6) 0%, rgba(240,240,240,0.4) 50%, rgba(200,200,200,0.2) 100%);
+}
+
+/* ── 3D Stones ── */
 .board-cell.black {
-  background-color: #000;
+  background: radial-gradient(
+    circle at 36% 34%,
+    #555 0%,
+    #333 25%,
+    #1a1a1a 55%,
+    #000 100%
+  );
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,0.12),
+    inset 0 -1px 2px rgba(0,0,0,0.4),
+    0 2px 4px rgba(0,0,0,0.3);
+  border-radius: 50%;
+  animation: stonePop 0.2s ease-out both;
+  cursor: default;
+  border-color: transparent;
+  z-index: 2;
 }
+
 .board-cell.white {
-  background-color: #fff;
+  background: radial-gradient(
+    circle at 36% 34%,
+    #fff 0%,
+    #f5f5f5 25%,
+    #e0e0e0 55%,
+    #c8c8c8 100%
+  );
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,0.8),
+    inset 0 -1px 2px rgba(0,0,0,0.08),
+    0 2px 4px rgba(0,0,0,0.15);
+  border-radius: 50%;
+  animation: stonePop 0.2s ease-out both;
+  cursor: default;
+  border-color: transparent;
+  z-index: 2;
 }
-.score-board {
-  background-color: #f0f0f0;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+/* Last move highlight */
+.board-cell.last-move {
+  box-shadow:
+    0 0 0 2px #ff69b4,
+    0 0 8px rgba(255,105,180,0.3),
+    inset 0 1px 3px rgba(255,255,255,0.12);
+}
+
+/* ── Ripple on placement ── */
+.board-cell.ripple::before {
+  content: '' !important;
+  position: absolute;
+  inset: -50%;
+  border-radius: 50%;
+  background: none !important;
+  width: auto !important;
+  height: auto !important;
+  top: auto !important;
+  left: auto !important;
+  border: 2px solid rgba(255,105,180,0.5);
+  animation: rippleOut 0.5s ease-out forwards;
+  pointer-events: none;
+  z-index: 3;
+}
+
+@keyframes rippleOut {
+  0% {
+    inset: 20%;
+    opacity: 1;
+    border-width: 2px;
+  }
+  100% {
+    inset: -80%;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* ── Stone pop ── */
+@keyframes stonePop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  80% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Board shake on capture ── */
+@keyframes boardShake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  15% { transform: translate(-3px, 1px) rotate(-0.5deg); }
+  30% { transform: translate(3px, -1px) rotate(0.5deg); }
+  45% { transform: translate(-2px, 0) rotate(-0.3deg); }
+  60% { transform: translate(2px, 1px) rotate(0.3deg); }
+  75% { transform: translate(-1px, 0) rotate(0); }
+}
+
+@media (min-width: 640px) {
+  .game-board {
+    padding: 10px;
+  }
+}
+
+/* ── Turn indicator pulse ── */
+@keyframes turnPulse {
+  0%, 100% { box-shadow: 0 0 0 0 currentColor; }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+.turn-dot {
+  animation: turnPulse 1.5s ease-in-out infinite;
 }
 
 
+/* ── Mario / shared animations ── */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
@@ -37,9 +206,9 @@
 }
 
 @keyframes colorChange {
-  0% { background-color: #3490dc; }
-  50% { background-color: #38a169; }
-  100% { background-color: #3490dc; }
+  0% { background-color: #ff69b4; }
+  50% { background-color: #40916c; }
+  100% { background-color: #ff69b4; }
 }
 
 .color-change-button:active {
