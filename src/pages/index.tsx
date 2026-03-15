@@ -1,206 +1,181 @@
+import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import Reveal from 'src/components/Reveal'
 
 const inter = Inter({ subsets: ['latin'] })
 
+const ArrowIcon = () => (
+  <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+  </svg>
+)
+
+const ExternalIcon = () => (
+  <svg className="w-3.5 h-3.5 opacity-40 transition-opacity duration-200 group-hover:opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+  </svg>
+)
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-4 mb-2">
-      <div className="header items-center justify-between font-mono">
-        <h1>Hi, my name is Brooks Roley.</h1>
-
-        <p className="flex justify-center border-b border-gray-300 text-sm mb-2 mb-2">
-          Check for a prime: &nbsp;
-          <code className="font-mono font-bold w-6/12">/^1?$|^(11+?)\1+$/</code>
-        </p>
-      </div>
-      <div className="grid md:grid-cols-2 text-center">
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/resume">
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Resume{' '}<span>-&gt;</span>
-          </h2>
-          <p className="text-sm mb-2">
-            Click to learn more about my experiences! &#128214; &#x1F4D6;
+    <main className={`min-h-screen bg-forest-950 ${inter.className}`}>
+      <Head>
+        <title>Brooks Roley | Software Engineer</title>
+      </Head>
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-950 to-forest-900 text-white">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_30%,rgba(255,105,180,0.12),transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_70%,rgba(45,106,79,0.4),transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_20%,rgba(255,184,217,0.08),transparent_40%)]" />
+        </div>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 md:py-32 text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-4 text-white animate-hero-1">
+            Brooks Roley
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl text-forest-200 max-w-2xl mx-auto mb-6 animate-hero-2">
+            Software Engineer building games, tools, and things for the&nbsp;web.
           </p>
-          <Image src="/cover.png" alt="Brooks Roley" width={200} height={100} />
-        </Link>
-
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="https://www.linkedin.com/in/brooksroley/">
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            LinkedIn{' '}<span>-&gt;</span>
-          </h2>
-          <p className={`text-sm mb-2`}>
-            Unlocking professional potential and fostering meaningful connections. Let us connect and make things happen! 🌟
+          <p className="text-xs sm:text-sm text-candy-300/40 font-mono break-all sm:break-normal animate-hero-3" title="Regex that checks if a number (in unary) is prime">
+            /^1?$|^(11+?)\1+$/
           </p>
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/BRMinimalist.png"
-              alt="Design Icon BR"
-              width={200}
-              height={100}
-              priority
-            />
+        </div>
+      </section>
+
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
+        {/* ── Connect ── */}
+        <section className="py-10 sm:py-12 md:py-16">
+          <Reveal>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
+              Connect
+            </h2>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            {/* Resume */}
+            <Reveal delay={100}>
+              <Link href="/resume" className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
+                <div className="aspect-[2.4/1] relative overflow-hidden">
+                  <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-8">
+                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                    Resume <ArrowIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Learn more about my experiences and background.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+
+            {/* LinkedIn */}
+            <Reveal delay={200}>
+              <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer"
+                className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
+                <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
+                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={160} height={80} className="object-contain brightness-0 invert opacity-50 transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-8">
+                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                    LinkedIn <ExternalIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Let&apos;s connect and make things happen.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+
+            {/* GitHub */}
+            <Reveal delay={300}>
+              <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer"
+                className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
+                <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
+                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={140} height={80} className="object-contain brightness-0 invert opacity-50 transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-8">
+                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                    GitHub <ExternalIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Explore my projects and open-source work.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+
+            {/* Calendly */}
+            <Reveal delay={400}>
+              <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer"
+                className="group flex items-center gap-5 rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300 p-5">
+                <div className="shrink-0 w-14 h-14 rounded-lg bg-candy-400/10 border border-candy-400/20 flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  &#128197;
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                    Calendly <ExternalIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Schedule a time to chat.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
           </div>
-        </Link>
-      </div>
+        </section>
 
-      <div className="grid md:grid-cols-3 text-center">
-        <Link
-          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded"
-          href="https://github.com/brooksroley"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Github {' '} <span>-&gt;</span>
-          </h2>
-          <p className={`text-sm mb-2`}>
-            Explore my projects and give me a message or a new issue on Github@💻✨
-          </p>
-          <Image
-            src="/facebook.jpeg"
-            alt="Facebook Offices"
-            width={200}
-            height={100}
-            priority
-          />
-        </Link>
+        {/* ── Projects ── */}
+        <section className="py-10 sm:py-12 md:py-16 border-t border-forest-800/60">
+          <Reveal>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
+              Projects
+            </h2>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            {/* Pente */}
+            <Reveal delay={100}>
+              <Link href="/posts/pente"
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-forest-800 to-forest-900 border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
+                <div className="aspect-[2.2/1] relative overflow-hidden">
+                  <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-20 transition-all duration-500 group-hover:opacity-30 group-hover:scale-105" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-candy-400 to-candy-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-6">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    Pente <ArrowIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Classic strategy board game. Two players, captures, five-in-a-row.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
 
-        <Link
-          href="https://calendly.com/brooksroley/"
-          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Calendly{' '}
-            <span className="inline-block transition-transform">-&gt;</span>
-          </h2>
-          <p
-            className={`text-sm mb-2`}
-          >
-            Schedule a time on my calendar &#128197; &#x1F4C5;
-          </p>
-
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/BRBaller.png"
-              alt="Baller Logo: Brooks Roley"
-              width={200}
-              height={120}
-              priority
-            />
+            {/* Nanu & Pika TD */}
+            <Reveal delay={200}>
+              <Link href="/posts/nanu-pika-td"
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-forest-800 via-forest-900 to-candy-950/30 border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
+                <div className="px-5 pt-6 pb-2 text-5xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
+                  &#x1F431;&#x1F9D9;&#x200D;&#x2642;&#xFE0F;
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-candy-300 to-candy-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right" />
+                <div className="px-5 pb-5">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    Nanu &amp; Pika TD <ArrowIcon />
+                  </h3>
+                  <p className="text-sm text-candy-200/60 mt-1">
+                    Tower defense with cat wizards. Place towers, survive ant waves, level up.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
           </div>
-        </Link>
-        
-        {/* 
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/first-post">
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Blog in progress <span className="inline-block transition-transform">-&gt;</span>
-          </h2>
-          <p className={`text-sm mb-2`}>
-            Stay tuned for an interactive message wall to pull blog posts and take responses from users.
-          </p>
-          <Image
-            className="relative"
-            src="/marathon.png"
-            alt="Ball Logo"
-            width={200}
-            height={100}
-            priority
-          />
-        </Link>
-         */}
-        
-        {/* <Link
-          href="https://www.cl-asi.org/easi"
-          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Sensory Integration with CLASI{' '}<span>-&gt;</span>
-          </h2>
-          <p
-            className={`text-sm mb-2`}
-          >
-            Help childhood development and sensory integration by helping EASI. EASI is a non-profit organization that helps children with sensory integration issues.
-          </p>
-
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/lion.jpg"
-              alt="Petting lion in South Africa"
-              width={200}
-              height={100}
-              priority
-            />
-          </div>
-        </Link> */}
-
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/pente">
-          <h2 className='mb-2 text-2xl font-semibold'>
-            Pente{' '}<span>-&gt;</span>
-          </h2>
-          <p className={`text-sm mb-2`}>
-            Play a game of Pente, maybe learn the rules. AI and 4 players and ELO tracking coming.
-          </p>
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/marathon.png"
-              alt="Marathon Celebration"
-              width={200}
-              height={100}
-              priority
-            />
-          </div>
-        </Link>
-
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/nanu-pika-td">
-          <h2 className='mb-2 text-2xl font-semibold'>
-            Nanu &amp; Pika TD{' '}<span>-&gt;</span>
-          </h2>
-          <p className={`text-sm mb-2`}>
-            Tower defense with cat wizards. Place towers, survive ant waves, level up. &#x1F431;&#x1F9D9;&#x200D;&#x2642;&#xFE0F;
-          </p>
-        </Link>
-{/* 
-        <Link className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 text-white m-4 p-4 rounded" href="/posts/post-form">Post Form</Link>
-
-        <Link
-          href="https://lolchess.gg/profile/na/zero400"
-          className="bg-blue-900 bg-opacity-70 hover:bg-opacity-90 m-4 text-white p-4 rounded"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-2 text-2xl font-semibold`}>
-            Play{' '}
-            <span className="inline-block">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`text-sm mb-2`}
-          >
-            I love a sense of competition and sharing my passions. Here is a link my LolChess which breaks down my pursuit of perfecting strategy in the game Teamfight Tactics.
-          </p>
-
-          <div className="relative flex place-items-center">
-            <Image
-              className="relative"
-              src="/mountain.jpg"
-              alt="Mountain in Japan"
-              width={200}
-              height={100}
-              priority
-            />
-          </div>
-        </Link> */}
+        </section>
       </div>
     </main>
   )

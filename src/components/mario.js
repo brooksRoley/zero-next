@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 
 const MarioButton = () => {
@@ -14,9 +14,10 @@ const MarioButton = () => {
 
   const handleClick = () => {
     confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
+      particleCount: 120,
+      spread: 80,
+      origin: { y: 0.6 },
+      colors: ['#ff69b4', '#40916c', '#ffb8d9', '#6abf82', '#ff8cc2'],
     });
 
     const randomClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
@@ -38,10 +39,10 @@ const MarioButton = () => {
       )}
       <button
         onClick={handleClick}
-        className={`relative flex border-solid items-center justify-center w-16 h-16 bg-yellow-500 border-4 border-black rounded-lg shadow-lg ${animationClass} ${jumpClass}`}
+        className={`relative flex border-solid items-center justify-center w-16 h-16 bg-gradient-to-br from-candy-400 to-candy-500 border-4 border-forest-600 rounded-lg shadow-lg hover:shadow-candy-400/30 hover:shadow-xl transition-shadow duration-300 ${animationClass} ${jumpClass}`}
       >
-        <span className="absolute text-4xl font-bold text-white select-none">?</span>
-        <span className="absolute w-full h-full border-2 border-white rounded-lg animate-ping"></span>
+        <span className="absolute text-4xl font-bold text-white select-none drop-shadow-md">?</span>
+        <span className="absolute w-full h-full border-2 border-candy-200/50 rounded-lg animate-ping"></span>
       </button>
     </div>
   );
