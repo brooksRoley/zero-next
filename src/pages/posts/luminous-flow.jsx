@@ -349,6 +349,10 @@ export default function LuminousFlow() {
     <>
       <Head>
         <title>Luminous Flow | Brooks Roley</title>
+        <meta name="description" content="Interactive fluid art built with curl noise, dynamic lighting, and particle physics." />
+        <meta property="og:title" content="Luminous Flow | Brooks Roley" />
+        <meta property="og:description" content="Interactive fluid art built with curl noise, dynamic lighting, and particle physics." />
+        <meta property="og:image" content="/water1.jpg" />
       </Head>
       <div className="relative w-screen h-screen overflow-hidden bg-[#020810] cursor-crosshair">
         <canvas

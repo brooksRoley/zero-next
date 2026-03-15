@@ -34,8 +34,11 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <title>Brooks Roley | Software Engineer</title>
         <meta name="description" content="Brooks Roley — Software Engineer building games, tools, and things for the web." />
+        <meta property="og:type" content="website" />
         <meta property="og:title" content="Brooks Roley | Software Engineer" />
         <meta property="og:description" content="Software Engineer building games, tools, and things for the web." />
+        <meta property="og:image" content="/cover.png" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <NavHeader />
