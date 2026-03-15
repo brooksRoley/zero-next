@@ -19,6 +19,8 @@ const ExternalIcon = () => (
 )
 
 export default function Home() {
+  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 text-white hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300"
+
   return (
     <main className={`min-h-screen bg-forest-950 ${inter.className}`}>
       <Head>
@@ -45,23 +47,23 @@ export default function Home() {
       </section>
 
       <div className="max-w-6xl mx-auto px-4 md:px-6">
-        {/* ── Connect ── */}
+        {/* ── Featured (photo cards) ── */}
         <section className="py-10 sm:py-12 md:py-16">
           <Reveal>
             <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
-              Connect
+              Featured
             </h2>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* Resume */}
             <Reveal delay={100}>
-              <Link href="/resume" className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
-                <div className="aspect-[2.4/1] relative overflow-hidden">
+              <Link href="/resume" className={cardBase}>
+                <div className="aspect-[2.2/1] relative overflow-hidden">
                   <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
                     Resume <ArrowIcon />
                   </h3>
                   <p className="text-sm text-forest-300 mt-1">
@@ -71,58 +73,19 @@ export default function Home() {
               </Link>
             </Reveal>
 
-            {/* LinkedIn */}
+            {/* Pente */}
             <Reveal delay={200}>
-              <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer"
-                className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
-                <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
-                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={160} height={80} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+              <Link href="/posts/pente" className={cardBase}>
+                <div className="aspect-[2.2/1] relative overflow-hidden">
+                  <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                    LinkedIn <ExternalIcon />
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    Pente <ArrowIcon />
                   </h3>
                   <p className="text-sm text-forest-300 mt-1">
-                    Let&apos;s connect and make things happen.
-                  </p>
-                </div>
-              </Link>
-            </Reveal>
-
-            {/* GitHub */}
-            <Reveal delay={300}>
-              <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer"
-                className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
-                <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
-                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={140} height={80} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                    GitHub <ExternalIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Explore my projects and open-source work.
-                  </p>
-                </div>
-              </Link>
-            </Reveal>
-
-            {/* Calendly */}
-            <Reveal delay={400}>
-              <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer"
-                className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
-                <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
-                  <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={140} height={80} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                    Calendly <ExternalIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Schedule a time to chat.
+                    Classic strategy board game. Two players, captures, five-in-a-row.
                   </p>
                 </div>
               </Link>
@@ -138,37 +101,17 @@ export default function Home() {
             </h2>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {/* Pente */}
-            <Reveal delay={100}>
-              <Link href="/posts/pente"
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-forest-800 to-forest-900 border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
-                <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-20 transition-all duration-500 group-hover:opacity-30 group-hover:scale-105" />
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-candy-400 to-candy-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-6">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Pente <ArrowIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Classic strategy board game. Two players, captures, five-in-a-row.
-                  </p>
-                </div>
-              </Link>
-            </Reveal>
-
             {/* Luminous Flow */}
-            <Reveal delay={200}>
-              <Link href="/posts/luminous-flow"
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-[#020810] via-[#0a1628] to-[#0d1f1a] border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
+            <Reveal delay={100}>
+              <Link href="/posts/luminous-flow" className={cardBase}>
                 <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(20,180,140,0.25),transparent_60%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(200,120,180,0.2),transparent_50%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(10,80,120,0.3),transparent_50%)]" />
-                  <span className="text-5xl opacity-70 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 select-none">&#x1F30A;</span>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-pink-400 to-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(20,180,140,0.2),transparent_60%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(200,120,180,0.15),transparent_50%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(10,80,120,0.2),transparent_50%)]" />
+                  <span className="text-5xl opacity-60 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 select-none">&#x1F30A;</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
                 </div>
-                <div className="relative px-5 pb-5 -mt-6">
+                <div className="relative px-5 pb-5 -mt-8">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
                     Luminous Flow <ArrowIcon />
                   </h3>
@@ -180,19 +123,82 @@ export default function Home() {
             </Reveal>
 
             {/* Nanu & Pika TD */}
-            <Reveal delay={300}>
-              <Link href="/posts/nanu-pika-td"
-                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-forest-800 via-forest-900 to-candy-950/30 border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
-                <div className="px-5 pt-6 pb-2 text-5xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
-                  &#x1F431;&#x1F9D9;&#x200D;&#x2642;&#xFE0F;
+            <Reveal delay={200}>
+              <Link href="/posts/nanu-pika-td" className={cardBase}>
+                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center">
+                  <span className="text-5xl opacity-60 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3 select-none">&#x1F431;&#x1F9D9;&#x200D;&#x2642;&#xFE0F;</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-candy-300 to-candy-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right" />
-                <div className="px-5 pb-5">
+                <div className="relative px-5 pb-5 -mt-8">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
                     Nanu &amp; Pika TD <ArrowIcon />
                   </h3>
-                  <p className="text-sm text-candy-200/60 mt-1">
+                  <p className="text-sm text-forest-300 mt-1">
                     Tower defense with cat wizards. Place towers, survive ant waves, level up.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ── Connect ── */}
+        <section className="py-10 sm:py-12 md:py-16 border-t border-forest-800/60">
+          <Reveal>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
+              Connect
+            </h2>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+            {/* LinkedIn */}
+            <Reveal delay={100}>
+              <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-8">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    LinkedIn <ExternalIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Let&apos;s connect and make things happen.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+
+            {/* GitHub */}
+            <Reveal delay={200}>
+              <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-8">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    GitHub <ExternalIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Explore my projects and open-source work.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+
+            {/* Calendly */}
+            <Reveal delay={300}>
+              <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                  <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-8">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    Calendly <ExternalIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Schedule a time to chat.
                   </p>
                 </div>
               </Link>
