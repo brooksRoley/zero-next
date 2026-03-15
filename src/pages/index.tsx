@@ -19,7 +19,7 @@ const ExternalIcon = () => (
 )
 
 export default function Home() {
-  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 text-white hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300"
+  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 text-white card-border-glow"
 
   return (
     <main className={`min-h-screen bg-forest-950 ${inter.className}`}>
@@ -59,7 +59,9 @@ export default function Home() {
             <Reveal delay={100}>
               <Link href="/resume" className={cardBase}>
                 <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-105" />
+                  <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
@@ -77,7 +79,9 @@ export default function Home() {
             <Reveal delay={200}>
               <Link href="/posts/pente" className={cardBase}>
                 <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 transition-transform duration-500 group-hover:scale-105" />
+                  <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
@@ -104,12 +108,11 @@ export default function Home() {
             {/* Luminous Flow */}
             <Reveal delay={100}>
               <Link href="/posts/luminous-flow" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(20,180,140,0.2),transparent_60%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(200,120,180,0.15),transparent_50%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(10,80,120,0.2),transparent_50%)]" />
-                  <span className="text-5xl opacity-60 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 select-none">&#x1F30A;</span>
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
+                <div className="aspect-[2.2/1] relative overflow-hidden">
+                  <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
@@ -125,9 +128,11 @@ export default function Home() {
             {/* Nanu & Pika TD */}
             <Reveal delay={200}>
               <Link href="/posts/nanu-pika-td" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center">
-                  <span className="text-5xl opacity-60 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3 select-none">&#x1F431;&#x1F9D9;&#x200D;&#x2642;&#xFE0F;</span>
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
+                <div className="aspect-[2.2/1] relative overflow-hidden">
+                  <Image src="/lion.jpg" alt="Nanu and Pika TD" fill className="object-cover opacity-50 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
@@ -154,7 +159,9 @@ export default function Home() {
             <Reveal delay={100}>
               <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
                 <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
@@ -172,7 +179,9 @@ export default function Home() {
             <Reveal delay={200}>
               <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer" className={cardBase}>
                 <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
@@ -190,7 +199,9 @@ export default function Home() {
             <Reveal delay={300}>
               <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
                 <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                  <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-magic" />
+                  <div className="card-aurora" />
+                  <div className="card-shimmer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
