@@ -49,7 +49,7 @@ export default function useMultiplayerGame(gameId, playerId) {
 
   // Fetch initial state + subscribe
   useEffect(() => {
-    if (!gameId || !playerId) return
+    if (!gameId || !playerId || !supabase) return
 
     let cancelled = false
 
@@ -130,7 +130,7 @@ export default function useMultiplayerGame(gameId, playerId) {
   }, [gameId, playerId, isMyTurn])
 
   const rematch = useCallback(async () => {
-    if (gameStatus !== 'finished') return
+    if (gameStatus !== 'finished' || !supabase) return
     await supabase
       .from('games')
       .update({

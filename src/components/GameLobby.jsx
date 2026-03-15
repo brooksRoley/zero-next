@@ -11,6 +11,7 @@ export default function GameLobby({ playerId, playerName, setPlayerName }) {
 
   useEffect(() => {
     async function fetchOpen() {
+      if (!supabase) return
       const { data } = await supabase
         .from('games')
         .select('id, player_black, created_at')
