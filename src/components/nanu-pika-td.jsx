@@ -17,10 +17,10 @@ const SELL_REFUND=0.7;
 
 // ─── Tower Tiers ─────────────────────────────────────────────────────────────
 const TIERS=[
-  {id:"apprentice",name:"Apprentice",emoji:"🔮",cost:20,baseDmg:10,range:2.0,cooldown:800,splash:0.2,slow:0,desc:"Cheap all-rounder",hueBase:210,color:"#7eb8ff"},
-  {id:"pyromancer",name:"Pyromancer",emoji:"🔥",cost:60,baseDmg:18,range:2.0,cooldown:1000,splash:0.9,slow:0,desc:"Area damage",hueBase:10,color:"#d14624"},
-  {id:"frostclaw",name:"Frostclaw",emoji:"❄️",cost:50,baseDmg:7,range:3.5,cooldown:600,splash:0.2,slow:800,desc:"Slows, fast",hueBase:190,color:"#55ddff"},
-  {id:"archsage",name:"Archsage",emoji:"⚡",cost:100,baseDmg:40,range:3.0,cooldown:1700,splash:1.2,slow:0,desc:"Devastating",hueBase:55,color:"#ffdd44"},
+  {id:"apprentice",name:"Apprentice",emoji:"🔮",cost:20,baseDmg:10,range:2.0,cooldown:800,splash:0.2,slow:0,desc:"Cheap all-rounder",hueBase:210,color:"#7eb8ff",tip:"Versatile starter. Works anywhere — place along straight roads for steady coverage."},
+  {id:"pyromancer",name:"Pyromancer",emoji:"🔥",cost:60,baseDmg:18,range:2.0,cooldown:1000,splash:0.9,slow:0,desc:"Area damage",hueBase:10,color:"#d14624",tip:"Big splash radius but short range. Best at tight corners and U-turns where ants cluster together."},
+  {id:"frostclaw",name:"Frostclaw",emoji:"❄️",cost:50,baseDmg:7,range:3.5,cooldown:600,splash:0.2,slow:800,desc:"Slows, fast",hueBase:190,color:"#55ddff",tip:"Long range + slow effect. Place near long straight sections so other towers get more hits on slowed ants."},
+  {id:"archsage",name:"Archsage",emoji:"⚡",cost:100,baseDmg:40,range:3.0,cooldown:1700,splash:1.2,slow:0,desc:"Devastating",hueBase:55,color:"#ffdd44",tip:"Slow but devastating splash. Place at bends where the path loops back — the range can cover two lanes at once."},
 ];
 
 const upgradeCost=(tier,lvl)=>Math.floor(tier.cost*0.5*Math.pow(lvl,1.4));
@@ -415,7 +415,7 @@ function drawBolt(ctx,x,y,hue,big){const r=big?14:9;const gl=ctx.createRadialGra
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function NanuPikaAdventures(){
-  const canvasRef=useRef(null),gameRef=useRef(null),frameRef=useRef(null),terrainRef=useRef(null);
+  const canvasRef=useRef(null),gameRef=useRef(null),frameRef=useRef(null),terrainRef=useRef(null),previewCellRef=useRef(null);
   const containerRef=useRef(null);
   const [boardIdx,setBoardIdx]=useState(2); // default "wide"
   const [selectedTier,setSelectedTier]=useState(0);
@@ -424,6 +424,7 @@ export default function NanuPikaAdventures(){
   const [ui,setUi]=useState({gold:0,lives:0,wave:1,phase:"prep",antsLeft:0,score:0,towerCount:0,mapName:"",balance:null,maxWaves:20});
   const [canvasScale,setCanvasScale]=useState(1);
   const [activeTooltip,setActiveTooltip]=useState(null);
+  const [activeTierTip,setActiveTierTip]=useState(null);
   const footerRef=useRef(null);
 
   const schema=BOARD_SCHEMAS[boardIdx];
@@ -448,10 +449,10 @@ export default function NanuPikaAdventures(){
     const seedGrid=Array.from({length:s.rows},(_,r)=>Array.from({length:s.cols},(_,c)=>r*s.cols+c+idx*997+42));
     terrainRef.current=buildTerrainCache(grid,seedGrid,s.cols,s.rows,s.cell);
     gameRef.current={grid,path,cols:s.cols,rows:s.rows,cell:s.cell,towers:[],ants:[],projectiles:[],particles:[],gold:s.startGold,lives:s.lives,wave:1,phase:"prep",score:0,spawnTimer:0,spawned:0,ws:waveSize(1),lastTick:performance.now(),seedGrid,hoverCell:null,levelStartGold:s.startGold,levelStartLives:s.lives,maxWaves:s.waves};
-    setSelTower(null);setUi({gold:s.startGold,lives:s.lives,wave:1,phase:"prep",antsLeft:waveSize(1),score:0,towerCount:0,mapName:MAP_TEMPLATES[idx].name,balance:null,maxWaves:s.waves});
+    setSelTower(null);previewCellRef.current=null;setUi({gold:s.startGold,lives:s.lives,wave:1,phase:"prep",antsLeft:waveSize(1),score:0,towerCount:0,mapName:MAP_TEMPLATES[idx].name,balance:null,maxWaves:s.waves});
   },[boardIdx]);
 
-  const restartLevel=useCallback(()=>{const g=gameRef.current;if(!g||g.phase==="wave")return;g.towers=[];g.gold=g.levelStartGold;g.lives=g.levelStartLives;g.ants=[];g.projectiles=[];g.particles=[];g.phase="prep";g.spawned=0;g.spawnTimer=0;g.ws=waveSize(g.wave);setSelTower(null);setUi(s=>({...s,gold:g.levelStartGold,lives:g.levelStartLives,phase:"prep",antsLeft:g.ws,towerCount:0}));},[]);
+  const restartLevel=useCallback(()=>{const g=gameRef.current;if(!g||g.phase==="wave")return;g.towers=[];g.gold=g.levelStartGold;g.lives=g.levelStartLives;g.ants=[];g.projectiles=[];g.particles=[];g.phase="prep";g.spawned=0;g.spawnTimer=0;g.ws=waveSize(g.wave);g.hoverCell=null;setSelTower(null);previewCellRef.current=null;setUi(s=>({...s,gold:g.levelStartGold,lives:g.levelStartLives,phase:"prep",antsLeft:g.ws,towerCount:0}));},[]);
 
   const placeTower=useCallback((row,col)=>{const g=gameRef.current;if(!g||g.phase==="gameover"||g.phase==="victory")return false;if(g.grid[row][col]!==FOREST||g.towers.some(t=>t.row===row&&t.col===col))return false;const tier=TIERS[selectedTier];if(g.gold<tier.cost)return false;g.gold-=tier.cost;g.towers.push({row,col,tierId:tier.id,tierIdx:selectedTier,level:1,range:tier.range,cooldown:tier.cooldown,splash:tier.splash,slow:tier.slow,lastFired:0,state:"idle",attackTimer:0,id:Date.now()+Math.random(),hue:tier.hueBase+Math.floor(Math.random()*30-15)});setUi(s=>({...s,gold:g.gold,towerCount:g.towers.length}));return true;},[selectedTier]);
 
@@ -459,7 +460,7 @@ export default function NanuPikaAdventures(){
 
   const sellTower=useCallback((row,col)=>{const g=gameRef.current;if(!g||g.phase==="wave")return;const idx=g.towers.findIndex(t=>t.row===row&&t.col===col);if(idx===-1)return;const t=g.towers[idx],tier=TIERS[t.tierIdx];let inv=tier.cost;for(let l=1;l<t.level;l++)inv+=upgradeCost(tier,l);g.gold+=Math.floor(inv*SELL_REFUND);g.towers.splice(idx,1);setSelTower(null);setUi(s=>({...s,gold:g.gold,towerCount:g.towers.length}));},[]);
 
-  const startWave=useCallback(()=>{const g=gameRef.current;if(!g||g.phase!=="prep")return;g.phase="wave";g.spawned=0;g.spawnTimer=0;g.ants=[];g.projectiles=[];setSelTower(null);setUi(s=>({...s,phase:"wave",balance:analyzeBalance(g.wave,g.towers,g.cell)}));},[]);
+  const startWave=useCallback(()=>{const g=gameRef.current;if(!g||g.phase!=="prep")return;g.phase="wave";g.spawned=0;g.spawnTimer=0;g.ants=[];g.projectiles=[];g.hoverCell=null;setSelTower(null);previewCellRef.current=null;setUi(s=>({...s,phase:"wave",balance:analyzeBalance(g.wave,g.towers,g.cell)}));},[]);
 
   const getGridPos=useCallback((e)=>{
     const canvas=canvasRef.current,g=gameRef.current;if(!canvas||!g)return null;
@@ -474,7 +475,20 @@ export default function NanuPikaAdventures(){
   const handleClick=useCallback((e)=>{const pos=getGridPos(e);if(!pos)return;const g=gameRef.current;if(!g)return;const existing=g.towers.find(t=>t.row===pos.row&&t.col===pos.col);if(existing){setSelTower({...pos,level:existing.level,tierId:existing.tierId,tierIdx:existing.tierIdx});return;}if(placeTower(pos.row,pos.col))setSelTower(null);},[getGridPos,placeTower]);
   const handleRightClick=useCallback((e)=>{e.preventDefault();const pos=getGridPos(e);if(pos)sellTower(pos.row,pos.col);},[getGridPos,sellTower]);
   const handleMove=useCallback((e)=>{const pos=getGridPos(e);if(gameRef.current)gameRef.current.hoverCell=pos;},[getGridPos]);
-  const handleTouchStart=useCallback((e)=>{e.preventDefault();handleClick(e);},[handleClick]);
+  const handleTouchStart=useCallback((e)=>{
+    e.preventDefault();const pos=getGridPos(e);const g=gameRef.current;
+    if(!pos||!g||g.phase==="gameover"||g.phase==="victory"){previewCellRef.current=null;if(g)g.hoverCell=null;return;}
+    // Tap existing tower → select it
+    const existing=g.towers.find(t=>t.row===pos.row&&t.col===pos.col);
+    if(existing){setSelTower({...pos,level:existing.level,tierId:existing.tierId,tierIdx:existing.tierIdx});previewCellRef.current=null;g.hoverCell=null;return;}
+    const tier=TIERS[selectedTier];const canPlace=g.grid[pos.row][pos.col]===FOREST&&!g.towers.some(t=>t.row===pos.row&&t.col===pos.col)&&g.gold>=tier.cost;
+    if(!canPlace){previewCellRef.current=null;g.hoverCell=null;setSelTower(null);return;}
+    const prev=previewCellRef.current;
+    // Second tap on same cell → confirm placement
+    if(prev&&prev.row===pos.row&&prev.col===pos.col){if(placeTower(pos.row,pos.col))setSelTower(null);previewCellRef.current=null;g.hoverCell=null;return;}
+    // First tap or different cell → show preview with range
+    previewCellRef.current=pos;g.hoverCell=pos;setSelTower(null);
+  },[getGridPos,placeTower,selectedTier]);
 
   // ─── Game Loop ─────────────────────────────────────────────────────────────
   useEffect(()=>{
@@ -615,31 +629,56 @@ export default function NanuPikaAdventures(){
           <div style={{display:"flex",alignItems:"center",padding:"4px 8px",fontSize:"9px",color:"#555",letterSpacing:"0.04em"}}>{ui.mapName}</div>
         </div>
 
-        {/* Tier selector */}
-        <div style={{display:"flex",gap:"4px",overflowX:"auto",maxWidth:"100%",WebkitOverflowScrolling:"touch",padding:"0 4px",alignItems:"stretch"}}>
-          {TIERS.map((t,i)=>{
-            const active=i===selectedTier,afford=ui.gold>=t.cost;
-            return(<button key={t.id} onClick={()=>{setSelectedTier(i);setSelTower(null);}} style={{
-              padding:"4px 8px",fontSize:"10px",fontWeight:active?800:500,flexShrink:0,
-              background:active?`linear-gradient(135deg,${t.color}30,${t.color}15)`:"rgba(255,255,255,0.04)",
-              color:afford?t.color:"#555",border:active?`2px solid ${t.color}80`:"2px solid transparent",
-              borderRadius:"7px",cursor:"pointer",minWidth:"88px",textAlign:"left",opacity:afford?1:0.6,
-              transition:"all 0.15s"}}>
-              <div style={{fontSize:"12px",fontWeight:700}}>{t.emoji} {t.name}</div>
-              <div style={{fontSize:"8px",color:afford?"#888":"#444",marginTop:"1px"}}>{t.cost}g · {t.baseDmg}dmg{t.splash>0?" · 💥":""}{t.slow?" · 🧊":""}</div>
-              <div style={{fontSize:"8px",color:afford?"#666":"#333",fontStyle:"italic",marginTop:"1px"}}>{t.desc}</div>
-            </button>);
-          })}
-          {selTD&&selTI&&(
-            <div style={{padding:"4px 10px",fontSize:"9px",background:`${selTI.color}12`,border:`1px solid ${selTI.color}55`,borderRadius:"7px",flexShrink:0,minWidth:"120px"}}>
-              <div style={{fontSize:"11px",color:selTI.color,fontWeight:700,marginBottom:"2px"}}>{selTI.emoji} Lv.{selTD.level}</div>
+        {/* Selected tower upgrade */}
+        {selTD&&selTI&&(
+          <div style={{display:"flex",gap:"6px",alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
+            <div style={{padding:"4px 10px",fontSize:"9px",background:`${selTI.color}12`,border:`1px solid ${selTI.color}55`,borderRadius:"7px",display:"flex",gap:"8px",alignItems:"center"}}>
+              <div style={{fontSize:"11px",color:selTI.color,fontWeight:700}}>{selTI.emoji} Lv.{selTD.level}</div>
               <div style={{color:"#aaa"}}>Dmg: <b style={{color:"#ddd"}}>{towerDmg(selTI,selTD.level)}</b> → <b style={{color:"#7f7"}}>{towerDmg(selTI,selTD.level+1)}</b></div>
-              <div style={{display:"flex",gap:"3px",marginTop:"4px"}}>
+              <div style={{display:"flex",gap:"3px"}}>
                 <button onClick={()=>upgradeTower(selTower.row,selTower.col)} disabled={ui.gold<upCost} style={{...btn,padding:"2px 8px",fontSize:"9px",background:ui.gold>=upCost?"linear-gradient(135deg,#43e97b,#38f9d7)":"#333",color:ui.gold>=upCost?"#0d1117":"#555"}}>⬆ {upCost}g</button>
                 {ui.phase==="prep"&&<button onClick={()=>sellTower(selTower.row,selTower.col)} style={{...btn,padding:"2px 6px",fontSize:"9px",background:"rgba(255,80,80,0.18)",color:"#f88"}}>Sell</button>}
               </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Tier selector */}
+        <div style={{display:"flex",gap:"4px",overflowX:"auto",maxWidth:"100%",WebkitOverflowScrolling:"touch",padding:"0 4px",alignItems:"stretch"}}>
+          {TIERS.map((t,i)=>{
+            const active=i===selectedTier,afford=ui.gold>=t.cost;
+            return(<div key={t.id} style={{position:"relative",flexShrink:0}}>
+              <button
+                onClick={()=>{setSelectedTier(i);setSelTower(null);setActiveTierTip(v=>v===t.id?null:t.id);}}
+                onMouseEnter={()=>setActiveTierTip(t.id)}
+                onMouseLeave={()=>setActiveTierTip(null)}
+                style={{
+                padding:"4px 8px",fontSize:"10px",fontWeight:active?800:500,width:"100%",
+                background:active?`linear-gradient(135deg,${t.color}30,${t.color}15)`:"rgba(255,255,255,0.04)",
+                color:afford?t.color:"#555",border:active?`2px solid ${t.color}80`:"2px solid transparent",
+                borderRadius:"7px",cursor:"pointer",minWidth:"88px",textAlign:"left",opacity:afford?1:0.6,
+                transition:"all 0.15s"}}>
+                <div style={{fontSize:"12px",fontWeight:700}}>{t.emoji} {t.name}</div>
+                <div style={{fontSize:"8px",color:afford?"#888":"#444",marginTop:"1px"}}>{t.cost}g · {t.baseDmg}dmg{t.splash>0?" · 💥":""}{t.slow?" · 🧊":""}</div>
+                <div style={{fontSize:"8px",color:afford?"#666":"#333",fontStyle:"italic",marginTop:"1px"}}>{t.desc}</div>
+              </button>
+              {activeTierTip===t.id&&(
+                <div style={{position:"absolute",bottom:"calc(100% + 8px)",left:"50%",transform:"translateX(-50%)",background:"rgba(12,18,28,0.98)",border:`1px solid ${t.color}44`,borderRadius:"9px",padding:"10px 13px",fontSize:"11px",color:"#c9d1d9",zIndex:200,boxShadow:`0 6px 24px rgba(0,0,0,0.7)`,width:"210px",textAlign:"left",pointerEvents:"none"}}>
+                  <div style={{fontWeight:700,color:t.color,marginBottom:"6px",fontSize:"12px"}}>{t.emoji} {t.name}</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"3px 10px",fontSize:"10px",color:"#aaa",marginBottom:"6px"}}>
+                    <span>Damage: <b style={{color:"#ddd"}}>{t.baseDmg}</b></span>
+                    <span>Range: <b style={{color:"#ddd"}}>{t.range}</b></span>
+                    <span>Speed: <b style={{color:"#ddd"}}>{(1000/t.cooldown).toFixed(1)}/s</b></span>
+                    <span>Cost: <b style={{color:"#ffd700"}}>{t.cost}g</b></span>
+                    {t.splash>0&&<span>Splash: <b style={{color:"#f88"}}>{t.splash}</b></span>}
+                    {t.slow>0&&<span>Slow: <b style={{color:"#55ddff"}}>{t.slow}ms</b></span>}
+                  </div>
+                  <div style={{fontSize:"10px",color:"#999",lineHeight:1.4,borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:"6px"}}>{t.tip}</div>
+                  <div style={{position:"absolute",top:"100%",left:"50%",transform:"translateX(-50%)",width:0,height:0,borderLeft:"5px solid transparent",borderRight:"5px solid transparent",borderTop:`5px solid ${t.color}44`}}/>
+                </div>
+              )}
+            </div>);
+          })}
         </div>
 
         {/* Action buttons */}

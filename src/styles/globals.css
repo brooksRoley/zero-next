@@ -29,116 +29,43 @@ img {
   margin: auto;
 }
 
-/* ── Card Hover Magic ── */
+/* ── Tilt Card Hover ── */
 
-/* Image enchantment — dreamy zoom, tilt, color shift */
-.card-img-magic {
-  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              filter 0.8s ease;
+.tilt-card {
+  will-change: transform;
 }
 
-.group:hover .card-img-magic {
-  transform: scale(1.12) rotate(0.7deg);
-  filter: brightness(1.2) saturate(1.4) hue-rotate(8deg);
-}
-
-/* Prismatic shimmer sweep — light refracts across the card */
-.card-shimmer {
+/* Specular highlight — follows cursor across card surface */
+.tilt-highlight {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(
-    110deg,
-    transparent 20%,
-    rgba(255, 105, 180, 0.08) 35%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(45, 106, 79, 0.08) 65%,
-    transparent 80%
+  border-radius: inherit;
+  opacity: var(--hl-opacity, 0);
+  background: radial-gradient(
+    circle at var(--hl-x, 50%) var(--hl-y, 50%),
+    rgba(255, 255, 255, 0.15),
+    transparent 50%
   );
-  transform: translateX(-150%);
-  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
 }
 
-.group:hover .card-shimmer {
-  animation: shimmerSweep 2.5s ease-in-out infinite;
+/* Image — subtle brighten on hover */
+.card-img-hover {
+  transition: filter 0.5s ease, opacity 0.5s ease;
 }
 
-/* Aurora color overlay — slow hypnotic color drift */
-.card-aurora {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.8s ease;
-  mix-blend-mode: soft-light;
-  background:
-    radial-gradient(ellipse at 25% 50%, rgba(255, 105, 180, 0.3), transparent 55%),
-    radial-gradient(ellipse at 75% 30%, rgba(45, 106, 79, 0.35), transparent 55%),
-    radial-gradient(ellipse at 50% 80%, rgba(255, 184, 217, 0.2), transparent 45%);
+.group:hover .card-img-hover {
+  filter: brightness(1.1);
 }
 
-.group:hover .card-aurora {
-  opacity: 1;
-  animation: auroraPulse 4s ease-in-out infinite;
+/* Card border — single accent glow on hover */
+.card-hover-border {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Card lift + perspective tilt + animated border glow */
-.card-border-glow {
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              border-color 0.5s ease,
-              box-shadow 0.5s ease;
-}
-
-.card-border-glow:hover {
-  transform: translateY(-4px) perspective(800px) rotateX(1deg);
-  animation: borderGlow 3s ease-in-out infinite;
-}
-
-/* Title and description glow on hover */
-.card-border-glow:hover h3 {
-  text-shadow: 0 0 20px rgba(255, 105, 180, 0.3), 0 0 40px rgba(255, 105, 180, 0.1);
-}
-
-.card-border-glow:hover p {
-  text-shadow: 0 0 12px rgba(45, 106, 79, 0.2);
-}
-
-@keyframes shimmerSweep {
-  0%   { transform: translateX(-150%); opacity: 0; }
-  5%   { opacity: 1; }
-  35%  { transform: translateX(150%); opacity: 1; }
-  40%  { opacity: 0; transform: translateX(150%); }
-  100% { opacity: 0; transform: translateX(150%); }
-}
-
-@keyframes auroraPulse {
-  0%, 100% {
-    filter: hue-rotate(0deg);
-    transform: scale(1);
-  }
-  33% {
-    filter: hue-rotate(30deg);
-    transform: scale(1.03);
-  }
-  66% {
-    filter: hue-rotate(-20deg);
-    transform: scale(0.97);
-  }
-}
-
-@keyframes borderGlow {
-  0%, 100% {
-    border-color: rgba(255, 105, 180, 0.5);
-    box-shadow:
-      0 0 15px rgba(255, 105, 180, 0.15),
-      0 0 30px rgba(255, 105, 180, 0.05),
-      0 8px 30px rgba(0, 0, 0, 0.3);
-  }
-  50% {
-    border-color: rgba(64, 145, 108, 0.6);
-    box-shadow:
-      0 0 15px rgba(45, 106, 79, 0.2),
-      0 0 30px rgba(45, 106, 79, 0.08),
-      0 8px 30px rgba(0, 0, 0, 0.3);
-  }
+.tilt-card:hover .card-hover-border {
+  border-color: rgba(255, 105, 180, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 105, 180, 0.1);
 }

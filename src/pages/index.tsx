@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
 import Reveal from 'src/components/Reveal'
+import TiltCard from 'src/components/TiltCard'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +20,7 @@ const ExternalIcon = () => (
 )
 
 export default function Home() {
-  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 text-white card-border-glow"
+  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 text-white card-hover-border"
 
   return (
     <main className={`min-h-screen bg-forest-950 ${inter.className}`}>
@@ -57,42 +58,44 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* Resume */}
             <Reveal delay={100}>
-              <Link href="/resume" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Resume <ArrowIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Learn more about my experiences and background.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="/resume" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden">
+                    <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Resume <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Learn more about my experiences and background.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
 
             {/* Pente */}
             <Reveal delay={200}>
-              <Link href="/posts/pente" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Pente <ArrowIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Classic strategy board game. Two players, captures, five-in-a-row.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="/posts/pente" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden">
+                    <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Pente <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Classic strategy board game. Two players, captures, five-in-a-row.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
           </div>
         </section>
@@ -107,42 +110,44 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* Luminous Flow */}
             <Reveal delay={100}>
-              <Link href="/posts/luminous-flow" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Luminous Flow <ArrowIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Interactive fluid art. Curl noise, light, and particle physics.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="/posts/luminous-flow" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden">
+                    <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Luminous Flow <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Interactive fluid art. Curl noise, light, and particle physics.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
 
             {/* Nanu & Pika TD */}
             <Reveal delay={200}>
-              <Link href="/posts/nanu-pika-td" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden">
-                  <Image src="/lion.jpg" alt="Nanu and Pika TD" fill className="object-cover opacity-50 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Nanu &amp; Pika TD <ArrowIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Tower defense with cat wizards. Place towers, survive ant waves, level up.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="/posts/nanu-pika-td" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden">
+                    <Image src="/lion.jpg" alt="Nanu and Pika TD" fill className="object-cover opacity-50 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Nanu &amp; Pika TD <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Tower defense with cat wizards. Place towers, survive ant waves, level up.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
           </div>
         </section>
@@ -157,62 +162,65 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
             {/* LinkedIn */}
             <Reveal delay={100}>
-              <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    LinkedIn <ExternalIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Let&apos;s connect and make things happen.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                    <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      LinkedIn <ExternalIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Let&apos;s connect and make things happen.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
 
             {/* GitHub */}
             <Reveal delay={200}>
-              <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    GitHub <ExternalIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Explore my projects and open-source work.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                    <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      GitHub <ExternalIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Explore my projects and open-source work.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
 
             {/* Calendly */}
             <Reveal delay={300}>
-              <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
-                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                  <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-magic" />
-                  <div className="card-aurora" />
-                  <div className="card-shimmer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                </div>
-                <div className="relative px-5 pb-5 -mt-8">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Calendly <ExternalIcon />
-                  </h3>
-                  <p className="text-sm text-forest-300 mt-1">
-                    Schedule a time to chat.
-                  </p>
-                </div>
-              </Link>
+              <TiltCard>
+                <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                    <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Calendly <ExternalIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Schedule a time to chat.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
             </Reveal>
           </div>
         </section>

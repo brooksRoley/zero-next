@@ -9,7 +9,10 @@ const Resume = () => {
     <div className="relative min-h-screen cover-photo">
       <Head>
         <title>Resume | Brooks Roley</title>
+        <meta name="description" content="Software Engineer with experience building games, tools, and web applications." />
         <meta property="og:title" content="Resume | Brooks Roley" />
+        <meta property="og:description" content="Software Engineer with experience building games, tools, and web applications." />
+        <meta property="og:image" content="/covertitle.jpg" />
       </Head>
       <div className="absolute inset-0 bg-forest-950/50" />
       <div className="relative max-w-2xl mx-auto px-4 py-10 sm:py-16 flex flex-col items-center gap-6 sm:gap-8">
