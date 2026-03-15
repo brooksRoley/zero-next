@@ -36,7 +36,8 @@ const GameBoard = () => {
   // ── Bot state ──
   const [botEnabled, setBotEnabled] = useState(false);
   const [botThinking, setBotThinking] = useState(false);
-  const bot = useMemo(() => new PenteBot(WHITE), []);
+  const [botColor, setBotColor] = useState(WHITE);
+  const bot = useMemo(() => new PenteBot(botColor), [botColor]);
   const tutor = useMemo(() => new PenteTutor(), []);
 
   // ── Tutor state ──
@@ -93,28 +94,30 @@ const GameBoard = () => {
     }
   }, [localBoard, localWhiteCaptures, localBlackCaptures, isOnline, gameOver, tutor]);
 
-  // ── Bot auto-play when it's WHITE's turn ──
+  // ── Bot auto-play when it's the bot's turn ──
+  const botCaptures = botColor === BLACK ? localBlackCaptures : localWhiteCaptures;
+  const humanCaptures = botColor === BLACK ? localWhiteCaptures : localBlackCaptures;
   useEffect(() => {
     if (!botEnabled || isOnline || gameOver) return;
-    if (localCurrentPlayer !== WHITE) return;
+    if (localCurrentPlayer !== botColor) return;
 
     setBotThinking(true);
     // Small delay so the UI updates before the bot "thinks"
     const timer = setTimeout(() => {
       const move = bot.getBestMove(
         localBoard.map(r => [...r]),
-        localWhiteCaptures,
-        localBlackCaptures
+        botCaptures,
+        humanCaptures
       );
       if (move) {
-        handleLocalClick(move.row, move.col);
+        handleLocalClick(move.row, move.col, true);
       }
       setBotThinking(false);
     }, 400);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localCurrentPlayer, botEnabled, isOnline, gameOver]);
+  }, [localCurrentPlayer, botEnabled, botColor, isOnline, gameOver]);
 
   // ── Record move history ──
   const recordMove = useCallback((boardState, wCaps, bCaps, mover) => {
@@ -127,11 +130,11 @@ const GameBoard = () => {
   }, []);
 
   // ── Local move handler ──
-  const handleLocalClick = (row, col) => {
+  const handleLocalClick = (row, col, isBotMove = false) => {
     if (localBoard[row][col] !== EMPTY) return;
     if (gameOver) return;
-    // If bot is enabled and it's bot's turn, block human clicks
-    if (botEnabled && localCurrentPlayer === WHITE) return;
+    // If bot is enabled and it's bot's turn, block human clicks (but not the bot itself)
+    if (botEnabled && localCurrentPlayer === botColor && !isBotMove) return;
 
     const newBoard = localBoard.map(r => [...r]);
     newBoard[row][col] = localCurrentPlayer;
@@ -230,7 +233,7 @@ const GameBoard = () => {
   };
 
   const handleAnalyze = () => {
-    const humanColor = botEnabled ? BLACK : BLACK; // In local 2p, analyze from Black's perspective
+    const humanColor = botEnabled ? (botColor === BLACK ? WHITE : BLACK) : BLACK;
     const analysis = tutor.analyzeGameHistory(moveHistory, humanColor);
     setGameAnalysis(analysis);
   };
@@ -238,7 +241,7 @@ const GameBoard = () => {
   const handleGetHint = () => {
     if (gameOver || isOnline) return;
     // Only hint for the human player
-    if (botEnabled && localCurrentPlayer === WHITE) return;
+    if (botEnabled && localCurrentPlayer === botColor) return;
 
     const playerCaps = localCurrentPlayer === BLACK ? localBlackCaptures : localWhiteCaptures;
     const oppCaps = localCurrentPlayer === BLACK ? localWhiteCaptures : localBlackCaptures;
@@ -359,7 +362,7 @@ const GameBoard = () => {
                 />
                 <p className="text-sm font-medium text-forest-200">
                   <span className="font-semibold text-white">{isBlackTurn ? 'Black' : 'White'}</span>&apos;s turn
-                  {botEnabled && !isBlackTurn && <span className="text-forest-500 ml-1">(Bot)</span>}
+                  {botEnabled && currentPlayer === botColor && <span className="text-forest-500 ml-1">(Bot)</span>}
                   {botThinking && <span className="text-cyan-400 ml-2 animate-pulse">thinking...</span>}
                 </p>
                 {moveCount > 0 && (
@@ -373,7 +376,7 @@ const GameBoard = () => {
                 {!isOnline && !gameOver && (
                   <button
                     onClick={handleGetHint}
-                    disabled={botEnabled && localCurrentPlayer === WHITE}
+                    disabled={botEnabled && localCurrentPlayer === botColor}
                     className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors px-3 py-1.5 rounded-md border border-cyan-700/40 hover:border-cyan-400/30 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Tutor Me
