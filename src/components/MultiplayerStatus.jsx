@@ -3,7 +3,7 @@ import { BLACK } from 'src/lib/pente/constants'
 
 export default function MultiplayerStatus({
   gameStatus, myColor, isMyTurn, winner, winReason,
-  playerBlack, playerWhite, opponentConnected, rematch, gameId,
+  playerBlack, playerWhite, opponentConnected, opponentJustJoined, rematch, gameId,
 }) {
   const [copied, setCopied] = useState(false)
 
@@ -44,6 +44,13 @@ export default function MultiplayerStatus({
           </span>
         </div>
       </div>
+
+      {/* Opponent joined notification */}
+      {opponentJustJoined && (
+        <div className="mt-2 px-3 py-2 rounded-lg bg-green-500/20 border border-green-500/30 text-sm text-green-300 font-medium animate-pulse">
+          {playerWhite} has joined the game!
+        </div>
+      )}
 
       {/* Share link when waiting */}
       {gameStatus === 'waiting' && (
