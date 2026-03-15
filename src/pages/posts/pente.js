@@ -41,6 +41,7 @@ const GameBoard = () => {
   const tutor = useMemo(() => new PenteTutor(), []);
 
   // ── Tutor state ──
+  const [tutorEnabled, setTutorEnabled] = useState(false);
   const [evalScore, setEvalScore] = useState(0);
   const [hintCell, setHintCell] = useState(null);
   const [hintExplanation, setHintExplanation] = useState(null);
@@ -94,6 +95,24 @@ const GameBoard = () => {
     }
   }, [localBoard, localWhiteCaptures, localBlackCaptures, isOnline, gameOver, tutor]);
 
+  // ── Auto-hint when tutor is enabled ──
+  useEffect(() => {
+    if (!tutorEnabled || gameOver || isOnline) return;
+    if (botEnabled && localCurrentPlayer === botColor) return;
+
+    const playerCaps = localCurrentPlayer === BLACK ? localBlackCaptures : localWhiteCaptures;
+    const oppCaps = localCurrentPlayer === BLACK ? localWhiteCaptures : localBlackCaptures;
+    const hint = tutor.getHint(
+      localBoard.map(r => [...r]),
+      localCurrentPlayer,
+      playerCaps,
+      oppCaps
+    );
+    setHintCell(hint.suggestedMove);
+    setHintExplanation(hint.explanation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tutorEnabled, localCurrentPlayer, localBoard, localBlackCaptures, localWhiteCaptures, gameOver, isOnline, botEnabled, botColor, tutor]);
+
   // ── Bot auto-play when it's the bot's turn ──
   const botCaptures = botColor === BLACK ? localBlackCaptures : localWhiteCaptures;
   const humanCaptures = botColor === BLACK ? localWhiteCaptures : localBlackCaptures;
@@ -120,12 +139,14 @@ const GameBoard = () => {
   }, [localCurrentPlayer, botEnabled, botColor, isOnline, gameOver]);
 
   // ── Record move history ──
-  const recordMove = useCallback((boardState, wCaps, bCaps, mover) => {
+  const recordMove = useCallback((boardState, wCaps, bCaps, mover, row, col) => {
     setMoveHistory(prev => [...prev, {
       board: boardState.map(r => [...r]),
       whiteCaptures: wCaps,
       blackCaptures: bCaps,
       moveMadeBy: mover,
+      row,
+      col,
     }]);
   }, []);
 
@@ -163,7 +184,7 @@ const GameBoard = () => {
     const finalBoard = capturedPairs > 0 ? boardAfterCaptures : newBoard;
 
     // Record history
-    recordMove(finalBoard, newWhiteCaps, newBlackCaps, localCurrentPlayer);
+    recordMove(finalBoard, newWhiteCaps, newBlackCaps, localCurrentPlayer, row, col);
 
     if (newBlackCaps >= 5 || newWhiteCaps >= 5) {
       endLocalGame(`Player ${localCurrentPlayer === BLACK ? 'Black' : 'White'} wins by captures!`, localCurrentPlayer);
@@ -222,6 +243,7 @@ const GameBoard = () => {
     setLocalLastMove(null);
     setLocalMoveCount(0);
     setRippleCell(null);
+    setTutorEnabled(false);
     setHintCell(null);
     setHintExplanation(null);
     setEvalScore(0);
@@ -238,21 +260,13 @@ const GameBoard = () => {
     setGameAnalysis(analysis);
   };
 
-  const handleGetHint = () => {
-    if (gameOver || isOnline) return;
-    // Only hint for the human player
-    if (botEnabled && localCurrentPlayer === botColor) return;
-
-    const playerCaps = localCurrentPlayer === BLACK ? localBlackCaptures : localWhiteCaptures;
-    const oppCaps = localCurrentPlayer === BLACK ? localWhiteCaptures : localBlackCaptures;
-    const hint = tutor.getHint(
-      localBoard.map(r => [...r]),
-      localCurrentPlayer,
-      playerCaps,
-      oppCaps
-    );
-    setHintCell(hint.suggestedMove);
-    setHintExplanation(hint.explanation);
+  const handleToggleTutor = () => {
+    const newVal = !tutorEnabled;
+    setTutorEnabled(newVal);
+    if (!newVal) {
+      setHintCell(null);
+      setHintExplanation(null);
+    }
   };
 
   const isLastMove = (r, c) => lastMove && lastMove[0] === r && lastMove[1] === c;
@@ -372,14 +386,18 @@ const GameBoard = () => {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                {/* Tutor Me button */}
+                {/* Tutor Me toggle */}
                 {!isOnline && !gameOver && (
                   <button
-                    onClick={handleGetHint}
+                    onClick={handleToggleTutor}
                     disabled={botEnabled && localCurrentPlayer === botColor}
-                    className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors px-3 py-1.5 rounded-md border border-cyan-700/40 hover:border-cyan-400/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className={`text-xs transition-colors px-3 py-1.5 rounded-md border disabled:opacity-40 disabled:cursor-not-allowed ${
+                      tutorEnabled
+                        ? 'text-cyan-300 bg-cyan-900/40 border-cyan-500/50'
+                        : 'text-cyan-400 hover:text-cyan-300 border-cyan-700/40 hover:border-cyan-400/30'
+                    }`}
                   >
-                    Tutor Me
+                    {tutorEnabled ? 'Tutor On' : 'Tutor Me'}
                   </button>
                 )}
                 {!isOnline && (

@@ -227,23 +227,49 @@ export class PenteTutor {
 
   /**
    * Post-game analysis. Returns annotated move list.
+   * Compares each move against the bot's best move to classify quality.
    */
   analyzeGameHistory(history, humanColor) {
     const analysis = [];
-    let previousEval = 0;
 
     for (let i = 0; i < history.length; i++) {
       const state = history[i];
       const currentEval = this.evaluateBoardState(state.board, state.whiteCaptures, state.blackCaptures);
-      const evalShift = currentEval - previousEval;
 
       let annotation = "Good move.";
-      if (state.moveMadeBy === humanColor) {
-        const shiftFromHumanPerspective = humanColor === WHITE ? evalShift : -evalShift;
-        if (shiftFromHumanPerspective < -this.weights.BLOCK_OPEN_FOUR) {
-          annotation = "Blunder: You missed a critical threat (likely an open 4 or a game-ending capture).";
-        } else if (shiftFromHumanPerspective < -this.weights.CAPTURE) {
-          annotation = "Mistake: You allowed your opponent to set up a capture or a strong attack.";
+
+      // Compare against best move (skip first move or if coords missing)
+      if (i > 0 && state.row !== undefined && state.col !== undefined) {
+        const prevState = history[i - 1];
+        const moverColor = state.moveMadeBy;
+        const bot = new PenteBot(moverColor);
+
+        const playerCaps = moverColor === BLACK ? prevState.blackCaptures : prevState.whiteCaptures;
+        const oppCaps = moverColor === BLACK ? prevState.whiteCaptures : prevState.blackCaptures;
+
+        const playedScore = bot.evaluateMove(
+          prevState.board.map(r => [...r]),
+          state.row, state.col,
+          playerCaps, oppCaps
+        );
+
+        const bestMove = bot.getBestMove(
+          prevState.board.map(r => [...r]),
+          playerCaps, oppCaps
+        );
+        const scoreDiff = bestMove.score - playedScore;
+
+        const isHuman = state.moveMadeBy === humanColor;
+        if (scoreDiff >= this.weights.BLOCK_OPEN_FOUR) {
+          annotation = isHuman
+            ? "Blunder: You missed a critical threat (open 4 or capture)."
+            : "Opponent blundered here.";
+        } else if (scoreDiff >= this.weights.OPEN_THREE) {
+          annotation = isHuman
+            ? "Mistake: A stronger move was available."
+            : "Weak opponent move.";
+        } else if (scoreDiff < 100) {
+          annotation = isHuman ? "Great move!" : "Strong opponent move.";
         }
       }
 
@@ -252,8 +278,6 @@ export class PenteTutor {
         evaluation: currentEval,
         annotation,
       });
-
-      previousEval = currentEval;
     }
 
     return analysis;
