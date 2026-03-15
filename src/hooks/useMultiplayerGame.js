@@ -3,7 +3,7 @@ import { supabase } from 'src/lib/supabase'
 import { BLACK, WHITE } from 'src/lib/pente/constants'
 import { createEmptyBoard } from 'src/lib/pente/gameLogic'
 
-export default function useMultiplayerGame(gameId, playerId) {
+export default function useMultiplayerGame(gameId, playerId, playerName) {
   const [board, setBoard] = useState(createEmptyBoard)
   const [currentPlayer, setCurrentPlayer] = useState(BLACK)
   const [blackScore, setBlackScore] = useState(0)
@@ -20,11 +20,20 @@ export default function useMultiplayerGame(gameId, playerId) {
   const [playerWhite, setPlayerWhite] = useState('')
   const [opponentConnected, setOpponentConnected] = useState(false)
   const [error, setError] = useState(null)
+  const [opponentJustJoined, setOpponentJustJoined] = useState(false)
 
   const channelRef = useRef(null)
   const presenceRef = useRef(null)
+  const prevStatusRef = useRef(null)
 
   const syncGameState = useCallback((game) => {
+    // Detect opponent joining: status went from waiting to in_progress
+    if (prevStatusRef.current === 'waiting' && game.status === 'in_progress') {
+      setOpponentJustJoined(true)
+      setTimeout(() => setOpponentJustJoined(false), 4000)
+    }
+    prevStatusRef.current = game.status
+
     setBoard(game.board)
     setCurrentPlayer(game.current_player)
     setBlackScore(game.black_score)
@@ -67,6 +76,26 @@ export default function useMultiplayerGame(gameId, playerId) {
         return
       }
       syncGameState(data)
+
+      // Auto-join if game is waiting and we're not the creator
+      if (data.status === 'waiting' && data.player_black_id !== playerId) {
+        try {
+          const resp = await fetch('/api/pente/join', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              gameId,
+              playerId,
+              playerName: playerName || 'White',
+            }),
+          })
+          if (cancelled) return
+          const result = await resp.json()
+          if (result.game) syncGameState(result.game)
+        } catch (e) {
+          // Join failed — they'll stay as spectator
+        }
+      }
     }
 
     init()
@@ -108,7 +137,7 @@ export default function useMultiplayerGame(gameId, playerId) {
       if (channelRef.current) supabase.removeChannel(channelRef.current)
       if (presenceRef.current) supabase.removeChannel(presenceRef.current)
     }
-  }, [gameId, playerId, syncGameState])
+  }, [gameId, playerId, playerName, syncGameState])
 
   const isMyTurn = myColor === currentPlayer && gameStatus === 'in_progress'
 
@@ -153,6 +182,6 @@ export default function useMultiplayerGame(gameId, playerId) {
     blackCaptures, whiteCaptures, lastMove, moveCount,
     gameStatus, myColor, isMyTurn, winner, winReason,
     playerBlack, playerWhite, opponentConnected,
-    error, makeMove, rematch,
+    opponentJustJoined, error, makeMove, rematch,
   }
 }

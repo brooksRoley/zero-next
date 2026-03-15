@@ -34,7 +34,8 @@ const GameBoard = () => {
   // ── Multiplayer state ──
   const mp = useMultiplayerGame(
     mode === 'online' ? gameId : null,
-    playerId
+    playerId,
+    playerName
   );
 
   // ── Derived state: pick source based on mode ──
@@ -212,6 +213,7 @@ const GameBoard = () => {
             playerBlack={mp.playerBlack}
             playerWhite={mp.playerWhite}
             opponentConnected={mp.opponentConnected}
+            opponentJustJoined={mp.opponentJustJoined}
             rematch={mp.rematch}
             gameId={gameId}
           />
