@@ -3,6 +3,7 @@ import { createEmptyBoard } from 'src/lib/pente/gameLogic'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+  if (!supabase) return res.status(503).json({ error: 'Multiplayer not configured' })
 
   const { playerId, playerName } = req.body
   if (!playerId) return res.status(400).json({ error: 'playerId is required' })
