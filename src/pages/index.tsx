@@ -76,7 +76,7 @@ export default function Home() {
               <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer"
                 className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
                 <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
-                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={160} height={80} className="object-contain brightness-0 invert opacity-50 transition-transform duration-500 group-hover:scale-110" />
+                  <Image src="/BRMinimalist.png" alt="Design Icon BR" width={160} height={80} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
@@ -95,7 +95,7 @@ export default function Home() {
               <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer"
                 className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
                 <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
-                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={140} height={80} className="object-contain brightness-0 invert opacity-50 transition-transform duration-500 group-hover:scale-110" />
+                  <Image src="/BRBaller.png" alt="Brooks Roley logo" width={140} height={80} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                 </div>
                 <div className="relative px-5 pb-5 -mt-8">
@@ -112,11 +112,12 @@ export default function Home() {
             {/* Calendly */}
             <Reveal delay={400}>
               <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer"
-                className="group flex items-center gap-5 rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300 p-5">
-                <div className="shrink-0 w-14 h-14 rounded-lg bg-candy-400/10 border border-candy-400/20 flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  &#128197;
+                className="group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300">
+                <div className="aspect-[2.4/1] relative bg-forest-800/40 flex items-center justify-center overflow-hidden">
+                  <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={140} height={80} className="object-contain opacity-60 transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                 </div>
-                <div>
+                <div className="relative px-5 pb-5 -mt-8">
                   <h3 className="text-xl font-semibold text-white flex items-center gap-2">
                     Calendly <ExternalIcon />
                   </h3>
@@ -156,8 +157,30 @@ export default function Home() {
               </Link>
             </Reveal>
 
-            {/* Nanu & Pika TD */}
+            {/* Luminous Flow */}
             <Reveal delay={200}>
+              <Link href="/posts/luminous-flow"
+                className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-[#020810] via-[#0a1628] to-[#0d1f1a] border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
+                <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(20,180,140,0.25),transparent_60%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(200,120,180,0.2),transparent_50%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(10,80,120,0.3),transparent_50%)]" />
+                  <span className="text-5xl opacity-70 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 select-none">&#x1F30A;</span>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-pink-400 to-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                </div>
+                <div className="relative px-5 pb-5 -mt-6">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    Luminous Flow <ArrowIcon />
+                  </h3>
+                  <p className="text-sm text-forest-300 mt-1">
+                    Interactive fluid art. Curl noise, light, and particle physics.
+                  </p>
+                </div>
+              </Link>
+            </Reveal>
+
+            {/* Nanu & Pika TD */}
+            <Reveal delay={300}>
               <Link href="/posts/nanu-pika-td"
                 className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-forest-800 via-forest-900 to-candy-950/30 border border-forest-700/40 text-white hover:border-candy-400/40 hover:shadow-xl hover:shadow-candy-400/10 hover:scale-[1.02] transition-all duration-300">
                 <div className="px-5 pt-6 pb-2 text-5xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
