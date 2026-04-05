@@ -149,6 +149,48 @@ export default function Home() {
                 </Link>
               </TiltCard>
             </Reveal>
+
+            {/* AWS GenAI Tracker */}
+            <Reveal delay={300}>
+              <TiltCard>
+                <Link href="/education-tracker" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden">
+                    <Image src="/mountain.jpg" alt="AWS GenAI Tracker" fill className="object-cover opacity-50 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      AWS GenAI Tracker <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Interactive study roadmap for the AWS Generative AI Developer certification.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
+            </Reveal>
+
+            {/* Lakers Tactics */}
+            <Reveal delay={400}>
+              <TiltCard>
+                <Link href="/posts/basketball-tactics" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                    <Image src="/BRBaller.png" alt="Lakers Tactics" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Lakers Tactics <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      SwiftUI iOS app. Live game scores, roster stat charts, interactive play-drawing court.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
+            </Reveal>
           </div>
         </section>
 
