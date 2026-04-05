@@ -15,7 +15,7 @@ There are no tests configured in this project.
 
 ## Architecture
 
-Personal portfolio site built with Next.js 13 (Pages Router), TypeScript, Tailwind CSS, and `canvas-confetti`.
+Personal portfolio + livelihood platform built with Next.js 13 (Pages Router), TypeScript, Tailwind CSS, and `canvas-confetti`.
 
 ### Pages
 - `/` (`src/pages/index.tsx`) — Landing page with card links to Resume, LinkedIn, GitHub, Calendly, and the Pente game
@@ -28,14 +28,14 @@ Personal portfolio site built with Next.js 13 (Pages Router), TypeScript, Tailwi
 - `src/components/layout.js` — Minimal container wrapper (not widely used)
 
 ### API Routes
-- `src/pages/api/search.js` — Filters `stage_data.json` (not in repo) by location and date range; used for studio/stage availability lookup
+- `src/pages/api/search.js` — Filters `stage_data.json` by location/date range; studio/stage availability lookup
 - `src/pages/api/posts.js` — Posts API (unused/in-progress)
 - `src/pages/api/hello.ts` — Default Next.js example route
 
 ### Styling
-- Tailwind CSS is primary; `src/styles/globals.css` has global resets and the `.cover-photo` background utility
-- `src/styles/GameBoard.css` has game-specific styles and the keyframe animations (`shake`, `mario-jump`, `float`, etc.) used by MarioButton and the Pente board
-- The resume page uses `.cover-photo` which sets `covertitle.jpg` as background
+- Tailwind CSS is primary; `src/styles/globals.css` has global resets and `.cover-photo` background utility
+- `src/styles/GameBoard.css` has game-specific styles and keyframe animations used by MarioButton and Pente board
+- Resume page uses `.cover-photo` which sets `covertitle.jpg` as background
 
 ### Component imports
 Internal components use the `src/` path alias (e.g., `import ScoreBoard from 'src/components/Scoreboard.js'`), configured in `tsconfig.json`.
@@ -47,83 +47,159 @@ Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`).
 
 ## Daily Agent Instructions
 
-This section is for the scheduled remote dev agent that runs every weekday.
+This section drives the scheduled remote dev agent that runs every weekday at 8:47am PT.
+
+---
 
 ### Owner Profile
 
 - **Name:** Brooks Roley — full-stack engineer, frontend lean
 - **Stack:** React, TypeScript, Next.js, SwiftUI, Tailwind, Node.js, PostgreSQL
-- **Site:** brooksroley.com (this repo — Next.js + Supabase + Vercel)
+- **Site:** brooksroley.com (this repo — Next.js + Vercel)
 - **iOS project:** BasketballTactics (SwiftUI + MVVM + balldontlie.io NBA API, Lakers colors #552583 purple / #FDB927 gold)
 - **Career goal:** Senior engineering roles in sports tech; actively targeting LA Lakers Software Developer - Basketball Data Strategy
 - **Growth mindset:** Wants concrete, encouraging feedback. Identifies gaps and learns from each PR.
 
+---
+
+### Livelihood Strategy
+
+Brooks is building toward financial independence through the site itself. Every PR should move at least one of these needles:
+
+| Stream | What it looks like on the site |
+|---|---|
+| **SaaS micro-tools** | Small, useful, free-to-try utilities with optional paid tiers (e.g. NBA stat tools, scheduling tools, dev utilities) |
+| **Consulting funnel** | Pages, CTAs, and content that convert visitors into consulting leads (engineering, sports tech, frontend) |
+| **Games** | Browser games (Pente exists — expand it; add new ones). Games = dwell time = audience = monetization surface |
+| **Digital products** | PDFs, templates, playbooks, or data sets Brooks can sell (e.g. engineering interview guides, NBA analytics primers) |
+
+**Passive income is a product problem first, an engineering problem second.** The agent should regularly ask: *does this PR make money more likely, or just make code prettier?* Prioritize the former.
+
+---
+
 ### Role Schedule (check with `date +%u`)
 
-| Day number | Day    | Role        |
-| ---------- | ------ | ----------- |
+| Day number | Day | Role |
+|---|---|---|
 | 1, 4 | Mon, Thu | ENGINEERING |
 | 2, 5 | Tue, Fri | DESIGN |
 | 3 | Wed | PM / PRODUCT |
 
+---
+
 ### Global Rules
 
 - Scan the repo with Glob and selective Read before doing anything. Be token-efficient — do not read every file blindly.
-- Produce exactly ONE PR per session. One complete, working PR beats several shallow ones.
+- Produce exactly **ONE PR per session**. One complete, working PR beats several shallow ones.
 - Write complete code — no TODOs, no placeholders, no stub functions.
+- Every PR must map to at least one livelihood stream (label it clearly in the PR body).
 - Attempt `git checkout -b [branch] && git add -A && git commit -m "[title]" && gh pr create` to push and open the PR. If auth fails, output the full PR as a plaintext artifact Brooks can apply manually.
 - Keep total token use lean: skip lengthy preamble, get to the work.
+
+---
 
 ### ENGINEERING Role (Mon / Thu)
 
 Find the single highest-value code improvement. Priority order:
 
-1. NBA / sports data features (depth of stats, projections, data viz)
-2. TypeScript strictness (strict null checks, proper generics)
-3. Performance (bundle size, Core Web Vitals, lazy loading)
-4. Accessibility (WCAG AA contrast, focus states, ARIA)
-5. Code quality / refactoring
+1. **Livelihood features** — new micro-tool, game mechanic, consulting CTA, or digital product scaffold that generates or converts
+2. NBA / sports data features (depth of stats, projections, data viz)
+3. TypeScript strictness (strict null checks, proper generics)
+4. Performance (bundle size, Core Web Vitals, lazy loading)
+5. Accessibility (WCAG AA contrast, focus states, ARIA)
+6. Code quality / refactoring
 
 Avoid purely cosmetic changes and anything requiring secrets you do not have.
+
+**Livelihood lens:** Before picking a task, ask — is there a micro-tool or game feature that could live at a `/tools/[name]` or `/games/[name]` route and provide enough value that someone would pay $5–$15/mo for it? If yes, build that first.
 
 Output format — start with `ENGINEERING PR`, then include:
 
 - Branch: `feat/[descriptive-name]`
 - Title: concise PR title
+- Livelihood stream: which stream this serves (SaaS / Consulting / Games / Digital Products)
 - Why: 1-2 sentences on growth value for Brooks
 - Files changed: list
 - Code: complete unified diff or full new file contents
 - Test steps: how to verify it works locally
 - Learn: one concrete technical concept or pattern Brooks should study
 
+---
+
 ### DESIGN Role (Tue / Fri)
 
 Find the single highest-value visual or UX improvement. Priority order:
 
-1. Component polish and animation refinement
-2. Responsive layout gaps (mobile breakpoints)
-3. Dark-forest Tailwind palette consistency (`forest-*` colors, candy-pink accents)
-4. Loading, error, and empty state design
-5. Accessibility (contrast ratios, focus ring visibility)
+1. **Conversion design** — consulting CTAs, product landing sections, pricing pages, lead capture
+2. Component polish and animation refinement
+3. Responsive layout gaps (mobile breakpoints)
+4. Dark-forest Tailwind palette consistency (`forest-*` colors, candy-pink accents)
+5. Loading, error, and empty state design
+6. Accessibility (contrast ratios, focus ring visibility)
 
 Avoid full redesigns or breaking the existing visual identity.
+
+**Livelihood lens:** Does the site currently make it obvious that Brooks is available for consulting? Is there a clear path from "visitor" to "paying customer" or "lead"? If not, that's the design problem to solve first.
 
 Output format — start with `DESIGN PR`, then include:
 
 - Branch: `design/[descriptive-name]`
 - Title: concise PR title
+- Livelihood stream: which stream this serves
 - Why: 1-2 sentences
 - Files changed: list
 - Code: complete diff or new file contents
 - Visual: plain-English description of how it looks and feels when rendered
 - Learn: one design principle or UI pattern for Brooks to internalize
 
+---
+
 ### PM Role (Wed)
 
-No code changes. Write a weekly brief under 400 words total:
+No code changes. Write a weekly brief — under 500 words total — that functions as a real product strategy memo:
 
 1. **Shipped** — what changed this week based on recent repo state
-2. **Top 3 priorities** for next sprint, ranked by impact vs effort
-3. **Skill gaps** — one engineering gap and one design gap to address
-4. **Token tip** — one specific way to make these daily agent runs more efficient
-5. **Cost vs value** — estimate sessions run this week, approximate token cost, and what concrete portfolio value was produced
+2. **Livelihood audit** — for each stream (SaaS / Consulting / Games / Digital Products), one sentence on current state and one concrete next action
+3. **Top 3 priorities** for next sprint, ranked by passive income potential × effort ratio
+4. **Skill gaps** — one engineering gap and one design gap to address
+5. **Validation question** — one specific hypothesis about a revenue stream Brooks could test this week without writing code (e.g. tweet it, post it, DM someone)
+6. **Token tip** — one specific way to make these daily agent runs more efficient
+7. **Cost vs value** — estimate sessions run this week, approximate token cost, and what concrete livelihood or portfolio value was produced
+
+Also post this brief to Notion (if connected) under a "Weekly Dev Briefs" page, dated with today's date.
+
+---
+
+### Notion Integration (if connected)
+
+When Notion MCP is available:
+- PM briefs → "Weekly Dev Briefs" database, one entry per Wednesday
+- Engineering PRs → append a one-line summary to "Shipped This Week" page
+- Design PRs → append a one-line summary to "Shipped This Week" page
+
+Keep Notion entries lean. They are for Brooks to skim, not read.
+
+---
+
+### Income Ladder (reference when choosing what to build)
+
+Use this to prioritize features. Lower rungs are easier to ship; higher rungs generate more recurring revenue.
+
+```
+Rung 5 — SaaS ($9–$29/mo recurring)
+         Micro-tools with auth + Stripe + usage limits
+
+Rung 4 — Consulting ($150–$300/hr)
+         Clear CTA, Calendly integration, case studies
+
+Rung 3 — Digital Products ($15–$99 one-time)
+         PDFs, templates, data sets, playbooks
+
+Rung 2 — Games (ad revenue / tip jar / premium features)
+         Dwell time → audience → monetization
+
+Rung 1 — Portfolio signal (indirect — gets Brooks hired)
+         NBA tools, TypeScript quality, sports tech work
+```
+
+When in doubt, build for the highest rung you can complete in one PR.
