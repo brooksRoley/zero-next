@@ -6,15 +6,18 @@ Personal portfolio and project showcase built with Next.js, TypeScript, and Tail
 
 - `/` — Landing page with project cards and connect links
 - `/resume` — Resume with PDF download and an interactive Mario "?" block easter egg
-- `/posts/pente` — Playable 2-player Pente board game (19×19, captures, five-in-a-row)
+- `/posts/pente` — Playable 2-player Pente board game (19×19, captures, five-in-a-row, bot, tutor, post-game analysis)
 - `/posts/luminous-flow` — Interactive fluid art with curl noise and particle physics
 - `/posts/nanu-pika-td` — Tower defense game with cat wizard towers and ant waves
+- `/posts/basketball-tactics` — Lakers Tactics iOS SwiftUI app showcase
+- `/education-tracker` — AWS GenAI Developer certification study roadmap
+- `/zero-paradox` — Zero Paradox LLC brand page with Stripe, PayPal, and Venmo payment integration
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 (Pages Router), React 18, TypeScript
-- **Styling:** Tailwind CSS with custom `forest` and `candy` color palettes
-- **Animations:** CSS keyframes, 3D cursor-tracking tilt cards (`TiltCard`), scroll-triggered reveals (`Reveal`), `canvas-confetti`
+- **Styling:** Tailwind CSS with custom `forest`, `candy`, and `void` color palettes
+- **Animations:** CSS keyframes, 3D cursor-tracking tilt cards (`TiltCard`), scroll-triggered reveals (`Reveal`), `canvas-confetti`, canvas particle systems (`PreText`, `LuminousFlow`)
 - **Node:** 24.x
 
 ## Getting Started
@@ -26,40 +29,87 @@ yarn build        # Production build
 yarn lint         # ESLint
 ```
 
+## Payment Setup (Zero Paradox LLC)
+
+Add these to `.env.local` to activate the payment page:
+
+```
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK=https://buy.stripe.com/...   # dashboard.stripe.com → Payment Links (set "customer chooses price")
+NEXT_PUBLIC_PAYPAL_ME=your-username                           # paypal.me handle
+NEXT_PUBLIC_VENMO_HANDLE=your-handle                          # Venmo @handle (without @)
+```
+
 ## Project Structure
 
 ```
 src/
 ├── pages/
-│   ├── index.tsx              # Landing page
-│   ├── resume.js              # Resume + MarioButton
+│   ├── index.tsx                  # Landing page
+│   ├── resume.js                  # Resume + MarioButton
+│   ├── zero-paradox.jsx           # Zero Paradox LLC brand + payments
+│   ├── education-tracker.jsx      # AWS GenAI study tracker
 │   ├── posts/
-│   │   ├── pente.js           # Pente board game
-│   │   ├── luminous-flow.jsx  # Fluid art canvas
-│   │   └── nanu-pika-td.jsx   # Tower defense game
+│   │   ├── pente.js               # Pente board game (bot, tutor, multiplayer)
+│   │   ├── luminous-flow.jsx      # Fluid art canvas
+│   │   ├── nanu-pika-td.jsx       # Tower defense game
+│   │   └── basketball-tactics.jsx # Lakers Tactics iOS showcase
 │   └── api/
-│       └── search.js          # Studio/stage availability filter
+│       ├── pente/                 # Multiplayer game API (Supabase)
+│       └── search.js              # Studio/stage availability filter
 ├── components/
+│   ├── PreText.jsx            # Canvas-animated text (flow / pulse / fill modes)
 │   ├── TiltCard.tsx           # 3D cursor-tracking hover card
 │   ├── Reveal.jsx             # IntersectionObserver scroll animation
 │   ├── NavHeader.jsx          # Sticky nav with mobile menu
-│   ├── mario.js               # Confetti "?" block button
-│   └── Scoreboard.js          # Pente game scoreboard
+│   ├── GameLobby.jsx          # Pente multiplayer lobby
+│   ├── MultiplayerStatus.jsx  # Pente online game status bar
+│   ├── PentePlayerbot.js      # Pente AI opponent
+│   ├── PenteTutor.js          # Pente move evaluation + hints
+│   ├── Scoreboard.js          # Pente scoreboard
+│   └── mario.js               # Confetti "?" block button
 └── styles/
     ├── globals.css            # Tailwind + tilt card hover system
-    └── GameBoard.css          # Pente board, stones, animations
+    └── GameBoard.css          # Pente board, stones, keyframe animations
 ```
 
-## Next Steps
+## CI/CD
 
-### 1. Add page-level `<meta>` and Open Graph tags per project
+Every PR runs three required checks before merge:
 
-Right now every page inherits the same generic OG title/description from `_app.tsx`. Each project page (Pente, Luminous Flow, Nanu & Pika TD) should have its own `og:title`, `og:description`, and `og:image` so that links shared on LinkedIn, Twitter, or Slack render with a relevant preview instead of the generic portfolio card. This is the single highest-leverage change for discoverability — it costs almost nothing to implement and directly increases click-through when someone shares your work.
+| Check | What it does | Blocks merge? |
+|---|---|---|
+| **Lint** | `next lint` — ESLint across all pages/components | Yes |
+| **Build** | `next build` — TypeScript + import errors | Yes |
+| **Test** | `vitest run` — Pente game logic unit tests | Yes |
+| **Lighthouse** | Audits 6 pages: perf / a11y / SEO / best-practices | a11y + SEO error; others warn |
 
-### 2. Lighthouse performance pass on game pages
+### GitHub Secrets required
 
-The Pente, Luminous Flow, and Nanu & Pika TD pages are heavy — large JS bundles, canvas rendering, and inline game logic. Running a Lighthouse audit and acting on the results (code-splitting with `next/dynamic`, lazy-loading game engines below the fold, deferring non-critical audio/assets) would meaningfully improve initial load time, especially on mobile. This matters because a slow-loading portfolio project undermines the impression you're trying to make.
+Add these at **Settings → Secrets → Actions**:
 
-### 3. Add a test foundation
+```
+NEXT_PUBLIC_SUPABASE_URL        # from .env.local
+NEXT_PUBLIC_SUPABASE_ANON_KEY   # from .env.local
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK # optional — build passes without it
+NEXT_PUBLIC_PAYPAL_ME           # optional
+NEXT_PUBLIC_VENMO_HANDLE        # optional
+LHCI_GITHUB_APP_TOKEN           # from https://github.com/apps/lighthouse-ci
+```
 
-There are no tests in the project. Starting with integration tests on the Pente game logic (win detection, capture mechanics, turn alternation) would be the highest-value entry point — it's pure logic with clear inputs/outputs, no UI mocking needed. A basic Jest or Vitest setup with 5-10 game logic tests would protect against regressions as you keep building and signal engineering rigor to anyone browsing the repo.
+### Running tests locally
+
+```bash
+yarn test              # run once
+yarn test:watch        # interactive watch mode
+yarn test:coverage     # with v8 coverage report
+```
+
+Tests live in `src/lib/pente/__tests__/gameLogic.test.js`. Add new tests alongside the logic they cover.
+
+### Lighthouse CI locally
+
+```bash
+npx @lhci/cli autorun  # requires yarn build first
+```
+
+Thresholds are in `lighthouserc.js`. Performance is a warning (canvas-heavy pages); accessibility and SEO are hard errors.
