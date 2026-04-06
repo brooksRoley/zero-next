@@ -264,6 +264,29 @@ export default function Home() {
                 </Link>
               </TiltCard>
             </Reveal>
+
+            {/* Zero Paradox */}
+            <Reveal delay={400}>
+              <TiltCard>
+                <Link href="/zero-paradox" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2e1065]/60">
+                    <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-[#4c1d95]/60 border border-[#7c3aed]/30">
+                      <span className="text-3xl font-black text-[#c4b5fd] tracking-tighter select-none">ZP</span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Zero Paradox LLC <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-forest-300 mt-1">
+                      Support the work — games, tools, consulting, and nonprofits.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
+            </Reveal>
           </div>
         </section>
       </div>

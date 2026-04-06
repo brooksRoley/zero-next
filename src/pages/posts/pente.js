@@ -12,6 +12,7 @@ import { EMPTY, BLACK, WHITE } from 'src/lib/pente/constants';
 import { createEmptyBoard, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
 import { PenteBot } from 'src/components/PentePlayerbot';
 import { PenteTutor } from 'src/components/PenteTutor';
+import PreText from 'src/components/PreText';
 
 const GameBoard = () => {
   const router = useRouter();
@@ -374,11 +375,21 @@ const GameBoard = () => {
                       : 'bg-white border-forest-300 text-forest-300'
                   }`}
                 />
-                <p className="text-sm font-medium text-forest-200">
-                  <span className="font-semibold text-white">{isBlackTurn ? 'Black' : 'White'}</span>&apos;s turn
-                  {botEnabled && currentPlayer === botColor && <span className="text-forest-500 ml-1">(Bot)</span>}
-                  {botThinking && <span className="text-cyan-400 ml-2 animate-pulse">thinking...</span>}
-                </p>
+                <div className="flex items-center gap-2">
+                  <PreText
+                    text={`${isBlackTurn ? 'Black' : 'White'}'s turn`}
+                    mode="pulse"
+                    color={isBlackTurn ? '#d1d5db' : '#ffffff'}
+                    fontSize="0.875rem"
+                    fontWeight="600"
+                  />
+                  {botEnabled && currentPlayer === botColor && (
+                    <span className="text-forest-500 text-sm">(Bot)</span>
+                  )}
+                  {botThinking && (
+                    <PreText text="thinking..." mode="flow" color="#22d3ee" fontSize="0.875rem" />
+                  )}
+                </div>
                 {moveCount > 0 && (
                   <span className="text-xs text-forest-500 ml-1">
                     Move {moveCount + 1}
@@ -413,12 +424,19 @@ const GameBoard = () => {
 
             {/* Hint explanation toast */}
             {hintExplanation && (
-              <div className="mb-4 mx-2 sm:mx-0 rounded-lg bg-cyan-900/30 border border-cyan-700/40 px-4 py-3 text-sm text-cyan-200 flex items-start gap-2">
-                <span className="text-cyan-400 mt-0.5">&#x2728;</span>
-                <span>{hintExplanation}</span>
+              <div className="mb-4 mx-2 sm:mx-0 rounded-lg bg-cyan-900/30 border border-cyan-700/40 px-4 py-3 text-sm flex items-start gap-3">
+                <PreText
+                  text="✦ Hint"
+                  mode="pulse"
+                  color="#22d3ee"
+                  fontSize="0.75rem"
+                  fontWeight="700"
+                  className="shrink-0 mt-0.5"
+                />
+                <span className="text-cyan-200 flex-1">{hintExplanation}</span>
                 <button
                   onClick={() => { setHintCell(null); setHintExplanation(null); }}
-                  className="ml-auto text-cyan-500 hover:text-cyan-300 text-xs"
+                  className="ml-auto text-cyan-500 hover:text-cyan-300 text-xs shrink-0"
                 >
                   dismiss
                 </button>
