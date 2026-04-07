@@ -171,20 +171,20 @@ export default function Home() {
               </TiltCard>
             </Reveal>
 
-            {/* Lakers Tactics */}
+            {/* Basketball Data Platform */}
             <Reveal delay={400}>
               <TiltCard>
-                <Link href="/posts/basketball-tactics" className={cardBase}>
+                <Link href="/basketball-platform" className={cardBase}>
                   <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                    <Image src="/BRBaller.png" alt="Lakers Tactics" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
+                    <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/70 to-transparent" />
                   </div>
                   <div className="relative px-5 pb-5 -mt-8">
                     <h3 className="text-xl font-semibold flex items-center gap-2">
-                      Lakers Tactics <ArrowIcon />
+                      Basketball Data Platform <ArrowIcon />
                     </h3>
                     <p className="text-sm text-forest-300 mt-1">
-                      SwiftUI iOS app. Live game scores, roster stat charts, interactive play-drawing court.
+                      Full-stack analytics system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS app.
                     </p>
                   </div>
                   <div className="tilt-highlight" />
