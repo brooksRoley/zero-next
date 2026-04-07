@@ -8,6 +8,7 @@ const NAV_LINKS = [
   {
     label: 'Projects',
     children: [
+      { href: '/basketball-platform', label: 'Basketball Data Platform' },
       { href: '/posts/pente', label: 'Pente' },
       { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
     ],
