@@ -361,7 +361,7 @@ export default function EducationTracker() {
                 ))}
               </div>
               <div style={{ marginTop: 8, fontSize: ".75rem", color: COLORS.t3 }}>
-                These keywords map directly to AIP-C01 exam topics. Add them to your scraper's SEARCH_QUERIES and BONUS_STACK in config.py to surface roles where your cert gives you a competitive edge.
+                These keywords map directly to AIP-C01 exam topics. Add them to your scraper&apos;s SEARCH_QUERIES and BONUS_STACK in config.py to surface roles where your cert gives you a competitive edge.
               </div>
             </div>
           </div>
