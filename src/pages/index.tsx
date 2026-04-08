@@ -20,7 +20,7 @@ const ExternalIcon = () => (
 )
 
 export default function Home() {
-  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/40 bg-forest-900/60 text-white card-hover-border"
+  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/20 bg-forest-900/60 text-white card-hover-border"
 
   return (
     <main className={`min-h-screen bg-forest-950 ${inter.className}`}>
@@ -244,20 +244,20 @@ export default function Home() {
               </TiltCard>
             </Reveal>
 
-            {/* Calendly */}
+            {/* Consulting */}
             <Reveal delay={300}>
               <TiltCard>
-                <Link href="https://calendly.com/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                <Link href="/consulting" className={cardBase}>
                   <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
                     <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
                   </div>
                   <div className="relative px-5 pb-5 -mt-8">
                     <h3 className="text-xl font-semibold flex items-center gap-2">
-                      Calendly <ExternalIcon />
+                      Consulting <ArrowIcon />
                     </h3>
                     <p className="text-sm text-forest-300 mt-1">
-                      Schedule a time to chat.
+                      Strategy sessions, dev sprints, and fractional CTO engagements.
                     </p>
                   </div>
                   <div className="tilt-highlight" />
