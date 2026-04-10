@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ScoreBoard from 'src/components/Scoreboard.js';
 import GameLobby from 'src/components/GameLobby';
@@ -298,9 +299,15 @@ const GameBoard = () => {
       <div className="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Mode toggle */}
         <div className="flex items-center justify-center gap-1 mb-4 sm:mb-6">
+          <Link
+            href="/posts/pente-puzzles"
+            className="px-4 py-1.5 text-sm rounded-l-lg border transition-colors bg-forest-900/60 text-candy-400 border-forest-700/40 hover:text-candy-300 hover:border-candy-400/30"
+          >
+            Puzzles
+          </Link>
           <button
             onClick={() => { setMode('local'); setBotEnabled(false); resetLocalBoard(); if (gameId) router.push('/posts/pente', undefined, { shallow: true }); }}
-            className={`px-4 py-1.5 text-sm rounded-l-lg border transition-colors ${
+            className={`px-4 py-1.5 text-sm border transition-colors ${
               mode === 'local' && !botEnabled
                 ? 'bg-forest-700/60 text-white border-forest-600'
                 : 'bg-forest-900/60 text-forest-400 border-forest-700/40 hover:text-forest-200'
