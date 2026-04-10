@@ -3,7 +3,7 @@
  * Each puzzle is a frozen board state with known correct move(s).
  * Board format: 19x19 2D array — 0=EMPTY, 1=BLACK, 2=WHITE
  */
-import { BOARD_SIZE, EMPTY, BLACK, WHITE } from './constants'
+import { BOARD_SIZE, EMPTY, BLACK, WHITE, RED, BLUE } from './constants'
 
 // Helper: create empty 19x19 board, then place stones
 function makeBoard(stones) {
@@ -16,8 +16,10 @@ function makeBoard(stones) {
 
 const B = BLACK
 const W = WHITE
+const R = RED
+const U = BLUE // U for blUe to avoid conflicts
 
-export const PUZZLE_CATEGORIES = ['capture', 'five_in_a_row', 'defense', 'opening', 'mixed']
+export const PUZZLE_CATEGORIES = ['capture', 'five_in_a_row', 'defense', 'opening', 'mixed', 'teamplay']
 export const DIFFICULTY_LABELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert']
 
 // Map difficulty to ELO rating for puzzles
@@ -325,6 +327,122 @@ export const puzzles = [
     solutions: [{ row: 6, col: 8 }],
     hint: 'White has four in a row, but one end is already blocked...',
     explanation: 'White has four in a row at (6,4)-(6,7). The left end at (6,3) is already blocked by Black. The ONLY move to prevent White from winning is to block the right end at (6,8).',
+  },
+
+  // ───────────────────── TEAMPLAY (Difficulty 2-3) ─────────────────────
+  {
+    id: 'team-001',
+    title: 'Teammate Bracket',
+    description: 'Black to move. Your teammate (White) is already positioned. Capture the red pair using your teammate as a bracket.',
+    category: 'teamplay',
+    difficulty: 2,
+    // White (teammate) at (9,6). Red pair at (9,7)-(9,8). Black plays (9,9) to capture.
+    // Pattern: W(9,6)-R(9,7)-R(9,8)-B(9,9) — teammate bracket capture
+    board: makeBoard([
+      [9, 6, W], [9, 7, R], [9, 8, R],
+      [8, 8, B], [10, 6, W], [8, 5, R], [10, 10, U],
+    ]),
+    playerToMove: B,
+    blackCaptures: 0,
+    whiteCaptures: 0,
+    solutions: [{ row: 9, col: 9 }],
+    hint: 'Your teammate\'s stone at (9,6) can serve as the far bracket for a capture.',
+    explanation: 'In 2v2, your teammate\'s stones count as brackets. W(9,6)-R(9,7)-R(9,8)-B(9,9) captures the red pair. Shared capture count goes up!',
+    gameMode: 'team2v2',
+    teamContext: 'You (Black) and White are teammates vs Red and Blue.',
+  },
+  {
+    id: 'team-002',
+    title: 'Don\'t Block Your Ally',
+    description: 'Black to move. Your teammate (White) has an open three. Find the move that defends without blocking it.',
+    category: 'teamplay',
+    difficulty: 3,
+    // White has open three at row 7: (7,7)-(7,8)-(7,9) with open ends at (7,6) and (7,10).
+    // Red has threatening three at row 9: (9,7)-(9,8)-(9,9) open at (9,6) and (9,10).
+    // Wrong: playing (7,10) blocks White's extension. Correct: play (9,6) to block Red without hurting White.
+    board: makeBoard([
+      [7, 7, W], [7, 8, W], [7, 9, W],
+      [9, 7, R], [9, 8, R], [9, 9, R],
+      [8, 5, B], [6, 6, B], [10, 10, U], [8, 11, U],
+    ]),
+    playerToMove: B,
+    blackCaptures: 0,
+    whiteCaptures: 0,
+    solutions: [{ row: 9, col: 6 }],
+    hint: 'Block the opponent\'s threat, but make sure you\'re not also blocking your teammate\'s open line.',
+    explanation: 'Playing (9,6) blocks Red\'s open three while leaving White\'s open three at row 7 intact. Playing (9,10) would also block Red, but (9,6) is equally good. Don\'t play near (7,6) or (7,10) — those are White\'s extension points!',
+    gameMode: 'team2v2',
+    teamContext: 'You (Black) and White are teammates vs Red and Blue.',
+  },
+  {
+    id: 'team-003',
+    title: 'Team Capture Race',
+    description: 'Black to move. Your team has 4 captures. Find the move that gets the winning 5th capture.',
+    category: 'teamplay',
+    difficulty: 2,
+    // Team has 4 captures already. Red pair at (10,8)-(10,9), Black at (10,10).
+    // Black plays (10,7) to capture. B(10,7)-R(10,8)-R(10,9)-B(10,10)
+    board: makeBoard([
+      [10, 10, B], [10, 8, R], [10, 9, R],
+      [9, 9, W], [8, 8, W], [11, 11, U], [8, 6, B],
+      [7, 7, R], [12, 12, U],
+    ]),
+    playerToMove: B,
+    blackCaptures: 4,  // team total is 4 already
+    whiteCaptures: 0,
+    solutions: [{ row: 10, col: 7 }],
+    hint: 'Your team needs one more capture to win. Look for a red pair to bracket.',
+    explanation: 'B(10,7) flanks the red pair at (10,8)-(10,9) with B(10,10). That\'s the team\'s 5th capture — you win!',
+    gameMode: 'team2v2',
+    teamContext: 'You (Black) and White are teammates. Your team has 4 captures — one more wins!',
+  },
+  {
+    id: 'team-004',
+    title: 'FFA Capture Choice',
+    description: 'Black to move in Free-for-All. Choose which opponent\'s pair to capture for maximum advantage.',
+    category: 'teamplay',
+    difficulty: 3,
+    // Red pair at (9,7)-(9,8) with B at (9,9) — B plays (9,6) to capture Red.
+    // Blue pair at (7,9)-(8,9) with B at (9,9) — B plays (6,9) to capture Blue.
+    // Capturing Red is better because Red has 3 captures (closer to winning).
+    board: makeBoard([
+      [9, 9, B], [9, 7, R], [9, 8, R],
+      [7, 9, U], [8, 9, U],
+      [6, 6, B], [10, 10, W], [11, 11, R], [5, 5, W],
+    ]),
+    playerToMove: B,
+    blackCaptures: 0,
+    whiteCaptures: 0,
+    solutions: [{ row: 9, col: 6 }, { row: 6, col: 9 }],
+    hint: 'You can capture either Red or Blue. In FFA, think about who is the bigger threat.',
+    explanation: 'Both (9,6) and (6,9) are valid captures. In FFA, consider which opponent is closest to winning and capture their pair to slow them down.',
+    gameMode: 'ffa4',
+    teamContext: 'Free-for-All: everyone is an opponent. Both captures are correct.',
+  },
+  {
+    id: 'team-005',
+    title: 'Five Is Yours Alone',
+    description: 'Black to move in 2v2. Your teammate\'s stones DON\'T count for five-in-a-row. Find the real winning move.',
+    category: 'teamplay',
+    difficulty: 2,
+    // Black has 3 in a row at (9,7)-(9,8)-(9,9). White (teammate) at (9,10).
+    // Playing (9,6) gives B four, but still not five with W in between.
+    // Actually: B at (9,7),(9,8),(9,9) and (9,11). Playing (9,10) is occupied by teammate.
+    // Need to find the capture win instead.
+    // Red pair at (7,8)-(7,9), Black at (7,7). B plays (7,10). Team has 4 captures.
+    board: makeBoard([
+      [9, 7, B], [9, 8, B], [9, 9, B], [9, 10, W], [9, 11, B],
+      [7, 7, B], [7, 8, R], [7, 9, R],
+      [8, 6, W], [10, 12, U], [6, 6, R], [11, 11, U],
+    ]),
+    playerToMove: B,
+    blackCaptures: 4,
+    whiteCaptures: 0,
+    solutions: [{ row: 7, col: 10 }],
+    hint: 'Your teammate\'s stone breaks your five-in-a-row. Look for a capture win instead.',
+    explanation: 'B(9,7)-(9,8)-(9,9)-W(9,10)-(9,11) is NOT five-in-a-row because White\'s stone interrupts (teammate or not, only YOUR color counts). Instead, play (7,10) to capture the red pair: B(7,7)-R(7,8)-R(7,9)-B(7,10). That\'s the 5th team capture — you win!',
+    gameMode: 'team2v2',
+    teamContext: 'You (Black) and White are teammates. Five-in-a-row only counts YOUR stones. But captures are shared!',
   },
 ]
 

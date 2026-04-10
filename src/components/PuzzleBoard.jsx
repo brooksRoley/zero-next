@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react'
-import { BLACK, WHITE } from 'src/lib/pente/constants'
+import { BLACK, WHITE, RED, BLUE, PLAYER_COLORS } from 'src/lib/pente/constants'
 
 /**
  * Reusable Pente board renderer.
@@ -38,7 +38,7 @@ export default function PuzzleBoard({
     if (onCellClick) onCellClick(row, col, { triggerShake })
   }
 
-  const isBlackTurn = playerToMove === BLACK
+  const hoverCss = `board-hover-${PLAYER_COLORS[playerToMove]?.css || 'black'}`
   const isLastMove = (r, c) => lastMove && lastMove[0] === r && lastMove[1] === c
   const isHintCell = (r, c) => hintCell && hintCell.row === r && hintCell.col === c
   const isHighlighted = (r, c) => highlightCells.some(h => h.row === r && h.col === c)
@@ -47,7 +47,7 @@ export default function PuzzleBoard({
   return (
     <div
       ref={boardRef}
-      className={`game-board rounded-xl shadow-lg ${isBlackTurn ? 'board-hover-black' : 'board-hover-white'} ${disabled ? 'opacity-90' : ''}`}
+      className={`game-board rounded-xl shadow-lg ${hoverCss} ${disabled ? 'opacity-90' : ''}`}
       style={disabled ? { pointerEvents: 'none' } : undefined}
     >
       {board.map((row, rowIndex) => (
@@ -58,7 +58,7 @@ export default function PuzzleBoard({
               <button
                 key={colIndex}
                 className={`flex-1 board-cell ${
-                  cell === BLACK ? 'black' : cell === WHITE ? 'white' : ''
+                  cell === BLACK ? 'black' : cell === WHITE ? 'white' : cell === RED ? 'red' : cell === BLUE ? 'blue' : ''
                 } ${isLastMove(rowIndex, colIndex) ? 'last-move' : ''
                 } ${rippleCell === cellKey ? 'ripple' : ''
                 } ${isHintCell(rowIndex, colIndex) ? 'hint-glow' : ''

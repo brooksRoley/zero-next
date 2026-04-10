@@ -135,12 +135,24 @@ export default function PuzzleSolver({
         <span className="text-sm font-medium text-forest-200">
           {isBlackToMove ? 'Black' : 'White'} to move
         </span>
+        {puzzle.gameMode && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded border text-purple-400 border-purple-700/40">
+            {puzzle.gameMode === 'team2v2' ? '2v2' : 'FFA'}
+          </span>
+        )}
         {(puzzle.blackCaptures > 0 || puzzle.whiteCaptures > 0) && (
           <span className="text-xs text-forest-500">
             Captures: B:{puzzle.blackCaptures} W:{puzzle.whiteCaptures}
           </span>
         )}
       </div>
+
+      {/* Team context banner */}
+      {puzzle.teamContext && (
+        <div className="mb-4 rounded-lg bg-purple-900/20 border border-purple-700/30 px-4 py-2.5 text-xs text-purple-200">
+          <strong className="text-purple-300">Team Mode:</strong> {puzzle.teamContext}
+        </div>
+      )}
 
       {/* Hint toast */}
       {showHint && !solved && (

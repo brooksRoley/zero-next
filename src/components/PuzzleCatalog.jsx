@@ -171,6 +171,7 @@ export default function PuzzleCatalog({
                     puzzle.category === 'five_in_a_row' ? 'text-green-400 border-green-700/40' :
                     puzzle.category === 'defense' ? 'text-blue-400 border-blue-700/40' :
                     puzzle.category === 'opening' ? 'text-yellow-400 border-yellow-700/40' :
+                    puzzle.category === 'teamplay' ? 'text-pink-400 border-pink-700/40' :
                     'text-purple-400 border-purple-700/40'
                   }`}>
                     {puzzle.category.replace(/_/g, ' ')}

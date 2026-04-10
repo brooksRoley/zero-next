@@ -8,43 +8,104 @@ import confetti from 'canvas-confetti';
 import useGameSounds from 'src/hooks/useGameSounds';
 import usePlayerId from 'src/hooks/usePlayerId';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
-import { EMPTY, BLACK, WHITE } from 'src/lib/pente/constants';
+import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
 import { createEmptyBoard, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
-import { PenteBot } from 'src/components/PentePlayerbot';
+import { PenteBot, BOT_LEVELS, getBotLevelForElo } from 'src/components/PentePlayerbot';
 import { PenteTutor } from 'src/components/PenteTutor';
 import PreText from 'src/components/PreText';
+import usePuzzleProgress from 'src/hooks/usePuzzleProgress';
+
+// Map cell value to CSS class
+function cellClass(cell) {
+  switch (cell) {
+    case BLACK: return 'black';
+    case WHITE: return 'white';
+    case RED:   return 'red';
+    case BLUE:  return 'blue';
+    default:    return '';
+  }
+}
+
+// Map cell value to capture-eject CSS class
+function captureClass(color) {
+  switch (color) {
+    case BLACK: return 'capture-black';
+    case WHITE: return 'capture-white';
+    case RED:   return 'capture-red';
+    case BLUE:  return 'capture-blue';
+    default:    return 'capture-black';
+  }
+}
+
+// Get hover class for current player
+function hoverClass(player) {
+  return `board-hover-${PLAYER_COLORS[player]?.css || 'black'}`;
+}
+
+// Game mode presets for the mode selector
+const MODE_PRESETS = [
+  { key: 'local', label: 'Local', modeKey: null, bots: false },
+  { key: 'bot1v1', label: 'vs Bot', modeKey: 'classic', bots: true },
+  { key: 'bot4ffa', label: 'vs 3 Bots', modeKey: 'ffa4', bots: true },
+  { key: 'bot2v2', label: '2v2 Bots', modeKey: 'team2v2', bots: true },
+  { key: 'online', label: 'Online', modeKey: null, bots: false },
+];
+
+// Rules text per game mode
+const MODE_RULES = {
+  classic: {
+    title: 'Classic Pente',
+    captures: 'Bracket exactly two opponent stones with yours in a straight line to capture them.',
+  },
+  ffa4: {
+    title: 'Free-for-All (4 Players)',
+    captures: 'You can capture any opponent\'s pair. All three other players are opponents. Pairs must be the same color \u2014 you can\'t capture a mixed pair.',
+  },
+  team2v2: {
+    title: '2v2 Team Pente',
+    captures: 'You and your teammate share a capture count. Your teammate\'s stones count as brackets for captures \u2014 their stone at one end and yours at the other can capture an opponent pair between you. Five-in-a-row must be your stones only.',
+  },
+};
 
 const GameBoard = () => {
   const router = useRouter();
   const gameId = router.query.game;
-  const [mode, setMode] = useState(gameId ? 'online' : 'local');
 
   // Player identity
   const { playerId, playerName, setPlayerName } = usePlayerId();
 
-  // ── Local state ──
+  // ELO from puzzle progress (shared rating)
+  const { elo: playerElo, recordGameResult } = usePuzzleProgress();
+
+  // ── Core mode state ──
+  const [modePreset, setModePreset] = useState(gameId ? 'online' : 'local');
+  const isOnlinePreset = modePreset === 'online';
+  const mode = isOnlinePreset ? 'online' : 'local';
+
+  // ── Local game state ──
   const [localBoard, setLocalBoard] = useState(() => createEmptyBoard());
   const [localCurrentPlayer, setLocalCurrentPlayer] = useState(BLACK);
-  const [localBlackScore, setLocalBlackScore] = useState(0);
-  const [localWhiteScore, setLocalWhiteScore] = useState(0);
-  const [localBlackCaptures, setLocalBlackCaptures] = useState(0);
-  const [localWhiteCaptures, setLocalWhiteCaptures] = useState(0);
+  const [scores, setScores] = useState({});    // { [player]: gamesWon }
+  const [captures, setCaptures] = useState({}); // { [player]: pairsCount } or { teamN: count }
   const [, setGameCount] = useState(0);
   const [localLastMove, setLocalLastMove] = useState(null);
   const [localMoveCount, setLocalMoveCount] = useState(0);
   const [rippleCell, setRippleCell] = useState(null);
 
-  // Capture-eject animation: Map<"row-col", BLACK|WHITE>
+  // Capture-eject animation: Map<"row-col", playerColor>
   const [capturedCells, setCapturedCells] = useState(() => new Map());
 
-  // ── Bot state ──
-  const [botEnabled, setBotEnabled] = useState(false);
+  // ── Game mode + Bot state ──
+  const [gameMode, setGameMode] = useState(null); // null = classic pass-and-play
+  const [botInstances, setBotInstances] = useState([]); // array of PenteBot
+  const [botDifficulty, setBotDifficulty] = useState('intermediate');
   const [botThinking, setBotThinking] = useState(false);
-  const [botColor] = useState(WHITE);
-  const bot = useMemo(() => new PenteBot(botColor), [botColor]);
-  const tutor = useMemo(() => new PenteTutor(), []);
+  const [humanColor] = useState(BLACK); // human is always Black
+
+  const botEnabled = botInstances.length > 0;
 
   // ── Tutor state ──
+  const tutor = useMemo(() => new PenteTutor(), []);
   const [tutorEnabled, setTutorEnabled] = useState(false);
   const [evalScore, setEvalScore] = useState(0);
   const [hintCell, setHintCell] = useState(null);
@@ -67,16 +128,21 @@ const GameBoard = () => {
     playerName
   );
 
-  // ── Derived state: pick source based on mode ──
+  // ── Derived state ──
   const isOnline = mode === 'online' && gameId;
   const board = isOnline ? mp.board : localBoard;
   const currentPlayer = isOnline ? mp.currentPlayer : localCurrentPlayer;
-  const blackScore = isOnline ? mp.blackScore : localBlackScore;
-  const whiteScore = isOnline ? mp.whiteScore : localWhiteScore;
-  const blackCaptures = isOnline ? mp.blackCaptures : localBlackCaptures;
-  const whiteCaptures = isOnline ? mp.whiteCaptures : localWhiteCaptures;
   const lastMove = isOnline ? mp.lastMove : localLastMove;
   const moveCount = isOnline ? mp.moveCount : localMoveCount;
+
+  // Backward-compat derived captures for online + classic display
+  const blackCaptures = isOnline ? mp.blackCaptures : (captures[BLACK] || 0);
+  const whiteCaptures = isOnline ? mp.whiteCaptures : (captures[WHITE] || 0);
+  const blackScore = isOnline ? mp.blackScore : (scores[BLACK] || 0);
+  const whiteScore = isOnline ? mp.whiteScore : (scores[WHITE] || 0);
+
+  // Active players list
+  const activePlayers = gameMode ? gameMode.turnOrder : [BLACK, WHITE];
 
   const boardRef = useRef(null);
   const { playPlace, playCapture, playWin } = useGameSounds();
@@ -94,20 +160,21 @@ const GameBoard = () => {
     setTimeout(() => setRippleCell(null), 500);
   }, []);
 
-  // ── Evaluation bar ──
+  // ── Evaluation bar (classic only) ──
   useEffect(() => {
-    if (!isOnline && !gameOver) {
-      const score = tutor.evaluateBoardState(localBoard, localWhiteCaptures, localBlackCaptures);
+    if (!isOnline && !gameOver && (!gameMode || gameMode.key === 'classic')) {
+      const score = tutor.evaluateBoardState(localBoard, whiteCaptures, blackCaptures);
       setEvalScore(score);
     }
-  }, [localBoard, localWhiteCaptures, localBlackCaptures, isOnline, gameOver, tutor]);
+  }, [localBoard, whiteCaptures, blackCaptures, isOnline, gameOver, gameMode, tutor]);
 
-  // ── Auto-hint when tutor is enabled ──
+  // ── Auto-hint when tutor is enabled (classic only) ──
   useEffect(() => {
     if (!tutorEnabled || gameOver || isOnline) return;
-    if (botEnabled && localCurrentPlayer === botColor) return;
-    const playerCaps = localCurrentPlayer === BLACK ? localBlackCaptures : localWhiteCaptures;
-    const oppCaps    = localCurrentPlayer === BLACK ? localWhiteCaptures : localBlackCaptures;
+    if (gameMode && gameMode.key !== 'classic') return; // tutor only in classic
+    if (botEnabled && localCurrentPlayer !== humanColor) return;
+    const playerCaps = localCurrentPlayer === BLACK ? blackCaptures : whiteCaptures;
+    const oppCaps    = localCurrentPlayer === BLACK ? whiteCaptures : blackCaptures;
     const hint = tutor.getHint(
       localBoard.map(r => [...r]),
       localCurrentPlayer,
@@ -117,44 +184,52 @@ const GameBoard = () => {
     setHintCell(hint.suggestedMove);
     setHintExplanation(hint.explanation);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorEnabled, localCurrentPlayer, localBoard, localBlackCaptures, localWhiteCaptures, gameOver, isOnline, botEnabled, botColor, tutor]);
+  }, [tutorEnabled, localCurrentPlayer, localBoard, blackCaptures, whiteCaptures, gameOver, isOnline, botEnabled, humanColor, gameMode, tutor]);
 
   // ── Bot auto-play ──
-  const botCaptures   = botColor === BLACK ? localBlackCaptures : localWhiteCaptures;
-  const humanCaptures = botColor === BLACK ? localWhiteCaptures : localBlackCaptures;
   useEffect(() => {
     if (!botEnabled || isOnline || gameOver) return;
-    if (localCurrentPlayer !== botColor) return;
+    if (localCurrentPlayer === humanColor) return; // human's turn
+
+    const currentBot = botInstances.find(b => b.botColor === localCurrentPlayer);
+    if (!currentBot) return;
+
     setBotThinking(true);
+    const delay = 350 + Math.random() * 250;
     const timer = setTimeout(() => {
-      const move = bot.getBestMove(
+      const botCaps = captures[currentBot.botColor] || 0;
+      const move = currentBot.getBestMove(
         localBoard.map(r => [...r]),
-        botCaptures,
-        humanCaptures
+        botCaps,
+        0 // oppCaptures — the bot already handles multi-opponent internally
       );
       if (move) handleLocalClick(move.row, move.col, true);
       setBotThinking(false);
-    }, 400);
+    }, delay);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localCurrentPlayer, botEnabled, botColor, isOnline, gameOver]);
+  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures]);
 
   // ── Record move history ──
-  const recordMove = useCallback((boardState, wCaps, bCaps, mover, row, col) => {
+  const recordMove = useCallback((boardState, capturesState, mover, row, col) => {
     setMoveHistory(prev => [...prev, {
       board: boardState.map(r => [...r]),
-      whiteCaptures: wCaps,
-      blackCaptures: bCaps,
+      captures: { ...capturesState },
+      whiteCaptures: capturesState[WHITE] || 0,
+      blackCaptures: capturesState[BLACK] || 0,
       moveMadeBy: mover,
       row, col,
     }]);
   }, []);
 
   // ── Local move handler ──
-  const handleLocalClick = (row, col, isBotMove = false) => {
+  const handleLocalClick = useCallback((row, col, isBotMove = false) => {
     if (localBoard[row][col] !== EMPTY) return;
     if (gameOver) return;
-    if (botEnabled && localCurrentPlayer === botColor && !isBotMove) return;
+    if (botEnabled && localCurrentPlayer === humanColor && isBotMove) return; // bot shouldn't make human's move
+    if (botEnabled && localCurrentPlayer !== humanColor && !isBotMove) return; // human shouldn't make bot's move
+
+    const currentMode = gameMode;
 
     const newBoard = localBoard.map(r => [...r]);
     newBoard[row][col] = localCurrentPlayer;
@@ -169,13 +244,12 @@ const GameBoard = () => {
     triggerRipple(row, col);
 
     const { newBoard: boardAfterCaptures, capturedPairs, captured } = computeCaptures(
-      newBoard, row, col, localCurrentPlayer
+      newBoard, row, col, localCurrentPlayer, currentMode
     );
 
     if (capturedPairs > 0) {
-      // Animate ejected stones: board state updates immediately (EMPTY),
-      // overlay span shows the stone disappearing over 420ms.
-      const captureStoneColor = localCurrentPlayer === BLACK ? WHITE : BLACK;
+      // Determine the color of captured stones (they're all same color per the capture rule)
+      const captureStoneColor = captured.length > 0 ? newBoard[captured[0][0]][captured[0][1]] : BLACK;
       const caps = new Map();
       for (const [cr, cc] of captured) {
         caps.set(`${cr}-${cc}`, captureStoneColor);
@@ -187,19 +261,31 @@ const GameBoard = () => {
       setTimeout(() => { playCapture(); triggerShake(); }, 80);
     }
 
-    const newBlackCaps = localCurrentPlayer === BLACK
-      ? localBlackCaptures + capturedPairs
-      : localBlackCaptures;
-    const newWhiteCaps = localCurrentPlayer === WHITE
-      ? localWhiteCaptures + capturedPairs
-      : localWhiteCaptures;
-    if (localCurrentPlayer === BLACK) setLocalBlackCaptures(newBlackCaps);
-    else setLocalWhiteCaptures(newWhiteCaps);
+    // Update captures
+    const newCaptures = { ...captures };
+    if (currentMode?.teams) {
+      const teamIdx = currentMode.teams.findIndex(t => t.includes(localCurrentPlayer));
+      const key = `team${teamIdx}`;
+      newCaptures[key] = (newCaptures[key] || 0) + capturedPairs;
+    } else {
+      newCaptures[localCurrentPlayer] = (newCaptures[localCurrentPlayer] || 0) + capturedPairs;
+    }
+    setCaptures(newCaptures);
 
     const finalBoard = capturedPairs > 0 ? boardAfterCaptures : newBoard;
-    recordMove(finalBoard, newWhiteCaps, newBlackCaps, localCurrentPlayer, row, col);
+    recordMove(finalBoard, newCaptures, localCurrentPlayer, row, col);
 
-    if (newBlackCaps >= 5 || newWhiteCaps >= 5) {
+    // Check win by captures
+    const threshold = currentMode?.captureThreshold || 5;
+    let won = false;
+    if (currentMode?.teams) {
+      const teamIdx = currentMode.teams.findIndex(t => t.includes(localCurrentPlayer));
+      if ((newCaptures[`team${teamIdx}`] || 0) >= threshold) won = true;
+    } else {
+      if ((newCaptures[localCurrentPlayer] || 0) >= threshold) won = true;
+    }
+
+    if (won) {
       endLocalGame(localCurrentPlayer);
       return;
     }
@@ -208,8 +294,13 @@ const GameBoard = () => {
       return;
     }
 
-    setLocalCurrentPlayer(localCurrentPlayer === BLACK ? WHITE : BLACK);
-  };
+    // Next player
+    const turnOrder = currentMode ? currentMode.turnOrder : [BLACK, WHITE];
+    const idx = turnOrder.indexOf(localCurrentPlayer);
+    const next = turnOrder[(idx + 1) % turnOrder.length];
+    setLocalCurrentPlayer(next);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localBoard, localCurrentPlayer, gameOver, botEnabled, humanColor, gameMode, captures, playPlace, playCapture, triggerRipple, triggerShake, recordMove]);
 
   // ── Online move handler ──
   const handleOnlineClick = async (row, col) => {
@@ -239,16 +330,21 @@ const GameBoard = () => {
     });
     setGameOver(true);
     setWinner(winningPlayer);
-    if (winningPlayer === BLACK) setLocalBlackScore(prev => prev + 1);
-    else setLocalWhiteScore(prev => prev + 1);
+    setScores(prev => ({ ...prev, [winningPlayer]: (prev[winningPlayer] || 0) + 1 }));
     setGameCount(prev => prev + 1);
+
+    // Record ELO change for bot games
+    if (botEnabled && recordGameResult) {
+      const won = winningPlayer === humanColor;
+      const botElo = BOT_LEVELS[botDifficulty]?.elo || 1000;
+      recordGameResult(botElo, won);
+    }
   };
 
   const resetLocalBoard = () => {
     setLocalBoard(createEmptyBoard());
     setLocalCurrentPlayer(BLACK);
-    setLocalBlackCaptures(0);
-    setLocalWhiteCaptures(0);
+    setCaptures({});
     setLocalLastMove(null);
     setLocalMoveCount(0);
     setRippleCell(null);
@@ -265,9 +361,57 @@ const GameBoard = () => {
     setShowRules(false);
   };
 
+  // Switch game mode preset
+  const switchPreset = (presetKey) => {
+    const preset = MODE_PRESETS.find(p => p.key === presetKey);
+    if (!preset) return;
+
+    setModePreset(presetKey);
+
+    if (presetKey === 'online') {
+      setGameMode(null);
+      setBotInstances([]);
+      return;
+    }
+
+    if (presetKey === 'local') {
+      setGameMode(null);
+      setBotInstances([]);
+      resetLocalBoard();
+      if (gameId) router.push('/posts/pente', undefined, { shallow: true });
+      return;
+    }
+
+    // Bot modes
+    const newMode = preset.modeKey ? GAME_MODES[preset.modeKey] : null;
+    setGameMode(newMode);
+
+    // Create bot instances for non-human players
+    const diff = botDifficulty;
+    const turnOrder = newMode ? newMode.turnOrder : [BLACK, WHITE];
+    const bots = turnOrder
+      .filter(c => c !== humanColor)
+      .map(c => new PenteBot(c, diff, newMode));
+    setBotInstances(bots);
+
+    resetLocalBoard();
+  };
+
+  // Update bot difficulty
+  const changeDifficulty = (diff) => {
+    setBotDifficulty(diff);
+    // Recreate bots with new difficulty
+    const turnOrder = gameMode ? gameMode.turnOrder : [BLACK, WHITE];
+    const bots = turnOrder
+      .filter(c => c !== humanColor)
+      .map(c => new PenteBot(c, diff, gameMode));
+    setBotInstances(bots);
+    resetLocalBoard();
+  };
+
   const handleAnalyze = () => {
-    const humanColor = botEnabled ? (botColor === BLACK ? WHITE : BLACK) : BLACK;
-    setGameAnalysis(tutor.analyzeGameHistory(moveHistory, humanColor));
+    const hColor = botEnabled ? humanColor : BLACK;
+    setGameAnalysis(tutor.analyzeGameHistory(moveHistory, hColor));
   };
 
   const handleToggleTutor = () => {
@@ -278,7 +422,6 @@ const GameBoard = () => {
 
   const isLastMove = (r, c) => lastMove && lastMove[0] === r && lastMove[1] === c;
   const isHintCell = (r, c) => hintCell && hintCell.row === r && hintCell.col === c;
-  const isBlackTurn = currentPlayer === BLACK;
 
   const showLobby   = mode === 'online' && !gameId;
   const boardDisabled = isOnline && !mp.isMyTurn;
@@ -290,8 +433,11 @@ const GameBoard = () => {
     ? moveHistory[analysisViewTurn].board
     : board;
 
+  const playerName_ = PLAYER_COLORS[currentPlayer]?.name || 'Unknown';
+  const showEval = !isOnline && !showLobby && (!gameMode || gameMode.key === 'classic');
+
   // ─────────────────────────────────────────────────────────────────────────
-  // Header button style helpers
+  // Style helpers
   const modeBtn = (active) =>
     `px-3 py-2 text-xs transition-colors ${
       active
@@ -306,6 +452,13 @@ const GameBoard = () => {
         : 'bg-forest-900/60 text-forest-400 hover:text-forest-200 border-forest-700/40 hover:border-forest-500'
     }`;
 
+  const diffBtn = (active) =>
+    `text-[10px] px-2 py-1 rounded border transition-colors ${
+      active
+        ? 'bg-forest-700/60 text-white border-forest-600'
+        : 'text-forest-500 border-forest-700/30 hover:text-forest-300'
+    }`;
+
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
@@ -315,9 +468,9 @@ const GameBoard = () => {
     >
       <Head>
         <title>Pente | Brooks Roley</title>
-        <meta name="description" content="Play Pente — a classic 2-player strategy board game with captures and five-in-a-row." />
+        <meta name="description" content="Play Pente — a classic strategy board game with captures and five-in-a-row. 1v1, vs bots, FFA, and 2v2 team modes." />
         <meta property="og:title" content="Pente | Brooks Roley" />
-        <meta property="og:description" content="Play Pente — a classic 2-player strategy board game with captures and five-in-a-row." />
+        <meta property="og:description" content="Play Pente — a classic strategy board game with captures and five-in-a-row." />
         <meta property="og:image" content="/marathon.png" />
       </Head>
 
@@ -330,41 +483,27 @@ const GameBoard = () => {
         <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
           {/* Mode tabs */}
           <div className="flex rounded-lg overflow-hidden border border-forest-700/40 shrink-0">
-            <button
-              className={modeBtn(mode === 'local' && !botEnabled)}
-              onClick={() => {
-                setMode('local');
-                setBotEnabled(false);
-                resetLocalBoard();
-                if (gameId) router.push('/posts/pente', undefined, { shallow: true });
-              }}
-            >
-              Local
-            </button>
-            <button
-              className={`${modeBtn(mode === 'local' && botEnabled)} border-l border-forest-700/40`}
-              onClick={() => { setMode('local'); setBotEnabled(true); resetLocalBoard(); }}
-            >
-              vs Bot
-            </button>
-            <button
-              className={`${modeBtn(mode === 'online')} border-l border-forest-700/40`}
-              onClick={() => setMode('online')}
-            >
-              Online
-            </button>
+            {MODE_PRESETS.map((preset, i) => (
+              <button
+                key={preset.key}
+                className={`${modeBtn(modePreset === preset.key)} ${i > 0 ? 'border-l border-forest-700/40' : ''}`}
+                onClick={() => switchPreset(preset.key)}
+              >
+                {preset.label}
+              </button>
+            ))}
           </div>
 
           {/* Action buttons */}
           <div className="ml-auto flex items-center gap-1.5">
-            {!isOnline && !gameOver && (
+            {!isOnline && !gameOver && (!gameMode || gameMode.key === 'classic') && (
               <button
                 className={actionBtn(tutorEnabled)}
                 onClick={handleToggleTutor}
-                disabled={botEnabled && localCurrentPlayer === botColor}
+                disabled={botEnabled && localCurrentPlayer !== humanColor}
                 title={tutorEnabled ? 'Tutor active' : 'Get move hints'}
               >
-                {tutorEnabled ? 'Tutor ✦' : 'Tutor'}
+                {tutorEnabled ? 'Tutor \u2726' : 'Tutor'}
               </button>
             )}
             {!isOnline && (
@@ -382,20 +521,43 @@ const GameBoard = () => {
           </div>
         </div>
 
+        {/* Difficulty picker (bot modes only) */}
+        {botEnabled && !gameOver && (
+          <div className="flex items-center gap-2 px-3 pb-1.5">
+            <span className="text-[10px] text-forest-500 uppercase tracking-wider">Difficulty</span>
+            <div className="flex gap-1">
+              {Object.entries(BOT_LEVELS).map(([key, config]) => (
+                <button
+                  key={key}
+                  className={diffBtn(botDifficulty === key)}
+                  onClick={() => changeDifficulty(key)}
+                  title={`Bot ELO ~${config.elo}`}
+                >
+                  {config.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[10px] text-forest-600 ml-1">
+              (~{BOT_LEVELS[botDifficulty]?.elo} ELO)
+            </span>
+          </div>
+        )}
+
         {/* Row 2 — Turn indicator + score + captures */}
         {!showLobby && mp.gameStatus !== 'error' && (
           <div className="flex items-center px-3 pb-2 gap-2">
+            {/* Turn dot */}
             <div
-              className={`turn-dot w-4 h-4 rounded-full border-2 shrink-0 transition-colors duration-300 ${
-                isBlackTurn
-                  ? 'bg-gray-900 border-gray-500'
-                  : 'bg-white border-forest-300'
-              }`}
+              className="turn-dot w-4 h-4 rounded-full border-2 shrink-0 transition-colors duration-300"
+              style={{
+                backgroundColor: PLAYER_COLORS[currentPlayer]?.hex || '#1a1a1a',
+                borderColor: currentPlayer === WHITE ? '#9ca3af' : 'rgba(255,255,255,0.3)',
+              }}
             />
             <span className="text-white text-xs font-semibold leading-none">
-              {isBlackTurn ? 'Black' : 'White'}
-              {botEnabled && currentPlayer === botColor ? ' (Bot)' : ''}
-              {botThinking ? '\u2026' : "\u2019s turn"}
+              {playerName_}
+              {botEnabled && currentPlayer !== humanColor ? ' (Bot)' : ''}
+              {botThinking ? '\u2026' : '\u2019s turn'}
             </span>
             {moveCount > 0 && (
               <span className="text-forest-600 text-xs font-mono">#{moveCount}</span>
@@ -403,18 +565,23 @@ const GameBoard = () => {
 
             {/* Score + captures — right-aligned */}
             <div className="ml-auto flex items-center gap-2 text-xs font-mono">
-              <span>
-                <span className="text-gray-300">{blackScore}</span>
-                <span className="text-forest-600 mx-0.5">–</span>
-                <span className="text-white">{whiteScore}</span>
-              </span>
-              <span className="text-forest-700">·</span>
-              <span>
-                <span className="text-gray-400">⬤{blackCaptures}</span>
-                <span className="text-forest-600">/5 </span>
-                <span className="text-gray-200">○{whiteCaptures}</span>
-                <span className="text-forest-600">/5</span>
-              </span>
+              {/* Compact score display for all active players */}
+              {activePlayers.map((p, i) => (
+                <span key={p} className="flex items-center gap-0.5">
+                  {i > 0 && <span className="text-forest-700 mx-0.5">{i === 1 ? '\u2013' : ':'}</span>}
+                  <span
+                    className="inline-block w-2 h-2 rounded-full"
+                    style={{ backgroundColor: PLAYER_COLORS[p]?.hex }}
+                  />
+                  <span style={{ color: currentPlayer === p ? '#fff' : '#9ca3af' }}>
+                    {gameMode?.teams
+                      ? (captures[`team${gameMode.teams.findIndex(t => t.includes(p))}`] || 0)
+                      : (captures[p] || 0)
+                    }
+                  </span>
+                  <span className="text-forest-600">/{gameMode?.captureThreshold || 5}</span>
+                </span>
+              ))}
             </div>
           </div>
         )}
@@ -445,11 +612,11 @@ const GameBoard = () => {
           </div>
         )}
 
-        {/* Hint toast (inline in header, no layout jump) */}
+        {/* Hint toast */}
         {hintExplanation && !showLobby && (
           <div className="mx-3 mb-2 rounded-lg bg-cyan-900/30 border border-cyan-700/40 px-3 py-2 text-xs flex items-center gap-2">
             <PreText
-              text="✦"
+              text="\u2726"
               mode="pulse"
               color="#22d3ee"
               fontSize="0.7rem"
@@ -461,13 +628,13 @@ const GameBoard = () => {
               onClick={() => { setHintCell(null); setHintExplanation(null); }}
               className="text-cyan-600 hover:text-cyan-300 ml-1 shrink-0"
             >
-              ✕
+              \u2715
             </button>
           </div>
         )}
 
-        {/* Thin eval strip — mobile only */}
-        {!isOnline && !showLobby && (
+        {/* Thin eval strip — mobile only (classic mode) */}
+        {showEval && (
           <div className="md:hidden mx-3 mb-2 h-1.5 rounded-full bg-gray-900 border border-forest-800/40 overflow-hidden flex">
             <div
               className="bg-gradient-to-r from-gray-800 to-gray-500 transition-all duration-500"
@@ -484,29 +651,48 @@ const GameBoard = () => {
         {showRules && (
           <div className="mx-3 mb-2 rounded-xl bg-forest-900/80 border border-forest-700/40 px-4 py-3">
             <p className="text-xs text-forest-300 mb-2 leading-relaxed">
-              19×19 board. First to <strong className="text-forest-100">five-in-a-row</strong> or{' '}
-              <strong className="text-forest-100">five captured pairs</strong> wins.
+              {gameMode && MODE_RULES[gameMode.key]
+                ? <strong className="text-forest-100">{MODE_RULES[gameMode.key].title}</strong>
+                : <>19\u00d719 board. First to <strong className="text-forest-100">five-in-a-row</strong> or{' '}
+                  <strong className="text-forest-100">five captured pairs</strong> wins.</>
+              }
             </p>
             <ul className="text-xs text-forest-400 space-y-1.5">
               <li>
                 <strong className="text-forest-200">Capture:</strong>{' '}
-                Bracket exactly two opponent stones with yours in a straight line.
+                {gameMode && MODE_RULES[gameMode.key]
+                  ? MODE_RULES[gameMode.key].captures
+                  : 'Bracket exactly two opponent stones with yours in a straight line.'
+                }
               </li>
               <li>
                 <strong className="text-forest-200">Five in a row:</strong>{' '}
                 Any direction — horizontal, vertical, or diagonal.
+                {gameMode?.teams && (
+                  <span className="text-forest-500"> (Your stones only — teammate stones don&rsquo;t count.)</span>
+                )}
               </li>
-              <li>
-                <strong className="text-forest-200">Pro rule:</strong>{' '}
-                First player&rsquo;s second stone must be ≥3 intersections from center.
-              </li>
+              {(!gameMode || gameMode.key === 'classic') && (
+                <li>
+                  <strong className="text-forest-200">Pro rule:</strong>{' '}
+                  First player&rsquo;s second stone must be \u22653 intersections from center.
+                </li>
+              )}
+              {gameMode?.teams && (
+                <li>
+                  <strong className="text-forest-200">Teams:</strong>{' '}
+                  {PLAYER_COLORS[gameMode.teams[0][0]]?.name} + {PLAYER_COLORS[gameMode.teams[0][1]]?.name} vs{' '}
+                  {PLAYER_COLORS[gameMode.teams[1][0]]?.name} + {PLAYER_COLORS[gameMode.teams[1][1]]?.name}.
+                  Captures are shared within your team.
+                </li>
+              )}
             </ul>
           </div>
         )}
       </header>
 
       {/* ══════════════════════════════════════════════════════════════
-          BOARD / CONTENT AREA — fills remaining viewport
+          BOARD / CONTENT AREA
       ══════════════════════════════════════════════════════════════ */}
       <main className="flex-1 min-h-0 flex items-center justify-center overflow-hidden p-2 sm:p-3">
 
@@ -525,8 +711,8 @@ const GameBoard = () => {
         {!showLobby && mp.gameStatus !== 'error' && (
           <div className="flex items-center gap-3 sm:gap-4">
 
-            {/* Eval bar — desktop sidebar */}
-            {!isOnline && (
+            {/* Eval bar — desktop sidebar (classic only) */}
+            {showEval && (
               <div className="hidden md:flex flex-col items-center gap-1 shrink-0">
                 <span className="text-[10px] text-forest-500 uppercase tracking-wider">Eval</span>
                 <div className="w-4 h-52 rounded-full bg-gray-900 border border-forest-700/40 overflow-hidden relative">
@@ -548,9 +734,7 @@ const GameBoard = () => {
             {/* The board */}
             <div
               ref={boardRef}
-              className={`game-board rounded-xl ${
-                isBlackTurn ? 'board-hover-black' : 'board-hover-white'
-              } ${boardDisabled ? 'opacity-90' : ''}`}
+              className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''}`}
               style={boardDisabled ? { pointerEvents: 'none' } : undefined}
             >
               {displayBoard.map((row, rowIndex) => (
@@ -563,7 +747,7 @@ const GameBoard = () => {
                         key={colIndex}
                         className={[
                           'board-cell',
-                          cell === BLACK ? 'black' : cell === WHITE ? 'white' : '',
+                          cellClass(cell),
                           isLastMove(rowIndex, colIndex) ? 'last-move' : '',
                           rippleCell === cellKey ? 'ripple' : '',
                           isHintCell(rowIndex, colIndex) ? 'hint-glow' : '',
@@ -572,11 +756,7 @@ const GameBoard = () => {
                       >
                         {/* Physics eject animation for captured stones */}
                         {captureColor !== undefined && cell === EMPTY && (
-                          <span
-                            className={`stone-capture ${
-                              captureColor === BLACK ? 'capture-black' : 'capture-white'
-                            }`}
-                          />
+                          <span className={`stone-capture ${captureClass(captureColor)}`} />
                         )}
                       </button>
                     );
@@ -589,13 +769,22 @@ const GameBoard = () => {
       </main>
 
       {/* ══════════════════════════════════════════════════════════════
-          GAME-OVER DRAWER — slides up from bottom
+          GAME-OVER DRAWER
       ══════════════════════════════════════════════════════════════ */}
       {gameOver && !isOnline && (
         <div className="flex-shrink-0 border-t border-forest-700/40 bg-forest-900/90 px-4 py-3 max-h-56 overflow-y-auto">
           <div className="flex items-center justify-between mb-2.5">
-            <h2 className="text-sm font-semibold text-white">
-              {winner === BLACK ? 'Black' : 'White'} Wins!
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <span
+                className="inline-block w-3 h-3 rounded-full"
+                style={{ backgroundColor: PLAYER_COLORS[winner]?.hex }}
+              />
+              {PLAYER_COLORS[winner]?.name || 'Unknown'} Wins!
+              {gameMode?.teams && (
+                <span className="text-xs text-forest-400 font-normal ml-1">
+                  (Team {gameMode.teams.findIndex(t => t.includes(winner)) + 1})
+                </span>
+              )}
             </h2>
             <div className="flex gap-2">
               <button
@@ -604,7 +793,7 @@ const GameBoard = () => {
               >
                 Play Again
               </button>
-              {moveHistory.length > 0 && !gameAnalysis && (
+              {moveHistory.length > 0 && !gameAnalysis && (!gameMode || gameMode.key === 'classic') && (
                 <button
                   onClick={handleAnalyze}
                   className="text-xs px-3 py-1.5 rounded-lg bg-cyan-800/40 text-cyan-200 border border-cyan-700/40 hover:bg-cyan-700/40 transition-colors"
@@ -621,6 +810,7 @@ const GameBoard = () => {
                 const isBlunder = entry.annotation.includes('Blunder');
                 const isMistake = entry.annotation.includes('Mistake');
                 const isViewing = analysisViewTurn === idx;
+                const mover = moveHistory[idx]?.moveMadeBy;
                 return (
                   <button
                     key={idx}
@@ -636,16 +826,14 @@ const GameBoard = () => {
                     }`}
                   >
                     <span className="font-mono text-forest-400 mr-2">#{idx + 1}</span>
-                    <span className={`mr-2 ${
-                      moveHistory[idx]?.moveMadeBy === BLACK ? 'text-gray-300' : 'text-white'
-                    }`}>
-                      {moveHistory[idx]?.moveMadeBy === BLACK ? 'Black' : 'White'}
+                    <span style={{ color: PLAYER_COLORS[mover]?.hex || '#fff' }}>
+                      {PLAYER_COLORS[mover]?.name || '?'}
                     </span>
-                    <span className={
+                    <span className={`ml-2 ${
                       isBlunder ? 'text-red-400 font-semibold' :
                       isMistake ? 'text-yellow-400' :
                       'text-forest-400'
-                    }>
+                    }`}>
                       {entry.annotation}
                     </span>
                     <span className="float-right text-forest-600 font-mono">
