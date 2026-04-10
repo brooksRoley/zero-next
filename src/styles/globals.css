@@ -33,6 +33,9 @@ img {
 
 .tilt-card {
   will-change: transform;
+  --hl-x: 50%;
+  --hl-y: 50%;
+  --hl-opacity: 0;
 }
 
 /* Specular highlight — follows cursor across card surface */
@@ -41,14 +44,59 @@ img {
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
+  z-index: 10;
   opacity: var(--hl-opacity, 0);
   background: radial-gradient(
-    circle at var(--hl-x, 50%) var(--hl-y, 50%),
-    rgba(255, 255, 255, 0.15),
-    transparent 50%
+    600px circle at var(--hl-x, 50%) var(--hl-y, 50%),
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 105, 180, 0.06) 40%,
+    transparent 70%
   );
-  transition: opacity 0.3s ease;
-  z-index: 10;
+  transition: opacity 0.4s ease;
+}
+
+/* Radial glow border — expands from cursor position on hover */
+.card-hover-border {
+  position: relative;
+  border-color: transparent;
+  transition: box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-hover-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  background: radial-gradient(
+    500px circle at var(--hl-x, 50%) var(--hl-y, 50%),
+    rgba(255, 105, 180, 0.35),
+    rgba(139, 92, 246, 0.15) 40%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  transition: opacity 0.4s ease;
+}
+
+.tilt-card:hover .card-hover-border::before {
+  opacity: 1;
+}
+
+.tilt-card:hover .card-hover-border {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(255, 105, 180, 0.08),
+    0 0 60px rgba(139, 92, 246, 0.04);
 }
 
 /* Image — subtle brighten on hover */
@@ -57,15 +105,5 @@ img {
 }
 
 .group:hover .card-img-hover {
-  filter: brightness(1.1);
-}
-
-/* Card border — single accent glow on hover */
-.card-hover-border {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.tilt-card:hover .card-hover-border {
-  border-color: rgba(255, 105, 180, 0.4);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 105, 180, 0.1);
+  filter: brightness(1.12) saturate(1.1);
 }
