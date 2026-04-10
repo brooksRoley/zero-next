@@ -1,31 +1,83 @@
 /**
  * PentePlayerBot.js
- * A heuristic-based AI for playing Pente.
- * Uses numeric constants: EMPTY=0, BLACK=1, WHITE=2
+ * A heuristic-based AI for playing Pente with configurable difficulty.
+ * Supports classic 2-player, FFA, and team modes.
  */
-import { BOARD_SIZE, EMPTY } from 'src/lib/pente/constants';
+import { BOARD_SIZE, EMPTY, BLACK, WHITE, PLAYER_COLORS, isOpponent as isOpp } from 'src/lib/pente/constants';
 import { isValidPosition, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
 
-export class PenteBot {
-  constructor(botColor) {
-    this.botColor = botColor;
-    this.opponentColor = botColor === 1 ? 2 : 1;
+// Difficulty presets — ELO approximates the skill level
+export const BOT_LEVELS = {
+  beginner:     { elo: 600,  label: 'Beginner',     randomness: 0.4,  depthScale: 0.3  },
+  intermediate: { elo: 1000, label: 'Intermediate',  randomness: 0.2,  depthScale: 0.6  },
+  advanced:     { elo: 1400, label: 'Advanced',      randomness: 0.08, depthScale: 0.85 },
+  expert:       { elo: 1800, label: 'Expert',        randomness: 0.02, depthScale: 1.0  },
+};
 
+/**
+ * Pick the difficulty level closest to a player's ELO.
+ */
+export function getBotLevelForElo(playerElo) {
+  const levels = Object.entries(BOT_LEVELS);
+  let closest = levels[0];
+  let minDiff = Infinity;
+  for (const entry of levels) {
+    const diff = Math.abs(entry[1].elo - playerElo);
+    if (diff < minDiff) { minDiff = diff; closest = entry; }
+  }
+  return closest[0];
+}
+
+export class PenteBot {
+  /**
+   * @param {number} botColor - This bot's stone color (BLACK, WHITE, RED, or BLUE)
+   * @param {string} [level='expert'] - Difficulty key from BOT_LEVELS
+   * @param {object} [gameMode=null] - Game mode config from GAME_MODES
+   */
+  constructor(botColor, level = 'expert', gameMode = null) {
+    this.botColor = botColor;
+    this.gameMode = gameMode;
+    this.level = BOT_LEVELS[level] || BOT_LEVELS.expert;
+
+    // In classic/no-gameMode, opponent is the other color
+    // In multi-player, opponents are determined dynamically
+    if (!gameMode || gameMode.key === 'classic') {
+      this.opponentColor = botColor === BLACK ? WHITE : BLACK;
+    } else {
+      this.opponentColor = null; // multi-opponent — resolved per-evaluation
+    }
+
+    // Scale weights by difficulty
+    const s = this.level.depthScale;
     this.weights = {
       WIN: 1000000,
       BLOCK_WIN: 500000,
-      CAPTURE: 10000,
-      PREVENT_CAPTURE: 8000,
-      OPEN_FOUR: 5000,
-      BLOCK_OPEN_FOUR: 4500,
-      OPEN_THREE: 1000,
-      BLOCK_OPEN_THREE: 900,
-      PROXIMITY: 10,
+      CAPTURE: 10000 * s,
+      PREVENT_CAPTURE: 8000 * s,
+      OPEN_FOUR: 5000 * s,
+      BLOCK_OPEN_FOUR: 4500 * s,
+      OPEN_THREE: 1000 * s,
+      BLOCK_OPEN_THREE: 900 * s,
+      PROXIMITY: 10 * s,
     };
   }
 
   /**
+   * Get all opponent colors for this bot.
+   */
+  getOpponents() {
+    if (this.opponentColor) return [this.opponentColor];
+    if (!this.gameMode) return [this.botColor === BLACK ? WHITE : BLACK];
+    return this.gameMode.turnOrder.filter(c =>
+      c !== this.botColor && isOpp(this.botColor, c, this.gameMode)
+    );
+  }
+
+  /**
    * Main entry point.
+   * @param {number[][]} board
+   * @param {number} botCaptures - This bot's capture count
+   * @param {number} [oppCaptures] - Opponent's capture count (classic mode)
    * @returns {{ row: number, col: number, score: number }}
    */
   getBestMove(board, botCaptures, oppCaptures) {
@@ -40,8 +92,16 @@ export class PenteBot {
       return { row: center, col: center, score: 0 };
     }
 
+    const maxScoreForNoise = this.weights.WIN;
+
     for (const { row, col } of candidates) {
-      const score = this.evaluateMove(board, row, col, botCaptures, oppCaptures);
+      let score = this.evaluateMove(board, row, col, botCaptures, oppCaptures);
+
+      // Add difficulty-based randomness
+      if (this.level.randomness > 0) {
+        score += Math.random() * this.level.randomness * maxScoreForNoise;
+      }
+
       if (score > bestScore) {
         bestScore = score;
         bestMoves = [{ row, col, score }];
@@ -58,28 +118,33 @@ export class PenteBot {
    */
   evaluateMove(board, row, col, botCaptures, oppCaptures) {
     let score = 0;
+    const opponents = this.getOpponents();
 
     // Simulate bot's move
     board[row][col] = this.botColor;
 
-    // Win?
+    // Win by five?
     if (checkForFiveInARow(board, row, col, this.botColor)) {
       score += this.weights.WIN;
     }
+
+    // Win by captures?
     const botCaps = this.countCaptures(board, row, col, this.botColor);
-    if (botCaptures + botCaps >= 5) {
+    if ((botCaptures || 0) + botCaps >= 5) {
       score += this.weights.WIN;
     }
     score += botCaps * this.weights.CAPTURE;
 
-    // Block opponent win?
-    board[row][col] = this.opponentColor;
-    if (checkForFiveInARow(board, row, col, this.opponentColor)) {
-      score += this.weights.BLOCK_WIN;
-    }
-    const oppCaps = this.countCaptures(board, row, col, this.opponentColor);
-    if (oppCaptures + oppCaps >= 5) {
-      score += this.weights.BLOCK_WIN;
+    // Block each opponent's win
+    for (const opp of opponents) {
+      board[row][col] = opp;
+      if (checkForFiveInARow(board, row, col, opp)) {
+        score += this.weights.BLOCK_WIN;
+      }
+      const oCaps = this.countCaptures(board, row, col, opp);
+      if ((oppCaptures || 0) + oCaps >= 5) {
+        score += this.weights.BLOCK_WIN;
+      }
     }
 
     // Restore bot color for pattern analysis
@@ -89,7 +154,9 @@ export class PenteBot {
     const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
     for (const [dr, dc] of directions) {
       score += this.scoreLinePattern(board, row, col, dr, dc, this.botColor, false);
-      score += this.scoreLinePattern(board, row, col, dr, dc, this.opponentColor, true);
+      for (const opp of opponents) {
+        score += this.scoreLinePattern(board, row, col, dr, dc, opp, true);
+      }
     }
 
     // Prevent own pairs from being captured
@@ -98,13 +165,18 @@ export class PenteBot {
     // Proximity
     score += this.getProximityScore(board, row, col);
 
+    // In team mode: bonus for supporting teammate structures
+    if (this.gameMode?.teams) {
+      score += this.teammateSupport(board, row, col);
+    }
+
     // Undo
     board[row][col] = EMPTY;
     return score;
   }
 
   /**
-   * Returns empty cells within 2 spaces of any existing stone (or all if board nearly empty).
+   * Returns empty cells within 2 spaces of any existing stone.
    */
   getCandidateCells(board) {
     const hasNeighbor = (r, c) => {
@@ -129,7 +201,6 @@ export class PenteBot {
       }
     }
 
-    // If no neighbors found (empty board), return all
     if (candidates.length === 0) {
       for (let r = 0; r < BOARD_SIZE; r++)
         for (let c = 0; c < BOARD_SIZE; c++)
@@ -143,20 +214,32 @@ export class PenteBot {
    * Count how many pairs would be captured by placing `color` at (row, col).
    */
   countCaptures(board, row, col, color) {
-    const opponent = color === 1 ? 2 : 1;
     const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
     let pairs = 0;
+
     for (const [dx, dy] of dirs) {
       for (const sign of [1, -1]) {
         const sdx = dx * sign, sdy = dy * sign;
         const r1 = row + sdx, c1 = col + sdy;
         const r2 = row + 2 * sdx, c2 = col + 2 * sdy;
         const r3 = row + 3 * sdx, c3 = col + 3 * sdy;
-        if (
-          isValidPosition(r1, c1) && isValidPosition(r2, c2) && isValidPosition(r3, c3) &&
-          board[r1][c1] === opponent && board[r2][c2] === opponent && board[r3][c3] === color
-        ) {
-          pairs++;
+
+        if (!isValidPosition(r1, c1) || !isValidPosition(r2, c2) || !isValidPosition(r3, c3)) continue;
+
+        const mid1 = board[r1][c1];
+        const mid2 = board[r2][c2];
+        const far  = board[r3][c3];
+
+        if (mid1 === EMPTY || mid2 === EMPTY || mid1 !== mid2) continue;
+
+        if (!this.gameMode || this.gameMode.key === 'classic') {
+          const opponent = color === BLACK ? WHITE : BLACK;
+          if (mid1 === opponent && far === color) pairs++;
+        } else if (this.gameMode.teams) {
+          if (isOpp(color, mid1, this.gameMode) && !isOpp(color, far, this.gameMode) && far !== EMPTY) pairs++;
+        } else {
+          // FFA
+          if (mid1 !== color && far === color) pairs++;
         }
       }
     }
@@ -167,7 +250,6 @@ export class PenteBot {
    * Score line patterns (open 3s, open 4s) for a given color at (row, col).
    */
   scoreLinePattern(board, row, col, dRow, dCol, color, isBlocking) {
-    // Count consecutive stones in both directions from (row, col)
     let count = 1;
     let openEnds = 0;
 
@@ -179,7 +261,6 @@ export class PenteBot {
       count++;
       i++;
     }
-    // Check open end forward
     const fR = row + i * dRow, fC = col + i * dCol;
     if (isValidPosition(fR, fC) && board[fR][fC] === EMPTY) openEnds++;
 
@@ -212,21 +293,24 @@ export class PenteBot {
    * Score for preventing own pairs from being captured next turn.
    */
   preventCaptureScore(board, row, col) {
-    // Check if placing here fills a gap that would prevent an opponent capture
+    const opponents = this.getOpponents();
     const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
     let score = 0;
+
     for (const [dx, dy] of dirs) {
       for (const sign of [1, -1]) {
         const sdx = dx * sign, sdy = dy * sign;
-        // Pattern: OPP . BOT BOT — placing at . prevents capture
-        // Check if (row, col) is between opponent and own pair
         const rBehind = row - sdx, cBehind = col - sdy;
         const r1 = row + sdx, c1 = col + sdy;
         const r2 = row + 2 * sdx, c2 = col + 2 * sdy;
+
+        if (!isValidPosition(rBehind, cBehind) || !isValidPosition(r1, c1) || !isValidPosition(r2, c2)) continue;
+
+        // Pattern: OPP . BOT BOT — placing at . prevents capture
         if (
-          isValidPosition(rBehind, cBehind) && board[rBehind][cBehind] === this.opponentColor &&
-          isValidPosition(r1, c1) && board[r1][c1] === this.botColor &&
-          isValidPosition(r2, c2) && board[r2][c2] === this.opponentColor
+          opponents.includes(board[rBehind][cBehind]) &&
+          board[r1][c1] === this.botColor &&
+          opponents.includes(board[r2][c2])
         ) {
           score += this.weights.PREVENT_CAPTURE;
         }
@@ -254,6 +338,60 @@ export class PenteBot {
     const center = Math.floor(BOARD_SIZE / 2);
     const distFromCenter = Math.abs(row - center) + Math.abs(col - center);
     score += Math.max(0, (BOARD_SIZE - distFromCenter)) * 0.5;
+    return score;
+  }
+
+  /**
+   * In team mode, bonus for moves that support teammate structures.
+   * Checks if placing here extends a teammate's line or sets up a bracket.
+   */
+  teammateSupport(board, row, col) {
+    if (!this.gameMode?.teams) return 0;
+    const teammates = this.gameMode.turnOrder.filter(c =>
+      c !== this.botColor && !isOpp(this.botColor, c, this.gameMode)
+    );
+    if (teammates.length === 0) return 0;
+
+    let score = 0;
+    const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+
+    for (const mate of teammates) {
+      for (const [dr, dc] of directions) {
+        // Check if placing here extends a teammate's 2-in-a-row
+        let count = 0;
+        for (let i = 1; i <= 3; i++) {
+          const r = row + i * dr, c = col + i * dc;
+          if (!isValidPosition(r, c) || board[r][c] !== mate) break;
+          count++;
+        }
+        for (let i = 1; i <= 3; i++) {
+          const r = row - i * dr, c = col - i * dc;
+          if (!isValidPosition(r, c) || board[r][c] !== mate) break;
+          count++;
+        }
+        // Bonus for being near teammate lines (but don't overvalue — teammates can't help with five-in-a-row)
+        if (count >= 2) score += this.weights.PROXIMITY * 5;
+        else if (count >= 1) score += this.weights.PROXIMITY * 2;
+
+        // Check if placing here creates a bracket for capturing with teammate
+        for (const sign of [1, -1]) {
+          const sdx = dr * sign, sdy = dc * sign;
+          const r1 = row + sdx, c1 = col + sdy;
+          const r2 = row + 2 * sdx, c2 = col + 2 * sdy;
+          const r3 = row + 3 * sdx, c3 = col + 3 * sdy;
+          if (!isValidPosition(r1, c1) || !isValidPosition(r2, c2) || !isValidPosition(r3, c3)) continue;
+          // Pattern: [bot placing here] - OPP - OPP - TEAMMATE
+          if (
+            isOpp(this.botColor, board[r1][c1], this.gameMode) &&
+            board[r1][c1] === board[r2][c2] &&
+            teammates.includes(board[r3][c3])
+          ) {
+            score += this.weights.CAPTURE * 0.3;
+          }
+        }
+      }
+    }
+
     return score;
   }
 }

@@ -18,19 +18,68 @@ There are no tests configured in this project.
 Personal portfolio + livelihood platform built with Next.js 13 (Pages Router), TypeScript, Tailwind CSS, and `canvas-confetti`.
 
 ### Pages
-- `/` (`src/pages/index.tsx`) — Landing page with card links to Resume, LinkedIn, GitHub, Calendly, and the Pente game
+- `/` (`src/pages/index.tsx`) — Landing page with card links to Resume, LinkedIn, GitHub, Consulting, and the Pente game
+- `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture form, Stripe Checkout deposit flow, Calendly integration
 - `/resume` (`src/pages/resume.js`) — Resume page with PDF download link and the interactive MarioButton
 - `/posts/pente` (`src/pages/posts/pente.js`) — Playable 2-player Pente board game (19×19 grid, capture/five-in-a-row win conditions)
+- `/posts/guestbook` (`src/pages/posts/guestbook.tsx`) — Collaborative guest book: rubric-based ad-lib story prompt builder with typography picker, writes to Neon Postgres
+
+### Database (Neon Postgres)
+- Connection: `src/lib/db.ts` exports `sql` via `@neondatabase/serverless`
+- **Tables:** `users`, `rubrics`, `elements`, `pages`, `page_elements` (guest book schema), `leads`, `checkout_sessions` (consulting funnel)
+- Env vars: `POSTGRES_URL` and related vars in `.env.local`
 
 ### Components
 - `src/components/mario.js` — Animated Mario "?" block button that triggers confetti and randomized CSS animations
 - `src/components/Scoreboard.js` — Scoreboard display used by the Pente game
+- `src/components/TiltCard.tsx` — Cursor-tracking 3D tilt card with radial glow border and specular highlight
 - `src/components/layout.js` — Minimal container wrapper (not widely used)
 
 ### API Routes
+- `src/pages/api/consulting/leads.ts` — POST: captures consulting leads to `leads` table
+- `src/pages/api/consulting/checkout.ts` — POST: creates Stripe Checkout session for consulting deposits
+- `src/pages/api/guestbook/rubrics.ts` — GET: returns all rubrics with nested elements
+- `src/pages/api/guestbook/elements.ts` — POST: contribute a new element to a rubric
+- `src/pages/api/guestbook/pages.ts` — GET/POST: list and create guest book pages
+- `src/pages/api/db-health.ts` — GET: Postgres connection health check
 - `src/pages/api/search.js` — Filters `stage_data.json` by location/date range; studio/stage availability lookup
 - `src/pages/api/posts.js` — Posts API (unused/in-progress)
 - `src/pages/api/hello.ts` — Default Next.js example route
+
+### Stripe — Shipping Checklist (Pre-Launch)
+
+The consulting funnel (`/consulting`) has Stripe Checkout wired up but is currently using **test keys**. Before going live:
+
+1. **Create the Product in Stripe Dashboard**
+   - Go to dashboard.stripe.com → Products → + Add product
+   - Create three products matching the service tiers: "Strategy Session" ($150), "Dev Sprint" ($2,400/week deposit), "Fractional CTO" ($4,000/month deposit)
+   - The checkout API at `src/pages/api/consulting/checkout.ts` currently uses ad-hoc `price_data` (no saved Product/Price IDs). Once products exist in the dashboard, refactor to use `price: 'price_XXXX'` instead of inline `price_data` for cleaner reporting and Stripe Tax support.
+
+2. **Switch to Live Keys**
+   - In Stripe Dashboard → Developers → API keys, copy the **live** secret key and publishable key
+   - Set in Vercel environment variables (NOT `.env.local` for production):
+     - `STRIPE_SECRET_KEY=sk_live_...`
+     - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...`
+   - Keep test keys in `.env.local` for local dev; Vercel env vars override for production
+
+3. **Private Key Management**
+   - `STRIPE_SECRET_KEY` is server-only (no `NEXT_PUBLIC_` prefix) — never exposed to the browser
+   - The checkout API validates the key is present and returns 503 if missing/placeholder
+   - For production: set `STRIPE_SECRET_KEY` in Vercel → Settings → Environment Variables → Production only
+   - Rotate keys periodically via Stripe Dashboard → Developers → API keys → Roll key
+   - Never commit live keys to the repo; `.env*.local` is gitignored
+
+4. **Webhook for Payment Confirmation** (next agent should build this)
+   - Create `src/pages/api/consulting/webhook.ts` to handle `checkout.session.completed` events
+   - Verify webhook signature using `STRIPE_WEBHOOK_SECRET` env var
+   - Update `checkout_sessions.status` from 'pending' → 'paid' in the DB
+   - Optionally send a notification (email or Slack) when a deposit lands
+
+5. **Post-Launch Hardening**
+   - Add rate limiting to `/api/consulting/leads` to prevent spam
+   - Add CSRF protection or honeypot field to the contact form
+   - Consider Stripe Customer Portal for managing recurring fractional CTO billing
+   - The `leads` table `status` column supports a pipeline: 'new' → 'contacted' → 'qualified' → 'converted' → 'closed'
 
 ### Styling
 - Tailwind CSS is primary; `src/styles/globals.css` has global resets and `.cover-photo` background utility

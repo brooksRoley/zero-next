@@ -210,14 +210,12 @@ export default function ZeroParadox() {
               >
                 Support the Work ↓
               </a>
-              <a
-                href="https://calendly.com/brooksroley/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/consulting"
                 className="px-6 py-2.5 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-semibold transition-colors"
               >
-                Book Consulting →
-              </a>
+                Book Consulting &rarr;
+              </Link>
             </div>
           </div>
         </section>
@@ -296,14 +294,12 @@ export default function ZeroParadox() {
                     <p className="text-void-300 text-xl font-bold">$150 <span className="text-white/30 text-sm font-normal">/ hr</span></p>
                     <p className="text-white/30 text-xs">Project rates available</p>
                   </div>
-                  <a
-                    href="https://calendly.com/brooksroley/"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/consulting"
                     className="px-5 py-2.5 rounded-xl bg-void-700 hover:bg-void-600 text-white text-sm font-semibold transition-colors whitespace-nowrap"
                   >
-                    Schedule a Call →
-                  </a>
+                    View Services &rarr;
+                  </Link>
                 </div>
               </div>
             </div>
