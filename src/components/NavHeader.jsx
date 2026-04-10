@@ -13,6 +13,7 @@ const NAV_LINKS = [
       { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
     ],
   },
+  { href: '/consulting', label: 'Services' },
   { href: 'https://github.com/brooksroley', label: 'GitHub', external: true },
   { href: '/zero-paradox', label: 'Support' },
   { href: 'https://calendly.com/brooksroley/', label: 'Contact', external: true },
