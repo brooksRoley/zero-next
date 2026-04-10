@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { STARTING_ELO, MIN_ELO, MAX_ELO, calculatePuzzleEloChange, getZone } from 'src/lib/pente/elo'
+import { STARTING_ELO, MIN_ELO, MAX_ELO, calculateEloChange, calculatePuzzleEloChange, getZone } from 'src/lib/pente/elo'
 
 const STORAGE_KEY = 'pente_puzzle_progress'
 
@@ -133,6 +133,34 @@ export default function usePuzzleProgress() {
     })
   }, [save])
 
+  /**
+   * Record a bot game result — affects ELO rating.
+   * @param {number} opponentElo - Bot's ELO rating
+   * @param {boolean} won - Whether the player won
+   */
+  const recordGameResult = useCallback((opponentElo, won) => {
+    setProgress(prev => {
+      const delta = calculateEloChange(prev.elo, opponentElo, won ? 1.0 : 0.0, 20)
+      const newElo = Math.max(MIN_ELO, Math.min(MAX_ELO, prev.elo + delta))
+      const updated = {
+        ...prev,
+        elo: newElo,
+        peakElo: Math.max(prev.peakElo, newElo),
+        eloHistory: [
+          ...prev.eloHistory,
+          {
+            timestamp: Date.now(),
+            elo: newElo,
+            delta,
+            event: won ? 'game_win' : 'game_loss',
+          },
+        ],
+      }
+      save(updated)
+      return updated
+    })
+  }, [save])
+
   const isSolved = useCallback((puzzleId) => {
     return progress.solved.includes(puzzleId)
   }, [progress.solved])
@@ -145,6 +173,7 @@ export default function usePuzzleProgress() {
     progress,
     markSolved,
     recordAttempt,
+    recordGameResult,
     isSolved,
     getAttempts,
     solvedCount: progress.solved.length,
