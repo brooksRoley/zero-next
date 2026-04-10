@@ -144,5 +144,78 @@ export default function useGameSounds() {
     } catch (e) { /* audio not supported */ }
   }, [getCtx]);
 
-  return { playPlace, playCapture, playWin };
+  // Puzzle solved — ascending chime (climbing feel)
+  const playClimb = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const t = ctx.currentTime;
+      // Ascending fifth: feels like stepping up
+      const notes = [392, 523, 659]; // G4, C5, E5
+
+      notes.forEach((freq, i) => {
+        const offset = i * 0.1;
+
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, t + offset);
+        gain.gain.linearRampToValueAtTime(0.18, t + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.35);
+
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.35);
+      });
+    } catch (e) { /* audio not supported */ }
+  }, [getCtx]);
+
+  // Puzzle wrong — stumble thud
+  const playStumble = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const t = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, t);
+      osc.frequency.exponentialRampToValueAtTime(80, t + 0.15);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.2, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.2);
+    } catch (e) { /* audio not supported */ }
+  }, [getCtx]);
+
+  // ELO milestone — summit bell
+  const playSummit = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const t = ctx.currentTime;
+      const notes = [523, 659, 784, 1047, 1319]; // C5 E5 G5 C6 E6
+
+      notes.forEach((freq, i) => {
+        const offset = i * 0.08;
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, t + offset);
+        gain.gain.linearRampToValueAtTime(0.15, t + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.6);
+
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.6);
+      });
+    } catch (e) { /* audio not supported */ }
+  }, [getCtx]);
+
+  return { playPlace, playCapture, playWin, playClimb, playStumble, playSummit };
 }
