@@ -588,11 +588,71 @@ function applyMoveSimple(board, row, col, player, captures) {
   return { board: board, captures: newCaps, winner: winner, next: next }
 }
 
+// Does `player` have a move that wins immediately (5-in-a-row or 5th capture pair)?
+// Used to validate defense / capture puzzles: the heuristic score is often wrong,
+// so we verify concretely against the rules before accepting a candidate.
+function hasForcedWin(board, player, captures) {
+  var cands = getCandidates(board, 1)
+  for (var i = 0; i < Math.min(cands.length, 40); i++) {
+    var c = cands[i]
+    if (board[c.row][c.col] !== EMPTY) continue
+    var result = applyMoveSimple(copyBoard(board), c.row, c.col, player, captures)
+    if (result.winner === player) return true
+  }
+  return false
+}
+
+// Validates a puzzle candidate against the ground-truth rules, not the heuristic.
+// Rejects: phantom defense positions where opponent has no real threat, blocks
+// that don't actually block, captures that don't capture, moves that hand opponent
+// a forced win.
+function validateCandidate(board, solRow, solCol, player, captures, category) {
+  var opponent = player === BLACK ? WHITE : BLACK
+  var afterUs = applyMoveSimple(copyBoard(board), solRow, solCol, player, captures)
+
+  if (category === 'five_in_a_row') {
+    return afterUs.winner === player
+  }
+
+  if (category === 'defense') {
+    if (!hasForcedWin(board, opponent, captures)) return false
+    if (hasForcedWin(afterUs.board, opponent, afterUs.captures)) return false
+    return true
+  }
+
+  if (category === 'capture') {
+    var capCheck = countCaptures(copyBoard(board), solRow, solCol, player, null)
+    if (capCheck.pairs === 0) return false
+    if (hasForcedWin(afterUs.board, opponent, afterUs.captures)) return false
+    return true
+  }
+
+  // mixed / opening: just make sure we don't hand opponent an immediate win.
+  if (hasForcedWin(afterUs.board, opponent, afterUs.captures)) return false
+  return true
+}
+
+// For capture puzzles with multiple legal captures, collect every capture move
+// that validates so the user isn't marked wrong for finding a different pair.
+function collectValidCaptureSolutions(board, scoredMoves, player, captures) {
+  var solutions = []
+  for (var i = 0; i < scoredMoves.length; i++) {
+    var m = scoredMoves[i]
+    if (m.score < 5000) break
+    if (board[m.row][m.col] !== EMPTY) continue
+    var cap = countCaptures(copyBoard(board), m.row, m.col, player, null)
+    if (cap.pairs === 0) continue
+    if (!validateCandidate(board, m.row, m.col, player, captures, 'capture')) continue
+    solutions.push({ row: m.row, col: m.col })
+  }
+  return solutions
+}
+
 function generatePuzzle(targetElo) {
   // Map targetElo to approximate move range for interesting positions
   var targetDiff = targetElo < 900 ? 1 : targetElo < 1100 ? 2 : targetElo < 1400 ? 3 : 4
   var searchConfig = { searchDepth: 2, timeBudgetMs: 500 }
-  var maxAttempts = 8 // games to try
+  var maxAttempts = 16 // games to try — bumped since validation rejects more candidates
   var bestCandidate = null
   var bestFit = Infinity
 
@@ -656,6 +716,30 @@ function generatePuzzle(targetElo) {
         if (gap >= 5000 && best.score >= 5000) {
           var difficulty = difficultyFromGap(gap)
           var cat = classifyByScore(best.score)
+
+          // Validate against rules — reject phantom threats / non-captures.
+          if (!validateCandidate(board, best.row, best.col, currentPlayer, captures, cat)) {
+            // keep playing; this position's heuristic score was a false positive
+            var moveIdxSkip = 0
+            if (Math.random() < 0.3 && scoredMoves.length > 1) {
+              moveIdxSkip = Math.floor(Math.random() * Math.min(3, scoredMoves.length))
+            }
+            var skipChoice = scoredMoves[moveIdxSkip]
+            var skipResult = applyMoveSimple(copyBoard(board), skipChoice.row, skipChoice.col, currentPlayer, captures)
+            board = skipResult.board
+            captures = skipResult.captures
+            if (skipResult.winner) break
+            currentPlayer = skipResult.next
+            continue
+          }
+
+          // Capture puzzles may have multiple legal captures — accept all that validate.
+          var solutions = [{ row: best.row, col: best.col }]
+          if (cat === 'capture') {
+            var allCaps = collectValidCaptureSolutions(board, scoredMoves, currentPlayer, captures)
+            if (allCaps.length > 1) solutions = allCaps
+          }
+
           var rating = eloRatingFromDifficulty(difficulty)
           var fit = Math.abs(rating - targetElo) + Math.abs(difficulty - targetDiff) * 200
 
@@ -664,7 +748,7 @@ function generatePuzzle(targetElo) {
             bestCandidate = {
               board: copyBoard(board),
               playerToMove: currentPlayer,
-              solutions: [{ row: best.row, col: best.col }],
+              solutions: solutions,
               category: cat,
               difficulty: difficulty,
               rating: rating,
