@@ -21,6 +21,8 @@ export default function EndlessPuzzle({
   onSolve,
   onAttempt,
   onBack,
+  initialCategory = null,    // when set, the first puzzle is biased to this tactic (e.g. 'defense')
+  introTacticLabel = null,   // e.g. "4-3 Fork" — shown above the first puzzle as framing
 }) {
   const [puzzle, setPuzzle] = useState(null)
   const [nextPuzzle, setNextPuzzle] = useState(null) // pre-fetched
@@ -49,9 +51,9 @@ export default function EndlessPuzzle({
 
   // Generate a puzzle + persist it to the bank (fire-and-forget).
   // The returned puzzle gains a bankId used to correlate attempts server-side.
-  const generateNext = useCallback(async (targetElo) => {
+  const generateNext = useCallback(async (targetElo, category = null) => {
     if (!workerRef.current) return null
-    const p = await workerRef.current.generatePuzzle(targetElo)
+    const p = await workerRef.current.generatePuzzle(targetElo, category ? { preferredCategory: category } : {})
     if (!p) return null
 
     // Persist to puzzle_bank in the background; attach bankId when it returns
@@ -85,13 +87,13 @@ export default function EndlessPuzzle({
     let cancelled = false
     async function init() {
       setLoading(true)
-      const p = await generateNext(currentElo)
+      // First puzzle honors the intervention category; subsequent puzzles go general.
+      const p = await generateNext(currentElo, initialCategory)
       if (cancelled) return
       if (p) {
         setPuzzle(p)
         setShowBoard(true)
         setLoading(false)
-        // Prefetch next
         const next = await generateNext(currentElo)
         if (!cancelled) setNextPuzzle(next)
       } else {
@@ -273,6 +275,18 @@ export default function EndlessPuzzle({
           <MountainProgress elo={currentElo} peakElo={peakElo} eloHistory={eloHistory} compact />
         </div>
       </div>
+
+      {/* Training framing (from intervention) */}
+      {introTacticLabel && sessionStats.solved === 0 && (
+        <div className="mb-4 rounded-lg bg-gradient-to-r from-red-900/30 to-forest-900/30 border border-red-700/30 px-4 py-2.5 text-sm flex items-center gap-3">
+          <span className="text-[10px] font-semibold tracking-wider uppercase text-red-300 px-2 py-0.5 rounded bg-red-500/10 border border-red-400/20">
+            Training
+          </span>
+          <span className="text-forest-200">
+            Drilling <strong className="text-white">{introTacticLabel}</strong> defense — solve this and the next one locks in the pattern.
+          </span>
+        </div>
+      )}
 
       {/* Puzzle info */}
       <div className="flex items-center gap-4 mb-4">

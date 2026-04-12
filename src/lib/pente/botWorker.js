@@ -91,10 +91,13 @@ export class BotWorkerManager {
    * Generate a puzzle calibrated to the target ELO.
    * Runs bot-vs-bot games in the worker to find puzzle-worthy positions.
    * @param {number} targetElo - Player's current ELO for difficulty calibration
-   * @param {number} [timeoutMs=15000] - Hard timeout
+   * @param {object} [opts]
+   * @param {string} [opts.preferredCategory] - Bias the generator toward a category (defense/capture/five_in_a_row/mixed). Falls back to best available if exhausted.
+   * @param {number} [opts.timeoutMs=15000] - Hard timeout
    * @returns {Promise<object|null>} Generated puzzle or null
    */
-  generatePuzzle(targetElo = 1000, timeoutMs = 15000) {
+  generatePuzzle(targetElo = 1000, opts = {}) {
+    const { preferredCategory = null, timeoutMs = 15000 } = opts
     this.ensureWorker()
     if (!this.worker) return Promise.resolve(null)
 
@@ -113,7 +116,7 @@ export class BotWorkerManager {
       }, timeoutMs)
 
       this.pending = { resolve, timeout }
-      this.worker.postMessage({ type: 'generatePuzzle', targetElo })
+      this.worker.postMessage({ type: 'generatePuzzle', targetElo, preferredCategory })
     })
   }
 

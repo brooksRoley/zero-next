@@ -648,11 +648,14 @@ function collectValidCaptureSolutions(board, scoredMoves, player, captures) {
   return solutions
 }
 
-function generatePuzzle(targetElo) {
+function generatePuzzle(targetElo, preferredCategory) {
   // Map targetElo to approximate move range for interesting positions
   var targetDiff = targetElo < 900 ? 1 : targetElo < 1100 ? 2 : targetElo < 1400 ? 3 : 4
   var searchConfig = { searchDepth: 2, timeBudgetMs: 500 }
-  var maxAttempts = 16 // games to try — bumped since validation rejects more candidates
+  // When biasing to a category we take more tries — we discard non-matching
+  // positions aggressively until the last ~4 attempts, at which point we
+  // accept any validated candidate so the user never times out without a puzzle.
+  var maxAttempts = preferredCategory ? 28 : 16
   var bestCandidate = null
   var bestFit = Infinity
 
@@ -743,7 +746,32 @@ function generatePuzzle(targetElo) {
           var rating = eloRatingFromDifficulty(difficulty)
           var fit = Math.abs(rating - targetElo) + Math.abs(difficulty - targetDiff) * 200
 
-          if (fit < bestFit) {
+          // Category bias: strongly prefer matching the requested tactic.
+          // In the first 75% of attempts, reject mismatches outright; after
+          // that, penalize but accept so we never return null.
+          if (preferredCategory && cat !== preferredCategory) {
+            if (g < Math.floor(maxAttempts * 0.75)) {
+              // keep searching this game — don't record as best
+            } else {
+              fit += 900
+              if (fit < bestFit) {
+                bestFit = fit
+                bestCandidate = {
+                  board: copyBoard(board),
+                  playerToMove: currentPlayer,
+                  solutions: solutions,
+                  category: cat,
+                  difficulty: difficulty,
+                  rating: rating,
+                  bestScore: best.score,
+                  secondScore: second.score,
+                  gap: gap,
+                  blackCaptures: captures[BLACK] || 0,
+                  whiteCaptures: captures[WHITE] || 0,
+                }
+              }
+            }
+          } else if (fit < bestFit) {
             bestFit = fit
             bestCandidate = {
               board: copyBoard(board),
@@ -833,7 +861,7 @@ self.onmessage = function(e) {
     }
   } else if (msg.type === 'generatePuzzle') {
     try {
-      var puzzle = generatePuzzle(msg.targetElo || 1000)
+      var puzzle = generatePuzzle(msg.targetElo || 1000, msg.preferredCategory || null)
       self.postMessage({ type: 'puzzle', puzzle: puzzle })
     } catch (err) {
       self.postMessage({ type: 'error', message: err.message || String(err) })

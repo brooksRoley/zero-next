@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import PuzzleCatalog from 'src/components/PuzzleCatalog'
 import PuzzleSolver from 'src/components/PuzzleSolver'
 import EndlessPuzzle from 'src/components/EndlessPuzzle'
+import PenteTopNav from 'src/components/pente/PenteTopNav'
+import SolarField from 'src/components/pente/SolarField'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
+import { getZone } from 'src/lib/pente/elo'
 import { puzzles, getRecommendedPuzzle } from 'src/lib/pente/puzzles'
 
 const MODES = [
@@ -69,8 +71,10 @@ export default function PentePuzzlesPage() {
     setMode('catalog')
   }, [])
 
+  const zone = getZone(elo)
+
   return (
-    <div className="min-h-screen bg-forest-950">
+    <div className="min-h-screen bg-forest-950 relative">
       <Head>
         <title>Pente Puzzles | Brooks Roley</title>
         <meta name="description" content="Practice Pente tactics with puzzles — captures, five-in-a-row, defense, and more. Track your rating as you climb." />
@@ -78,39 +82,35 @@ export default function PentePuzzlesPage() {
         <meta property="og:description" content="Practice Pente tactics with puzzles. Climb the mountain." />
       </Head>
 
-      <div className="max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        {/* Page header */}
+      <div aria-hidden className="fixed inset-0 pointer-events-none z-0">
+        <SolarField intensity={0.75} accentHex={zone?.color} />
+      </div>
+
+      <PenteTopNav active={mode === 'endless' ? 'endless' : 'catalog'} />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Pente Puzzles</h1>
             <p className="text-sm text-forest-400 mt-1">Climb the mountain — sharpen your tactics.</p>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Mode toggle (only show when not actively solving) */}
-            {mode !== 'solving' && (
-              <div className="flex rounded-lg border border-forest-700/40 overflow-hidden">
-                {MODES.map(m => (
-                  <button
-                    key={m.key}
-                    onClick={() => setMode(m.key)}
-                    className={`text-xs px-3 py-1.5 transition-colors ${
-                      mode === m.key
-                        ? 'bg-candy-600/20 text-candy-400 border-candy-500/30'
-                        : 'text-forest-400 hover:text-forest-200'
-                    }`}
-                  >
-                    {m.label}
-                  </button>
-                ))}
-              </div>
-            )}
-            <Link
-              href="/posts/pente"
-              className="text-xs text-forest-400 hover:text-candy-400 transition-colors px-3 py-1.5 rounded-md border border-forest-700/40 hover:border-candy-400/30"
-            >
-              Play Pente
-            </Link>
-          </div>
+          {mode !== 'solving' && (
+            <div className="flex rounded-lg border border-forest-700/40 overflow-hidden">
+              {MODES.map(m => (
+                <button
+                  key={m.key}
+                  onClick={() => setMode(m.key)}
+                  className={`text-xs px-3 py-1.5 transition-colors ${
+                    mode === m.key
+                      ? 'bg-candy-600/20 text-candy-400 border-candy-500/30'
+                      : 'text-forest-400 hover:text-forest-200'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Content area */}
