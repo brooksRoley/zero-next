@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import PuzzleCatalog from 'src/components/PuzzleCatalog'
 import PuzzleSolver from 'src/components/PuzzleSolver'
 import EndlessPuzzle from 'src/components/EndlessPuzzle'
@@ -13,9 +14,11 @@ const MODES = [
 ]
 
 export default function PentePuzzlesPage() {
+  const router = useRouter()
   const [mode, setMode] = useState('catalog') // catalog | endless | solving
   const [selectedPuzzle, setSelectedPuzzle] = useState(null)
   const {
+    playerId,
     markSolved,
     recordAttempt,
     isSolved,
@@ -27,6 +30,16 @@ export default function PentePuzzlesPage() {
     eloHistory,
     profile,
   } = usePlayerProfile()
+
+  // Deep-link: /posts/pente-puzzles?mode=endless jumps straight into endless mode.
+  // Used by the /pente top-level redirect.
+  useEffect(() => {
+    if (!router.isReady) return
+    const queryMode = router.query.mode
+    if (queryMode === 'endless' || queryMode === 'catalog') {
+      setMode(queryMode)
+    }
+  }, [router.isReady, router.query.mode])
 
   // Smart next: pick the recommended puzzle for current ELO, or cycle
   const handleNext = useCallback(() => {
@@ -117,6 +130,7 @@ export default function PentePuzzlesPage() {
             />
           ) : mode === 'endless' ? (
             <EndlessPuzzle
+              playerId={playerId}
               elo={elo}
               peakElo={peakElo}
               eloHistory={eloHistory}
