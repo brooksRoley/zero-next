@@ -58,6 +58,17 @@
   overflow: visible;
 }
 
+/*
+ * Enlarged invisible touch target on mobile.
+ * Expands the tappable area ~20% beyond the visual cell boundary
+ * without affecting layout — sits behind everything via z-index: -1.
+ */
+@media (pointer: coarse) {
+  .board-cell {
+    isolation: isolate; /* contain the expanded pseudo */
+  }
+}
+
 /* Intersection dot */
 .board-cell::before {
   content: '';
@@ -84,10 +95,16 @@
   pointer-events: none;
   z-index: 1;
 }
-.board-cell:not(.black):not(.white):not(.red):not(.blue):hover::after,
-.board-cell:not(.black):not(.white):not(.red):not(.blue).touch-preview::after {
+.board-cell:not(.black):not(.white):not(.red):not(.blue):hover::after {
   opacity: 1;
   transform: scale(1);
+}
+/* Touch preview: slightly larger and brighter so the user can see past their finger */
+.board-cell:not(.black):not(.white):not(.red):not(.blue).touch-preview::after {
+  opacity: 1;
+  transform: scale(1.15);
+  filter: brightness(1.3);
+  transition: opacity 0.08s ease, transform 0.08s ease;
 }
 
 .board-hover-black .board-cell:not(.black):not(.white):not(.red):not(.blue)::after {
@@ -192,13 +209,13 @@
     inset 0 1px 3px rgba(255,255,255,0.12);
 }
 
-/* ── Stone drop (spring physics) ── */
+/* ── Stone drop (spring physics + settle shadow) ── */
 @keyframes stoneDrop {
-  0%   { transform: scale(0.15) translateY(-10px); opacity: 0.4; }
-  55%  { transform: scale(1.18) translateY(1.5px);  opacity: 1;   }
-  75%  { transform: scale(0.93) translateY(0);      }
-  90%  { transform: scale(1.05) translateY(0);      }
-  100% { transform: scale(1)    translateY(0);      opacity: 1;   }
+  0%   { transform: scale(0.15) translateY(-10px); opacity: 0.4; filter: brightness(1.1); }
+  55%  { transform: scale(1.18) translateY(1.5px);  opacity: 1;   filter: brightness(1);   }
+  70%  { transform: scale(0.93) translateY(0);      filter: brightness(0.95); }
+  85%  { transform: scale(1.04) translateY(0);      filter: brightness(1);    }
+  100% { transform: scale(1)    translateY(0);      opacity: 1;   filter: brightness(1);   }
 }
 
 /* ── Capture-eject animation ── */
