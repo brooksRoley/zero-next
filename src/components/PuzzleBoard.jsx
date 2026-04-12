@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback } from 'react'
 import { BLACK, WHITE, RED, BLUE, EMPTY, PLAYER_COLORS } from 'src/lib/pente/constants'
+import useTactileFeedback from 'src/hooks/useTactileFeedback'
 
 /**
  * Reusable Pente board renderer.
@@ -19,6 +20,7 @@ export default function PuzzleBoard({
   const boardRef = useRef(null)
   const [rippleCell, setRippleCell] = useState(null)
   const [touchPreviewCell, setTouchPreviewCell] = useState(null)
+  const feedback = useTactileFeedback()
 
   const triggerRipple = useCallback((row, col) => {
     setRippleCell(`${row}-${col}`)
@@ -33,14 +35,12 @@ export default function PuzzleBoard({
     el.classList.add('board-shake')
   }, [])
 
-  const vibrate = useCallback(() => {
-    if (navigator.vibrate) navigator.vibrate(10)
-  }, [])
-
   const handleClick = (row, col) => {
     if (disabled) return
     if (board[row][col] !== EMPTY) return
-    vibrate()
+    // Fire tactile feedback synchronously with the click — audio + haptic
+    // land before React commits, keeping perceived latency under 100ms.
+    feedback.onPlace()
     triggerRipple(row, col)
     if (onCellClick) onCellClick(row, col, { triggerShake })
   }

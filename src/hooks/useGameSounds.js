@@ -1,16 +1,8 @@
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
+import { getAudioContext } from 'src/lib/ui/audioContext';
 
 export default function useGameSounds() {
-  const ctxRef = useRef(null);
-
-  const getCtx = useCallback(() => {
-    if (!ctxRef.current) {
-      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    const ctx = ctxRef.current;
-    if (ctx.state === 'suspended') ctx.resume();
-    return ctx;
-  }, []);
+  const getCtx = useCallback(() => getAudioContext(), []);
 
   // Stone placement — crisp woody click
   const playPlace = useCallback(() => {
@@ -192,6 +184,50 @@ export default function useGameSounds() {
     } catch (e) { /* audio not supported */ }
   }, [getCtx]);
 
+  // Wax-seal stamp — low-frequency thud with a short wooden crack
+  const playStamp = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const t = ctx.currentTime;
+
+      // Deep sine thud
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(90, t);
+      osc.frequency.exponentialRampToValueAtTime(38, t + 0.18);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.25);
+
+      // Short transient crack for the "press" moment
+      const bufLen = ctx.sampleRate * 0.03;
+      const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufLen, 6);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 800;
+
+      const nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(0.18, t);
+      nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+
+      noise.connect(filter).connect(nGain).connect(ctx.destination);
+      noise.start(t);
+      noise.stop(t + 0.05);
+    } catch (e) { /* audio not supported */ }
+  }, [getCtx]);
+
   // ELO milestone — summit bell
   const playSummit = useCallback(() => {
     try {
@@ -217,5 +253,5 @@ export default function useGameSounds() {
     } catch (e) { /* audio not supported */ }
   }, [getCtx]);
 
-  return { playPlace, playCapture, playWin, playClimb, playStumble, playSummit };
+  return { playPlace, playCapture, playWin, playClimb, playStumble, playStamp, playSummit };
 }

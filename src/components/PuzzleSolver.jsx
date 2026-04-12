@@ -5,7 +5,7 @@ import PuzzleTransition from 'src/components/PuzzleTransition'
 import MountainProgress from 'src/components/MountainProgress'
 import { BLACK } from 'src/lib/pente/constants'
 import { getZone } from 'src/lib/pente/elo'
-import useGameSounds from 'src/hooks/useGameSounds'
+import useTactileFeedback from 'src/hooks/useTactileFeedback'
 
 export default function PuzzleSolver({
   puzzle,
@@ -27,7 +27,7 @@ export default function PuzzleSolver({
   const [newZone, setNewZone] = useState(null)
   const [transitionPhase, setTransitionPhase] = useState('idle')
   const boardContainerRef = useRef(null)
-  const { playClimb, playStumble, playSummit } = useGameSounds()
+  const feedback = useTactileFeedback()
   const solvedRef = useRef(solved)
   solvedRef.current = solved
 
@@ -73,7 +73,7 @@ export default function PuzzleSolver({
         const oldZone = getZone(elo)
         if (result.zone.name !== oldZone.name) {
           setNewZone(result.zone)
-          playSummit()
+          feedback.onLevelUp()
           // Big confetti for zone change
           confetti({
             particleCount: 200,
@@ -82,7 +82,7 @@ export default function PuzzleSolver({
             colors: ['#ff69b4', '#40916c', '#fbbf24', '#6abf82', '#ff8cc2'],
           })
         } else {
-          playClimb()
+          feedback.onCorrect()
           confetti({
             particleCount: 60,
             spread: 50,
@@ -92,17 +92,17 @@ export default function PuzzleSolver({
           })
         }
       } else {
-        playClimb()
+        feedback.onCorrect()
       }
     } else {
-      playStumble()
+      feedback.onWrong()
       triggerShake()
       setWrongMove({ row, col })
       setAttempts(prev => prev + 1)
       if (onAttempt) onAttempt(puzzle.id, puzzle.rating)
       setTimeout(() => setWrongMove(null), 600)
     }
-  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, elo, playClimb, playStumble, playSummit])
+  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, elo, feedback])
 
   const difficultyStars = '★'.repeat(puzzle.difficulty) + '☆'.repeat(4 - puzzle.difficulty)
   const isBlackToMove = puzzle.playerToMove === BLACK

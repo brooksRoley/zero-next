@@ -3,10 +3,11 @@ import confetti from 'canvas-confetti'
 import PuzzleBoard from 'src/components/PuzzleBoard'
 import PuzzleTransition from 'src/components/PuzzleTransition'
 import MountainProgress from 'src/components/MountainProgress'
+import WaxSeal from 'src/components/WaxSeal'
 import { BotWorkerManager } from 'src/lib/pente/botWorker'
 import { BLACK, EMPTY } from 'src/lib/pente/constants'
 import { getZone } from 'src/lib/pente/elo'
-import useGameSounds from 'src/hooks/useGameSounds'
+import useTactileFeedback from 'src/hooks/useTactileFeedback'
 
 /**
  * Endless Puzzle Mode — infinitely generated puzzles calibrated to player ELO.
@@ -38,7 +39,7 @@ export default function EndlessPuzzle({
   const boardContainerRef = useRef(null)
   const workerRef = useRef(null)
   const puzzleStartRef = useRef(Date.now())
-  const { playClimb, playStumble, playSummit } = useGameSounds()
+  const feedback = useTactileFeedback()
 
   // Worker lifecycle
   useEffect(() => {
@@ -142,13 +143,13 @@ export default function EndlessPuzzle({
         const oldZone = getZone(currentElo)
         if (result.zone.name !== oldZone.name) {
           setNewZone(result.zone)
-          playSummit()
+          feedback.onLevelUp()
           confetti({
             particleCount: 200, spread: 120, origin: { y: 0.5 },
             colors: ['#ff69b4', '#40916c', '#fbbf24', '#6abf82', '#ff8cc2'],
           })
         } else {
-          playClimb()
+          feedback.onCorrect()
           confetti({
             particleCount: 60, spread: 50, origin: { y: 0.65 }, gravity: 1.2,
             colors: ['#ff69b4', '#40916c', '#ffb8d9'],
@@ -169,7 +170,7 @@ export default function EndlessPuzzle({
         setTransitionPhase('scatter')
       }, 1200)
     } else {
-      playStumble()
+      feedback.onWrong()
       triggerShake()
       setWrongMove({ row, col })
       setAttempts(prev => prev + 1)
@@ -177,7 +178,7 @@ export default function EndlessPuzzle({
       setSessionStats(prev => ({ ...prev, total: prev.total + 1 }))
       setTimeout(() => setWrongMove(null), 600)
     }
-  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, currentElo, playClimb, playStumble, playSummit, playerId])
+  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, currentElo, feedback, playerId])
 
   // Transition complete handlers
   const handleScatterComplete = useCallback(async () => {
@@ -350,14 +351,11 @@ export default function EndlessPuzzle({
       {solved && transitionPhase === 'idle' && (
         <div className="mt-4 flex items-center gap-3 animate-fadeIn">
           {eloDelta !== null && (
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
-              eloDelta >= 0
-                ? 'bg-green-900/30 border-green-700/40 text-green-300'
-                : 'bg-red-900/30 border-red-700/40 text-red-300'
-            }`}>
-              <span className="text-xs uppercase tracking-wider opacity-70">ELO</span>
-              <span className="text-lg font-bold">{eloDelta >= 0 ? '+' : ''}{eloDelta}</span>
-            </div>
+            <WaxSeal
+              delta={eloDelta}
+              zoneColor={eloDelta >= 0 ? zone.color : '#7f1d1d'}
+              onMount={feedback.onStamp}
+            />
           )}
           {newZone && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-900/30 border border-yellow-600/40">
