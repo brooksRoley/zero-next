@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+
 import { useRouter } from 'next/router';
 import GameLobby from 'src/components/GameLobby';
 import MultiplayerStatus from 'src/components/MultiplayerStatus';
@@ -10,7 +10,8 @@ import usePlayerId from 'src/hooks/usePlayerId';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
 import { createEmptyBoard, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
-import { PenteBot, BOT_LEVELS, getBotLevelForElo } from 'src/components/PentePlayerbot';
+import { PenteBot, BOT_LEVELS } from 'src/components/PentePlayerbot';
+import { BotWorkerManager } from 'src/lib/pente/botWorker';
 import { PenteTutor } from 'src/components/PenteTutor';
 import PreText from 'src/components/PreText';
 import usePuzzleProgress from 'src/hooks/usePuzzleProgress';
@@ -94,15 +95,25 @@ const GameBoard = () => {
 
   // Capture-eject animation: Map<"row-col", playerColor>
   const [capturedCells, setCapturedCells] = useState(() => new Map());
+  // Touch-preview: cell key currently under finger, e.g. "9-9"
+  const [touchPreviewCell, setTouchPreviewCell] = useState(null);
 
   // ── Game mode + Bot state ──
   const [gameMode, setGameMode] = useState(null); // null = classic pass-and-play
-  const [botInstances, setBotInstances] = useState([]); // array of PenteBot
+  const [botInstances, setBotInstances] = useState([]); // array of PenteBot (fallback only)
   const [botDifficulty, setBotDifficulty] = useState('intermediate');
   const [botThinking, setBotThinking] = useState(false);
   const [humanColor] = useState(BLACK); // human is always Black
+  const [lastBotStats, setLastBotStats] = useState(null); // { depth, nodes } from last engine move
 
   const botEnabled = botInstances.length > 0;
+
+  // ── Web Worker engine (minimax) ──
+  const workerRef = useRef(null);
+  useEffect(() => {
+    workerRef.current = new BotWorkerManager();
+    return () => { workerRef.current?.terminate(); };
+  }, []);
 
   // ── Tutor state ──
   const tutor = useMemo(() => new PenteTutor(), []);
@@ -145,6 +156,7 @@ const GameBoard = () => {
   const activePlayers = gameMode ? gameMode.turnOrder : [BLACK, WHITE];
 
   const boardRef = useRef(null);
+  const handleClickRef = useRef(null);
   const { playPlace, playCapture, playWin } = useGameSounds();
 
   const triggerShake = useCallback(() => {
@@ -159,6 +171,54 @@ const GameBoard = () => {
     setRippleCell(`${row}-${col}`);
     setTimeout(() => setRippleCell(null), 500);
   }, []);
+
+  // Haptic feedback — a single short pulse when a stone snaps into place
+  const vibrate = useCallback(() => {
+    if (navigator.vibrate) navigator.vibrate(10);
+  }, []);
+
+  // ── Touch handling for mobile drag-to-preview ──
+  // Find which board-cell button is under a touch point
+  const cellFromTouch = useCallback((touch) => {
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!el || !el.classList.contains('board-cell')) return null;
+    // Read row/col from data attributes
+    const row = el.dataset.row;
+    const col = el.dataset.col;
+    if (row == null || col == null) return null;
+    return { row: parseInt(row, 10), col: parseInt(col, 10) };
+  }, []);
+
+  const handleTouchStart = useCallback((e) => {
+    const cell = cellFromTouch(e.touches[0]);
+    if (!cell) return;
+    const b = isOnline ? mp.board : localBoard;
+    if (b[cell.row][cell.col] === EMPTY) {
+      setTouchPreviewCell(`${cell.row}-${cell.col}`);
+    }
+  }, [cellFromTouch, isOnline, mp.board, localBoard]);
+
+  const handleTouchMove = useCallback((e) => {
+    const cell = cellFromTouch(e.touches[0]);
+    if (!cell) { setTouchPreviewCell(null); return; }
+    const b = isOnline ? mp.board : localBoard;
+    const key = `${cell.row}-${cell.col}`;
+    if (b[cell.row][cell.col] === EMPTY) {
+      setTouchPreviewCell(prev => prev !== key ? key : prev);
+    } else {
+      setTouchPreviewCell(null);
+    }
+  }, [cellFromTouch, isOnline, mp.board, localBoard]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!touchPreviewCell) return;
+    const [row, col] = touchPreviewCell.split('-').map(Number);
+    setTouchPreviewCell(null);
+    // Use ref to avoid forward-reference issue with handleClick (defined later)
+    if (handleClickRef.current) handleClickRef.current(row, col);
+    vibrate();
+    e.preventDefault();
+  }, [touchPreviewCell, vibrate]);
 
   // ── Evaluation bar (classic only) ──
   useEffect(() => {
@@ -186,29 +246,49 @@ const GameBoard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorEnabled, localCurrentPlayer, localBoard, blackCaptures, whiteCaptures, gameOver, isOnline, botEnabled, humanColor, gameMode, tutor]);
 
-  // ── Bot auto-play ──
+  // ── Bot auto-play (Web Worker minimax engine) ──
   useEffect(() => {
     if (!botEnabled || isOnline || gameOver) return;
     if (localCurrentPlayer === humanColor) return; // human's turn
+    if (!workerRef.current) return;
 
     const currentBot = botInstances.find(b => b.botColor === localCurrentPlayer);
     if (!currentBot) return;
 
+    let cancelled = false;
     setBotThinking(true);
-    const delay = 350 + Math.random() * 250;
-    const timer = setTimeout(() => {
-      const botCaps = captures[currentBot.botColor] || 0;
-      const move = currentBot.getBestMove(
+
+    // Small delay before thinking starts so the UI feels natural
+    const delay = 200 + Math.random() * 150;
+    const timer = setTimeout(async () => {
+      const levelConfig = BOT_LEVELS[botDifficulty] || BOT_LEVELS.intermediate;
+      const engineConfig = {
+        searchDepth: levelConfig.searchDepth,
+        timeBudgetMs: levelConfig.timeBudgetMs,
+        blunderRate: levelConfig.blunderRate,
+      };
+
+      const move = await workerRef.current.findMove(
         localBoard.map(r => [...r]),
-        botCaps,
-        0 // oppCaptures — the bot already handles multi-opponent internally
+        localCurrentPlayer,
+        { ...captures },
+        engineConfig,
+        gameMode,
+        levelConfig.timeBudgetMs + 2000, // hard timeout = budget + 2s grace
       );
-      if (move) handleLocalClick(move.row, move.col, true);
+
+      if (cancelled) return;
+
+      if (move) {
+        setLastBotStats({ depth: move.depth, nodes: move.nodes });
+        handleLocalClick(move.row, move.col, true);
+      }
       setBotThinking(false);
     }, delay);
-    return () => clearTimeout(timer);
+
+    return () => { cancelled = true; clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures]);
+  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures, botDifficulty, gameMode]);
 
   // ── Record move history ──
   const recordMove = useCallback((boardState, capturesState, mover, row, col) => {
@@ -241,6 +321,7 @@ const GameBoard = () => {
     setHintExplanation(null);
 
     playPlace();
+    vibrate();
     triggerRipple(row, col);
 
     const { newBoard: boardAfterCaptures, capturedPairs, captured } = computeCaptures(
@@ -300,12 +381,13 @@ const GameBoard = () => {
     const next = turnOrder[(idx + 1) % turnOrder.length];
     setLocalCurrentPlayer(next);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localBoard, localCurrentPlayer, gameOver, botEnabled, humanColor, gameMode, captures, playPlace, playCapture, triggerRipple, triggerShake, recordMove]);
+  }, [localBoard, localCurrentPlayer, gameOver, botEnabled, humanColor, gameMode, captures, playPlace, playCapture, vibrate, triggerRipple, triggerShake, recordMove]);
 
   // ── Online move handler ──
   const handleOnlineClick = async (row, col) => {
     if (!mp.isMyTurn || board[row][col] !== EMPTY) return;
     playPlace();
+    vibrate();
     triggerRipple(row, col);
     const result = await mp.makeMove(row, col);
     if (result.winner) {
@@ -317,10 +399,12 @@ const GameBoard = () => {
     }
   };
 
-  const handleClick = (row, col) => {
+  const handleClick = useCallback((row, col) => {
     if (isOnline) handleOnlineClick(row, col);
     else handleLocalClick(row, col);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, handleLocalClick]);
+  handleClickRef.current = handleClick;
 
   const endLocalGame = (winningPlayer) => {
     playWin();
@@ -349,6 +433,8 @@ const GameBoard = () => {
     setLocalMoveCount(0);
     setRippleCell(null);
     setCapturedCells(new Map());
+    setTouchPreviewCell(null);
+    setLastBotStats(null);
     setTutorEnabled(false);
     setHintCell(null);
     setHintExplanation(null);
@@ -562,6 +648,11 @@ const GameBoard = () => {
             {moveCount > 0 && (
               <span className="text-forest-600 text-xs font-mono">#{moveCount}</span>
             )}
+            {lastBotStats && botEnabled && !botThinking && (
+              <span className="text-forest-700 text-[10px] font-mono opacity-60" title="Engine search depth / nodes evaluated">
+                d{lastBotStats.depth} {lastBotStats.nodes > 1000 ? `${(lastBotStats.nodes / 1000).toFixed(1)}k` : lastBotStats.nodes}n
+              </span>
+            )}
 
             {/* Score + captures — right-aligned */}
             <div className="ml-auto flex items-center gap-2 text-xs font-mono">
@@ -736,6 +827,9 @@ const GameBoard = () => {
               ref={boardRef}
               className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''}`}
               style={boardDisabled ? { pointerEvents: 'none' } : undefined}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               {displayBoard.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
@@ -745,12 +839,15 @@ const GameBoard = () => {
                     return (
                       <button
                         key={colIndex}
+                        data-row={rowIndex}
+                        data-col={colIndex}
                         className={[
                           'board-cell',
                           cellClass(cell),
                           isLastMove(rowIndex, colIndex) ? 'last-move' : '',
                           rippleCell === cellKey ? 'ripple' : '',
                           isHintCell(rowIndex, colIndex) ? 'hint-glow' : '',
+                          touchPreviewCell === cellKey ? 'touch-preview' : '',
                         ].filter(Boolean).join(' ')}
                         onClick={() => handleClick(rowIndex, colIndex)}
                       >

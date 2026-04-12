@@ -3,15 +3,17 @@
  * A heuristic-based AI for playing Pente with configurable difficulty.
  * Supports classic 2-player, FFA, and team modes.
  */
-import { BOARD_SIZE, EMPTY, BLACK, WHITE, PLAYER_COLORS, isOpponent as isOpp } from 'src/lib/pente/constants';
-import { isValidPosition, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
+import { BOARD_SIZE, EMPTY, BLACK, WHITE, isOpponent as isOpp } from 'src/lib/pente/constants';
+import { isValidPosition, checkForFiveInARow } from 'src/lib/pente/gameLogic';
 
-// Difficulty presets — ELO approximates the skill level
+// Difficulty presets — ELO approximates the skill level.
+// Engine fields (searchDepth, timeBudgetMs, blunderRate) drive the minimax Web Worker.
+// Legacy fields (randomness, depthScale) are kept for the fallback heuristic bot.
 export const BOT_LEVELS = {
-  beginner:     { elo: 600,  label: 'Beginner',     randomness: 0.4,  depthScale: 0.3  },
-  intermediate: { elo: 1000, label: 'Intermediate',  randomness: 0.2,  depthScale: 0.6  },
-  advanced:     { elo: 1400, label: 'Advanced',      randomness: 0.08, depthScale: 0.85 },
-  expert:       { elo: 1800, label: 'Expert',        randomness: 0.02, depthScale: 1.0  },
+  beginner:     { elo: 600,  label: 'Beginner',     searchDepth: 1, timeBudgetMs: 200,  blunderRate: 0.15, randomness: 0.4,  depthScale: 0.3  },
+  intermediate: { elo: 1000, label: 'Intermediate',  searchDepth: 2, timeBudgetMs: 800,  blunderRate: 0.05, randomness: 0.2,  depthScale: 0.6  },
+  advanced:     { elo: 1400, label: 'Advanced',      searchDepth: 3, timeBudgetMs: 2000, blunderRate: 0.01, randomness: 0.08, depthScale: 0.85 },
+  expert:       { elo: 1800, label: 'Expert',        searchDepth: 4, timeBudgetMs: 4000, blunderRate: 0,    randomness: 0.02, depthScale: 1.0  },
 };
 
 /**
