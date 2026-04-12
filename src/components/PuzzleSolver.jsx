@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import PuzzleBoard from 'src/components/PuzzleBoard'
+import PuzzleTransition from 'src/components/PuzzleTransition'
 import MountainProgress from 'src/components/MountainProgress'
 import { BLACK } from 'src/lib/pente/constants'
 import { getZone } from 'src/lib/pente/elo'
@@ -24,21 +25,35 @@ export default function PuzzleSolver({
   const [showExplanation, setShowExplanation] = useState(alreadySolved)
   const [eloDelta, setEloDelta] = useState(null)
   const [newZone, setNewZone] = useState(null)
+  const [transitionPhase, setTransitionPhase] = useState('idle')
+  const boardContainerRef = useRef(null)
   const { playClimb, playStumble, playSummit } = useGameSounds()
   const solvedRef = useRef(solved)
   solvedRef.current = solved
+
+  const advanceToNext = useCallback(() => {
+    if (!onNext) return
+    setTransitionPhase('scatter')
+  }, [onNext])
+
+  const handleTransitionComplete = useCallback(() => {
+    if (transitionPhase === 'scatter' && onNext) {
+      onNext()
+    }
+    setTransitionPhase('idle')
+  }, [transitionPhase, onNext])
 
   // Spacebar to advance to next puzzle
   useEffect(() => {
     const handleKey = (e) => {
       if (e.code === 'Space' && solvedRef.current && onNext) {
         e.preventDefault()
-        onNext()
+        advanceToNext()
       }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [onNext])
+  }, [onNext, advanceToNext])
 
   const handleCellClick = useCallback((row, col, { triggerShake }) => {
     if (solved) return
@@ -175,17 +190,28 @@ export default function PuzzleSolver({
         </div>
       )}
 
-      {/* Board */}
+      {/* Board with physics transition overlay */}
       <div className="flex justify-center">
-        <PuzzleBoard
-          board={puzzle.board}
-          onCellClick={handleCellClick}
-          playerToMove={puzzle.playerToMove}
-          hintCell={showHint && !solved ? puzzle.solutions[0] : null}
-          highlightCells={solved ? puzzle.solutions : []}
-          disabled={solved}
-          wrongCell={wrongMove}
-        />
+        <div ref={boardContainerRef} className="relative">
+          <div style={{ opacity: transitionPhase !== 'idle' ? 0 : 1, transition: 'opacity 0.15s' }}>
+            <PuzzleBoard
+              board={puzzle.board}
+              onCellClick={handleCellClick}
+              playerToMove={puzzle.playerToMove}
+              hintCell={showHint && !solved ? puzzle.solutions[0] : null}
+              highlightCells={solved ? puzzle.solutions : []}
+              disabled={solved || transitionPhase !== 'idle'}
+              wrongCell={wrongMove}
+            />
+          </div>
+          <PuzzleTransition
+            boardRef={boardContainerRef}
+            phase={transitionPhase}
+            board={puzzle.board}
+            onComplete={handleTransitionComplete}
+            eloZone={getZone(elo)}
+          />
+        </div>
       </div>
 
       {/* Post-solve area */}
@@ -214,7 +240,7 @@ export default function PuzzleSolver({
             <div className="ml-auto">
               {onNext && (
                 <button
-                  onClick={onNext}
+                  onClick={advanceToNext}
                   className="text-sm px-5 py-2.5 rounded-lg bg-gradient-to-r from-candy-500 to-candy-600 text-white font-semibold hover:from-candy-400 hover:to-candy-500 transition-all shadow-lg shadow-candy-500/20 flex items-center gap-2"
                 >
                   Continue Climbing

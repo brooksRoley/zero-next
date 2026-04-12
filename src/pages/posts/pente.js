@@ -6,7 +6,7 @@ import GameLobby from 'src/components/GameLobby';
 import MultiplayerStatus from 'src/components/MultiplayerStatus';
 import confetti from 'canvas-confetti';
 import useGameSounds from 'src/hooks/useGameSounds';
-import usePlayerId from 'src/hooks/usePlayerId';
+import usePlayerProfile from 'src/hooks/usePlayerProfile';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
 import { createEmptyBoard, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
@@ -14,7 +14,6 @@ import { PenteBot, BOT_LEVELS } from 'src/components/PentePlayerbot';
 import { BotWorkerManager } from 'src/lib/pente/botWorker';
 import { PenteTutor } from 'src/components/PenteTutor';
 import PreText from 'src/components/PreText';
-import usePuzzleProgress from 'src/hooks/usePuzzleProgress';
 
 // Map cell value to CSS class
 function cellClass(cell) {
@@ -72,11 +71,8 @@ const GameBoard = () => {
   const router = useRouter();
   const gameId = router.query.game;
 
-  // Player identity
-  const { playerId, playerName, setPlayerName } = usePlayerId();
-
-  // ELO from puzzle progress (shared rating)
-  const { elo: playerElo, recordGameResult } = usePuzzleProgress();
+  // Player identity + shared ELO
+  const { playerId, playerName, setPlayerName, elo: playerElo, recordGameResult } = usePlayerProfile();
 
   // ── Core mode state ──
   const [modePreset, setModePreset] = useState(gameId ? 'online' : 'local');
