@@ -29,6 +29,8 @@ export class BotWorkerManager {
     clearTimeout(timeout)
     if (data.type === 'move') {
       resolve(data.result)
+    } else if (data.type === 'puzzle') {
+      resolve(data.puzzle)
     } else if (data.type === 'error') {
       resolve(null) // degrade gracefully — caller handles null
     }
@@ -82,6 +84,36 @@ export class BotWorkerManager {
         config,
         gameMode,
       })
+    })
+  }
+
+  /**
+   * Generate a puzzle calibrated to the target ELO.
+   * Runs bot-vs-bot games in the worker to find puzzle-worthy positions.
+   * @param {number} targetElo - Player's current ELO for difficulty calibration
+   * @param {number} [timeoutMs=15000] - Hard timeout
+   * @returns {Promise<object|null>} Generated puzzle or null
+   */
+  generatePuzzle(targetElo = 1000, timeoutMs = 15000) {
+    this.ensureWorker()
+    if (!this.worker) return Promise.resolve(null)
+
+    if (this.pending) {
+      this.pending.resolve(null)
+      clearTimeout(this.pending.timeout)
+      this.pending = null
+    }
+
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        if (this.pending) {
+          this.pending = null
+          resolve(null)
+        }
+      }, timeoutMs)
+
+      this.pending = { resolve, timeout }
+      this.worker.postMessage({ type: 'generatePuzzle', targetElo })
     })
   }
 

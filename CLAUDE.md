@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 yarn dev        # Start development server on localhost:3000
 yarn build      # Build for production
 yarn start      # Start production server
-yarn lint       # Run ESLint via next lint
+yarn lint       # Run ESLint directly (not next lint — Next.js 16 broke it)
 ```
 
 There are no tests configured in this project.
@@ -21,7 +21,8 @@ Personal portfolio + livelihood platform built with Next.js 13 (Pages Router), T
 - `/` (`src/pages/index.tsx`) — Landing page with card links to Resume, LinkedIn, GitHub, Consulting, and the Pente game
 - `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture form, Stripe Checkout deposit flow, Calendly integration
 - `/resume` (`src/pages/resume.js`) — Resume page with PDF download link and the interactive MarioButton
-- `/posts/pente` (`src/pages/posts/pente.js`) — Playable 2-player Pente board game (19×19 grid, capture/five-in-a-row win conditions)
+- `/posts/pente` (`src/pages/posts/pente.js`) — Pente game with multi-player modes (1v1, vs Bot, vs 3 Bots FFA, 2v2 Bots), minimax AI engine via Web Worker, ELO tracking, touch UX
+- `/posts/pente-puzzles` (`src/pages/posts/pente-puzzles.js`) — Puzzle trainer: curated catalog + Endless mode with runtime puzzle generation, canvas physics transitions, ELO-adaptive difficulty, mountain-climbing progress metaphor
 - `/posts/guestbook` (`src/pages/posts/guestbook.tsx`) — Collaborative guest book: rubric-based ad-lib story prompt builder with typography picker, writes to Neon Postgres
 
 ### Database (Neon Postgres)
@@ -80,6 +81,40 @@ The consulting funnel (`/consulting`) has Stripe Checkout wired up but is curren
    - Add CSRF protection or honeypot field to the contact form
    - Consider Stripe Customer Portal for managing recurring fractional CTO billing
    - The `leads` table `status` column supports a pipeline: 'new' → 'contacted' → 'qualified' → 'converted' → 'closed'
+
+### Pente Game Platform
+
+The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship game product, with a roadmap to paid tiers via Stripe.
+
+#### Architecture Decisions (locked)
+- **Supabase for ALL game state** — player profiles, ELO, puzzle bank, game history, multiplayer realtime. Supabase client is at `src/lib/supabase.js`. The `games` table and realtime channels already exist there.
+- **localStorage as offline cache only** — `usePuzzleProgress` currently uses localStorage; this must be migrated to Supabase with localStorage as a fallback for offline play. New features should write to Supabase first, cache locally second.
+- **Neon Postgres is for the business side** (leads, consulting, guestbook). Do NOT put game data in Neon.
+- **Web Worker for AI engine** — The minimax bot runs in `public/penteWorker.js` (self-contained, no imports). Puzzle generation also runs there. Never move engine computation to the main thread.
+
+#### Supabase Tables (planned migration order)
+1. `players` — `id` (UUID, matches localStorage `pente_player_id`), `name`, `elo`, `peak_elo`, `puzzles_solved`, `games_played`, `games_won`, `created_at`, `last_seen`. Upsert on first visit (lazy auth, no login).
+2. `game_results` — `id`, `player_id`, `opponent_id`, `opponent_type` (bot/human), `bot_level`, `game_mode`, `winner`, `elo_before`, `elo_after`, `moves` (JSONB), `created_at`.
+3. `puzzle_bank` — `id`, `board` (JSONB), `solutions` (JSONB), `category`, `difficulty`, `rating`, `generated_by`, `times_served`, `times_solved`, `avg_solve_time`. Generated puzzles get persisted here; solve stats update on each attempt.
+4. `puzzle_attempts` — `id`, `player_id`, `puzzle_id`, `solved`, `attempts`, `used_hint`, `elo_before`, `elo_after`, `created_at`.
+
+#### Bot Engine
+- Minimax with alpha-beta pruning, iterative deepening (depth 1-4), Zobrist transposition table, move ordering.
+- `BOT_LEVELS` in `src/components/PentePlayerbot.js` define `searchDepth`, `timeBudgetMs`, `blunderRate` per difficulty.
+- `BotWorkerManager` in `src/lib/pente/botWorker.js` wraps the worker with promise-based `findMove()` and `generatePuzzle()`.
+- Game modes: Classic 1v1, Free-for-All (4 players), 2v2 Teams. Constants in `src/lib/pente/constants.js`.
+
+#### Monetization Roadmap (Pente → Stripe)
+The puzzle system is the monetization path. Model: freemium with tip-jar and premium tiers.
+
+| Phase | What | Revenue |
+|---|---|---|
+| **Free tier (now)** | Curated puzzles, Endless mode, bot play, ELO tracking | Dwell time, audience building |
+| **Tip jar (next)** | "Buy me a coffee" after solve streaks, donate to keep servers running | One-time tips via Stripe |
+| **Premium puzzles** | Daily challenge puzzles, leaderboard, puzzle history/replay, export stats | $5-9/mo Stripe subscription |
+| **Competitive tier** | Ranked matchmaking, seasonal ELO resets, tournament brackets, profile badges | $9-15/mo Stripe subscription |
+
+When building puzzle/game features, always ask: *does this make the free tier sticky enough to convert, or does this belong behind the premium gate?* Free should be generous. Premium should feel like "I want more of this."
 
 ### Styling
 - Tailwind CSS is primary; `src/styles/globals.css` has global resets and `.cover-photo` background utility

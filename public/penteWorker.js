@@ -527,6 +527,216 @@ function findBestMove(board, player, captures, config, gameMode) {
   return { row: bestMove.row, col: bestMove.col, score: bestScore, depth: completedDepth, nodes: nodesSearched }
 }
 
+// ── Puzzle generation ──
+// Simulates a bot-vs-bot game, finds positions where best move clearly dominates.
+
+var CATEGORY_NAMES = ['five_in_a_row', 'defense', 'capture', 'mixed', 'opening']
+var CATEGORY_HINTS = {
+  five_in_a_row: 'Look for a line you can complete.',
+  defense: 'Your opponent is about to win. Find the block.',
+  capture: 'Find the pair you can flank.',
+  mixed: 'Think about both captures and lines.',
+  opening: 'Find the strongest positional move.',
+}
+
+function classifyByScore(score) {
+  if (score >= 1000000) return 'five_in_a_row'
+  if (score >= 500000) return 'defense'
+  if (score >= 10000) return 'capture'
+  if (score >= 5000) return 'mixed'
+  return 'opening'
+}
+
+function difficultyFromGap(gap) {
+  if (gap > 500000) return 1
+  if (gap > 50000) return 2
+  if (gap > 10000) return 3
+  return 4
+}
+
+function eloRatingFromDifficulty(d) {
+  return [0, 850, 1050, 1300, 1600][d] || 1000
+}
+
+function createEmptyBoard() {
+  var b = []
+  for (var r = 0; r < BOARD_SIZE; r++) {
+    var row = []
+    for (var c = 0; c < BOARD_SIZE; c++) row.push(EMPTY)
+    b.push(row)
+  }
+  return b
+}
+
+function copyBoard(board) {
+  return board.map(function(r) { return r.slice() })
+}
+
+function applyMoveSimple(board, row, col, player, captures) {
+  board[row][col] = player
+  var capResult = countCaptures(board, row, col, player, null)
+  for (var i = 0; i < capResult.captured.length; i += 2) {
+    board[capResult.captured[i]][capResult.captured[i + 1]] = EMPTY
+  }
+  var newCaps = {}
+  for (var k in captures) newCaps[k] = captures[k]
+  newCaps[player] = (newCaps[player] || 0) + capResult.pairs
+  var winner = null
+  if (checkFive(board, row, col, player)) winner = player
+  else if ((newCaps[player] || 0) >= 5) winner = player
+  var next = player === BLACK ? WHITE : BLACK
+  return { board: board, captures: newCaps, winner: winner, next: next }
+}
+
+function generatePuzzle(targetElo) {
+  // Map targetElo to approximate move range for interesting positions
+  var targetDiff = targetElo < 900 ? 1 : targetElo < 1100 ? 2 : targetElo < 1400 ? 3 : 4
+  var searchConfig = { searchDepth: 2, timeBudgetMs: 500 }
+  var maxAttempts = 8 // games to try
+  var bestCandidate = null
+  var bestFit = Infinity
+
+  for (var g = 0; g < maxAttempts; g++) {
+    var board = createEmptyBoard()
+    var captures = {}
+    captures[BLACK] = 0
+    captures[WHITE] = 0
+    var currentPlayer = BLACK
+
+    // Play 6-30 moves to build up a position
+    var minMoves = 6 + Math.floor(Math.random() * 4)
+    var maxMoves = 20 + Math.floor(Math.random() * 15)
+
+    for (var moveNum = 0; moveNum < maxMoves; moveNum++) {
+      // Use engine with some randomness for variety
+      var moveConfig = { searchDepth: 1, timeBudgetMs: 100, blunderRate: 0.3 }
+      engineGameMode = null
+      engineMaxDepth = moveConfig.searchDepth
+      engineTimeBudget = moveConfig.timeBudgetMs
+      engineBlunderRate = moveConfig.blunderRate
+      nodesSearched = 0
+      startTime = Date.now()
+      aborted = false
+      ttMap.clear()
+
+      var cands = getCandidates(board, 2)
+      if (cands.length === 0) break
+
+      // Check for empty board
+      var empty = true
+      for (var r = 0; r < BOARD_SIZE && empty; r++) {
+        for (var c = 0; c < BOARD_SIZE && empty; c++) {
+          if (board[r][c] !== EMPTY) empty = false
+        }
+      }
+      if (empty) {
+        var center = Math.floor(BOARD_SIZE / 2)
+        board[center][center] = currentPlayer
+        currentPlayer = currentPlayer === BLACK ? WHITE : BLACK
+        continue
+      }
+
+      // Get scored moves
+      var scoredMoves = []
+      for (var i = 0; i < Math.min(cands.length, 30); i++) {
+        scoredMoves.push({
+          row: cands[i].row, col: cands[i].col,
+          score: quickScore(board, cands[i].row, cands[i].col, currentPlayer, captures)
+        })
+      }
+      scoredMoves.sort(function(a, b) { return b.score - a.score })
+
+      // After minMoves, check if this is a puzzle-worthy position
+      if (moveNum >= minMoves && scoredMoves.length >= 2) {
+        var best = scoredMoves[0]
+        var second = scoredMoves[1]
+        var gap = best.score - second.score
+
+        // Need a clear best move
+        if (gap >= 5000 && best.score >= 5000) {
+          var difficulty = difficultyFromGap(gap)
+          var cat = classifyByScore(best.score)
+          var rating = eloRatingFromDifficulty(difficulty)
+          var fit = Math.abs(rating - targetElo) + Math.abs(difficulty - targetDiff) * 200
+
+          if (fit < bestFit) {
+            bestFit = fit
+            bestCandidate = {
+              board: copyBoard(board),
+              playerToMove: currentPlayer,
+              solutions: [{ row: best.row, col: best.col }],
+              category: cat,
+              difficulty: difficulty,
+              rating: rating,
+              bestScore: best.score,
+              secondScore: second.score,
+              gap: gap,
+              blackCaptures: captures[BLACK] || 0,
+              whiteCaptures: captures[WHITE] || 0,
+            }
+          }
+
+          // Good enough? Don't over-search
+          if (fit < 150) break
+        }
+      }
+
+      // Apply a move (with some randomness for game diversity)
+      var moveIdx = 0
+      if (Math.random() < 0.3 && scoredMoves.length > 1) {
+        moveIdx = Math.floor(Math.random() * Math.min(3, scoredMoves.length))
+      }
+      var chosen = scoredMoves[moveIdx]
+      var result = applyMoveSimple(copyBoard(board), chosen.row, chosen.col, currentPlayer, captures)
+      board = result.board
+      captures = result.captures
+      if (result.winner) break
+      currentPlayer = result.next
+    }
+
+    if (bestCandidate && bestFit < 150) break
+  }
+
+  if (!bestCandidate) return null
+
+  // Generate descriptive text
+  var colorName = bestCandidate.playerToMove === BLACK ? 'Black' : 'White'
+  var cat = bestCandidate.category
+  var titles = {
+    five_in_a_row: ['Complete the Line', 'Find the Win', 'Winning Sequence', 'Five to Victory', 'Line It Up'],
+    defense: ['Block the Threat', 'Critical Defense', 'Stop the Attack', 'Hold the Line', 'Prevent Disaster'],
+    capture: ['Capture Play', 'Flanking Maneuver', 'Snare the Pair', 'Tactical Capture', 'Spring the Trap'],
+    mixed: ['Multi-Threat', 'Dual Purpose', 'Fork and Win', 'Combined Tactics', 'The Key Move'],
+    opening: ['Strong Position', 'Central Control', 'Build Influence', 'Positional Play', 'Strategic Placement'],
+  }
+  var catTitles = titles[cat] || titles.mixed
+  var title = catTitles[Math.floor(Math.random() * catTitles.length)]
+  var descs = {
+    five_in_a_row: colorName + ' to move. Complete five in a row.',
+    defense: colorName + ' to move. Block the opponent\'s winning threat.',
+    capture: colorName + ' to move. Find the capture.',
+    mixed: colorName + ' to move. Find the strongest tactical play.',
+    opening: colorName + ' to move. Find the best position.',
+  }
+
+  return {
+    id: 'gen-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+    title: title,
+    description: descs[cat],
+    category: cat,
+    difficulty: bestCandidate.difficulty,
+    rating: bestCandidate.rating,
+    board: bestCandidate.board,
+    playerToMove: bestCandidate.playerToMove,
+    blackCaptures: bestCandidate.blackCaptures,
+    whiteCaptures: bestCandidate.whiteCaptures,
+    solutions: bestCandidate.solutions,
+    hint: CATEGORY_HINTS[cat],
+    explanation: 'The best move scores ' + bestCandidate.bestScore + ' while the next best scores only ' + bestCandidate.secondScore + '. A gap of ' + bestCandidate.gap + ' makes this the clear winning play.',
+    generated: true,
+  }
+}
+
 // ── Worker message handler ──
 self.onmessage = function(e) {
   var msg = e.data
@@ -534,6 +744,13 @@ self.onmessage = function(e) {
     try {
       var result = findBestMove(msg.board, msg.player, msg.captures || {}, msg.config || {}, msg.gameMode || null)
       self.postMessage({ type: 'move', result: result })
+    } catch (err) {
+      self.postMessage({ type: 'error', message: err.message || String(err) })
+    }
+  } else if (msg.type === 'generatePuzzle') {
+    try {
+      var puzzle = generatePuzzle(msg.targetElo || 1000)
+      self.postMessage({ type: 'puzzle', puzzle: puzzle })
     } catch (err) {
       self.postMessage({ type: 'error', message: err.message || String(err) })
     }
