@@ -13,6 +13,7 @@ import useGameSounds from 'src/hooks/useGameSounds'
  * Features physics canvas transitions between puzzles and adaptive difficulty.
  */
 export default function EndlessPuzzle({
+  playerId,
   elo,
   peakElo,
   eloHistory,
@@ -36,6 +37,7 @@ export default function EndlessPuzzle({
 
   const boardContainerRef = useRef(null)
   const workerRef = useRef(null)
+  const puzzleStartRef = useRef(Date.now())
   const { playClimb, playStumble, playSummit } = useGameSounds()
 
   // Worker lifecycle
@@ -44,11 +46,37 @@ export default function EndlessPuzzle({
     return () => workerRef.current?.terminate()
   }, [])
 
-  // Generate a puzzle
+  // Generate a puzzle + persist it to the bank (fire-and-forget).
+  // The returned puzzle gains a bankId used to correlate attempts server-side.
   const generateNext = useCallback(async (targetElo) => {
     if (!workerRef.current) return null
     const p = await workerRef.current.generatePuzzle(targetElo)
-    return p
+    if (!p) return null
+
+    // Persist to puzzle_bank in the background; attach bankId when it returns
+    const persisted = { ...p }
+    fetch('/api/pente/puzzle-bank', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        board: p.board,
+        solutions: p.solutions,
+        player_to_move: p.playerToMove,
+        category: p.category,
+        difficulty: p.difficulty,
+        rating: p.rating,
+        title: p.title,
+        description: p.description,
+        hint: p.hint,
+        explanation: p.explanation,
+        generated_by: 'worker',
+      }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.id) persisted.bankId = data.id })
+      .catch(() => { /* offline — puzzle still playable */ })
+
+    return persisted
   }, [])
 
   // Initial load + prefetch
@@ -85,7 +113,29 @@ export default function EndlessPuzzle({
       setSolved(true)
       setWrongMove(null)
 
+      const solveTimeMs = Date.now() - puzzleStartRef.current
+      const eloBefore = currentElo
       const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint)
+
+      // Persist the attempt server-side (fire-and-forget)
+      if (playerId) {
+        fetch('/api/pente/puzzle-attempts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            player_id: playerId,
+            puzzle_id: puzzle.bankId || null,
+            puzzle_external_id: puzzle.id,
+            rating: puzzle.rating,
+            solved: true,
+            attempts: attempts + 1,
+            used_hint: showHint,
+            elo_before: eloBefore,
+            elo_after: result?.newElo ?? eloBefore,
+            solve_time_ms: solveTimeMs,
+          }),
+        }).catch(() => {})
+      }
       if (result) {
         setEloDelta(result.delta)
         setCurrentElo(result.newElo)
@@ -127,7 +177,7 @@ export default function EndlessPuzzle({
       setSessionStats(prev => ({ ...prev, total: prev.total + 1 }))
       setTimeout(() => setWrongMove(null), 600)
     }
-  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, currentElo, playClimb, playStumble, playSummit])
+  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, currentElo, playClimb, playStumble, playSummit, playerId])
 
   // Transition complete handlers
   const handleScatterComplete = useCallback(async () => {
@@ -138,6 +188,7 @@ export default function EndlessPuzzle({
     }
     if (next) {
       setPuzzle(next)
+      puzzleStartRef.current = Date.now()
       setSolved(false)
       setAttempts(0)
       setShowHint(false)

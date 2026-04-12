@@ -51,12 +51,14 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
             </a>
+            {/* Consulting route temporarily disabled
             <Link
               href="/consulting"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-forest-600 hover:border-forest-500 text-forest-200 hover:text-white font-medium transition-colors"
             >
               Work With Me
             </Link>
+            */}
           </div>
         </div>
       </section>
@@ -258,7 +260,7 @@ export default function Home() {
               </TiltCard>
             </Reveal>
 
-            {/* Consulting */}
+            {/* Consulting route temporarily disabled
             <Reveal delay={300}>
               <TiltCard>
                 <Link href="/consulting" className={cardBase}>
@@ -278,6 +280,7 @@ export default function Home() {
                 </Link>
               </TiltCard>
             </Reveal>
+            */}
 
             {/* Zero Paradox */}
             <Reveal delay={400}>
