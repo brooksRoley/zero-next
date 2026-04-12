@@ -14,6 +14,12 @@ import { PenteBot, BOT_LEVELS } from 'src/components/PentePlayerbot';
 import { BotWorkerManager } from 'src/lib/pente/botWorker';
 import { PenteTutor } from 'src/components/PenteTutor';
 import PreText from 'src/components/PreText';
+import PenteTopNav from 'src/components/pente/PenteTopNav';
+import SolarField from 'src/components/pente/SolarField';
+import InterventionCard from 'src/components/pente/InterventionCard';
+import EndlessPuzzle from 'src/components/EndlessPuzzle';
+import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
+import { getZone } from 'src/lib/pente/elo';
 
 // Map cell value to CSS class
 function cellClass(cell) {
@@ -72,7 +78,7 @@ const GameBoard = () => {
   const gameId = router.query.game;
 
   // Player identity + shared ELO
-  const { playerId, playerName, setPlayerName, elo: playerElo, recordGameResult } = usePlayerProfile();
+  const { playerId, playerName, setPlayerName, elo: playerElo, peakElo, eloHistory, markSolved, recordAttempt, recordGameResult } = usePlayerProfile();
 
   // ── Core mode state ──
   const [modePreset, setModePreset] = useState(gameId ? 'online' : 'local');
@@ -127,6 +133,8 @@ const GameBoard = () => {
   const [gameAnalysis, setGameAnalysis] = useState(null);
   const [analysisViewTurn, setAnalysisViewTurn] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [intervention, setIntervention] = useState(null); // { blunderIndex, blunderCell, tactic, tacticLabel, narrative, puzzleCategory }
+  const [trainingActive, setTrainingActive] = useState(false);
 
   // ── Multiplayer state ──
   const mp = useMultiplayerGame(
@@ -414,10 +422,29 @@ const GameBoard = () => {
     setGameCount(prev => prev + 1);
 
     // Record ELO change for bot games
+    let humanWon = true;
     if (botEnabled && recordGameResult) {
-      const won = winningPlayer === humanColor;
+      humanWon = winningPlayer === humanColor;
       const botElo = BOT_LEVELS[botDifficulty]?.elo || 1000;
-      recordGameResult(botElo, won);
+      recordGameResult(botElo, humanWon);
+    }
+
+    // Post-mortem intervention: if the human lost a bot game in classic mode,
+    // run the blunder analyzer and open the tactical card.
+    if (botEnabled && !humanWon && (!gameMode || gameMode.key === 'classic')) {
+      try {
+        const analysis = tutor.analyzeGameHistory(moveHistory, humanColor);
+        const diagnosis = analyzeLoss({
+          moveHistory,
+          gameAnalysis: analysis,
+          humanColor,
+          winner: winningPlayer,
+        });
+        if (diagnosis) {
+          setGameAnalysis(analysis); // surface the annotated per-move list in the drawer too
+          setIntervention(diagnosis);
+        }
+      } catch (_) { /* analyzer is best-effort */ }
     }
   };
 
@@ -440,6 +467,8 @@ const GameBoard = () => {
     setGameAnalysis(null);
     setAnalysisViewTurn(null);
     setWinner(null);
+    setIntervention(null);
+    setTrainingActive(false);
     setShowRules(false);
   };
 
@@ -543,9 +572,11 @@ const GameBoard = () => {
 
   // ─────────────────────────────────────────────────────────────────────────
 
+  const penteZone = getZone(playerElo);
+
   return (
     <div
-      className="flex flex-col bg-forest-950 overflow-hidden"
+      className="flex flex-col bg-forest-950 overflow-hidden relative"
       style={{ height: '100dvh' }}
     >
       <Head>
@@ -556,10 +587,17 @@ const GameBoard = () => {
         <meta property="og:image" content="/marathon.png" />
       </Head>
 
+      <div aria-hidden className="absolute inset-0 pointer-events-none z-0">
+        <SolarField intensity={0.55} accentHex={penteZone?.color} />
+      </div>
+
+      <div className="relative z-10 flex flex-col flex-1 min-h-0">
+      <PenteTopNav active="game" />
+
       {/* ══════════════════════════════════════════════════════════════
           COMPACT HEADER
       ══════════════════════════════════════════════════════════════ */}
-      <header className="flex-shrink-0 border-b border-forest-800/60 bg-forest-950">
+      <header className="flex-shrink-0 border-b border-forest-800/60 bg-forest-950/70 backdrop-blur">
 
         {/* Row 1 — Mode tabs + action buttons */}
         <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
@@ -819,10 +857,11 @@ const GameBoard = () => {
             )}
 
             {/* The board */}
+            <div className="relative">
             <div
               ref={boardRef}
-              className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''}`}
-              style={boardDisabled ? { pointerEvents: 'none' } : undefined}
+              className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''} ${intervention && !trainingActive ? 'shattered' : ''}`}
+              style={boardDisabled || (intervention && !trainingActive) ? { pointerEvents: 'none' } : undefined}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -832,6 +871,9 @@ const GameBoard = () => {
                   {row.map((cell, colIndex) => {
                     const cellKey = `${rowIndex}-${colIndex}`;
                     const captureColor = capturedCells.get(cellKey);
+                    const isBlunder = intervention && !trainingActive
+                      && intervention.blunderCell?.row === rowIndex
+                      && intervention.blunderCell?.col === colIndex;
                     return (
                       <button
                         key={colIndex}
@@ -844,6 +886,7 @@ const GameBoard = () => {
                           rippleCell === cellKey ? 'ripple' : '',
                           isHintCell(rowIndex, colIndex) ? 'hint-glow' : '',
                           touchPreviewCell === cellKey ? 'touch-preview' : '',
+                          isBlunder ? 'blunder-glow' : '',
                         ].filter(Boolean).join(' ')}
                         onClick={() => handleClick(rowIndex, colIndex)}
                       >
@@ -856,6 +899,38 @@ const GameBoard = () => {
                   })}
                 </div>
               ))}
+            </div>
+
+            {/* Tactical intervention: dim board + slide in post-mortem card */}
+            <InterventionCard
+              visible={!!intervention && !trainingActive}
+              tacticLabel={intervention?.tacticLabel}
+              narrative={intervention?.narrative}
+              trainingElo={playerElo}
+              onTrain={() => setTrainingActive(true)}
+              onDismiss={() => setIntervention(null)}
+              onPlayAgain={() => { setIntervention(null); resetLocalBoard(); }}
+            />
+
+            {/* In-page training puzzle mount — no reload, same surface */}
+            {trainingActive && intervention && (
+              <div className="absolute inset-0 z-40 rounded-xl overflow-auto bg-forest-950/95 backdrop-blur-sm border border-forest-700/40 p-4 sm:p-5">
+                <EndlessPuzzle
+                  playerId={playerId}
+                  elo={playerElo}
+                  peakElo={peakElo}
+                  eloHistory={eloHistory}
+                  onSolve={markSolved}
+                  onAttempt={recordAttempt}
+                  onBack={() => {
+                    setTrainingActive(false);
+                    setIntervention(null);
+                  }}
+                  initialCategory={intervention.puzzleCategory}
+                  introTacticLabel={intervention.tacticLabel}
+                />
+              </div>
+            )}
             </div>
           </div>
         )}
@@ -950,6 +1025,7 @@ const GameBoard = () => {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 };

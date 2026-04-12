@@ -3,6 +3,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import MountainProgress from 'src/components/MountainProgress'
+import PenteTopNav from 'src/components/pente/PenteTopNav'
+import SolarField from 'src/components/pente/SolarField'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
 import { getZone, ALTITUDE_ZONES } from 'src/lib/pente/elo'
 
@@ -130,7 +132,7 @@ export default function PenteHub() {
   const winRate = gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-forest-950">
+    <div className="min-h-screen bg-forest-950 relative">
       <Head>
         <title>Pente Arena | Brooks Roley</title>
         <meta name="description" content="Play Pente — classic, free-for-all, 2v2, or online. Solve puzzles, climb the mountain, track your rating." />
@@ -138,19 +140,16 @@ export default function PenteHub() {
         <meta property="og:description" content="Play Pente — classic, free-for-all, 2v2, or online. Solve puzzles, track your rating." />
       </Head>
 
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
-        {/* Top bar */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">Pente</h1>
-            <p className="text-sm text-forest-400 mt-1">Play, practice, climb.</p>
-          </div>
-          <Link
-            href="/"
-            className="text-xs text-forest-400 hover:text-candy-400 transition-colors px-3 py-1.5 rounded-md border border-forest-700/40 hover:border-candy-400/30"
-          >
-            &larr; Home
-          </Link>
+      <div aria-hidden className="fixed inset-0 pointer-events-none z-0">
+        <SolarField intensity={0.9} accentHex={zone?.color} />
+      </div>
+
+      <PenteTopNav active="hub" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white tracking-tight">Pente</h1>
+          <p className="text-sm text-forest-400 mt-1">Play, practice, climb.</p>
         </div>
 
         {/* Player Profile Card */}

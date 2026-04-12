@@ -475,3 +475,160 @@
   78%  { transform: scale(0.97) rotate(1deg); }
   100% { transform: scale(1)    rotate(0deg);  opacity: 1;   filter: brightness(1); }
 }
+
+/* ── Shattered overlay: post-loss blunder highlight ─────────────────────── */
+.shatter-halo {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(239, 68, 68, 0.55) 0%,
+    rgba(220, 38, 38, 0.28) 38%,
+    rgba(127, 29, 29, 0.0) 70%
+  );
+  filter: blur(2px);
+  animation: shatterPulse 1.8s ease-in-out infinite;
+}
+.shatter-core {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(254, 226, 226, 0.9) 0%,
+    rgba(239, 68, 68, 0.8) 30%,
+    rgba(153, 27, 27, 0.0) 75%
+  );
+  box-shadow:
+    0 0 14px 2px rgba(239, 68, 68, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.25);
+  animation: shatterCore 1.8s ease-in-out infinite;
+}
+@keyframes shatterPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1.0;  transform: scale(1.12); }
+}
+@keyframes shatterCore {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1.0;  transform: scale(0.92); }
+}
+
+/* ── Intervention card: heavy elevated slab ─────────────────────────────── */
+.intervention-card {
+  perspective: 900px;
+}
+.intervention-card-inner {
+  background:
+    linear-gradient(160deg, rgba(24, 20, 36, 0.98) 0%, rgba(16, 14, 28, 0.98) 100%);
+  border: 1px solid rgba(255, 105, 180, 0.22);
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.5) inset,
+    0 20px 50px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    0 0 60px rgba(255, 105, 180, 0.12);
+}
+.intervention-tag {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fda4af;
+  background: rgba(244, 63, 94, 0.12);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 63, 94, 0.28);
+}
+.intervention-primary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff69b4 0%, #e11d74 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.2) inset,
+    0 8px 18px rgba(225, 29, 116, 0.35);
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+  cursor: pointer;
+}
+.intervention-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.2) inset,
+    0 10px 22px rgba(225, 29, 116, 0.45);
+}
+.intervention-primary:active {
+  transform: translateY(0.5px);
+  filter: brightness(0.96);
+}
+.intervention-primary-arrow {
+  font-size: 18px;
+  opacity: 0.85;
+}
+.intervention-secondary {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #d1d5db;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 120ms ease, color 120ms ease;
+  cursor: pointer;
+}
+.intervention-secondary:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+}
+.intervention-ghost {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13px;
+  border: 1px solid transparent;
+  transition: color 120ms ease;
+  cursor: pointer;
+}
+.intervention-ghost:hover { color: #9ca3af; }
+
+/* ── Shattered board state: dim + desaturate when intervention is up ───── */
+.game-board.shattered {
+  filter: saturate(0.45) brightness(0.5);
+  transition: filter 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.game-board.shattered .board-cell.blunder-glow {
+  filter: none;
+}
+
+/* ── Blunder cell red specular pulse ───────────────────────────────────── */
+.board-cell.blunder-glow {
+  position: relative;
+  z-index: 4;
+}
+.board-cell.blunder-glow::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(254, 226, 226, 0.9) 0%,
+    rgba(239, 68, 68, 0.7) 30%,
+    rgba(153, 27, 27, 0.0) 72%
+  );
+  box-shadow: 0 0 18px 4px rgba(239, 68, 68, 0.55);
+  animation: blunderPulse 1.6s ease-in-out infinite;
+  z-index: -1;
+}
+@keyframes blunderPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1.0; transform: scale(1.12); }
+}
