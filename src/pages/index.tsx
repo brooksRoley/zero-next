@@ -303,6 +303,16 @@ export default function Home() {
             </Reveal>
           </div>
         </section>
+
+        {/* ── Footer ── */}
+        <footer className="border-t border-forest-800/60 py-6">
+          <div className="flex items-center justify-between text-xs text-forest-600">
+            <span>&copy; {new Date().getFullYear()} Brooks Roley</span>
+            <Link href="/funding" className="hover:text-forest-400 transition-colors">
+              support my work
+            </Link>
+          </div>
+        </footer>
       </div>
     </main>
   )
