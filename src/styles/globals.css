@@ -29,7 +29,11 @@ img {
   margin: auto;
 }
 
-/* ── Tilt Card Hover ── */
+/* ── Tilt Card Hover ──
+ * Two-layer model: (1) a crisp candy border that brightens on hover,
+ * (2) a localized cursor-follow sheen inside the card for directional
+ * feedback. The static border stays visible at rest so cards read as
+ * objects — the hover state elevates, doesn't conjure. */
 
 .tilt-card {
   will-change: transform;
@@ -38,7 +42,8 @@ img {
   --hl-opacity: 0;
 }
 
-/* Specular highlight — follows cursor across card surface */
+/* Localized specular — small radius so the highlight actually reads
+ * as directional. Monochromatic white-warm, no brand color here. */
 .tilt-highlight {
   position: absolute;
   inset: 0;
@@ -47,45 +52,40 @@ img {
   z-index: 10;
   opacity: var(--hl-opacity, 0);
   background: radial-gradient(
-    600px circle at var(--hl-x, 50%) var(--hl-y, 50%),
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 105, 180, 0.06) 40%,
-    transparent 70%
+    260px circle at var(--hl-x, 50%) var(--hl-y, 50%),
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0) 65%
   );
-  transition: opacity 0.4s ease;
+  transition: opacity 0.35s ease;
+  mix-blend-mode: screen;
 }
 
-/* Radial glow border — expands from cursor position on hover */
+/* Card border — real border-color transition, no mask trickery.
+ * At rest: subtle forest edge (inherited from Tailwind). On hover:
+ * candy edge + single-color elevation. Cursor-follow candy sheen
+ * lives in ::before, tight radius. */
 .card-hover-border {
   position: relative;
-  border-color: transparent;
-  transition: box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .card-hover-border::before {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
   opacity: 0;
   background: radial-gradient(
-    500px circle at var(--hl-x, 50%) var(--hl-y, 50%),
-    rgba(255, 105, 180, 0.35),
-    rgba(139, 92, 246, 0.15) 40%,
-    transparent 70%
+    280px circle at var(--hl-x, 50%) var(--hl-y, 50%),
+    rgba(255, 140, 194, 0.18),
+    rgba(255, 140, 194, 0.06) 45%,
+    transparent 72%
   );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  padding: 1px;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.35s ease;
 }
 
 .tilt-card:hover .card-hover-border::before {
@@ -93,10 +93,11 @@ img {
 }
 
 .tilt-card:hover .card-hover-border {
+  border-color: rgba(255, 140, 194, 0.55);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(255, 105, 180, 0.08),
-    0 0 60px rgba(139, 92, 246, 0.04);
+    0 14px 36px -8px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 140, 194, 0.22),
+    0 10px 28px -10px rgba(255, 140, 194, 0.35);
 }
 
 /* Image — subtle brighten on hover */

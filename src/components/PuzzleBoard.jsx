@@ -16,6 +16,7 @@ export default function PuzzleBoard({
   highlightCells = [],
   disabled = false,
   wrongCell = null,
+  candidateCells = [],
 }) {
   const boardRef = useRef(null)
   const [rippleCell, setRippleCell] = useState(null)
@@ -89,6 +90,7 @@ export default function PuzzleBoard({
   const isHintCell = (r, c) => hintCell && hintCell.row === r && hintCell.col === c
   const isHighlighted = (r, c) => highlightCells.some(h => h.row === r && h.col === c)
   const isWrongCell = (r, c) => wrongCell && wrongCell.row === r && wrongCell.col === c
+  const candidateAt = (r, c) => candidateCells.find(k => k.row === r && k.col === c)
 
   return (
     <div
@@ -103,6 +105,7 @@ export default function PuzzleBoard({
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => {
             const cellKey = `${rowIndex}-${colIndex}`
+            const candidate = candidateAt(rowIndex, colIndex)
             return (
               <button
                 key={colIndex}
@@ -117,9 +120,16 @@ export default function PuzzleBoard({
                   isHighlighted(rowIndex, colIndex) ? 'solution-glow' : '',
                   isWrongCell(rowIndex, colIndex) ? 'wrong-flash' : '',
                   touchPreviewCell === cellKey ? 'touch-preview' : '',
+                  candidate ? 'candidate-cell' : '',
                 ].filter(Boolean).join(' ')}
                 onClick={() => handleClick(rowIndex, colIndex)}
-              />
+              >
+                {candidate && (
+                  <span className="candidate-label" aria-label={`Candidate ${candidate.label}`}>
+                    {candidate.label}
+                  </span>
+                )}
+              </button>
             )
           })}
         </div>

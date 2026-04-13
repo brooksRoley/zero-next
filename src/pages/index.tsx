@@ -19,8 +19,18 @@ const ExternalIcon = () => (
   </svg>
 )
 
+const SectionHeading = ({ number, label }: { number: string; label: string }) => (
+  <div className="flex items-baseline gap-3 mb-5 sm:mb-7">
+    <span className="font-mono text-xs text-candy-400/70 tracking-wider">{number}</span>
+    <span className="h-px flex-none w-6 bg-forest-700/60" aria-hidden />
+    <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-300">
+      {label}
+    </h2>
+  </div>
+)
+
 export default function Home() {
-  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/20 bg-forest-900/60 text-white card-hover-border"
+  const cardBase = "group relative overflow-hidden rounded-xl border border-forest-700/30 bg-forest-900/60 text-white card-hover-border"
 
   return (
     <main className={`min-h-screen bg-forest-950 ${inter.className}`}>
@@ -38,27 +48,29 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-4 text-white animate-hero-1">
             Brooks Roley
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-forest-200 max-w-2xl mx-auto mb-6 animate-hero-2">
+          <p className="text-base sm:text-lg md:text-xl text-forest-200 max-w-2xl mx-auto mb-8 animate-hero-2">
             Software Engineer building games, tools, and things for the&nbsp;web.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-hero-3">
+          <div className="flex flex-col items-center gap-5 animate-hero-3">
+            <div className="inline-flex items-center gap-2 text-xs sm:text-sm text-forest-400 font-mono tracking-wide">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-candy-400/70 animate-ping" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-candy-400" />
+              </span>
+              <span>Los Angeles</span>
+              <span className="text-forest-700">·</span>
+              <span>shipping games &amp; tools</span>
+            </div>
             <a
               href="#featured"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-candy-500 hover:bg-candy-600 text-white font-semibold transition-colors shadow-lg shadow-candy-500/20"
+              aria-label="Scroll to featured work"
+              className="group/scroll mt-2 inline-flex flex-col items-center gap-1.5 text-forest-500 hover:text-candy-400 transition-colors"
             >
-              See What I&apos;m Building
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <span className="text-[10px] uppercase tracking-[0.25em]">Scroll</span>
+              <svg className="w-4 h-4 transition-transform duration-500 group-hover/scroll:translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
             </a>
-            {/* Consulting route temporarily disabled
-            <Link
-              href="/consulting"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-forest-600 hover:border-forest-500 text-forest-200 hover:text-white font-medium transition-colors"
-            >
-              Work With Me
-            </Link>
-            */}
           </div>
         </div>
       </section>
@@ -67,9 +79,7 @@ export default function Home() {
         {/* ── Featured (photo cards) ── */}
         <section id="featured" className="py-10 sm:py-12 md:py-16">
           <Reveal>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
-              Featured
-            </h2>
+            <SectionHeading number="01" label="Featured" />
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* Resume */}
@@ -119,9 +129,7 @@ export default function Home() {
         {/* ── Projects ── */}
         <section className="py-10 sm:py-12 md:py-16 border-t border-forest-800/60">
           <Reveal>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
-              Projects
-            </h2>
+            <SectionHeading number="02" label="Projects" />
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* Luminous Flow */}
@@ -213,9 +221,7 @@ export default function Home() {
         {/* ── Connect ── */}
         <section className="py-10 sm:py-12 md:py-16 border-t border-forest-800/60">
           <Reveal>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4 sm:mb-6">
-              Connect
-            </h2>
+            <SectionHeading number="03" label="Connect" />
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
             {/* LinkedIn */}
