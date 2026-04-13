@@ -380,6 +380,38 @@
   z-index: 4;
 }
 
+/* ── Puzzle: best-capture candidate markers (A/B/C) ── */
+.board-cell.candidate-cell {
+  position: relative;
+  z-index: 3;
+}
+.board-cell.candidate-cell::after {
+  content: '' !important;
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251,191,36,0.35) 0%, rgba(251,191,36,0) 72%) !important;
+  border: 1.5px dashed rgba(251,191,36,0.7);
+  opacity: 1 !important;
+  animation: hintPulse 1.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+.board-cell .candidate-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fde68a;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  pointer-events: none;
+  z-index: 5;
+  line-height: 1;
+}
+
 /* ── Puzzle: wrong answer flash ── */
 .board-cell.wrong-flash::after {
   content: '' !important;

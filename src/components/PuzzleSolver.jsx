@@ -23,6 +23,7 @@ export default function PuzzleSolver({
   const [attempts, setAttempts] = useState(0)
   const [showHint, setShowHint] = useState(false)
   const [showExplanation, setShowExplanation] = useState(alreadySolved)
+  const [candidateFeedback, setCandidateFeedback] = useState(null)
   const [eloDelta, setEloDelta] = useState(null)
   const [newZone, setNewZone] = useState(null)
   const [transitionPhase, setTransitionPhase] = useState('idle')
@@ -55,8 +56,56 @@ export default function PuzzleSolver({
     return () => window.removeEventListener('keydown', handleKey)
   }, [onNext, advanceToNext])
 
+  const isBestCapture = puzzle.category === 'best_capture' && Array.isArray(puzzle.candidates)
+
   const handleCellClick = useCallback((row, col, { triggerShake }) => {
     if (solved) return
+
+    // Classification puzzle: only candidates are valid clicks; feedback keyed to candidate quality.
+    if (isBestCapture) {
+      const chosen = puzzle.candidates.find(c => c.row === row && c.col === col)
+      if (!chosen) {
+        feedback.onWrong()
+        triggerShake()
+        setWrongMove({ row, col })
+        setTimeout(() => setWrongMove(null), 600)
+        return
+      }
+      const bestQuality = Math.max(...puzzle.candidates.map(c => c.quality))
+      const isBest = chosen.quality === bestQuality
+      setCandidateFeedback(chosen)
+      if (isBest) {
+        setSolved(true)
+        setShowExplanation(true)
+        setWrongMove(null)
+        const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint)
+        if (result) {
+          setEloDelta(result.delta)
+          const oldZone = getZone(elo)
+          if (result.zone.name !== oldZone.name) {
+            setNewZone(result.zone)
+            feedback.onLevelUp()
+            confetti({
+              particleCount: 200, spread: 120, origin: { y: 0.5 },
+              colors: ['#ff69b4', '#40916c', '#fbbf24', '#6abf82', '#ff8cc2'],
+            })
+          } else {
+            feedback.onCorrect()
+            confetti({
+              particleCount: 60, spread: 50, origin: { y: 0.65 }, gravity: 1.2,
+              colors: ['#ff69b4', '#40916c', '#ffb8d9'],
+            })
+          }
+        } else {
+          feedback.onCorrect()
+        }
+      } else {
+        feedback.onWrong()
+        setAttempts(prev => prev + 1)
+        if (onAttempt) onAttempt(puzzle.id, puzzle.rating)
+      }
+      return
+    }
 
     const isCorrect = puzzle.solutions.some(s => s.row === row && s.col === col)
 
@@ -102,7 +151,7 @@ export default function PuzzleSolver({
       if (onAttempt) onAttempt(puzzle.id, puzzle.rating)
       setTimeout(() => setWrongMove(null), 600)
     }
-  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, elo, feedback])
+  }, [solved, puzzle, onSolve, onAttempt, attempts, showHint, elo, feedback, isBestCapture])
 
   const difficultyStars = '★'.repeat(puzzle.difficulty) + '☆'.repeat(4 - puzzle.difficulty)
   const isBlackToMove = puzzle.playerToMove === BLACK
@@ -190,6 +239,30 @@ export default function PuzzleSolver({
         </div>
       )}
 
+      {/* Best-capture: classification rationale for the most recently chosen candidate */}
+      {isBestCapture && candidateFeedback && (() => {
+        const bestQuality = Math.max(...puzzle.candidates.map(c => c.quality))
+        const picked = candidateFeedback
+        const isBest = picked.quality === bestQuality
+        const tone = isBest
+          ? 'bg-green-900/30 border-green-700/40 text-green-200'
+          : 'bg-amber-900/25 border-amber-700/40 text-amber-200'
+        return (
+          <div className={`mb-4 rounded-lg border px-4 py-3 text-sm flex items-start gap-3 animate-fadeIn ${tone}`}>
+            <span className="font-bold shrink-0">Move {picked.label}</span>
+            <div className="flex-1">
+              <div className="font-semibold mb-0.5">
+                {isBest ? 'Best capture.' : 'Valid capture — but not the best.'}
+              </div>
+              <div className="opacity-90">{picked.rationale}</div>
+              {!isBest && !solved && (
+                <div className="mt-2 text-xs opacity-80">Try another candidate on the board.</div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Board with physics transition overlay */}
       <div className="flex justify-center">
         <div ref={boardContainerRef} className="relative">
@@ -198,10 +271,11 @@ export default function PuzzleSolver({
               board={puzzle.board}
               onCellClick={handleCellClick}
               playerToMove={puzzle.playerToMove}
-              hintCell={showHint && !solved ? puzzle.solutions[0] : null}
+              hintCell={showHint && !solved && !isBestCapture ? puzzle.solutions[0] : null}
               highlightCells={solved ? puzzle.solutions : []}
               disabled={solved || transitionPhase !== 'idle'}
               wrongCell={wrongMove}
+              candidateCells={isBestCapture && !solved ? puzzle.candidates : []}
             />
           </div>
           <PuzzleTransition

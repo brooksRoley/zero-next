@@ -19,7 +19,7 @@ const W = WHITE
 const R = RED
 const U = BLUE // U for blUe to avoid conflicts
 
-export const PUZZLE_CATEGORIES = ['capture', 'five_in_a_row', 'defense', 'opening', 'mixed', 'teamplay']
+export const PUZZLE_CATEGORIES = ['capture', 'best_capture', 'five_in_a_row', 'defense', 'opening', 'mixed', 'teamplay']
 export const DIFFICULTY_LABELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert']
 
 // Map difficulty to ELO rating for puzzles
@@ -86,6 +86,113 @@ export const puzzles = [
     solutions: [{ row: 7, col: 8 }],
     hint: 'One move can capture in two directions at once.',
     explanation: 'Playing at (7,8) captures BOTH the horizontal pair W(7,6)-W(7,7) flanked by B(7,5), AND the vertical pair W(8,8)-W(9,8) flanked by B(10,8). Two captures in one move!',
+  },
+
+  // ─────────────── BEST CAPTURE — classification (2-3) ────────────────
+  // These puzzles present multiple *legal* captures and ask the player
+  // to classify the strongest one. Every candidate captures; rationale
+  // explains the tradeoff so wrong answers teach instead of punish.
+  {
+    id: 'best-cap-001',
+    title: 'Two Captures — One Builds',
+    description: 'Black to move. Both moves capture a white pair. Which is stronger?',
+    category: 'best_capture',
+    difficulty: 2,
+    // A = (5,6): captures W(5,7)-W(5,8) via B(5,9) AND extends B(5,4)-B(5,5) into a three.
+    // B = (12,2): captures W(12,3)-W(12,4) via B(12,5). Clean capture, no follow-up.
+    board: makeBoard([
+      [5, 4, B], [5, 5, B], [5, 7, W], [5, 8, W], [5, 9, B],
+      [12, 3, W], [12, 4, W], [12, 5, B],
+      [9, 9, B], [8, 8, W], [3, 10, W],
+    ]),
+    playerToMove: B,
+    blackCaptures: 0,
+    whiteCaptures: 0,
+    candidates: [
+      {
+        row: 5, col: 6, label: 'A', quality: 10,
+        rationale: 'Captures the pair AND creates a three-in-a-row with B(5,4)-B(5,5)-B(5,6). The capture pays double: material plus a live offensive threat.',
+      },
+      {
+        row: 12, col: 2, label: 'B', quality: 4,
+        rationale: 'Captures the pair cleanly, but the resulting stone is isolated at the edge. No follow-up threat — White gets to set the next agenda.',
+      },
+    ],
+    solutions: [{ row: 5, col: 6 }],
+    hint: 'Both moves capture. Ask which capture also sets up your next move.',
+    explanation: 'In Pente, a capture is most valuable when it does double duty. (5,6) removes the white pair AND joins B(5,4)-B(5,5) to form a live three. (12,2) captures but dies on the edge.',
+  },
+  {
+    id: 'best-cap-002',
+    title: 'Capture That Saves the Game',
+    description: 'Black to move. Two captures are available — but White is one move from five.',
+    category: 'best_capture',
+    difficulty: 3,
+    // White has four in a row at row 6: (6,3)-(6,6). Left end (6,2) already blocked by B.
+    // Only (6,7) blocks the five. Luckily, (6,7) is also a capture: W(6,8)-W(6,9) flanked by B(6,10).
+    // A = (6,7): captures AND blocks the winning five.
+    // B = (12,4): captures W(12,5)-W(12,6) via B(12,7). Nice material — but Black loses next turn to W(6,7).
+    board: makeBoard([
+      [6, 2, B], [6, 3, W], [6, 4, W], [6, 5, W], [6, 6, W],
+      [6, 8, W], [6, 9, W], [6, 10, B],
+      [12, 5, W], [12, 6, W], [12, 7, B],
+      [8, 8, B], [4, 4, W],
+    ]),
+    playerToMove: B,
+    blackCaptures: 0,
+    whiteCaptures: 0,
+    candidates: [
+      {
+        row: 6, col: 7, label: 'A', quality: 10,
+        rationale: 'Captures W(6,8)-W(6,9) AND blocks White\'s four-in-a-row from becoming five. The only capture that also saves the game.',
+      },
+      {
+        row: 12, col: 4, label: 'B', quality: 1,
+        rationale: 'A real capture, but White plays (6,7) next turn for five-in-a-row. You won a pair and lost the game.',
+      },
+    ],
+    solutions: [{ row: 6, col: 7 }],
+    hint: 'One capture saves the game. Count White\'s stones on row 6.',
+    explanation: 'White threatens five-in-a-row at (6,7). (6,7) is ALSO a capture square (W(6,8)-W(6,9) flanked by B(6,10)). One move does two jobs: capture + block. The other capture is materially equivalent but you lose next turn.',
+  },
+  {
+    id: 'best-cap-003',
+    title: 'Whose Pair to Capture',
+    description: 'Black to move in Free-for-All. Three captures available — which opponent to slow down?',
+    category: 'best_capture',
+    difficulty: 3,
+    // FFA: Black vs Red (3 captures, near winning), Blue (1 capture), White (0 captures).
+    // A = (9,6): captures R(9,7)-R(9,8) via B(9,9). Slows the leader. BEST.
+    // B = (6,9): captures U(7,9)-U(8,9) via B(9,9). Secondary threat.
+    // C = (14,6): captures W(14,7)-W(14,8) via B(14,9). Least urgent.
+    board: makeBoard([
+      [9, 9, B], [9, 7, R], [9, 8, R],
+      [7, 9, U], [8, 9, U],
+      [14, 7, W], [14, 8, W], [14, 9, B],
+      [4, 4, B], [11, 11, R], [5, 12, U], [16, 3, W],
+    ]),
+    playerToMove: B,
+    blackCaptures: 0,
+    whiteCaptures: 0,
+    candidates: [
+      {
+        row: 9, col: 6, label: 'A', quality: 10,
+        rationale: 'Captures Red\'s pair. Red has 3 captures already — two away from winning. Slowing the leader is the highest-leverage move.',
+      },
+      {
+        row: 6, col: 9, label: 'B', quality: 5,
+        rationale: 'Captures Blue\'s pair. Blue only has 1 capture — not the immediate threat. Useful material, wrong priority.',
+      },
+      {
+        row: 14, col: 6, label: 'C', quality: 2,
+        rationale: 'Captures White\'s pair. White has zero captures. Least urgent — you\'re giving the leader another turn.',
+      },
+    ],
+    solutions: [{ row: 9, col: 6 }],
+    hint: 'All three moves capture. Which opponent is closest to 5 captures?',
+    explanation: 'In FFA, captures aren\'t all worth the same. Red has 3 captures — one more and they\'re at match point. Capturing Red\'s pair is the highest-leverage move. Capturing the 0-capture or 1-capture opponents is material for its own sake; it lets the leader keep building.',
+    gameMode: 'ffa4',
+    teamContext: 'Free-for-All: Red (3 captures) is closest to winning. Blue (1), White (0).',
   },
 
   // ───────────────── FIVE IN A ROW (Difficulty 1-2) ──────────────────
