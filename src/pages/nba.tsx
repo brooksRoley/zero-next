@@ -2,6 +2,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { NBA_TEAMS } from "src/lib/nba/teams-static";
+import { currentNbaSeason } from "src/lib/nba/season";
 
 // ── API Map (fallback, also fetched from /api/nba/map) ──────────────────────
 type NodeDef = {
@@ -85,6 +86,15 @@ const METRIC_LABELS = COL_LABELS;
 
 const colLabel = (key: string): string =>
   COL_LABELS[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+// Friendly placeholder text per param name — avoids leaking raw type strings
+const PARAM_PLACEHOLDERS: Record<string, string> = {
+  id: "e.g. 2544",
+  team_id: "e.g. 1610612747",
+  date: "e.g. 2024-01-15",
+  n: "Last N games",
+  conference: "East or West",
+};
 
 const MOBILE_GROUPS = [
   { label: "Browse", nodes: ["teams", "players", "standings", "games", "team_detail", "player_detail", "game_log", "game_detail"] },
@@ -658,7 +668,6 @@ export default function NbaExplorer() {
         .nba-header .logo { font-weight: 900; font-size: 18px; letter-spacing: -0.5px; color: var(--accent); }
         .nba-header .logo span { color: var(--text2); font-weight: 300; }
         .nba-pill { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
-        .nba-pill.live { border-color: #22c55e; color: #22c55e; }
         .nba-canvas-wrap { position: relative; overflow: hidden; background: radial-gradient(circle at 30% 40%, rgba(249,115,22,0.04) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(59,130,246,0.03) 0%, transparent 50%), var(--bg); }
         .nba-canvas-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; }
         .nba-canvas-overlay { position: absolute; bottom: 16px; left: 16px; display: flex; gap: 8px; }
@@ -726,7 +735,7 @@ export default function NbaExplorer() {
                 Live stats, standings &amp; analytics — sourced from stats.nba.com
               </div>
             </div>
-            <div className="nba-pill live">LIVE DATA</div>
+            <div className="nba-pill">{currentNbaSeason()} Season</div>
             <div style={{ flex: 1 }} />
             <div style={{ fontSize: 11, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
               click nodes · drag to pan
@@ -874,7 +883,7 @@ export default function NbaExplorer() {
                               value={paramValues[p.name] || ""}
                               onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
                               onKeyDown={(e) => { if (e.key === "Enter" && !loading) fetchEndpoint(activeNode!, paramValues); }}
-                              placeholder={p.type + (p.optional ? " (optional)" : "")}
+                              placeholder={PARAM_PLACEHOLDERS[p.name] ?? (p.optional ? "optional" : "required")}
                             />
                           )}
                         </div>
