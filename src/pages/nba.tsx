@@ -105,7 +105,6 @@ const PREFERRED_METRIC: Record<string, string> = {
   game_detail: "pts",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRow = Record<string, any>;
 
 export default function NbaExplorer() {
@@ -120,9 +119,7 @@ export default function NbaExplorer() {
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [responseData, setResponseData] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [rawResponse, setRawResponse] = useState<any>(null);
   const [showJson, setShowJson] = useState(false);
   const [chartData, setChartData] = useState<AnyRow[] | null>(null);
@@ -647,8 +644,6 @@ export default function NbaExplorer() {
     <>
       <Head>
         <title>NBA API Explorer | Brooks Roley</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet" />
       </Head>
 
       <style jsx global>{`
