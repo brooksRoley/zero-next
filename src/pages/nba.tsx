@@ -929,7 +929,7 @@ export default function NbaExplorer() {
                         disabled={loading}
                         onClick={() => fetchEndpoint(activeNode, paramValues)}
                       >
-                        {loading ? "FETCHING..." : "FETCH DATA"}
+                        {loading ? "Loading..." : "Fetch Data →"}
                       </button>
                     </div>
                   )}
