@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { NBA_TEAMS } from "src/lib/nba/teams-static";
 import { currentNbaSeason } from "src/lib/nba/season";
 
@@ -757,12 +758,12 @@ export default function NbaExplorer() {
       <div className="nba-app">
         <div className="nba-shell">
           <header className="nba-header">
-            <div>
+            <Link href="/" style={{ textDecoration: "none" }}>
               <div className="logo">NBA<span>EXPLORER</span></div>
               <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2, fontFamily: "'DM Mono', monospace", letterSpacing: "0.02em" }}>
                 Live stats, standings &amp; analytics — sourced from stats.nba.com
               </div>
-            </div>
+            </Link>
             <div className="nba-pill">{currentNbaSeason()} Season</div>
             <div style={{ flex: 1 }} />
             <a
