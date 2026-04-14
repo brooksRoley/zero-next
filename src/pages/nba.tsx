@@ -96,6 +96,9 @@ const PARAM_PLACEHOLDERS: Record<string, string> = {
   conference: "East or West",
 };
 
+// Leaf nodes require a param (ID) from a parent — shown greyed on mobile until parent visited
+const MOBILE_LEAF_NODES = new Set(["team_detail", "player_detail", "game_log", "game_detail"]);
+
 const MOBILE_GROUPS = [
   { label: "Browse", nodes: ["teams", "players", "standings", "games", "team_detail", "player_detail", "game_log", "game_detail"] },
   { label: "Analytics", nodes: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
@@ -549,6 +552,12 @@ export default function NbaExplorer() {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     if (!localStorage.getItem("nba-onboarded")) setShowOnboarding(true);
+    // Auto-fit zoom: graph content spans ~760px wide, scale to 85% of available canvas width
+    const canvasEl = graphCanvasRef.current;
+    if (canvasEl?.parentElement) {
+      const availW = canvasEl.parentElement.getBoundingClientRect().width;
+      cam.current.zoom = Math.max(0.5, Math.min(1, (availW * 0.85) / 760));
+    }
     drawGraph();
     const handleResize = () => { checkMobile(); drawGraph(); };
     window.addEventListener("resize", handleResize);
@@ -663,7 +672,7 @@ export default function NbaExplorer() {
           --text: #e2e4e9; --text2: #8b8fa3; --accent: #f97316; --accent2: #fb923c;
           font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text);
         }
-        .nba-shell { display: grid; grid-template-columns: 1fr 420px; grid-template-rows: 56px 1fr; height: 100vh; }
+        .nba-shell { display: grid; grid-template-columns: 1fr clamp(360px, 28vw, 520px); grid-template-rows: 56px 1fr; height: 100vh; }
         .nba-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 10; min-height: 56px; }
         .nba-header .logo { font-weight: 900; font-size: 18px; letter-spacing: -0.5px; color: var(--accent); }
         .nba-header .logo span { color: var(--text2); font-weight: 300; }
@@ -737,9 +746,18 @@ export default function NbaExplorer() {
             </div>
             <div className="nba-pill">{currentNbaSeason()} Season</div>
             <div style={{ flex: 1 }} />
-            <div style={{ fontSize: 11, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
-              click nodes · drag to pan
-            </div>
+            <a
+              href="https://github.com/brooksRoley/zero-next"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text2)", fontFamily: "'DM Mono', monospace", textDecoration: "none" }}
+              aria-label="View source on GitHub"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+              </svg>
+              Source
+            </a>
           </header>
 
           {isMobile ? (
@@ -751,19 +769,27 @@ export default function NbaExplorer() {
                     {group.nodes.map((key) => {
                       const node = apiMap[key];
                       if (!node) return null;
+                      const isLeaf = MOBILE_LEAF_NODES.has(key);
+                      const isVisited = trail.includes(key);
+                      const dimmed = isLeaf && !isVisited;
                       return (
                         <button
                           key={key}
                           className="nba-child-btn"
+                          disabled={dimmed}
                           style={{
                             textAlign: "left", padding: "10px 14px",
+                            opacity: dimmed ? 0.4 : 1,
                             borderColor: activeNode === key ? "var(--accent)" : undefined,
                             color: activeNode === key ? "var(--accent)" : undefined,
+                            cursor: dimmed ? "default" : "pointer",
                           }}
-                          onClick={() => navigateTo(key)}
+                          onClick={() => !dimmed && navigateTo(key)}
                         >
                           <div style={{ fontWeight: 600, fontSize: 13 }}>{node.label}</div>
-                          <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2 }}>{node.description}</div>
+                          <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2 }}>
+                            {dimmed ? "Select a row above to drill in" : node.description}
+                          </div>
                         </button>
                       );
                     })}
@@ -866,17 +892,27 @@ export default function NbaExplorer() {
                       {(activeNodeDef.params || []).length > 0 && <label>PARAMETERS</label>}
                       {(activeNodeDef.params || []).map((p) => (
                         <div key={p.name} className="nba-param-row">
-                          <span>{p.name === "team_id" ? "team" : p.name}</span>
+                          <span>{p.name === "team_id" ? "Team" : p.name === "conference" ? "Conf" : colLabel(p.name)}</span>
                           {p.name === "team_id" ? (
                             <select
                               value={paramValues[p.name] || ""}
                               onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
                               style={{ flex: 1, padding: "6px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text)", fontFamily: "'DM Mono', monospace", fontSize: 12, outline: "none" }}
                             >
-                              <option value="">All teams{p.optional ? " (optional)" : ""}</option>
+                              <option value="">All teams</option>
                               {NBA_TEAMS.sort((a, b) => a.full_name.localeCompare(b.full_name)).map((t) => (
                                 <option key={t.id} value={String(t.id)}>{t.full_name}</option>
                               ))}
+                            </select>
+                          ) : p.name === "conference" ? (
+                            <select
+                              value={paramValues[p.name] || ""}
+                              onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
+                              style={{ flex: 1, padding: "6px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text)", fontFamily: "'DM Mono', monospace", fontSize: 12, outline: "none" }}
+                            >
+                              <option value="">All conferences</option>
+                              <option value="East">East</option>
+                              <option value="West">West</option>
                             </select>
                           ) : (
                             <input
