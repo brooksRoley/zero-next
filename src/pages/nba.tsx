@@ -57,6 +57,23 @@ const NODE_COLORS: Record<string, string> = {
   lakers_dashboard: "#a78bfa",
 };
 
+const METRIC_LABELS: Record<string, string> = {
+  ts_pct: "True Shooting %", usg_pct: "Usage %", pie: "Player Impact",
+  net_rating: "Net Rating", efg_pct: "Effective FG%", ast_pct: "Assist %",
+  reb_pct: "Rebound %", oreb_pct: "Off Reb %", dreb_pct: "Def Reb %",
+  off_rating: "Off Rating", def_rating: "Def Rating", pace: "Pace",
+  ppg: "PPG", rpg: "RPG", apg: "APG", spg: "SPG", bpg: "BPG",
+  fg_pct: "FG%", fg3_pct: "3PT%", ft_pct: "FT%",
+  pts: "Points", reb: "Rebounds", ast: "Assists", stl: "Steals",
+  blk: "Blocks", tov: "Turnovers", plus_minus: "+/-",
+  wins: "Wins", losses: "Losses", min: "Minutes",
+};
+
+const MOBILE_GROUPS = [
+  { label: "Browse", nodes: ["teams", "players", "standings", "games", "team_detail", "player_detail", "game_log", "game_detail"] },
+  { label: "Analytics", nodes: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
+];
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRow = Record<string, any>;
 
@@ -69,6 +86,8 @@ export default function NbaExplorer() {
   const [trail, setTrail] = useState<string[]>([]);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [responseData, setResponseData] = useState<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -256,7 +275,7 @@ export default function NbaExplorer() {
       });
     }
     ctx.font = "500 11px sans-serif"; ctx.fillStyle = color; ctx.textAlign = "left";
-    ctx.fillText(metric.toUpperCase(), pad.l, H - 4);
+    ctx.fillText((METRIC_LABELS[metric] ?? metric).toUpperCase(), pad.l, H - 4);
   }, []);
 
   // ── Fetch Endpoint ─────────────────────────────────────────────────────────
@@ -278,8 +297,12 @@ export default function NbaExplorer() {
     if (qs) url += "?" + qs;
 
     setLoading(true);
+    setFetchError(null);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
       const json = await res.json();
       setRawResponse(json);
       const data = json.data;
@@ -304,8 +327,13 @@ export default function NbaExplorer() {
         setChartData(null);
         setChartMetrics([]);
       }
-    } catch {
-      setRawResponse({ error: "Failed to fetch" });
+    } catch (e) {
+      clearTimeout(timeout);
+      const isTimeout = e instanceof Error && e.name === "AbortError";
+      setFetchError(isTimeout
+        ? "NBA's API is slow today — try again in a moment."
+        : "Couldn't reach the NBA API. Check your connection and try again.");
+      setRawResponse(null);
       setResponseData(null);
       setChartData(null);
     }
@@ -323,6 +351,7 @@ export default function NbaExplorer() {
     setRawResponse(null);
     setChartData(null);
     setShowJson(false);
+    setFetchError(null);
     setParamValues({});
     drawGraph(nodeKey);
 
@@ -373,8 +402,10 @@ export default function NbaExplorer() {
 
   // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
     drawGraph();
-    const handleResize = () => drawGraph();
+    const handleResize = () => { checkMobile(); drawGraph(); };
     window.addEventListener("resize", handleResize);
     // Auto-load last night's games so the panel shows real data immediately
     navigateTo("last_night");
@@ -503,21 +534,52 @@ export default function NbaExplorer() {
             </div>
           </header>
 
-          <div className="nba-canvas-wrap">
-            <canvas
-              ref={graphCanvasRef}
-              onMouseDown={onMouseDown}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              onMouseLeave={onMouseUp}
-              onClick={onCanvasClick}
-              onWheel={onWheel}
-            />
-            <div className="nba-canvas-overlay">
-              <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 1 }; drawGraph(); }}>Reset View</button>
-              <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 0.85 }; drawGraph(); }}>Fit Graph</button>
+          {isMobile ? (
+            <div style={{ overflowY: "auto", background: "var(--bg)", padding: "12px 16px" }}>
+              {MOBILE_GROUPS.map((group) => (
+                <div key={group.label} style={{ marginBottom: 20 }}>
+                  <div className="nba-section-label" style={{ marginBottom: 10 }}>{group.label}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {group.nodes.map((key) => {
+                      const node = apiMap[key];
+                      if (!node) return null;
+                      return (
+                        <button
+                          key={key}
+                          className="nba-child-btn"
+                          style={{
+                            textAlign: "left", padding: "10px 14px",
+                            borderColor: activeNode === key ? "var(--accent)" : undefined,
+                            color: activeNode === key ? "var(--accent)" : undefined,
+                          }}
+                          onClick={() => navigateTo(key)}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: 13 }}>{node.label}</div>
+                          <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2 }}>{node.description}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="nba-canvas-wrap">
+              <canvas
+                ref={graphCanvasRef}
+                onMouseDown={onMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseUp}
+                onClick={onCanvasClick}
+                onWheel={onWheel}
+              />
+              <div className="nba-canvas-overlay">
+                <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 1 }; drawGraph(); }}>Reset View</button>
+                <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 0.85 }; drawGraph(); }}>Fit Graph</button>
+              </div>
+            </div>
+          )}
 
           <div className="nba-panel">
             <div className="nba-panel-header">
@@ -588,7 +650,14 @@ export default function NbaExplorer() {
                     </div>
                   )}
 
-                  {loading && <div className="nba-loading"><div className="nba-spinner" /> Fetching...</div>}
+                  {loading && <div className="nba-loading"><div className="nba-spinner" /> Fetching from stats.nba.com...</div>}
+
+                  {fetchError && (
+                    <div style={{ padding: "14px 16px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, marginBottom: 14 }}>
+                      <div style={{ fontSize: 13, color: "#f87171", fontWeight: 600, marginBottom: 4 }}>Data unavailable</div>
+                      <div style={{ fontSize: 12, color: "var(--text2)" }}>{fetchError}</div>
+                    </div>
+                  )}
 
                   {/* Chart */}
                   {chartData && chartData.length > 1 && (
@@ -601,7 +670,7 @@ export default function NbaExplorer() {
                             className={activeMetric === m ? "active" : ""}
                             onClick={() => { setActiveMetric(m); drawChart(chartData, m, activeNode); }}
                           >
-                            {m}
+                            {METRIC_LABELS[m] ?? m}
                           </button>
                         ))}
                       </div>
@@ -691,6 +760,12 @@ export default function NbaExplorer() {
                           </button>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {rawResponse && (
+                    <div style={{ marginTop: 20, paddingTop: 12, borderTop: "1px solid var(--border)", fontSize: 11, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
+                      via stats.nba.com
                     </div>
                   )}
                 </>
