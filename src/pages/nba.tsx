@@ -131,6 +131,9 @@ export default function NbaExplorer() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeMetric, setActiveMetric] = useState("");
+  const [tableSearch, setTableSearch] = useState("");
+  const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
+  const [, setTick] = useState(0); // drives "X min ago" re-renders
 
   // Camera state (refs to avoid re-renders on drag)
   const cam = useRef({ x: 0, y: 0, zoom: 1 });
@@ -346,6 +349,7 @@ export default function NbaExplorer() {
       setRawResponse(json);
       const data = json.data;
       setResponseData(data);
+      setFetchedAt(new Date());
 
       // Detect chartable data
       let chartable: AnyRow[] | null = Array.isArray(data) && data.length > 1 ? data : null;
@@ -393,6 +397,8 @@ export default function NbaExplorer() {
     setShowJson(false);
     setFetchError(null);
     setSortCol(null);
+    setTableSearch("");
+    setFetchedAt(null);
     setParamValues({});
     drawGraph(nodeKey);
 
@@ -457,7 +463,8 @@ export default function NbaExplorer() {
       ? router.query.node
       : "last_night";
     navigateTo(initialNode, { updateUrl: false });
-    return () => window.removeEventListener("resize", handleResize);
+    const ticker = setInterval(() => setTick((n) => n + 1), 30000);
+    return () => { window.removeEventListener("resize", handleResize); clearInterval(ticker); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -508,6 +515,23 @@ export default function NbaExplorer() {
     if (!node?.children?.length) return;
     navigateTo(node.children[0]);
     setTimeout(() => setParamValues({ id: String(row.id) }), 0);
+  };
+
+  const timeAgo = (date: Date): string => {
+    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    return `${Math.floor(mins / 60)}h ago`;
+  };
+
+  const PLAYER_NODES = new Set(["players", "player_detail", "game_log"]);
+
+  const filterRows = (rows: AnyRow[]): AnyRow[] => {
+    if (!tableSearch.trim()) return rows;
+    const q = tableSearch.toLowerCase();
+    return rows.filter((row) =>
+      Object.values(row).some((v) => typeof v === "string" && v.toLowerCase().includes(q))
+    );
   };
 
   const handleSort = (col: string) => {
@@ -602,6 +626,11 @@ export default function NbaExplorer() {
         .nba-child-btn { font-family: 'DM Mono', monospace; font-size: 12px; padding: 6px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); cursor: pointer; }
         .nba-child-btn:hover { border-color: var(--accent); color: var(--accent); }
         .nba-section-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 8px; }
+        .nba-search { width: 100%; padding: 7px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; margin-bottom: 10px; }
+        .nba-search:focus { border-color: var(--accent); }
+        .nba-freshness { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); margin-left: auto; }
+        .nba-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: var(--surface2); vertical-align: middle; }
+        .nba-avatar-cell { width: 36px; padding: 4px 8px; }
         @media (max-width: 768px) {
           .nba-shell { grid-template-columns: 1fr; grid-template-rows: 56px 300px 1fr; }
         }
@@ -707,6 +736,7 @@ export default function NbaExplorer() {
             <div className="nba-panel-header">
               <h2>{activeNodeDef?.label ?? "API Explorer"}</h2>
               {activeNodeDef?.endpoint && <span className="nba-endpoint-tag">{activeNodeDef.endpoint}</span>}
+              {fetchedAt && <span className="nba-freshness">{timeAgo(fetchedAt)}</span>}
             </div>
             <div className="nba-panel-body">
               {!activeNode ? (
@@ -802,26 +832,59 @@ export default function NbaExplorer() {
                   )}
 
                   {/* Data Table (flat array) */}
-                  {responseData && Array.isArray(responseData) && responseData.length > 0 && (
-                    <table className="nba-table">
-                      <thead>
-                        <tr>{tableCols.map((col) => (
-                          <th key={col} className={sortCol === col ? "sorted" : ""} onClick={() => handleSort(col)}>
-                            {colLabel(col)}{sortCol === col ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
-                          </th>
-                        ))}</tr>
-                      </thead>
-                      <tbody>
-                        {sortRows(responseData).map((row: AnyRow, i: number) => (
-                          <tr key={i} onClick={() => drillInto(row)}>
-                            {tableCols.map((col) => (
-                              <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
+                  {responseData && Array.isArray(responseData) && responseData.length > 0 && (() => {
+                    const showAvatars = PLAYER_NODES.has(activeNode ?? "");
+                    const filtered = filterRows(sortRows(responseData));
+                    return (
+                      <>
+                        {responseData.length > 8 && (
+                          <input
+                            className="nba-search"
+                            placeholder="Filter by name..."
+                            value={tableSearch}
+                            onChange={(e) => setTableSearch(e.target.value)}
+                          />
+                        )}
+                        <table className="nba-table">
+                          <thead>
+                            <tr>
+                              {showAvatars && <th className="nba-avatar-cell" />}
+                              {tableCols.map((col) => (
+                                <th key={col} className={sortCol === col ? "sorted" : ""} onClick={() => handleSort(col)}>
+                                  {colLabel(col)}{sortCol === col ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filtered.map((row: AnyRow, i: number) => (
+                              <tr key={i} onClick={() => drillInto(row)}>
+                                {showAvatars && (
+                                  <td className="nba-avatar-cell">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      className="nba-avatar"
+                                      src={`https://cdn.nba.com/headshots/nba/latest/260x190/${row.id}.png`}
+                                      alt=""
+                                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                                    />
+                                  </td>
+                                )}
+                                {tableCols.map((col) => (
+                                  <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
+                                ))}
+                              </tr>
                             ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
+                          </tbody>
+                        </table>
+                        {tableSearch && filtered.length === 0 && (
+                          <div style={{ padding: "16px 0", textAlign: "center", color: "var(--text2)", fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+                            No results for &ldquo;{tableSearch}&rdquo;
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
 
                   {/* Single object */}
                   {responseData && !Array.isArray(responseData) && typeof responseData === "object" && (
@@ -842,11 +905,21 @@ export default function NbaExplorer() {
                   )}
 
                   {/* Nested arrays (analytics endpoints) */}
-                  {nestedArrays.map(({ key, arr }) => (
+                  {nestedArrays.map(({ key, arr }) => {
+                    const filteredArr = filterRows(sortRows(arr));
+                    return (
                     <div key={key} style={{ marginBottom: 18 }}>
                       <div className="nba-section-label">
                         {key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} <span style={{ color: "var(--border)" }}>({arr.length})</span>
                       </div>
+                      {arr.length > 8 && (
+                        <input
+                          className="nba-search"
+                          placeholder="Filter by name..."
+                          value={tableSearch}
+                          onChange={(e) => setTableSearch(e.target.value)}
+                        />
+                      )}
                       <div style={{ overflowX: "auto" }}>
                         <table className="nba-table">
                           <thead>
@@ -857,7 +930,7 @@ export default function NbaExplorer() {
                             ))}</tr>
                           </thead>
                           <tbody>
-                            {sortRows(arr).map((row, i) => (
+                            {filteredArr.map((row, i) => (
                               <tr key={i} onClick={() => row.id !== undefined && drillInto(row)}>
                                 {flatCols(arr).map((col) => (
                                   <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
@@ -868,7 +941,8 @@ export default function NbaExplorer() {
                         </table>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Raw JSON toggle */}
                   {rawResponse && (
