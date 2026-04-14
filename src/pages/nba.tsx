@@ -611,10 +611,14 @@ export default function NbaExplorer() {
     return String(val ?? "");
   };
 
+  const canDrill = (row: AnyRow): boolean => {
+    if (row.id === undefined || !activeNode) return false;
+    return !!(apiMap[activeNode]?.children?.length);
+  };
+
   const drillInto = (row: AnyRow) => {
-    if (row.id === undefined || !activeNode) return;
-    const node = apiMap[activeNode];
-    if (!node?.children?.length) return;
+    if (!canDrill(row)) return;
+    const node = apiMap[activeNode!];
     navigateTo(node.children[0]);
     setTimeout(() => setParamValues({ id: String(row.id) }), 0);
   };
@@ -705,8 +709,8 @@ export default function NbaExplorer() {
         .nba-table th:hover { color: var(--accent); }
         .nba-table th.sorted { color: var(--accent); }
         .nba-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); }
-        .nba-table tr { cursor: pointer; transition: background 0.1s; }
-        .nba-table tr:hover { background: rgba(249,115,22,0.06); }
+        .nba-table tr { transition: background 0.1s; }
+        .nba-table tr[data-drillable]:hover { background: rgba(249,115,22,0.06); }
         .nba-table .num { text-align: right; color: #06b6d4; }
         .nba-chart-wrap { margin-bottom: 16px; padding: 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
         .nba-chart-wrap h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 10px; }
@@ -989,7 +993,7 @@ export default function NbaExplorer() {
                           </thead>
                           <tbody>
                             {filtered.map((row: AnyRow, i: number) => (
-                              <tr key={i} onClick={() => drillInto(row)}>
+                              <tr key={i} onClick={() => drillInto(row)} style={{ cursor: canDrill(row) ? "pointer" : "default" }} data-drillable={canDrill(row) ? "" : undefined}>
                                 {showAvatars && (
                                   <td className="nba-avatar-cell">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1062,7 +1066,7 @@ export default function NbaExplorer() {
                           </thead>
                           <tbody>
                             {filteredArr.map((row, i) => (
-                              <tr key={i} onClick={() => row.id !== undefined && drillInto(row)}>
+                              <tr key={i} onClick={() => drillInto(row)} style={{ cursor: canDrill(row) ? "pointer" : "default" }} data-drillable={canDrill(row) ? "" : undefined}>
                                 {flatCols(arr).map((col) => (
                                   <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
                                 ))}
