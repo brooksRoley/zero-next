@@ -581,7 +581,7 @@ export default function NbaExplorer() {
 
   // ── Table helpers ──────────────────────────────────────────────────────────
   const tableCols = responseData && Array.isArray(responseData) && responseData.length
-    ? Object.keys(responseData[0]).filter((k) => { const v = responseData[0][k]; return typeof v !== "object" || v === null; })
+    ? Object.keys(responseData[0]).filter((k) => { const v = responseData[0][k]; return !HIDDEN_COLS.has(k) && (typeof v !== "object" || v === null); })
     : [];
 
   const nestedArrays: { key: string; arr: AnyRow[] }[] =
@@ -592,7 +592,7 @@ export default function NbaExplorer() {
       : [];
 
   const flatCols = (arr: AnyRow[]) =>
-    arr.length ? Object.keys(arr[0]).filter((k) => typeof arr[0][k] !== "object" || arr[0][k] === null) : [];
+    arr.length ? Object.keys(arr[0]).filter((k) => !HIDDEN_COLS.has(k) && (typeof arr[0][k] !== "object" || arr[0][k] === null)) : [];
 
   const flatObject = (obj: AnyRow) => {
     const flat: AnyRow = {};
@@ -631,6 +631,8 @@ export default function NbaExplorer() {
   };
 
   const PLAYER_NODES = new Set(["players", "player_detail", "game_log"]);
+  // Columns retained internally (for drilldown, avatars) but never shown to users
+  const HIDDEN_COLS = new Set(["id", "team_id", "player_id", "game_id"]);
 
   const filterRows = (rows: AnyRow[]): AnyRow[] => {
     if (!tableSearch.trim()) return rows;
