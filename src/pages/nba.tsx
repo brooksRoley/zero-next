@@ -118,6 +118,19 @@ const PREFERRED_METRIC: Record<string, string> = {
   game_detail: "pts",
 };
 
+const CHART_TITLE: Record<string, string> = {
+  players: "Player Averages",
+  player_detail: "Player Stats",
+  game_log: "Game-by-Game",
+  teams: "Team Records",
+  standings: "Team Records",
+  season_analytics: "Season Leaders",
+  team_dashboard: "Roster Stats",
+  lakers_dashboard: "Roster Stats",
+  last_night: "Last Night's Scores",
+  game_detail: "Box Score",
+};
+
 type AnyRow = Record<string, any>;
 
 export default function NbaExplorer() {
@@ -952,7 +965,7 @@ export default function NbaExplorer() {
                   {/* Chart */}
                   {chartData && chartData.length > 1 && (
                     <div className="nba-chart-wrap">
-                      <h3>Data Visualization</h3>
+                      <h3>{activeNode ? (CHART_TITLE[activeNode] ?? activeNodeDef?.label ?? "Chart") : "Chart"}</h3>
                       <div className="nba-chart-tabs">
                         {chartMetrics.map((m) => (
                           <button
