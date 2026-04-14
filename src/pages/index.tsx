@@ -124,28 +124,7 @@ export default function Home() {
               </TiltCard>
             </Reveal>
 
-            {/* B-Ball Tactics */}
-            <Reveal delay={300}>
-              <TiltCard>
-                <Link href="https://brooksroley.github.io/BballTactics/" target="_blank" rel="noopener noreferrer" className={cardBase}>
-                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1a1e28]">
-                    <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-[#552583]/40 border border-[#FDB927]/20">
-                      <span className="text-3xl select-none">🏀</span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
-                  </div>
-                  <div className="relative px-5 pb-5 -mt-8">
-                    <h3 className="text-xl font-semibold flex items-center gap-2">
-                      B-Ball Tactics <ExternalIcon />
-                    </h3>
-                    <p className="text-sm text-forest-300 mt-1">
-                      NBA autochess powered by a C++ WASM engine. Draft real players, build synergies, win.
-                    </p>
-                  </div>
-                  <div className="tilt-highlight" />
-                </Link>
-              </TiltCard>
-            </Reveal>
+            {/* B-Ball Tactics — hidden until game playability is ready */}
           </div>
         </section>
 
