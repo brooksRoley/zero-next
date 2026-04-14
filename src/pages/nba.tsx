@@ -91,6 +91,20 @@ const MOBILE_GROUPS = [
   { label: "Analytics", nodes: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
 ];
 
+// Preferred chart metric per node — falls back to first numeric key if not present in data
+const PREFERRED_METRIC: Record<string, string> = {
+  players: "ppg",
+  player_detail: "ppg",
+  game_log: "pts",
+  teams: "wins",
+  standings: "wins",
+  season_analytics: "net_rating",
+  team_dashboard: "net_rating",
+  lakers_dashboard: "net_rating",
+  last_night: "home_score",
+  game_detail: "pts",
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyRow = Record<string, any>;
 
@@ -345,7 +359,8 @@ export default function NbaExplorer() {
         const numKeys = Object.keys(chartable[0]).filter((k) => typeof chartable![0][k] === "number");
         setChartMetrics(numKeys);
         setChartData(chartable);
-        const metric = numKeys[0] || "";
+        const preferred = PREFERRED_METRIC[nodeKey];
+        const metric = (preferred && numKeys.includes(preferred)) ? preferred : (numKeys[0] || "");
         setActiveMetric(metric);
         setTimeout(() => drawChart(chartable!, metric, nodeKey), 50);
       } else {
