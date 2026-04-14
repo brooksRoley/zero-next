@@ -139,6 +139,12 @@ export default function NbaExplorer() {
   const cam = useRef({ x: 0, y: 0, zoom: 1 });
   const dragState = useRef({ dragging: false, startX: 0, startY: 0, camStartX: 0, camStartY: 0 });
   const hoveredNode = useRef<string | null>(null);
+  const focusedNode = useRef<string | null>(null);
+
+  // Stable node order for keyboard nav: top-to-bottom, left-to-right
+  const NODE_ORDER = Object.entries(NODE_POSITIONS)
+    .sort(([, a], [, b]) => a.y !== b.y ? a.y - b.y : a.x - b.x)
+    .map(([key]) => key);
 
   // ── Graph Drawing ──────────────────────────────────────────────────────────
   const drawGraph = useCallback((activeKey: string | null = activeNode) => {
@@ -221,6 +227,17 @@ export default function NbaExplorer() {
       ctx.textBaseline = "middle";
       ctx.fillStyle = isActive ? "#fff" : "#8b8fa3";
       ctx.fillText(apiMap[key]?.label || key, pos.x, pos.y + 10);
+
+      // Keyboard focus ring
+      if (focusedNode.current === key) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, R + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
     }
 
     ctx.restore();
@@ -448,6 +465,75 @@ export default function NbaExplorer() {
     e.preventDefault();
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     cam.current.zoom = Math.max(0.3, Math.min(3, cam.current.zoom * delta));
+    drawGraph();
+  }, [drawGraph]);
+
+  const onCanvasKeyDown = useCallback((e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    const current = focusedNode.current;
+    const idx = current ? NODE_ORDER.indexOf(current) : -1;
+
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (current) navigateTo(current);
+      return;
+    }
+    if (e.key === "Escape") {
+      focusedNode.current = null;
+      drawGraph();
+      return;
+    }
+
+    // Directional: find nearest node in pressed direction
+    const pos = current ? NODE_POSITIONS[current] : null;
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const next = e.shiftKey
+        ? NODE_ORDER[(idx <= 0 ? NODE_ORDER.length : idx) - 1]
+        : NODE_ORDER[(idx + 1) % NODE_ORDER.length];
+      focusedNode.current = next;
+      drawGraph();
+      return;
+    }
+    if (pos && (e.key === "ArrowRight" || e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      e.preventDefault();
+      let best: string | null = null;
+      let bestScore = Infinity;
+      for (const [key, p] of Object.entries(NODE_POSITIONS)) {
+        if (key === current) continue;
+        const dx = p.x - pos.x, dy = p.y - pos.y;
+        const inDir =
+          e.key === "ArrowRight" ? dx > 20 :
+          e.key === "ArrowLeft"  ? dx < -20 :
+          e.key === "ArrowDown"  ? dy > 20 :
+                                   dy < -20;
+        if (!inDir) continue;
+        // Score: distance penalised for being off-axis
+        const primary = Math.abs(e.key === "ArrowRight" || e.key === "ArrowLeft" ? dx : dy);
+        const secondary = Math.abs(e.key === "ArrowRight" || e.key === "ArrowLeft" ? dy : dx);
+        const score = primary + secondary * 2;
+        if (score < bestScore) { bestScore = score; best = key; }
+      }
+      if (!best) {
+        // wrap: use Tab order
+        focusedNode.current = e.key === "ArrowRight" || e.key === "ArrowDown"
+          ? NODE_ORDER[(idx + 1) % NODE_ORDER.length]
+          : NODE_ORDER[(idx <= 0 ? NODE_ORDER.length : idx) - 1];
+      } else {
+        focusedNode.current = best;
+      }
+      drawGraph();
+    }
+  }, [NODE_ORDER, drawGraph, navigateTo]);
+
+  const onCanvasFocus = useCallback(() => {
+    if (!focusedNode.current) {
+      focusedNode.current = activeNode ?? NODE_ORDER[0];
+      drawGraph();
+    }
+  }, [NODE_ORDER, activeNode, drawGraph]);
+
+  const onCanvasBlur = useCallback(() => {
+    focusedNode.current = null;
     drawGraph();
   }, [drawGraph]);
 
@@ -685,12 +771,17 @@ export default function NbaExplorer() {
             <div className="nba-canvas-wrap">
               <canvas
                 ref={graphCanvasRef}
+                tabIndex={0}
                 onMouseDown={onMouseDown}
                 onMouseMove={onMouseMove}
                 onMouseUp={onMouseUp}
                 onMouseLeave={onMouseUp}
                 onClick={onCanvasClick}
                 onWheel={onWheel}
+                onKeyDown={onCanvasKeyDown}
+                onFocus={onCanvasFocus}
+                onBlur={onCanvasBlur}
+                style={{ outline: "none" }}
               />
               <div className="nba-canvas-overlay">
                 <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 1 }; drawGraph(); }}>Reset View</button>
