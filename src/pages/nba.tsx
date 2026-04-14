@@ -58,7 +58,8 @@ const NODE_COLORS: Record<string, string> = {
   lakers_dashboard: "#a78bfa",
 };
 
-const METRIC_LABELS: Record<string, string> = {
+const COL_LABELS: Record<string, string> = {
+  // Stats
   ts_pct: "True Shooting %", usg_pct: "Usage %", pie: "Player Impact",
   net_rating: "Net Rating", efg_pct: "Effective FG%", ast_pct: "Assist %",
   reb_pct: "Rebound %", oreb_pct: "Off Reb %", dreb_pct: "Def Reb %",
@@ -68,7 +69,22 @@ const METRIC_LABELS: Record<string, string> = {
   pts: "Points", reb: "Rebounds", ast: "Assists", stl: "Steals",
   blk: "Blocks", tov: "Turnovers", plus_minus: "+/-",
   wins: "Wins", losses: "Losses", min: "Minutes",
+  // Player / team fields
+  id: "ID", name: "Name", team_id: "Team", team_name: "Team", player_id: "Player",
+  city: "City", abbrev: "Abbrev", conference: "Conf", division: "Division",
+  pos: "Pos", jersey: "Jersey", height: "Height", weight: "Weight", country: "Country",
+  // Game fields
+  game_id: "Game ID", date: "Date", home_team: "Home", away_team: "Away",
+  home_score: "Home Pts", away_score: "Away Pts", winner: "Winner",
+  // Season / standings
+  rank: "Rank", record: "Record", pct: "Win %", streak: "Streak",
+  last10: "Last 10", home_record: "Home", away_record: "Away",
 };
+// Alias — chart tabs use this subset
+const METRIC_LABELS = COL_LABELS;
+
+const colLabel = (key: string): string =>
+  COL_LABELS[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 const MOBILE_GROUPS = [
   { label: "Browse", nodes: ["teams", "players", "standings", "games", "team_detail", "player_detail", "game_log", "game_detail"] },
@@ -97,6 +113,9 @@ export default function NbaExplorer() {
   const [showJson, setShowJson] = useState(false);
   const [chartData, setChartData] = useState<AnyRow[] | null>(null);
   const [chartMetrics, setChartMetrics] = useState<string[]>([]);
+  const [sortCol, setSortCol] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeMetric, setActiveMetric] = useState("");
 
   // Camera state (refs to avoid re-renders on drag)
@@ -358,6 +377,7 @@ export default function NbaExplorer() {
     setChartData(null);
     setShowJson(false);
     setFetchError(null);
+    setSortCol(null);
     setParamValues({});
     drawGraph(nodeKey);
 
@@ -414,6 +434,7 @@ export default function NbaExplorer() {
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
+    if (!localStorage.getItem("nba-onboarded")) setShowOnboarding(true);
     drawGraph();
     const handleResize = () => { checkMobile(); drawGraph(); };
     window.addEventListener("resize", handleResize);
@@ -474,6 +495,27 @@ export default function NbaExplorer() {
     setTimeout(() => setParamValues({ id: String(row.id) }), 0);
   };
 
+  const handleSort = (col: string) => {
+    if (sortCol === col) {
+      setSortDir((d) => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortCol(col);
+      setSortDir("desc");
+    }
+  };
+
+  const sortRows = (rows: AnyRow[]) => {
+    if (!sortCol) return rows;
+    return [...rows].sort((a, b) => {
+      const av = a[sortCol], bv = b[sortCol];
+      if (av === bv) return 0;
+      const cmp = typeof av === "number" && typeof bv === "number"
+        ? av - bv
+        : String(av ?? "").localeCompare(String(bv ?? ""));
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  };
+
   const activeNodeDef = activeNode ? apiMap[activeNode] : null;
 
   return (
@@ -521,7 +563,9 @@ export default function NbaExplorer() {
         .nba-fetch-btn:hover { background: var(--accent2); }
         .nba-fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .nba-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
-        .nba-table th { text-align: left; padding: 6px 8px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; background: var(--surface); }
+        .nba-table th { text-align: left; padding: 6px 8px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; background: var(--surface); cursor: pointer; user-select: none; white-space: nowrap; }
+        .nba-table th:hover { color: var(--accent); }
+        .nba-table th.sorted { color: var(--accent); }
         .nba-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); }
         .nba-table tr { cursor: pointer; transition: background 0.1s; }
         .nba-table tr:hover { background: rgba(249,115,22,0.06); }
@@ -608,6 +652,39 @@ export default function NbaExplorer() {
                 <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 1 }; drawGraph(); }}>Reset View</button>
                 <button onClick={() => { cam.current = { x: 0, y: 0, zoom: 0.85 }; drawGraph(); }}>Fit Graph</button>
               </div>
+
+              {showOnboarding && (
+                <div style={{
+                  position: "absolute", inset: 0, background: "rgba(10,12,16,0.85)",
+                  display: "flex", alignItems: "center", justifyContent: "center", zIndex: 20,
+                }}>
+                  <div style={{
+                    background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12,
+                    padding: "28px 32px", maxWidth: 340, textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>🏀</div>
+                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Welcome to NBA Explorer</div>
+                    <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.6, marginBottom: 20 }}>
+                      Each circle is a live API endpoint. Click a node to explore its data,
+                      drag to pan the graph, and scroll to zoom.
+                    </div>
+                    <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16, fontSize: 12, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
+                      <span style={{ padding: "4px 10px", background: "var(--surface2)", borderRadius: 4 }}>🖱 click node</span>
+                      <span style={{ padding: "4px 10px", background: "var(--surface2)", borderRadius: 4 }}>✋ drag to pan</span>
+                      <span style={{ padding: "4px 10px", background: "var(--surface2)", borderRadius: 4 }}>⚲ scroll to zoom</span>
+                    </div>
+                    <button
+                      className="nba-fetch-btn"
+                      onClick={() => {
+                        localStorage.setItem("nba-onboarded", "1");
+                        setShowOnboarding(false);
+                      }}
+                    >
+                      Got it — explore
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -713,10 +790,14 @@ export default function NbaExplorer() {
                   {responseData && Array.isArray(responseData) && responseData.length > 0 && (
                     <table className="nba-table">
                       <thead>
-                        <tr>{tableCols.map((col) => <th key={col}>{col}</th>)}</tr>
+                        <tr>{tableCols.map((col) => (
+                          <th key={col} className={sortCol === col ? "sorted" : ""} onClick={() => handleSort(col)}>
+                            {colLabel(col)}{sortCol === col ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+                          </th>
+                        ))}</tr>
                       </thead>
                       <tbody>
-                        {responseData.map((row: AnyRow, i: number) => (
+                        {sortRows(responseData).map((row: AnyRow, i: number) => (
                           <tr key={i} onClick={() => drillInto(row)}>
                             {tableCols.map((col) => (
                               <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
@@ -735,7 +816,7 @@ export default function NbaExplorer() {
                           <tbody>
                             {Object.entries(flatObject(responseData)).map(([key, val]) => (
                               <tr key={key}>
-                                <td style={{ color: "var(--text2)" }}>{key}</td>
+                                <td style={{ color: "var(--text2)" }}>{colLabel(key)}</td>
                                 <td className={typeof val === "number" ? "num" : ""}>{formatCell(key, val)}</td>
                               </tr>
                             ))}
@@ -749,15 +830,19 @@ export default function NbaExplorer() {
                   {nestedArrays.map(({ key, arr }) => (
                     <div key={key} style={{ marginBottom: 18 }}>
                       <div className="nba-section-label">
-                        {key.replace(/_/g, " ")} <span style={{ color: "var(--border)" }}>({arr.length})</span>
+                        {key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} <span style={{ color: "var(--border)" }}>({arr.length})</span>
                       </div>
                       <div style={{ overflowX: "auto" }}>
                         <table className="nba-table">
                           <thead>
-                            <tr>{flatCols(arr).map((col) => <th key={col}>{col}</th>)}</tr>
+                            <tr>{flatCols(arr).map((col) => (
+                              <th key={col} className={sortCol === col ? "sorted" : ""} onClick={() => handleSort(col)}>
+                                {colLabel(col)}{sortCol === col ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+                              </th>
+                            ))}</tr>
                           </thead>
                           <tbody>
-                            {arr.map((row, i) => (
+                            {sortRows(arr).map((row, i) => (
                               <tr key={i} onClick={() => row.id !== undefined && drillInto(row)}>
                                 {flatCols(arr).map((col) => (
                                   <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
