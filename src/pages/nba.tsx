@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { NBA_TEAMS } from "src/lib/nba/teams-static";
 
 // ── API Map (fallback, also fetched from /api/nba/map) ──────────────────────
@@ -78,6 +79,7 @@ const MOBILE_GROUPS = [
 type AnyRow = Record<string, any>;
 
 export default function NbaExplorer() {
+  const router = useRouter();
   const graphCanvasRef = useRef<HTMLCanvasElement>(null);
   const chartCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -235,7 +237,11 @@ export default function NbaExplorer() {
       const y = pad.t + gh * (i / 4);
       ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
       ctx.font = "10px monospace"; ctx.fillStyle = "#555"; ctx.textAlign = "right";
-      ctx.fillText((max - (range * i) / 4).toFixed(1), pad.l - 6, y + 3);
+      const axisVal = max - (range * i) / 4;
+      const axisLabel = (metric.endsWith("_pct") || metric.endsWith("_percentage"))
+        ? (axisVal * 100).toFixed(1) + "%"
+        : axisVal.toFixed(1);
+      ctx.fillText(axisLabel, pad.l - 6, y + 3);
     }
 
     const isBar = values.length <= 15;
@@ -341,7 +347,7 @@ export default function NbaExplorer() {
   }, [apiMap, drawChart]);
 
   // ── Navigate ───────────────────────────────────────────────────────────────
-  const navigateTo = useCallback((nodeKey: string) => {
+  const navigateTo = useCallback((nodeKey: string, { updateUrl = true } = {}) => {
     setActiveNode(nodeKey);
     setTrail((prev) => {
       const idx = prev.indexOf(nodeKey);
@@ -355,12 +361,16 @@ export default function NbaExplorer() {
     setParamValues({});
     drawGraph(nodeKey);
 
+    if (updateUrl) {
+      router.push({ pathname: "/nba", query: { node: nodeKey } }, undefined, { shallow: true });
+    }
+
     // Auto-fetch if no required params
     const node = apiMap[nodeKey];
     if (node?.endpoint && !(node.params || []).some((p) => p.required)) {
       setTimeout(() => fetchEndpoint(nodeKey, {}), 0);
     }
-  }, [apiMap, drawGraph, fetchEndpoint]);
+  }, [apiMap, drawGraph, fetchEndpoint, router]);
 
   // ── Canvas Events ──────────────────────────────────────────────────────────
   const onMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -407,11 +417,22 @@ export default function NbaExplorer() {
     drawGraph();
     const handleResize = () => { checkMobile(); drawGraph(); };
     window.addEventListener("resize", handleResize);
-    // Auto-load last night's games so the panel shows real data immediately
-    navigateTo("last_night");
+    const initialNode = typeof router.query.node === "string" && apiMap[router.query.node]
+      ? router.query.node
+      : "last_night";
+    navigateTo(initialNode, { updateUrl: false });
     return () => window.removeEventListener("resize", handleResize);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── Sync URL → node on browser back/forward ────────────────────────────────
+  useEffect(() => {
+    const node = typeof router.query.node === "string" ? router.query.node : null;
+    if (node && apiMap[node] && node !== activeNode) {
+      navigateTo(node, { updateUrl: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.node]);
 
   // ── Table helpers ──────────────────────────────────────────────────────────
   const tableCols = responseData && Array.isArray(responseData) && responseData.length
@@ -434,6 +455,15 @@ export default function NbaExplorer() {
       if (typeof v !== "object" || v === null) flat[k] = v;
     }
     return flat;
+  };
+
+  const formatCell = (col: string, val: unknown): string => {
+    if (typeof val === "number") {
+      if (col.endsWith("_pct") || col.endsWith("_percentage")) return (val * 100).toFixed(1) + "%";
+      if (Number.isInteger(val) && Math.abs(val) >= 1000) return val.toLocaleString();
+      if (!Number.isInteger(val)) return val.toFixed(1);
+    }
+    return String(val ?? "");
   };
 
   const drillInto = (row: AnyRow) => {
@@ -635,6 +665,7 @@ export default function NbaExplorer() {
                             <input
                               value={paramValues[p.name] || ""}
                               onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
+                              onKeyDown={(e) => { if (e.key === "Enter" && !loading) fetchEndpoint(activeNode!, paramValues); }}
                               placeholder={p.type + (p.optional ? " (optional)" : "")}
                             />
                           )}
@@ -688,7 +719,7 @@ export default function NbaExplorer() {
                         {responseData.map((row: AnyRow, i: number) => (
                           <tr key={i} onClick={() => drillInto(row)}>
                             {tableCols.map((col) => (
-                              <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{row[col]}</td>
+                              <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
                             ))}
                           </tr>
                         ))}
@@ -705,7 +736,7 @@ export default function NbaExplorer() {
                             {Object.entries(flatObject(responseData)).map(([key, val]) => (
                               <tr key={key}>
                                 <td style={{ color: "var(--text2)" }}>{key}</td>
-                                <td className={typeof val === "number" ? "num" : ""}>{String(val)}</td>
+                                <td className={typeof val === "number" ? "num" : ""}>{formatCell(key, val)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -729,7 +760,7 @@ export default function NbaExplorer() {
                             {arr.map((row, i) => (
                               <tr key={i} onClick={() => row.id !== undefined && drillInto(row)}>
                                 {flatCols(arr).map((col) => (
-                                  <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{row[col]}</td>
+                                  <td key={col} className={typeof row[col] === "number" ? "num" : ""}>{formatCell(col, row[col])}</td>
                                 ))}
                               </tr>
                             ))}
