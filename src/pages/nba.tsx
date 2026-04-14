@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Head from "next/head";
+import { NBA_TEAMS } from "src/lib/nba/teams-static";
 
 // ── API Map (fallback, also fetched from /api/nba/map) ──────────────────────
 type NodeDef = {
@@ -11,20 +12,20 @@ type NodeDef = {
 };
 
 const FALLBACK_MAP: Record<string, NodeDef> = {
-  root: { label: "NBA API", description: "Entry point — click to explore", children: ["teams", "players", "standings", "games", "analytics"] },
-  teams: { label: "Teams", description: "All NBA teams", children: ["team_detail"], endpoint: "/api/nba/teams", params: [] },
-  players: { label: "Players", description: "All players, optionally filtered by team", children: ["player_detail"], endpoint: "/api/nba/players", params: [{ name: "team_id", type: "int", optional: true }] },
-  standings: { label: "Standings", description: "Current conference standings", children: [], endpoint: "/api/nba/standings", params: [{ name: "conference", type: "str", optional: true }] },
-  games: { label: "Games", description: "Recent game results", children: ["game_detail"], endpoint: "/api/nba/games", params: [{ name: "date", type: "str", optional: true }] },
-  team_detail: { label: "Team Detail", description: "Single team info + roster", children: ["players"], endpoint: "/api/nba/teams/{id}", params: [{ name: "id", type: "int", required: true }] },
-  player_detail: { label: "Player Detail", description: "Player averages & info", children: ["game_log"], endpoint: "/api/nba/players/{id}", params: [{ name: "id", type: "int", required: true }] },
-  game_log: { label: "Game Log", description: "Per-game stats time series", children: [], endpoint: "/api/nba/players/{id}/gamelog", params: [{ name: "id", type: "int", required: true }, { name: "n", type: "int", optional: true }] },
-  game_detail: { label: "Game Detail", description: "Full box score", children: ["player_detail"], endpoint: "/api/nba/games/{id}", params: [{ name: "id", type: "int", required: true }] },
-  analytics: { label: "Analytics", description: "Advanced analytics hub", children: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
-  last_night: { label: "Last Night", description: "Top performers & scores from last night", children: [], endpoint: "/api/nba/analytics/last-night", params: [] },
-  season_analytics: { label: "Season Analytics", description: "Advanced player & team stats (TS%, NetRtg, USG%)", children: [], endpoint: "/api/nba/analytics/season", params: [] },
-  team_dashboard: { label: "Team Dashboard", description: "Standing, roster advanced stats & recent games for any team", children: [], endpoint: "/api/nba/analytics/team/{id}", params: [{ name: "id", type: "int", required: true }] },
-  lakers_dashboard: { label: "Lakers", description: "Lakers dashboard (alias for Team Dashboard)", children: [], endpoint: "/api/nba/analytics/lakers", params: [] },
+  root: { label: "NBA Explorer", description: "Live NBA data — pick a category to start.", children: ["teams", "players", "standings", "games", "analytics"] },
+  teams: { label: "Teams", description: "Browse all 30 NBA teams.", children: ["team_detail"], endpoint: "/api/nba/teams", params: [] },
+  players: { label: "Players", description: "All active players with per-game stats. Filter by team.", children: ["player_detail"], endpoint: "/api/nba/players", params: [{ name: "team_id", type: "int", optional: true }] },
+  standings: { label: "Standings", description: "Where does every team stand right now?", children: [], endpoint: "/api/nba/standings", params: [{ name: "conference", type: "str", optional: true }] },
+  games: { label: "Recent Games", description: "What games happened recently?", children: ["game_detail"], endpoint: "/api/nba/games", params: [{ name: "date", type: "str", optional: true }] },
+  team_detail: { label: "Team Profile", description: "Roster and info for a specific team.", children: ["players"], endpoint: "/api/nba/teams/{id}", params: [{ name: "id", type: "int", required: true }] },
+  player_detail: { label: "Player Profile", description: "Stats, height, position, and averages for any player.", children: ["game_log"], endpoint: "/api/nba/players/{id}", params: [{ name: "id", type: "int", required: true }] },
+  game_log: { label: "Game History", description: "How has a player been performing game by game?", children: [], endpoint: "/api/nba/players/{id}/gamelog", params: [{ name: "id", type: "int", required: true }, { name: "n", type: "int", optional: true }] },
+  game_detail: { label: "Box Score", description: "Full box score for a specific game.", children: ["player_detail"], endpoint: "/api/nba/games/{id}", params: [{ name: "id", type: "int", required: true }] },
+  analytics: { label: "Analytics Hub", description: "Dig into what's happening across the season.", children: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
+  last_night: { label: "Last Night's Games", description: "Scores and top performers from last night.", children: [], endpoint: "/api/nba/analytics/last-night", params: [] },
+  season_analytics: { label: "Season Leaders", description: "Who's dominating TS%, net rating, and usage this season?", children: [], endpoint: "/api/nba/analytics/season", params: [] },
+  team_dashboard: { label: "Team Dashboard", description: "Record, roster advanced stats, and recent games for any team.", children: [], endpoint: "/api/nba/analytics/team/{id}", params: [{ name: "id", type: "int", required: true }] },
+  lakers_dashboard: { label: "Lakers Dashboard", description: "How are the Lakers doing right now?", children: [], endpoint: "/api/nba/analytics/lakers", params: [] },
 };
 
 // ── Node layout positions (hand-tuned radial) ────────────────────────────────
@@ -375,8 +376,11 @@ export default function NbaExplorer() {
     drawGraph();
     const handleResize = () => drawGraph();
     window.addEventListener("resize", handleResize);
+    // Auto-load last night's games so the panel shows real data immediately
+    navigateTo("last_night");
     return () => window.removeEventListener("resize", handleResize);
-  }, [drawGraph]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Table helpers ──────────────────────────────────────────────────────────
   const tableCols = responseData && Array.isArray(responseData) && responseData.length
@@ -427,7 +431,7 @@ export default function NbaExplorer() {
           font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text);
         }
         .nba-shell { display: grid; grid-template-columns: 1fr 420px; grid-template-rows: 56px 1fr; height: 100vh; }
-        .nba-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 10; }
+        .nba-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 10; min-height: 56px; }
         .nba-header .logo { font-weight: 900; font-size: 18px; letter-spacing: -0.5px; color: var(--accent); }
         .nba-header .logo span { color: var(--text2); font-weight: 300; }
         .nba-pill { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
@@ -486,12 +490,16 @@ export default function NbaExplorer() {
       <div className="nba-app">
         <div className="nba-shell">
           <header className="nba-header">
-            <div className="logo">NBA<span>EXPLORER</span></div>
+            <div>
+              <div className="logo">NBA<span>EXPLORER</span></div>
+              <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2, fontFamily: "'DM Mono', monospace", letterSpacing: "0.02em" }}>
+                Live stats, standings &amp; analytics — sourced from stats.nba.com
+              </div>
+            </div>
             <div className="nba-pill live">LIVE DATA</div>
-            <div className="nba-pill">v1.0</div>
             <div style={{ flex: 1 }} />
-            <div style={{ fontSize: 12, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
-              click nodes to traverse · drag to pan
+            <div style={{ fontSize: 11, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
+              click nodes · drag to pan
             </div>
           </header>
 
@@ -546,15 +554,28 @@ export default function NbaExplorer() {
                   {/* Params + Fetch */}
                   {activeNodeDef?.endpoint && (
                     <div className="nba-params">
-                      <label>PARAMETERS</label>
+                      {(activeNodeDef.params || []).length > 0 && <label>PARAMETERS</label>}
                       {(activeNodeDef.params || []).map((p) => (
                         <div key={p.name} className="nba-param-row">
-                          <span>{p.name}</span>
-                          <input
-                            value={paramValues[p.name] || ""}
-                            onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
-                            placeholder={p.type + (p.optional ? " (optional)" : "")}
-                          />
+                          <span>{p.name === "team_id" ? "team" : p.name}</span>
+                          {p.name === "team_id" ? (
+                            <select
+                              value={paramValues[p.name] || ""}
+                              onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
+                              style={{ flex: 1, padding: "6px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text)", fontFamily: "'DM Mono', monospace", fontSize: 12, outline: "none" }}
+                            >
+                              <option value="">All teams{p.optional ? " (optional)" : ""}</option>
+                              {NBA_TEAMS.sort((a, b) => a.full_name.localeCompare(b.full_name)).map((t) => (
+                                <option key={t.id} value={String(t.id)}>{t.full_name}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              value={paramValues[p.name] || ""}
+                              onChange={(e) => setParamValues((prev) => ({ ...prev, [p.name]: e.target.value }))}
+                              placeholder={p.type + (p.optional ? " (optional)" : "")}
+                            />
+                          )}
                         </div>
                       ))}
                       <button
