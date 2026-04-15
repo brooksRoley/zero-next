@@ -108,3 +108,73 @@ img {
 .group:hover .card-img-hover {
   filter: brightness(1.12) saturate(1.1);
 }
+
+/* ── Water Palette ──
+ * Deep-indigo base, cyan shimmer, candy-pink highlights. The hero layers
+ * a canvas ripple pass over these CSS gradients; the page-level water-bg
+ * is a calmer version of the same tint so the sections below the hero
+ * don't feel disconnected from the water. */
+
+.water-hero-bg {
+  background:
+    linear-gradient(180deg, #1e1b4b 0%, #2e1065 55%, #4c1d95 100%);
+}
+
+.water-gradient-base {
+  background:
+    radial-gradient(ellipse 55% 60% at 18% 22%, rgba(56, 189, 248, 0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 55% at 82% 28%, rgba(255, 140, 194, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 60% at 50% 95%, rgba(125, 211, 252, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 45% at 70% 70%, rgba(167, 139, 250, 0.2) 0%, transparent 60%);
+  animation: waterDrift 26s ease-in-out infinite alternate;
+}
+
+.water-caustic {
+  background:
+    radial-gradient(circle 220px at 30% 55%, rgba(255, 255, 255, 0.07) 0%, transparent 60%),
+    radial-gradient(circle 260px at 72% 38%, rgba(255, 255, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(circle 200px at 52% 82%, rgba(167, 139, 250, 0.12) 0%, transparent 60%);
+  mix-blend-mode: screen;
+  animation: causticShift 20s ease-in-out infinite alternate;
+  filter: blur(18px);
+}
+
+/* Calmer water tint for the rest of the page — gives continuity with
+ * the hero without fighting card content. */
+.water-page-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 100% 30%, rgba(255, 140, 194, 0.06) 0%, transparent 55%),
+    linear-gradient(180deg, #1e1b4b 0%, #0c0a1f 100%);
+}
+
+/* Thin iridescent section divider — replaces the old forest-800 line */
+.water-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(125, 211, 252, 0.25) 20%,
+    rgba(255, 140, 194, 0.35) 50%,
+    rgba(125, 211, 252, 0.25) 80%,
+    transparent 100%
+  );
+}
+
+@keyframes waterDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-2.5%, 1.5%, 0) scale(1.04); }
+  100% { transform: translate3d(2%, -1.5%, 0) scale(1.02); }
+}
+
+@keyframes causticShift {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0.85; }
+  100% { transform: translate3d(3.5%, -2.5%, 0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-gradient-base,
+  .water-caustic {
+    animation: none;
+  }
+}
