@@ -3,14 +3,17 @@ import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
 import { currentNbaSeason } from "src/lib/nba/season";
 import { TEAMS_BY_ID } from "src/lib/nba/teams-static";
+import { StandingsSchema } from "src/lib/nba/schemas";
+import { validateRows } from "src/lib/nba/validate";
 
 async function fetchStandings() {
   const season = currentNbaSeason();
-  return fetchStats("leaguestandingsv3", {
+  const rows = await fetchStats("leaguestandingsv3", {
     LeagueID: "00",
     Season: season,
     SeasonType: "Regular Season",
   }, { resultSetName: "Standings" });
+  return validateRows(StandingsSchema, rows, "leaguestandingsv3/standings");
 }
 
 export async function getStandingsRows() {
