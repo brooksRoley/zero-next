@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
 import { currentNbaSeason } from "src/lib/nba/season";
+import { PlayerSchema } from "src/lib/nba/schemas";
+import { validateRows } from "src/lib/nba/validate";
 
 async function fetchPlayers() {
   const season = currentNbaSeason();
@@ -13,7 +15,9 @@ async function fetchPlayers() {
     LeagueID: "00",
   });
 
-  return rows.map((r) => ({
+  const validated = validateRows(PlayerSchema, rows, "leaguedashplayerstats");
+
+  return validated.map((r) => ({
     id: Number(r.PLAYER_ID),
     name: r.PLAYER_NAME as string,
     team_id: Number(r.TEAM_ID),

@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile.pipeline
+    environment:
+      - POSTGRES_URL=${POSTGRES_URL}
+    command: ["scripts/ingest-nba.ts"]
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.pipeline
+    environment:
+      - POSTGRES_URL=${POSTGRES_URL}
+    command: ["scripts/run-migrations.ts"]
+
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.pipeline
+    environment:
+      - POSTGRES_URL=${POSTGRES_URL}
+    command: ["scripts/seed-fixtures.ts"]
