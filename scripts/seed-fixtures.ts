@@ -101,7 +101,7 @@ async function main() {
   console.log(`[standings] Seeded ${standingsData.length} standings rows`);
 
   // Gold: compute LeBron's season stats from game log
-  const lebronGames = gameLogWithPlayer;
+  const lebronGames = SAMPLE_GAME_LOG;
   const gp = lebronGames.length;
   const ppg = lebronGames.reduce((s, g) => s + Number(g.PTS), 0) / gp;
   const rpg = lebronGames.reduce((s, g) => s + Number(g.REB), 0) / gp;

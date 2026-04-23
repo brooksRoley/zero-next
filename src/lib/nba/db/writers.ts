@@ -2,9 +2,11 @@
  * Upsert functions for NBA silver tables.
  * Each function maps NbaRow fields to table columns and uses ON CONFLICT for idempotency.
  */
-import type { NbaRow } from "../client";
+import type { OddsRow } from "../odds";
 
-export async function upsertPlayers(sql: any, players: NbaRow[]): Promise<number> {
+type Row = Record<string, any>;
+
+export async function upsertPlayers(sql: any, players: Row[]): Promise<number> {
   let count = 0;
   for (const p of players) {
     await sql`
@@ -29,7 +31,7 @@ export async function upsertPlayers(sql: any, players: NbaRow[]): Promise<number
   return count;
 }
 
-export async function upsertTeams(sql: any, teams: NbaRow[]): Promise<number> {
+export async function upsertTeams(sql: any, teams: Row[]): Promise<number> {
   let count = 0;
   for (const t of teams) {
     await sql`
@@ -56,7 +58,7 @@ export async function upsertTeams(sql: any, teams: NbaRow[]): Promise<number> {
   return count;
 }
 
-export async function upsertGames(sql: any, games: NbaRow[]): Promise<number> {
+export async function upsertGames(sql: any, games: Row[]): Promise<number> {
   let count = 0;
   for (const g of games) {
     await sql`
@@ -84,7 +86,7 @@ export async function upsertGames(sql: any, games: NbaRow[]): Promise<number> {
   return count;
 }
 
-export async function upsertPlayerGameStats(sql: any, stats: NbaRow[]): Promise<number> {
+export async function upsertPlayerGameStats(sql: any, stats: Row[]): Promise<number> {
   let count = 0;
   for (const s of stats) {
     await sql`
@@ -139,5 +141,36 @@ export async function logBronzeIngestion(
   await sql`
     INSERT INTO nba_bronze_ingestions (source, endpoint, params_json, raw_response, row_count)
     VALUES (${source}, ${endpoint}, ${JSON.stringify(params)}, ${JSON.stringify(rawResponse)}, ${rowCount})
+  `;
+}
+
+export async function upsertOdds(sql: any, rows: OddsRow[]): Promise<number> {
+  let count = 0;
+  for (const r of rows) {
+    await sql`
+      INSERT INTO nba_odds (event_id, bookmaker, spread_home, spread_away, over_under, home_ml, away_ml, home_team, away_team, commence_time)
+      VALUES (${r.event_id}, ${r.bookmaker}, ${r.spread_home}, ${r.spread_away}, ${r.over_under}, ${r.home_ml ?? null}, ${r.away_ml ?? null}, ${r.home_team}, ${r.away_team}, ${r.commence_time})
+      ON CONFLICT (event_id, bookmaker, captured_at) DO NOTHING
+    `;
+    count++;
+  }
+  return count;
+}
+
+export async function insertPrediction(sql: any, pred: {
+  event_id: string; game_id?: string; calibration_version: string;
+  sim_count: number; sim_median_spread: number; sim_mean_spread: number;
+  sim_stddev: number; sim_home_win_pct: number; vegas_spread: number;
+  edge: number; confidence: string; synergy_buffs_home: any; synergy_buffs_away: any;
+  home_team: string; away_team: string;
+}): Promise<void> {
+  await sql`
+    INSERT INTO nba_predictions (event_id, game_id, calibration_version, sim_count, sim_median_spread, sim_mean_spread, sim_stddev, sim_home_win_pct, vegas_spread, edge, confidence, synergy_buffs_home, synergy_buffs_away, home_team, away_team)
+    VALUES (${pred.event_id}, ${pred.game_id ?? null}, ${pred.calibration_version}, ${pred.sim_count}, ${pred.sim_median_spread}, ${pred.sim_mean_spread}, ${pred.sim_stddev}, ${pred.sim_home_win_pct}, ${pred.vegas_spread}, ${pred.edge}, ${pred.confidence}, ${JSON.stringify(pred.synergy_buffs_home)}, ${JSON.stringify(pred.synergy_buffs_away)}, ${pred.home_team}, ${pred.away_team})
+    ON CONFLICT (event_id, calibration_version) DO UPDATE SET
+      sim_median_spread = EXCLUDED.sim_median_spread, sim_mean_spread = EXCLUDED.sim_mean_spread,
+      sim_stddev = EXCLUDED.sim_stddev, sim_home_win_pct = EXCLUDED.sim_home_win_pct,
+      vegas_spread = EXCLUDED.vegas_spread, edge = EXCLUDED.edge, confidence = EXCLUDED.confidence,
+      synergy_buffs_home = EXCLUDED.synergy_buffs_home, synergy_buffs_away = EXCLUDED.synergy_buffs_away
   `;
 }

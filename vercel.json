@@ -3,6 +3,10 @@
     {
       "path": "/api/nba/admin/ingest",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/nba/admin/simulate",
+      "schedule": "0 15 * * *"
     }
   ]
 }

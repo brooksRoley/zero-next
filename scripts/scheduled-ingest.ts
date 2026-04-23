@@ -58,7 +58,7 @@ async function ingestEndpoint(
   endpoint: string,
   params: Record<string, string | number>,
   schema: any,
-  upsertFn: (sql: any, rows: NbaRow[]) => Promise<number>,
+  upsertFn: (sql: any, rows: Record<string, any>[]) => Promise<number>,
   options?: { resultSetName?: string }
 ): Promise<IngestResult> {
   const start = Date.now();
@@ -70,7 +70,7 @@ async function ingestEndpoint(
 
     await logBronzeIngestion(sql, "stats.nba.com", endpoint, params, rows.slice(0, 2), rows.length);
 
-    const valid = validateRows(schema, rows, endpoint);
+    const valid = validateRows(schema, rows, endpoint) as Record<string, any>[];
     const count = await upsertFn(sql, valid);
 
     const duration = Date.now() - start;
