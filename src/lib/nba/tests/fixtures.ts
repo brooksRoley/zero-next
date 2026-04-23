@@ -245,6 +245,46 @@ export const SAMPLE_GAME_LOG: NbaRow[] = [
   },
 ];
 
+// -- Tracking data fixtures (simulated 25fps) --
+// 5 players per team (10 total) + ball, 10 frames at 25fps = 0.4 seconds
+function makeTrackingFrames(count: number) {
+  const frames: any[] = [];
+  for (let i = 0; i < count; i++) {
+    const t = i / 25; // 25fps
+    frames.push({
+      timestamp: t,
+      frameIndex: i,
+      quarter: 1,
+      gameClock: 720 - t,
+      shotClock: 24 - (t % 24),
+      players: [
+        // Home team (Lakers = 1610612747)
+        { playerId: 2544, teamId: 1610612747, x: 20 + i * 0.5, y: 25 },
+        { playerId: 203076, teamId: 1610612747, x: 30, y: 15 + i * 0.3 },
+        { playerId: 1630559, teamId: 1610612747, x: 40, y: 30 },
+        { playerId: 1001, teamId: 1610612747, x: 15, y: 10 },
+        { playerId: 1002, teamId: 1610612747, x: 25, y: 40 },
+        // Away team (Celtics = 1610612738)
+        { playerId: 2001, teamId: 1610612738, x: 60, y: 20 },
+        { playerId: 2002, teamId: 1610612738, x: 70, y: 30 },
+        { playerId: 2003, teamId: 1610612738, x: 50, y: 40 },
+        { playerId: 2004, teamId: 1610612738, x: 65, y: 10 },
+        { playerId: 2005, teamId: 1610612738, x: 75, y: 25 },
+      ],
+      ball: { x: 22 + i * 0.5, y: 25, z: 4 + Math.sin(i) },
+    });
+  }
+  return frames;
+}
+
+export const TRACKING_FRAMES_10 = makeTrackingFrames(10);
+export const TRACKING_FRAMES_100 = makeTrackingFrames(100);
+
+// Full game simulation: 48 min * 60 sec * 25fps = 72000 frames
+export function generateFullGameFrames(): any[] {
+  return makeTrackingFrames(72000);
+}
+
 // -- Invalid rows for negative testing --
 export const INVALID_PLAYER_NULL_ID: NbaRow = {
   PLAYER_ID: null,
