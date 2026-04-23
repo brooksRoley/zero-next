@@ -12,6 +12,10 @@ const TABLES = [
   "nba_standings",
   "nba_player_season_stats",
   "nba_team_season_stats",
+  "nba_odds",
+  "nba_predictions",
+  "nba_prediction_results",
+  "nba_calibration",
 ] as const;
 
 export async function runMigrations(sql: any): Promise<string[]> {
@@ -147,6 +151,80 @@ export async function runMigrations(sql: any): Promise<string[]> {
       net_rtg NUMERIC,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (team_id, season)
+    )
+  `;
+
+  // Odds
+  await sql`
+    CREATE TABLE IF NOT EXISTS nba_odds (
+      id SERIAL PRIMARY KEY,
+      game_id TEXT,
+      event_id TEXT NOT NULL,
+      bookmaker TEXT NOT NULL,
+      spread_home NUMERIC,
+      spread_away NUMERIC,
+      over_under NUMERIC,
+      home_ml INT,
+      away_ml INT,
+      home_team TEXT,
+      away_team TEXT,
+      commence_time TIMESTAMPTZ,
+      captured_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (event_id, bookmaker, captured_at)
+    )
+  `;
+
+  // Predictions
+  await sql`
+    CREATE TABLE IF NOT EXISTS nba_predictions (
+      id SERIAL PRIMARY KEY,
+      game_id TEXT,
+      event_id TEXT,
+      calibration_version TEXT NOT NULL,
+      sim_count INT NOT NULL,
+      sim_median_spread NUMERIC,
+      sim_mean_spread NUMERIC,
+      sim_stddev NUMERIC,
+      sim_home_win_pct NUMERIC,
+      vegas_spread NUMERIC,
+      edge NUMERIC,
+      confidence TEXT,
+      synergy_buffs_home JSONB,
+      synergy_buffs_away JSONB,
+      home_team TEXT,
+      away_team TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (event_id, calibration_version)
+    )
+  `;
+
+  // Prediction results
+  await sql`
+    CREATE TABLE IF NOT EXISTS nba_prediction_results (
+      id SERIAL PRIMARY KEY,
+      game_id TEXT,
+      event_id TEXT,
+      predicted_spread NUMERIC,
+      vegas_spread NUMERIC,
+      actual_margin NUMERIC,
+      beat_vegas BOOLEAN,
+      ats_result TEXT,
+      calibration_version TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // Calibration
+  await sql`
+    CREATE TABLE IF NOT EXISTS nba_calibration (
+      id SERIAL PRIMARY KEY,
+      version TEXT NOT NULL UNIQUE,
+      stat_mappings JSONB NOT NULL,
+      backtest_games INT,
+      backtest_mae NUMERIC,
+      backtest_rmse NUMERIC,
+      backtest_r2 NUMERIC,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
 
