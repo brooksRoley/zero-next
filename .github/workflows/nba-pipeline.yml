@@ -1,0 +1,45 @@
+name: NBA Data Pipeline CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/lib/nba/**'
+      - 'scripts/**'
+      - 'Dockerfile.pipeline'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/lib/nba/**'
+      - 'scripts/**'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit --pretty
+
+      - name: Run NBA pipeline tests
+        run: npx vitest run src/lib/nba/ --reporter=verbose
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build pipeline image
+        run: docker build -f Dockerfile.pipeline -t nba-pipeline:${{ github.sha }} .
+
+      - name: Verify image runs
+        run: docker run --rm nba-pipeline:${{ github.sha }} -e "console.log('build ok')"
