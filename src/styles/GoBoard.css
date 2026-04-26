@@ -1,0 +1,223 @@
+/*
+ * Go-specific board styling. Reuses Pente's .game-board wood + stone visuals
+ * (.black / .white / .last-move / .ripple / .stone-capture from GameBoard.css)
+ * but draws a true intersection grid and sizes cells off a CSS variable so
+ * 9×9, 13×13, and 19×19 all fit the viewport.
+ *
+ * The board is a grid of square cells whose grid lines are drawn on each cell
+ * (right + bottom edges), forming the lattice. Stones still render visually
+ * inside cells (not on intersections) — this is an MVP simplification that
+ * matches Pente's existing component model.
+ */
+
+.go-board {
+  --go-cell: min(
+    calc((100vw  - 28px) / var(--go-size, 9)),
+    calc((100svh - 240px) / var(--go-size, 9)),
+    44px
+  );
+}
+
+.go-board .board-cell {
+  width: var(--go-cell);
+  height: var(--go-cell);
+  border: none;
+  position: relative;
+}
+
+/*
+ * Crosshatch grid. Each cell paints its right (::before) and bottom (::after)
+ * line. Selectors mirror Pente's :not() chain so my rules win the specificity
+ * battle against GameBoard.css's hover-preview ::after.
+ */
+.go-board .board-cell:not(.black):not(.white):not(.red):not(.blue)::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: 0;
+  height: 1px;
+  width: auto;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.go-board .board-cell:not(.black):not(.white):not(.red):not(.blue)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  bottom: 0;
+  width: 1px;
+  height: auto;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 0;
+  inset: auto;
+  opacity: 1;
+  transform: none;
+  transition: none;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Close the lattice at the far edges */
+.go-board .go-row:last-child .board-cell::after { display: none; }
+.go-board .board-cell.go-last-col::before { display: none; }
+
+/* Star points (hoshi) — small dots at canonical positions */
+.go-board .board-cell.go-hoshi > .go-hoshi-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Ghost stone preview — Pente's selector specifies .red/.blue too; keep it but
+ * scope to .go-board so we don't fight Pente's own styles. The ::after slot
+ * above is taken by our grid line, so render the preview from a child span. */
+.go-board .board-cell .go-preview {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.go-board .board-cell:hover .go-preview,
+.go-board .board-cell.touch-preview .go-preview {
+  opacity: 1;
+  transform: scale(1);
+}
+.go-board.hover-black .go-preview {
+  background: radial-gradient(circle at 38% 35%, rgba(80,80,80,0.45) 0%, rgba(26,26,26,0.38) 50%, rgba(0,0,0,0.15) 100%);
+}
+.go-board.hover-white .go-preview {
+  background: radial-gradient(circle at 38% 35%, rgba(255,255,255,0.65) 0%, rgba(240,240,240,0.42) 50%, rgba(200,200,200,0.2) 100%);
+}
+
+/* Stones sit above the grid (grid pseudos already excluded by :not chain) */
+.go-board .board-cell.black,
+.go-board .board-cell.white {
+  z-index: 2;
+}
+
+/* Dead-stone marking phase: fade the stone and overlay a red X */
+.go-board .board-cell.go-dead {
+  opacity: 0.4;
+}
+.go-board .board-cell.go-dead .go-dead-mark {
+  position: absolute;
+  inset: 18%;
+  z-index: 5;
+  pointer-events: none;
+}
+.go-board .board-cell.go-dead .go-dead-mark::before,
+.go-board .board-cell.go-dead .go-dead-mark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ef4444;
+  border-radius: 1px;
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);
+}
+.go-board .board-cell.go-dead .go-dead-mark::before {
+  transform: rotate(45deg);
+}
+.go-board .board-cell.go-dead .go-dead-mark::after {
+  transform: rotate(-45deg);
+}
+
+/* In marking phase, give stones a clickable cursor */
+.go-board.marking .board-cell.black,
+.go-board.marking .board-cell.white {
+  cursor: pointer;
+}
+
+/* ── Lesson overlays ── */
+
+/* Liberty highlight: a glowing dot drawn on top of an empty cell */
+.go-board .board-cell .go-liberty-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, rgba(56, 189, 248, 0.85) 0%, rgba(14, 165, 233, 0.55) 60%, rgba(2, 132, 199, 0) 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  animation: goLibertyPulse 1.6s ease-in-out infinite;
+}
+
+.go-board .board-cell .go-liberty-dot.go-liberty-atari {
+  background: radial-gradient(circle at 38% 35%, rgba(248, 113, 113, 0.95) 0%, rgba(239, 68, 68, 0.7) 55%, rgba(127, 29, 29, 0) 100%);
+  animation: goLibertyAtariPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes goLibertyPulse {
+  0%, 100% { opacity: 0.65; transform: translate(-50%, -50%) scale(0.85); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes goLibertyAtariPulse {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.9); filter: brightness(1); }
+  50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.2); filter: brightness(1.3); }
+}
+
+/* Masked cells: cells outside a lesson's restricted region — dim, no hover */
+.go-board .board-cell.go-masked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.go-board .board-cell.go-masked .go-preview {
+  display: none;
+}
+
+/* Eye highlight: a hollow ring marking an enclosed empty point as an eye */
+.go-board .board-cell .go-eye-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  border: 2px solid rgba(167, 243, 208, 0.85);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 4;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+  animation: goEyePulse 2s ease-in-out infinite;
+}
+@keyframes goEyePulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.9); }
+  50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* Territory shading: tinted dot in the empty cell */
+.go-board .board-cell .go-terr-fill {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.go-board .board-cell .go-terr-fill.go-terr-black {
+  background: rgba(20, 20, 20, 0.55);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.45);
+}
+.go-board .board-cell .go-terr-fill.go-terr-white {
+  background: rgba(245, 245, 245, 0.55);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.35);
+}

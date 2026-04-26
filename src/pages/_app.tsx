@@ -1,5 +1,6 @@
 import '@/styles/globals.css'
 import '@/styles/GameBoard.css';
+import '@/styles/GoBoard.css';
 
 import { useState, useEffect } from 'react'
 import type { AppProps } from 'next/app'
