@@ -120,6 +120,30 @@ export default function Home() {
               </TiltCard>
             </Reveal>
 
+            {/* Go */}
+            <Reveal delay={300}>
+              <TiltCard>
+                <Link href="/posts/go" className={cardBase}>
+                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#dbb878]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
+                      <span className="w-5 h-5 rounded-full bg-[#f5f5f5] shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
+                  </div>
+                  <div className="relative px-5 pb-5 -mt-8">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      Go <ArrowIcon />
+                    </h3>
+                    <p className="text-sm text-sky-100/70 mt-1">
+                      Learn the ancient territory game. 9×9, 13×13, or 19×19. Chinese rules.
+                    </p>
+                  </div>
+                  <div className="tilt-highlight" />
+                </Link>
+              </TiltCard>
+            </Reveal>
+
             {/* B-Ball Tactics — hidden until game playability is ready */}
           </div>
         </section>
