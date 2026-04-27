@@ -17,6 +17,14 @@ import {
   getHandicapStones,
 } from 'src/lib/go/gameLogic'
 import { computeAreaScore, computeAreaScoreWithDead, computeTerritoryScore } from 'src/lib/go/scoring'
+import { GoBotWorkerManager } from 'src/lib/go/botWorker'
+import { STARTING_ELO, eloUpdateGame, rankLabel, eloDelta } from 'src/lib/go/elo'
+
+const BOT_LEVELS = [
+  { id: 1, label: 'Beginner', elo: 400 },
+  { id: 2, label: 'Casual',   elo: 750 },
+  { id: 3, label: 'Sharp',    elo: 1150 },
+]
 
 const KOMI_OPTIONS = [0, 6.5, 7.5]
 const SCORING_RULES = [
@@ -86,10 +94,26 @@ export default function GoPage() {
   const [rulesOpen, setRulesOpen] = useState(true)
   const [capturedCells, setCapturedCells] = useState(() => new Map())
 
+  // vs Bot mode
+  const [vsBot, setVsBot] = useState(false)
+  const [botLevel, setBotLevel] = useState(1)
+  const [playerColor, setPlayerColor] = useState(BLACK)
+  const [botThinking, setBotThinking] = useState(false)
+  const [playerElo, setPlayerElo] = useState(STARTING_ELO)
+  const [eloChange, setEloChange] = useState(null)
+
   const boardRef = useRef(null)
+  const botRef = useRef(null)
   const { playPlace, playCapture, playWin } = useGameSounds()
 
   const gameOver = phase === 'finished'
+  const botColor = vsBot ? (playerColor === BLACK ? WHITE : BLACK) : null
+
+  // Bot worker lifecycle
+  useEffect(() => {
+    botRef.current = new GoBotWorkerManager()
+    return () => botRef.current?.terminate()
+  }, [])
 
   const score = useMemo(() => {
     if (scoringRule === 'japanese') {
@@ -115,6 +139,8 @@ export default function GoPage() {
     setResignedBy(null)
     setErrorToast(null)
     setCapturedCells(new Map())
+    setEloChange(null)
+    setBotThinking(false)
   }, [])
 
   const handleSizeChange = useCallback((size) => {
@@ -203,9 +229,10 @@ export default function GoPage() {
   }, [board])
 
   const handleCellClick = useCallback((row, col) => {
+    if (vsBot && currentPlayer === botColor) return
     if (phase === 'playing') placeStone(row, col)
     else if (phase === 'marking') toggleDead(row, col)
-  }, [phase, placeStone, toggleDead])
+  }, [phase, placeStone, toggleDead, vsBot, currentPlayer, botColor])
 
   const handlePass = useCallback(() => {
     if (phase !== 'playing') return
@@ -216,15 +243,24 @@ export default function GoPage() {
     setMoveCount(prev => prev + 1)
 
     if (newPassCount >= 2) {
+      if (vsBot) {
+        // Skip marking ceremony vs bot — end immediately with area scoring
+        setPhase('finished')
+        setTimeout(() => {
+          const s = computeAreaScore(board, komi)
+          playWin()
+          if (s.winner) confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } })
+        }, 100)
+        return
+      }
       setPhase('marking')
       setDeadStones(new Set())
       setAcceptedBy(new Set())
-      // Marking starts with whoever's turn it would have been — they confirm first.
       setCurrentPlayer(currentPlayer === BLACK ? WHITE : BLACK)
       return
     }
     setCurrentPlayer(currentPlayer === BLACK ? WHITE : BLACK)
-  }, [currentPlayer, phase, passCount])
+  }, [currentPlayer, phase, passCount, vsBot, board, komi, playWin])
 
   const handleResign = useCallback(() => {
     if (phase !== 'playing') return
@@ -281,6 +317,41 @@ export default function GoPage() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [phase, handlePass])
+
+  // Bot move trigger: fires when it becomes the bot's turn
+  useEffect(() => {
+    if (!vsBot || phase !== 'playing') return
+    if (currentPlayer !== botColor) return
+    if (botThinking) return
+
+    setBotThinking(true)
+    const manager = botRef.current
+    if (!manager) { setBotThinking(false); return }
+
+    manager.findResponse(board, botColor, null, koPoint, 2500, botLevel).then(({ move }) => {
+      setBotThinking(false)
+      if (move) placeStone(move[0], move[1])
+      else handlePass()
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vsBot, phase, currentPlayer, botColor, board, koPoint, botThinking, botLevel])
+
+  // ELO update when a bot game ends
+  useEffect(() => {
+    if (!vsBot || phase !== 'finished' || eloChange !== null) return
+    const botEloValue = BOT_LEVELS.find(l => l.id === botLevel)?.elo ?? 750
+    let outcome = 0.0
+    if (resignedBy !== null) {
+      outcome = resignedBy === botColor ? 1.0 : 0.0
+    } else if (winner === playerColor) {
+      outcome = 1.0
+    } else if (winner === null) {
+      outcome = 0.5
+    }
+    const nextElo = eloUpdateGame(playerElo, botEloValue, outcome)
+    setEloChange({ before: playerElo, after: nextElo, delta: nextElo - playerElo })
+    setPlayerElo(nextElo)
+  }, [vsBot, phase, winner, botColor, playerColor, resignedBy, botLevel, playerElo, eloChange])
 
   const boardClass = [
     'game-board go-board rounded-xl',
@@ -345,10 +416,15 @@ export default function GoPage() {
                   ? (winner === BLACK ? 'Black wins' : winner === WHITE ? 'White wins' : 'Draw')
                   : phase === 'marking'
                     ? `Mark dead stones — ${currentPlayer === BLACK ? 'Black' : 'White'} to confirm`
-                    : `${currentPlayer === BLACK ? 'Black' : 'White'} to play`}
+                    : vsBot && currentPlayer === botColor
+                      ? `Bot thinking…`
+                      : `${currentPlayer === BLACK ? 'Black' : 'White'} to play`}
               </span>
+              {botThinking && (
+                <span className="inline-block w-3 h-3 rounded-full bg-candy-400 animate-pulse" />
+              )}
               {phase === 'playing' && passCount === 1 && (
-                <span className="text-xs text-amber-400 ml-1">(opponent passed — pass again to mark)</span>
+                <span className="text-xs text-amber-400 ml-1">(opponent passed — pass again to end)</span>
               )}
               {phase === 'playing' && handicap > 0 && moveCount === 0 && (
                 <span className="text-xs text-forest-500 ml-1">({handicap}-stone handicap)</span>
@@ -362,6 +438,9 @@ export default function GoPage() {
               )}
             </div>
             <div className="flex items-center gap-3 text-xs text-forest-300">
+              {vsBot && (
+                <span className="text-candy-400/80 font-mono">{rankLabel(playerElo)}</span>
+              )}
               <span>Move {moveCount}</span>
               <span className="text-forest-600">|</span>
               <span title="captures by Black">B caps {totalCaptures(BLACK)}</span>
@@ -376,14 +455,17 @@ export default function GoPage() {
           )}
 
           {/* The board */}
-          <div ref={boardRef} className={boardClass}>
+          <div
+            ref={boardRef}
+            className={boardClass}
+            style={vsBot && currentPlayer === botColor ? { opacity: 0.85, pointerEvents: 'none' } : {}}
+          >
             {board.map((row, rowIndex) => (
               <div key={rowIndex} className="flex go-row">
                 {row.map((cell, colIndex) => {
                   const cellKey = `${rowIndex}-${colIndex}`
                   const captureColor = capturedCells.get(cellKey)
                   const isLast = lastMove && lastMove[0] === rowIndex && lastMove[1] === colIndex
-                  const isLastCol = colIndex === boardSize - 1
                   const hoshi = isHoshi(boardSize, rowIndex, colIndex)
                   const isDead = deadStones.has(`${rowIndex},${colIndex}`)
                   return (
@@ -395,7 +477,6 @@ export default function GoPage() {
                         'board-cell',
                         cellClass(cell),
                         isLast && phase === 'playing' ? 'last-move' : '',
-                        isLastCol ? 'go-last-col' : '',
                         hoshi ? 'go-hoshi' : '',
                         isDead ? 'go-dead' : '',
                       ].filter(Boolean).join(' ')}
@@ -422,14 +503,16 @@ export default function GoPage() {
               <>
                 <button
                   onClick={handlePass}
-                  className="px-4 py-2 rounded-lg bg-forest-800/70 border border-forest-600/60 text-sm hover:bg-forest-700/70 transition"
+                  disabled={vsBot && currentPlayer === botColor}
+                  className="px-4 py-2 rounded-lg bg-forest-800/70 border border-forest-600/60 text-sm hover:bg-forest-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="P"
                 >
                   Pass
                 </button>
                 <button
                   onClick={handleResign}
-                  className="px-4 py-2 rounded-lg bg-red-900/40 border border-red-700/40 text-sm text-red-200 hover:bg-red-900/60 transition"
+                  disabled={vsBot && currentPlayer === botColor}
+                  className="px-4 py-2 rounded-lg bg-red-900/40 border border-red-700/40 text-sm text-red-200 hover:bg-red-900/60 disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
                   Resign
                 </button>
@@ -539,6 +622,68 @@ export default function GoPage() {
                 </button>
               ))}
             </div>
+
+            {/* vs Bot toggle */}
+            <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+              <span className="w-16 text-right">Mode:</span>
+              <button
+                onClick={() => { setVsBot(false); startNewGame(boardSize, handicap) }}
+                className={`px-2.5 py-1 rounded-md border transition ${
+                  !vsBot
+                    ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
+                    : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                }`}
+              >
+                2 Player
+              </button>
+              <button
+                onClick={() => { setVsBot(true); startNewGame(boardSize, handicap) }}
+                className={`px-2.5 py-1 rounded-md border transition ${
+                  vsBot
+                    ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
+                    : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                }`}
+              >
+                vs Bot
+              </button>
+            </div>
+
+            {vsBot && (
+              <>
+                <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+                  <span className="w-16 text-right">You play:</span>
+                  {[{ label: 'Black ●', color: BLACK }, { label: 'White ○', color: WHITE }].map(({ label, color }) => (
+                    <button
+                      key={color}
+                      onClick={() => { setPlayerColor(color); startNewGame(boardSize, handicap) }}
+                      className={`px-2.5 py-1 rounded-md border transition ${
+                        playerColor === color
+                          ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
+                          : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+                  <span className="w-16 text-right">Bot:</span>
+                  {BOT_LEVELS.map(l => (
+                    <button
+                      key={l.id}
+                      onClick={() => { setBotLevel(l.id); startNewGame(boardSize, handicap) }}
+                      className={`px-2.5 py-1 rounded-md border transition ${
+                        botLevel === l.id
+                          ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
+                          : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -558,6 +703,12 @@ export default function GoPage() {
                 {scoringRule === 'japanese' ? 'Territory' : 'Area'}
               </span>
             </div>
+            {vsBot && (
+              <div className="flex items-center justify-between text-xs mb-3 pb-2 border-b border-forest-800/60">
+                <span className="text-forest-400">Your ELO</span>
+                <span className="font-mono text-candy-300">{playerElo} · {rankLabel(playerElo)}</span>
+              </div>
+            )}
             {gameOver && winner && (
               <div className="text-xs text-candy-300 font-mono mb-2">
                 margin +{score.margin}
@@ -618,6 +769,18 @@ export default function GoPage() {
                 </p>
               ) : (
                 <p>Draw — both players scored {score.black}.</p>
+              )}
+              {vsBot && eloChange && (
+                <div className="mt-2 flex items-center gap-2 text-xs">
+                  <span className="text-forest-400">Your ELO:</span>
+                  <span className="font-mono text-white">{eloChange.before}</span>
+                  <span className="text-forest-500">→</span>
+                  <span className="font-mono text-white">{eloChange.after}</span>
+                  <span className={`font-mono font-semibold ${eloChange.delta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {eloDelta(eloChange.before, eloChange.after)}
+                  </span>
+                  <span className="text-forest-500">({rankLabel(eloChange.after)})</span>
+                </div>
               )}
               <button
                 onClick={() => startNewGame(boardSize, handicap)}

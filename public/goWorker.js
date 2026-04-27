@@ -165,12 +165,103 @@ function findEngineResponse(board, color, goal, koPoint) {
   return { move: null, reason: 'pass' };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// BOT GAMEPLAY ENGINE (vs-bot mode)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Score a candidate move for the greedy bot. Returns -Infinity for illegal
+ * moves (null result from applyMove). Higher = better for `color`.
+ */
+function scoreBotMove(board, row, col, color, koPoint) {
+  const result = applyMove(board, row, col, color, koPoint);
+  if (result.error) return -Infinity;
+
+  const size = board.length;
+  const opp = color === BLACK ? WHITE : BLACK;
+  let score = 0;
+
+  // Captures: most important tactical signal
+  score += result.captured.length * 6;
+
+  // Atari: threaten opponent groups with 1 liberty after our move
+  for (const [nr, nc] of getNeighbors(row, col, size)) {
+    if (result.newBoard[nr][nc] === opp) {
+      const g = findGroup(result.newBoard, nr, nc);
+      if (g.liberties.size === 1) score += 3;
+    }
+  }
+
+  // Rescue own groups that were in atari before this move
+  for (const [nr, nc] of getNeighbors(row, col, size)) {
+    if (board[nr][nc] === color) {
+      const before = findGroup(board, nr, nc);
+      if (before.liberties.size <= 1) {
+        const after = findGroup(result.newBoard, nr, nc);
+        if (after.liberties.size >= 3) score += 9;
+        else if (after.liberties.size >= 2) score += 5;
+      }
+    }
+  }
+
+  // Liberty health of our placed stone's group
+  const own = findGroup(result.newBoard, row, col);
+  score += Math.min(own.liberties.size, 6) * 0.3;
+
+  // Center preference (stronger on 9×9/13×13 where territory matters more)
+  const center = (size - 1) / 2;
+  const manhattan = Math.abs(row - center) + Math.abs(col - center);
+  if (size <= 13) score += Math.max(0, size * 0.4 - manhattan) * 0.15;
+
+  // Small random tiebreaker for variety
+  score += (Math.random() - 0.5) * 0.4;
+  return score;
+}
+
+/**
+ * Find the best move for `color` at the given difficulty level.
+ * level 1 → 75% random; level 2 → 30% random; level 3 → 5% random (fully greedy).
+ */
+function findBotMove(board, color, level, koPoint) {
+  const size = board.length;
+  const legal = [];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (board[r][c] === EMPTY) {
+        const res = applyMove(board, r, c, color, koPoint);
+        if (!res.error) legal.push([r, c]);
+      }
+    }
+  }
+  if (legal.length === 0) return null;
+
+  const randomRates = { 1: 0.75, 2: 0.30, 3: 0.05 };
+  const randomRate = randomRates[level] !== undefined ? randomRates[level] : 0.30;
+
+  if (Math.random() < randomRate) {
+    return legal[Math.floor(Math.random() * legal.length)];
+  }
+
+  let best = null;
+  let bestScore = -Infinity;
+  for (const [r, c] of legal) {
+    const s = scoreBotMove(board, r, c, color, koPoint);
+    if (s > bestScore) { bestScore = s; best = [r, c]; }
+  }
+  return best || legal[Math.floor(Math.random() * legal.length)];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 self.onmessage = function(e) {
   const data = e.data || {};
   const { id, type, payload } = data;
   if (type === 'find_response') {
     try {
-      const result = findEngineResponse(payload.board, payload.color, payload.goal, payload.koPoint);
+      // goal === null signals bot gameplay; otherwise use puzzle engine
+      const result = (payload.goal == null)
+        ? { move: findBotMove(payload.board, payload.color, payload.level || 2, payload.koPoint) }
+        : findEngineResponse(payload.board, payload.color, payload.goal, payload.koPoint);
       self.postMessage({ id, result });
     } catch (err) {
       self.postMessage({ id, result: { move: null, reason: 'error', error: String(err) } });

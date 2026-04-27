@@ -26,18 +26,18 @@
 }
 
 /*
- * Crosshatch grid. Each cell paints its right (::before) and bottom (::after)
- * line. Selectors mirror Pente's :not() chain so my rules win the specificity
- * battle against GameBoard.css's hover-preview ::after.
+ * Crosshatch grid. Each cell paints a full-width horizontal line (::before)
+ * and a full-height vertical line (::after) through its center. With flex rows
+ * and no gap, adjacent cell lines connect seamlessly forming a complete lattice
+ * including the outer board edges — no edge-hiding rules needed.
  */
 .go-board .board-cell:not(.black):not(.white):not(.red):not(.blue)::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 0;
   right: 0;
   height: 1px;
-  width: auto;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 0;
   z-index: 0;
@@ -46,24 +46,18 @@
 .go-board .board-cell:not(.black):not(.white):not(.red):not(.blue)::after {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
   bottom: 0;
+  left: 50%;
   width: 1px;
-  height: auto;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 0;
-  inset: auto;
   opacity: 1;
   transform: none;
   transition: none;
   pointer-events: none;
   z-index: 0;
 }
-
-/* Close the lattice at the far edges */
-.go-board .go-row:last-child .board-cell::after { display: none; }
-.go-board .board-cell.go-last-col::before { display: none; }
 
 /* Star points (hoshi) — small dots at canonical positions */
 .go-board .board-cell.go-hoshi > .go-hoshi-dot {
