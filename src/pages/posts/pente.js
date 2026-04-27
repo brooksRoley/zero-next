@@ -10,8 +10,9 @@ import usePlayerProfile from 'src/hooks/usePlayerProfile';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
 import { createEmptyBoard, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
-import { PenteBot, BOT_LEVELS } from 'src/components/PentePlayerbot';
+import { PenteBot } from 'src/components/PentePlayerbot';
 import { BotWorkerManager } from 'src/lib/pente/botWorker';
+import { getAdaptiveBotConfig } from 'src/lib/pente/adaptiveBot';
 import { PenteTutor } from 'src/components/PenteTutor';
 import PreText from 'src/components/PreText';
 import PenteTopNav from 'src/components/pente/PenteTopNav';
@@ -78,7 +79,7 @@ const GameBoard = () => {
   const gameId = router.query.game;
 
   // Player identity + shared ELO
-  const { playerId, playerName, setPlayerName, elo: playerElo, peakElo, eloHistory, markSolved, recordAttempt, recordGameResult } = usePlayerProfile();
+  const { playerId, playerName, setPlayerName, elo: playerElo, peakElo, eloHistory, gamesPlayed, markSolved, recordAttempt, recordGameResult } = usePlayerProfile();
 
   // ── Core mode state ──
   const [modePreset, setModePreset] = useState(gameId ? 'online' : 'local');
@@ -103,10 +104,10 @@ const GameBoard = () => {
   // ── Game mode + Bot state ──
   const [gameMode, setGameMode] = useState(null); // null = classic pass-and-play
   const [botInstances, setBotInstances] = useState([]); // array of PenteBot (fallback only)
-  const [botDifficulty, setBotDifficulty] = useState('intermediate');
   const [botThinking, setBotThinking] = useState(false);
   const [humanColor] = useState(BLACK); // human is always Black
   const [lastBotStats, setLastBotStats] = useState(null); // { depth, nodes } from last engine move
+  const [botEffectiveElo, setBotEffectiveElo] = useState(null);
 
   const botEnabled = botInstances.length > 0;
 
@@ -265,11 +266,12 @@ const GameBoard = () => {
     // Small delay before thinking starts so the UI feels natural
     const delay = 200 + Math.random() * 150;
     const timer = setTimeout(async () => {
-      const levelConfig = BOT_LEVELS[botDifficulty] || BOT_LEVELS.intermediate;
+      const adaptiveConfig = getAdaptiveBotConfig(playerElo, gamesPlayed);
+      setBotEffectiveElo(adaptiveConfig.effectiveElo);
       const engineConfig = {
-        searchDepth: levelConfig.searchDepth,
-        timeBudgetMs: levelConfig.timeBudgetMs,
-        blunderRate: levelConfig.blunderRate,
+        searchDepth: adaptiveConfig.searchDepth,
+        timeBudgetMs: adaptiveConfig.timeBudgetMs,
+        blunderRate: adaptiveConfig.blunderRate,
       };
 
       const move = await workerRef.current.findMove(
@@ -278,7 +280,7 @@ const GameBoard = () => {
         { ...captures },
         engineConfig,
         gameMode,
-        levelConfig.timeBudgetMs + 2000, // hard timeout = budget + 2s grace
+        adaptiveConfig.timeBudgetMs + 2000, // hard timeout = budget + 2s grace
       );
 
       if (cancelled) return;
@@ -292,7 +294,7 @@ const GameBoard = () => {
 
     return () => { cancelled = true; clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures, botDifficulty, gameMode]);
+  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures, playerElo, gamesPlayed, gameMode]);
 
   // ── Record move history ──
   const recordMove = useCallback((boardState, capturesState, mover, row, col) => {
@@ -425,7 +427,7 @@ const GameBoard = () => {
     let humanWon = true;
     if (botEnabled && recordGameResult) {
       humanWon = winningPlayer === humanColor;
-      const botElo = BOT_LEVELS[botDifficulty]?.elo || 1000;
+      const botElo = botEffectiveElo || playerElo;
       recordGameResult(botElo, humanWon);
     }
 
@@ -498,25 +500,12 @@ const GameBoard = () => {
     setGameMode(newMode);
 
     // Create bot instances for non-human players
-    const diff = botDifficulty;
     const turnOrder = newMode ? newMode.turnOrder : [BLACK, WHITE];
     const bots = turnOrder
       .filter(c => c !== humanColor)
-      .map(c => new PenteBot(c, diff, newMode));
+      .map(c => new PenteBot(c, 'expert', newMode));
     setBotInstances(bots);
 
-    resetLocalBoard();
-  };
-
-  // Update bot difficulty
-  const changeDifficulty = (diff) => {
-    setBotDifficulty(diff);
-    // Recreate bots with new difficulty
-    const turnOrder = gameMode ? gameMode.turnOrder : [BLACK, WHITE];
-    const bots = turnOrder
-      .filter(c => c !== humanColor)
-      .map(c => new PenteBot(c, diff, gameMode));
-    setBotInstances(bots);
     resetLocalBoard();
   };
 
@@ -561,13 +550,6 @@ const GameBoard = () => {
       active
         ? 'bg-cyan-900/50 text-cyan-300 border-cyan-600/50'
         : 'bg-forest-900/60 text-forest-400 hover:text-forest-200 border-forest-700/40 hover:border-forest-500'
-    }`;
-
-  const diffBtn = (active) =>
-    `text-[10px] px-2 py-1 rounded border transition-colors ${
-      active
-        ? 'bg-forest-700/60 text-white border-forest-600'
-        : 'text-forest-500 border-forest-700/30 hover:text-forest-300'
     }`;
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -641,25 +623,18 @@ const GameBoard = () => {
           </div>
         </div>
 
-        {/* Difficulty picker (bot modes only) */}
+        {/* Adaptive bot ELO display (bot modes only) */}
         {botEnabled && !gameOver && (
           <div className="flex items-center gap-2 px-3 pb-1.5">
-            <span className="text-[10px] text-forest-500 uppercase tracking-wider">Difficulty</span>
-            <div className="flex gap-1">
-              {Object.entries(BOT_LEVELS).map(([key, config]) => (
-                <button
-                  key={key}
-                  className={diffBtn(botDifficulty === key)}
-                  onClick={() => changeDifficulty(key)}
-                  title={`Bot ELO ~${config.elo}`}
-                >
-                  {config.label}
-                </button>
-              ))}
-            </div>
-            <span className="text-[10px] text-forest-600 ml-1">
-              (~{BOT_LEVELS[botDifficulty]?.elo} ELO)
+            <span className="text-[10px] text-forest-500 uppercase tracking-wider">Adaptive Bot</span>
+            <span className="text-[10px] text-forest-400 font-mono">
+              ~{botEffectiveElo ?? getAdaptiveBotConfig(playerElo, gamesPlayed).effectiveElo} ELO
             </span>
+            {gamesPlayed < 5 && (
+              <span className="text-[10px] text-candy-pink/60 italic">
+                calibrating ({5 - gamesPlayed} games left)
+              </span>
+            )}
           </div>
         )}
 
