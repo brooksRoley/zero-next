@@ -120,6 +120,7 @@ export default function useMatchmaking(playerId, playerName, playerElo) {
     // First poll immediately, then on interval
     poll()
     pollRef.current = setInterval(poll, POLL_INTERVAL_MS)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerId, playerName, playerElo, queueStatus, cleanupPoll])
 
   // Fetch opponent info from the game row (when matched by the other player)
