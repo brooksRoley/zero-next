@@ -85,7 +85,7 @@ const GameBoard = () => {
   const { playerId, playerName, setPlayerName, elo: playerElo, peakElo, eloHistory, gamesPlayed, markSolved, recordAttempt, recordGameResult } = usePlayerProfile();
 
   // ── Core mode state ──
-  const [modePreset, setModePreset] = useState(gameId ? 'online' : 'local');
+  const [modePreset, setModePreset] = useState(gameId ? 'online' : 'bot1v1');
   const isOnlinePreset = modePreset === 'online';
   const mode = isOnlinePreset ? 'online' : 'local';
 
@@ -105,8 +105,11 @@ const GameBoard = () => {
   const [touchPreviewCell, setTouchPreviewCell] = useState(null);
 
   // ── Game mode + Bot state ──
-  const [gameMode, setGameMode] = useState(null); // null = classic pass-and-play
-  const [botInstances, setBotInstances] = useState([]); // array of PenteBot (fallback only)
+  const defaultBotMode = !gameId;
+  const [gameMode, setGameMode] = useState(() => defaultBotMode ? GAME_MODES.classic : null);
+  const [botInstances, setBotInstances] = useState(() =>
+    defaultBotMode ? [new PenteBot(WHITE, 'expert', GAME_MODES.classic)] : []
+  );
   const [botThinking, setBotThinking] = useState(false);
   const [humanColor] = useState(BLACK); // human is always Black
   const [lastBotStats, setLastBotStats] = useState(null); // { depth, nodes } from last engine move
