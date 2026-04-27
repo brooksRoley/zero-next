@@ -1,10 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { Inter } from 'next/font/google'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Reveal from 'src/components/Reveal'
-
-const inter = Inter({ subsets: ['latin'] })
 
 // ── Court geometry ────────────────────────────────────────────────────────────
 const CX = 230
@@ -989,7 +986,7 @@ function LayerCard({ layer, index }) {
 
 export default function BasketballPlatformPage() {
   return (
-    <main className={`min-h-screen bg-forest-950 text-white ${inter.className}`}>
+    <main className="min-h-screen bg-forest-950 text-white font-sans">
       <Head>
         <title>Basketball Data Platform | Brooks Roley</title>
         <meta name="description" content="A unified basketball analytics system: Python data pipeline, C++ WASM simulation engine, Vue 3 auto-battler game, and native SwiftUI iOS app." />

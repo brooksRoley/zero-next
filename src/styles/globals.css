@@ -53,7 +53,7 @@ img {
   opacity: var(--hl-opacity, 0);
   background: radial-gradient(
     260px circle at var(--hl-x, 50%) var(--hl-y, 50%),
-    rgba(255, 255, 255, 0.14),
+    rgba(218, 219, 217, 0.16),
     rgba(255, 255, 255, 0) 65%
   );
   transition: opacity 0.35s ease;
@@ -81,8 +81,8 @@ img {
   opacity: 0;
   background: radial-gradient(
     280px circle at var(--hl-x, 50%) var(--hl-y, 50%),
-    rgba(255, 140, 194, 0.18),
-    rgba(255, 140, 194, 0.06) 45%,
+    rgba(197, 231, 234, 0.16),
+    rgba(178, 114, 54, 0.12) 45%,
     transparent 72%
   );
   transition: opacity 0.35s ease;
@@ -93,11 +93,11 @@ img {
 }
 
 .tilt-card:hover .card-hover-border {
-  border-color: rgba(255, 140, 194, 0.55);
+  border-color: rgba(197, 231, 234, 0.42);
   box-shadow:
     0 14px 36px -8px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 140, 194, 0.22),
-    0 10px 28px -10px rgba(255, 140, 194, 0.35);
+    0 0 0 1px rgba(197, 231, 234, 0.18),
+    0 10px 28px -10px rgba(178, 114, 54, 0.24);
 }
 
 /* Image — subtle brighten on hover */
@@ -107,6 +107,93 @@ img {
 
 .group:hover .card-img-hover {
   filter: brightness(1.12) saturate(1.1);
+}
+
+.terrain-page-bg {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(197, 231, 234, 0.08) 0%, transparent 30%),
+    radial-gradient(circle at 84% 18%, rgba(178, 114, 54, 0.12) 0%, transparent 28%),
+    radial-gradient(circle at 50% 32%, rgba(185, 150, 141, 0.06) 0%, transparent 40%),
+    linear-gradient(180deg, #324244 0%, #212c2e 42%, #13191b 100%);
+}
+
+.terrain-hero {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(197, 231, 234, 0.1) 0%, transparent 32%),
+    radial-gradient(circle at 78% 20%, rgba(178, 114, 54, 0.16) 0%, transparent 26%),
+    radial-gradient(circle at 52% 74%, rgba(185, 150, 141, 0.12) 0%, transparent 34%),
+    linear-gradient(180deg, #415557 0%, #2b383a 48%, #171d1f 100%);
+}
+
+.terrain-stage {
+  will-change: transform;
+}
+
+.terrain-token {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(218, 219, 217, 0.12);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #dadbd9;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  will-change: transform, opacity;
+  user-select: none;
+  text-decoration: none;
+  transition:
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+  cursor: pointer;
+}
+
+.terrain-token:hover,
+.terrain-token:focus-visible {
+  border-color: rgba(197, 231, 234, 0.32);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+
+.terrain-token--aqua {
+  background: linear-gradient(180deg, rgba(197, 231, 234, 0.24), rgba(65, 85, 87, 0.22));
+  border-color: rgba(197, 231, 234, 0.22);
+}
+
+.terrain-token--stone {
+  background: linear-gradient(180deg, rgba(185, 150, 141, 0.22), rgba(65, 85, 87, 0.22));
+  border-color: rgba(185, 150, 141, 0.22);
+}
+
+.terrain-token--copper {
+  background: linear-gradient(180deg, rgba(178, 114, 54, 0.26), rgba(65, 85, 87, 0.24));
+  border-color: rgba(178, 114, 54, 0.24);
+}
+
+.terrain-token--slate {
+  background: linear-gradient(180deg, rgba(65, 85, 87, 0.4), rgba(24, 31, 32, 0.3));
+  border-color: rgba(197, 231, 234, 0.14);
+}
+
+.physics-field-grid {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.physics-field-item {
+  will-change: transform;
+  transform-style: preserve-3d;
 }
 
 /* ── Water Palette ──

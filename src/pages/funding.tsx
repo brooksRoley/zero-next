@@ -1,11 +1,8 @@
 import Head from 'next/head'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Funding() {
   return (
-    <main className={`min-h-screen bg-forest-950 flex items-center justify-center px-4 ${inter.className}`}>
+    <main className="min-h-screen bg-forest-950 flex items-center justify-center px-4 font-sans">
       <Head>
         <title>Support Brooks Roley</title>
         <meta name="robots" content="noindex" />
