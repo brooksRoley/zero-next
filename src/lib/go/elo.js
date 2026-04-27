@@ -39,6 +39,16 @@ export function rankLabel(elo) {
 }
 
 /**
+ * ELO update for a completed bot game.
+ * outcome: 1.0 = win, 0.5 = draw, 0.0 = loss
+ */
+export function eloUpdateGame(playerElo, botElo, outcome) {
+  const expected = 1 / (1 + Math.pow(10, (botElo - playerElo) / 400))
+  const next = Math.round(playerElo + K * (outcome - expected))
+  return Math.max(MIN_ELO, next)
+}
+
+/**
  * Tiny helper for showing "+24" or "−16" deltas after a puzzle attempt.
  */
 export function eloDelta(before, after) {

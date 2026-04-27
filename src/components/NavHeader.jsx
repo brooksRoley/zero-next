@@ -11,6 +11,7 @@ const NAV_LINKS = [
       { href: '/basketball-platform', label: 'Basketball Data Platform' },
       { href: '/posts/pente', label: 'Pente' },
       { href: '/posts/pente-puzzles', label: 'Pente Puzzles' },
+      { href: '/posts/go', label: 'Go' },
       { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
     ],
   },
