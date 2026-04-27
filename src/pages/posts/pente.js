@@ -21,6 +21,9 @@ import InterventionCard from 'src/components/pente/InterventionCard';
 import EndlessPuzzle from 'src/components/EndlessPuzzle';
 import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
 import { getZone } from 'src/lib/pente/elo';
+import useMatchmaking from 'src/hooks/useMatchmaking';
+import QueueBanner from 'src/components/pente/QueueBanner';
+import MatchConfirmModal from 'src/components/pente/MatchConfirmModal';
 
 // Map cell value to CSS class
 function cellClass(cell) {
@@ -143,6 +146,10 @@ const GameBoard = () => {
     playerId,
     playerName
   );
+
+  // ── Matchmaking state ──
+  const mm = useMatchmaking(playerId, playerName, playerElo);
+  const isQueuing = mm.queueStatus === 'queuing' || mm.queueStatus === 'confirming';
 
   // ── Derived state ──
   const isOnline = mode === 'online' && gameId;
@@ -482,8 +489,14 @@ const GameBoard = () => {
     setModePreset(presetKey);
 
     if (presetKey === 'online') {
+      // Start adaptive bot game while queuing
       setGameMode(null);
-      setBotInstances([]);
+      const bots = [new PenteBot(WHITE, 'expert', null)];
+      setBotInstances(bots);
+      resetLocalBoard();
+      // Enter matchmaking queue
+      mm.enterQueue();
+      if (gameId) router.push('/posts/pente', undefined, { shallow: true });
       return;
     }
 
@@ -509,6 +522,27 @@ const GameBoard = () => {
     resetLocalBoard();
   };
 
+  // When a match is accepted and we have a game ID, navigate to it
+  useEffect(() => {
+    if (mm.queueStatus === 'idle' && mm.matchedGameId) {
+      // Match was accepted — switch to online game
+      setBotInstances([]);
+      setBotThinking(false);
+      setModePreset('online');
+      router.push(`/posts/pente?game=${mm.matchedGameId}`, undefined, { shallow: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mm.queueStatus, mm.matchedGameId]);
+
+  const handleLeaveQueue = useCallback(() => {
+    mm.leaveQueue();
+    setBotInstances([]);
+    setBotThinking(false);
+    resetLocalBoard();
+    setModePreset('local');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mm.leaveQueue]);
+
   const handleAnalyze = () => {
     const hColor = botEnabled ? humanColor : BLACK;
     setGameAnalysis(tutor.analyzeGameHistory(moveHistory, hColor));
@@ -523,7 +557,7 @@ const GameBoard = () => {
   const isLastMove = (r, c) => lastMove && lastMove[0] === r && lastMove[1] === c;
   const isHintCell = (r, c) => hintCell && hintCell.row === r && hintCell.col === c;
 
-  const showLobby   = mode === 'online' && !gameId;
+  const showLobby = mode === 'online' && !gameId && !isQueuing;
   const boardDisabled = isOnline && !mp.isMyTurn;
 
   const evalClamped = Math.max(-20000, Math.min(20000, evalScore));
@@ -636,6 +670,11 @@ const GameBoard = () => {
               </span>
             )}
           </div>
+        )}
+
+        {/* Queue banner — shown while matchmaking */}
+        {isQueuing && (
+          <QueueBanner onLeave={handleLeaveQueue} />
         )}
 
         {/* Row 2 — Turn indicator + score + captures */}
@@ -906,6 +945,15 @@ const GameBoard = () => {
                 />
               </div>
             )}
+            {/* Match confirm overlay */}
+            {mm.queueStatus === 'confirming' && (
+              <MatchConfirmModal
+                opponent={mm.opponent}
+                confirmTimer={mm.confirmTimer}
+                onAccept={mm.acceptMatch}
+                onDecline={mm.declineMatch}
+              />
+            )}
             </div>
           </div>
         )}
@@ -998,6 +1046,48 @@ const GameBoard = () => {
               )}
             </div>
           )}
+        </div>
+      )}
+      {/* Post-multiplayer game result */}
+      {isOnline && mp.gameStatus === 'finished' && (
+        <div className="flex-shrink-0 border-t border-forest-700/40 bg-forest-900/90 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <span
+                className="inline-block w-3 h-3 rounded-full"
+                style={{ backgroundColor: mp.winner === 1 ? '#1a1a1a' : '#fff' }}
+              />
+              {mp.winner === mp.myColor ? 'You Win!' : 'You Lost'}
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  // Re-queue: go back to bot-while-waiting
+                  router.push('/posts/pente', undefined, { shallow: true });
+                  setModePreset('online');
+                  const bots = [new PenteBot(WHITE, 'expert', null)];
+                  setBotInstances(bots);
+                  resetLocalBoard();
+                  mm.enterQueue();
+                }}
+                className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-candy-500 to-candy-600 text-white font-semibold hover:from-candy-400 hover:to-candy-500 transition-all"
+              >
+                Play Again
+              </button>
+              <button
+                onClick={() => {
+                  router.push('/posts/pente', undefined, { shallow: true });
+                  setModePreset('local');
+                  setGameMode(null);
+                  setBotInstances([]);
+                  resetLocalBoard();
+                }}
+                className="text-xs px-3 py-1.5 rounded-lg bg-forest-700/60 text-white border border-forest-600 hover:bg-forest-600/60 transition-colors"
+              >
+                Back to Menu
+              </button>
+            </div>
+          </div>
         </div>
       )}
       </div>
