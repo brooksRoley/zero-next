@@ -95,7 +95,7 @@ export default function GoPage() {
   const [capturedCells, setCapturedCells] = useState(() => new Map())
 
   // vs Bot mode
-  const [vsBot, setVsBot] = useState(false)
+  const [vsBot, setVsBot] = useState(true)
   const [botLevel, setBotLevel] = useState(1)
   const [playerColor, setPlayerColor] = useState(BLACK)
   const [botThinking, setBotThinking] = useState(false)
@@ -366,41 +366,45 @@ export default function GoPage() {
 
   return (
     <div
-      className="min-h-screen bg-forest-950 text-white"
-      style={{ ['--go-size']: boardSize }}
+      className="flex flex-col bg-forest-950 text-white overflow-hidden"
+      style={{ ['--go-size']: boardSize, height: '100dvh' }}
     >
       <Head>
         <title>Go | Brooks Roley</title>
         <meta name="description" content="Learn and play the ancient game of Go. 9×9, 13×13, or 19×19 boards. Chinese rules with komi, handicap, and dead-stone marking." />
       </Head>
 
-      <nav className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-3">
+      <nav className="flex-shrink-0 sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
           <Link
             href="/"
-            className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 border-r border-forest-800/60"
+            className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 mr-1 border-r border-forest-800/60"
             aria-label="Back to home"
           >
-            &larr; Home
+            &larr;
           </Link>
-          <span className="text-xs font-semibold text-white tracking-wide">Go</span>
-          <Link
-            href="/posts/go/learn"
-            className="text-[11px] text-candy-400 hover:text-candy-300 transition-colors px-2 py-0.5 rounded border border-candy-400/30 hover:border-candy-400/60"
-          >
-            Learn
-          </Link>
-          <Link
-            href="/posts/go/puzzles"
-            className="text-[11px] text-candy-400 hover:text-candy-300 transition-colors px-2 py-0.5 rounded border border-candy-400/30 hover:border-candy-400/60"
-          >
-            Puzzles
-          </Link>
-          <span className="text-[10px] text-forest-500 ml-auto font-mono">Chinese rules</span>
+          <span className="text-xs font-semibold text-white tracking-wide mr-3">Go</span>
+          <div className="flex gap-0.5">
+            <span className="text-xs px-3 py-1.5 rounded-md bg-candy-500/15 text-candy-300 ring-1 ring-candy-400/30">
+              Play
+            </span>
+            <Link
+              href="/posts/go/learn"
+              className="text-xs px-3 py-1.5 rounded-md text-forest-400 hover:text-candy-300 hover:bg-forest-800/40 transition-colors"
+            >
+              Learn
+            </Link>
+            <Link
+              href="/posts/go/puzzles"
+              className="text-xs px-3 py-1.5 rounded-md text-forest-400 hover:text-candy-300 hover:bg-forest-800/40 transition-colors"
+            >
+              Puzzles
+            </Link>
+          </div>
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6 grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="flex-1 min-h-0 overflow-y-auto max-w-5xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-6 grid gap-4 lg:grid-cols-[1fr_320px] content-start">
 
         <div className="flex flex-col items-center">
 

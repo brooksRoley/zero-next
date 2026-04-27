@@ -13,7 +13,7 @@
 .go-board {
   --go-cell: min(
     calc((100vw  - 28px) / var(--go-size, 9)),
-    calc((100svh - 240px) / var(--go-size, 9)),
+    calc((100svh - 140px) / var(--go-size, 9)),
     44px
   );
 }

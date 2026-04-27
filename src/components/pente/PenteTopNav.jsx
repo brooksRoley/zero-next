@@ -9,9 +9,8 @@ import { useRouter } from 'next/router'
  */
 const TABS = [
   { key: 'hub', label: 'Hub', href: '/pente' },
-  { key: 'game', label: 'Game', href: '/posts/pente' },
+  { key: 'game', label: 'Play', href: '/posts/pente' },
   { key: 'catalog', label: 'Puzzles', href: '/posts/pente-puzzles' },
-  { key: 'endless', label: 'Endless', href: '/posts/pente-puzzles?mode=endless' },
 ]
 
 export default function PenteTopNav({ active }) {
@@ -22,7 +21,7 @@ export default function PenteTopNav({ active }) {
   const resolved = active || (
     path === '/pente' ? 'hub' :
     path === '/posts/pente' ? 'game' :
-    path === '/posts/pente-puzzles' ? (queryMode === 'endless' ? 'endless' : 'catalog') :
+    path === '/posts/pente-puzzles' ? 'catalog' :
     null
   )
 
