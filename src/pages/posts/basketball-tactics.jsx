@@ -1,8 +1,5 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
 
 const statPlayers = [
   { name: 'LeBron James',      pos: 'F',  pts: 25.7, reb: 7.3,  ast: 8.3,  gp: 71 },
@@ -108,7 +105,7 @@ function CourtSVG() {
 
 export default function BasketballTacticsPage() {
   return (
-    <main className={`min-h-screen bg-forest-950 text-white ${inter.className}`}>
+    <main className="min-h-screen bg-forest-950 text-white font-sans">
       <Head>
         <title>Lakers Tactics iOS | Brooks Roley</title>
         <meta name="description" content="SwiftUI iOS app for Lakers basketball data — live game scores, roster season averages, and an interactive tactics board." />

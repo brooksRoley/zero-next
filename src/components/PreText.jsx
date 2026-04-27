@@ -28,6 +28,10 @@ export default function PreText({
   float = false,
   fontSize = null,
   fontWeight = '700',
+  interactive = false,
+  fieldRadius = 90,
+  fieldStrength = 0.28,
+  settle = 0.08,
   className = '',
   style = {},
   tag: Tag = 'span',
@@ -35,6 +39,14 @@ export default function PreText({
   const containerRef = useRef(null)
   const canvasRef = useRef(null)
   const stateRef = useRef(null)
+  const pointerRef = useRef({
+    active: false,
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    burst: 0,
+  })
 
   // ─── Build particle mask from glyph pixel data ───────────────────────────
   const buildMask = useCallback((text, font, width, height) => {
@@ -115,7 +127,72 @@ export default function PreText({
   }, [init])
 
   useEffect(() => {
+    if (!interactive) return
+    const el = containerRef.current
+    if (!el) return
+
+    const pointer = pointerRef.current
+
+    const updatePointer = (clientX, clientY) => {
+      const rect = el.getBoundingClientRect()
+      const nextX = clientX - rect.left
+      const nextY = clientY - rect.top
+      pointer.vx = nextX - pointer.x
+      pointer.vy = nextY - pointer.y
+      pointer.x = nextX
+      pointer.y = nextY
+      pointer.active = true
+    }
+
+    const onPointerMove = (event) => {
+      updatePointer(event.clientX, event.clientY)
+    }
+
+    const onPointerLeave = () => {
+      pointer.active = false
+    }
+
+    const onPointerDown = (event) => {
+      updatePointer(event.clientX, event.clientY)
+      pointer.burst = Math.min(1.5, pointer.burst + 1.1)
+    }
+
+    el.addEventListener('pointermove', onPointerMove)
+    el.addEventListener('pointerleave', onPointerLeave)
+    el.addEventListener('pointerdown', onPointerDown)
+
+    return () => {
+      el.removeEventListener('pointermove', onPointerMove)
+      el.removeEventListener('pointerleave', onPointerLeave)
+      el.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [interactive])
+
+  useEffect(() => {
     let raf
+
+    const moveParticle = (p, targetX, targetY, drift = 0) => {
+      const pointer = pointerRef.current
+      let fx = (targetX - p.x) * settle
+      let fy = (targetY - p.y) * settle
+
+      if (interactive && pointer.active) {
+        const dx = p.x - pointer.x
+        const dy = p.y - pointer.y
+        const dist = Math.hypot(dx, dy)
+        if (dist < fieldRadius) {
+          const influence = 1 - dist / fieldRadius
+          const push = fieldStrength * influence * influence * (1 + pointer.burst * 0.8)
+          fx += (dx / Math.max(dist, 1)) * push + pointer.vx * 0.015 * influence
+          fy += (dy / Math.max(dist, 1)) * push + pointer.vy * 0.015 * influence
+        }
+      }
+
+      p.vx = (p.vx + fx) * (0.84 + drift * 0.04)
+      p.vy = (p.vy + fy) * (0.84 + drift * 0.04)
+      p.x += p.vx
+      p.y += p.vy
+    }
 
     function animate() {
       const S = stateRef.current
@@ -123,6 +200,9 @@ export default function PreText({
       const { ctx, w, h, particles } = S
       S.time++
       const t = S.time * 0.016
+      pointerRef.current.vx *= 0.82
+      pointerRef.current.vy *= 0.82
+      pointerRef.current.burst *= 0.9
 
       ctx.clearRect(0, 0, w, h)
 
@@ -131,8 +211,13 @@ export default function PreText({
         for (const p of particles) {
           const angle = t * p.speed + p.phase
           const radius = 1.2 + Math.sin(t * p.speed * 0.5 + p.phase) * 0.9
-          p.x = p.tx + Math.cos(angle) * radius
-          p.y = p.ty + Math.sin(angle) * radius
+          const targetX = p.tx + Math.cos(angle) * radius
+          const targetY = p.ty + Math.sin(angle) * radius
+          if (interactive) moveParticle(p, targetX, targetY, 1)
+          else {
+            p.x = targetX
+            p.y = targetY
+          }
           const alpha = 0.35 + 0.3 * Math.abs(Math.sin(t * p.speed * 0.7 + p.phase))
           ctx.globalAlpha = alpha
           ctx.fillStyle = color
@@ -146,9 +231,13 @@ export default function PreText({
         const pulse = 0.5 + 0.5 * Math.sin(t * 2.8)
         const sizePulse = 0.85 + 0.35 * pulse
         for (const p of particles) {
-          // gentle drift toward target while pulsing
-          p.x += (p.tx - p.x) * 0.06 + Math.sin(t * p.speed + p.phase) * 0.25
-          p.y += (p.ty - p.y) * 0.06 + Math.cos(t * p.speed + p.phase) * 0.25
+          const targetX = p.tx + Math.sin(t * p.speed + p.phase) * 0.25
+          const targetY = p.ty + Math.cos(t * p.speed + p.phase) * 0.25
+          if (interactive) moveParticle(p, targetX, targetY, pulse)
+          else {
+            p.x += (p.tx - p.x) * 0.06 + Math.sin(t * p.speed + p.phase) * 0.25
+            p.y += (p.ty - p.y) * 0.06 + Math.cos(t * p.speed + p.phase) * 0.25
+          }
           ctx.globalAlpha = 0.3 + 0.5 * pulse
           ctx.fillStyle = color
           ctx.beginPath()
@@ -171,8 +260,13 @@ export default function PreText({
           if (p.tx > fillX + edgeWidth) continue
 
           // drift while filled
-          p.x += (p.tx - p.x) * 0.05 + Math.sin(t * p.speed + p.phase) * 0.3
-          p.y += (p.ty - p.y) * 0.05 + Math.cos(t * p.speed + p.phase) * 0.3
+          const targetX = p.tx + Math.sin(t * p.speed + p.phase) * 0.3
+          const targetY = p.ty + Math.cos(t * p.speed + p.phase) * 0.3
+          if (interactive) moveParticle(p, targetX, targetY, 0.6)
+          else {
+            p.x += (p.tx - p.x) * 0.05 + Math.sin(t * p.speed + p.phase) * 0.3
+            p.y += (p.ty - p.y) * 0.05 + Math.cos(t * p.speed + p.phase) * 0.3
+          }
 
           // fade in at the leading edge
           const edgeDist = fillX - p.tx
@@ -205,7 +299,7 @@ export default function PreText({
 
     raf = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(raf)
-  }, [mode, color, accentColor])
+  }, [mode, color, accentColor, interactive, fieldRadius, fieldStrength, settle])
 
   // Keep value current without restarting the animation loop
   const latestValue = useRef(value)
