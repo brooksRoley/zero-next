@@ -405,7 +405,7 @@ export default function GoPage() {
       </Head>
 
       <nav className="flex-shrink-0 sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
           <Link
             href="/"
             className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 mr-1 border-r border-forest-800/60"
@@ -434,7 +434,7 @@ export default function GoPage() {
         </div>
       </nav>
 
-      <div className="flex-1 min-h-0 overflow-y-auto max-w-5xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-6 grid gap-4 lg:grid-cols-[1fr_320px] content-start">
+      <div className="flex-1 min-h-0 overflow-y-auto max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-6 grid gap-4 lg:grid-cols-[1fr_320px] content-start">
 
         <div className="flex flex-col items-center">
 
