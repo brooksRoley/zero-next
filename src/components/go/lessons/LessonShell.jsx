@@ -6,6 +6,12 @@ import Link from 'next/link'
  * progress dots, the stage content, and prev/next nav. Stages own their own
  * interactive state — this is purely chrome.
  */
+const STAGE_PRACTICE_MAP = {
+  1: 'capture',
+  2: 'eyes',
+  3: 'territory',
+}
+
 export default function LessonShell({
   stageNumber,
   totalStages,
@@ -13,8 +19,10 @@ export default function LessonShell({
   subtitle,
   prev,
   next,
+  isComplete,
   children,
 }) {
+  const practiceStage = STAGE_PRACTICE_MAP[stageNumber]
   return (
     <div className="min-h-screen bg-forest-950 text-white">
       <nav className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
@@ -48,6 +56,20 @@ export default function LessonShell({
         </header>
 
         <div>{children}</div>
+
+        {isComplete && practiceStage && (
+          <div className="mt-4 rounded-xl border border-candy-400/30 bg-candy-500/10 px-4 py-3 text-sm">
+            <p className="text-candy-200 mb-2">
+              Ready to put <strong>{title}</strong> into practice?
+            </p>
+            <Link
+              href={`/posts/go?practice=${practiceStage}`}
+              className="inline-block px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-candy-100 hover:bg-candy-500/30 transition text-xs"
+            >
+              Play a practice game &rarr;
+            </Link>
+          </div>
+        )}
 
         <footer className="mt-6 pt-4 border-t border-forest-800/60 flex items-center justify-between text-sm">
           {prev ? (
