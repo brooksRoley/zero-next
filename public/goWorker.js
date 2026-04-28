@@ -173,13 +173,18 @@ function findEngineResponse(board, color, goal, koPoint) {
  * Score a candidate move for the greedy bot. Returns -Infinity for illegal
  * moves (null result from applyMove). Higher = better for `color`.
  */
-function scoreBotMove(board, row, col, color, koPoint) {
+function scoreBotMove(board, row, col, color, koPoint, teachingFocus) {
   const result = applyMove(board, row, col, color, koPoint);
   if (result.error) return -Infinity;
 
   const size = board.length;
   const opp = color === BLACK ? WHITE : BLACK;
   let score = 0;
+
+  // Teaching focus weight multipliers
+  const rescueWeight = teachingFocus === 'capture' ? 0.3 : 1.0;
+  const eyeWeight = teachingFocus === 'eyes' ? 0.2 : 1.0;
+  const defenseWeight = teachingFocus === 'territory' ? 0.4 : 1.0;
 
   // Captures: most important tactical signal
   score += result.captured.length * 6;
@@ -198,20 +203,20 @@ function scoreBotMove(board, row, col, color, koPoint) {
       const before = findGroup(board, nr, nc);
       if (before.liberties.size <= 1) {
         const after = findGroup(result.newBoard, nr, nc);
-        if (after.liberties.size >= 3) score += 9;
-        else if (after.liberties.size >= 2) score += 5;
+        if (after.liberties.size >= 3) score += 9 * rescueWeight;
+        else if (after.liberties.size >= 2) score += 5 * rescueWeight;
       }
     }
   }
 
   // Liberty health of our placed stone's group
   const own = findGroup(result.newBoard, row, col);
-  score += Math.min(own.liberties.size, 6) * 0.3;
+  score += Math.min(own.liberties.size, 6) * 0.3 * eyeWeight;
 
   // Center preference (stronger on 9×9/13×13 where territory matters more)
   const center = (size - 1) / 2;
   const manhattan = Math.abs(row - center) + Math.abs(col - center);
-  if (size <= 13) score += Math.max(0, size * 0.4 - manhattan) * 0.15;
+  if (size <= 13) score += Math.max(0, size * 0.4 - manhattan) * 0.15 * defenseWeight;
 
   // Small random tiebreaker for variety
   score += (Math.random() - 0.5) * 0.4;
@@ -219,10 +224,23 @@ function scoreBotMove(board, row, col, color, koPoint) {
 }
 
 /**
- * Find the best move for `color` at the given difficulty level.
- * level 1 → 75% random; level 2 → 30% random; level 3 → 5% random (fully greedy).
+ * Find the best move for `color` at the given difficulty config.
+ * config can be a bare number (backward compat) or an object:
+ *   { level, randomRate, teachingFocus, timeBudget }
  */
-function findBotMove(board, color, level, koPoint) {
+function findBotMove(board, color, config, koPoint) {
+  var cfg = typeof config === 'number'
+    ? { level: config, randomRate: ({ 1: 0.75, 2: 0.30, 3: 0.05 })[config] || 0.30, teachingFocus: null }
+    : config;
+
+  var level = cfg.level || 2;
+  var randomRate = cfg.randomRate !== undefined ? cfg.randomRate : 0.30;
+  var teachingFocus = cfg.teachingFocus || null;
+
+  if (level >= 4) {
+    return findBotMoveWithLookahead(board, color, level, koPoint);
+  }
+
   const size = board.length;
   const legal = [];
   for (let r = 0; r < size; r++) {
@@ -235,9 +253,6 @@ function findBotMove(board, color, level, koPoint) {
   }
   if (legal.length === 0) return null;
 
-  const randomRates = { 1: 0.75, 2: 0.30, 3: 0.05 };
-  const randomRate = randomRates[level] !== undefined ? randomRates[level] : 0.30;
-
   if (Math.random() < randomRate) {
     return legal[Math.floor(Math.random() * legal.length)];
   }
@@ -245,7 +260,7 @@ function findBotMove(board, color, level, koPoint) {
   let best = null;
   let bestScore = -Infinity;
   for (const [r, c] of legal) {
-    const s = scoreBotMove(board, r, c, color, koPoint);
+    const s = scoreBotMove(board, r, c, color, koPoint, teachingFocus);
     if (s > bestScore) { bestScore = s; best = [r, c]; }
   }
   return best || legal[Math.floor(Math.random() * legal.length)];
@@ -508,7 +523,7 @@ self.onmessage = function(e) {
     try {
       // goal === null signals bot gameplay; otherwise use puzzle engine
       const result = (payload.goal == null)
-        ? { move: findBotMove(payload.board, payload.color, payload.level || 2, payload.koPoint) }
+        ? { move: findBotMove(payload.board, payload.color, payload.config || payload.level || 2, payload.koPoint) }
         : findEngineResponse(payload.board, payload.color, payload.goal, payload.koPoint);
       self.postMessage({ id, result });
     } catch (err) {
