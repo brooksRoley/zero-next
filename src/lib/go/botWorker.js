@@ -33,7 +33,7 @@ export class GoBotWorkerManager {
     }
   }
 
-  findResponse(board, color, goal, koPoint, timeoutMs = 1500, level = 2) {
+  findResponse(board, color, goal, koPoint, timeoutMs = 1500, config = { level: 2 }) {
     this.ensureWorker()
     if (!this.worker) {
       return Promise.resolve({ move: null, reason: 'no_worker' })
@@ -50,7 +50,7 @@ export class GoBotWorkerManager {
       this.worker.postMessage({
         id,
         type: 'find_response',
-        payload: { board, color, goal, koPoint, level },
+        payload: { board, color, goal, koPoint, config },
       })
     })
   }

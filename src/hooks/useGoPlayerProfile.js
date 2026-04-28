@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { STARTING_ELO, eloUpdate } from 'src/lib/go/elo'
 
-const STORAGE_KEY = 'go.profile.v1'
+const STORAGE_KEY = 'go.profile.v2'
+const LEGACY_V1_KEY = 'go.profile.v1'
 const LEGACY_SOLVED_KEY = 'go.puzzles.solved'
 const ATTEMPTS_CAP = 200
 
@@ -26,6 +27,9 @@ function emptyProfile() {
     solved: [],            // serialized as array; surfaced as Set
     attempts: [],          // [{ id, puzzleId, solved, usedHint, eloBefore, eloAfter, createdAt }]
     lessonProgress: {},    // { '0': { completed: true, lastVisited: iso }, ... }
+    gamesPlayed: 0,
+    gamesWon: 0,
+    coachEnabled: true,
     createdAt: nowIso(),
     lastSeen: nowIso(),
   }
@@ -36,8 +40,17 @@ function loadProfile() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      // Defensive: fill any missing fields so older saves keep working
       return { ...emptyProfile(), ...parsed }
+    }
+  } catch { /* ignore */ }
+  // Migrate from v1 profile if present
+  try {
+    const v1Raw = localStorage.getItem(LEGACY_V1_KEY)
+    if (v1Raw) {
+      const parsed = JSON.parse(v1Raw)
+      const migrated = { ...emptyProfile(), ...parsed }
+      saveProfile(migrated)
+      return migrated
     }
   } catch { /* ignore */ }
   // Migrate from the original solved-only key if present
@@ -144,6 +157,21 @@ export default function useGoPlayerProfile() {
     })
   }, [update])
 
+  const recordGameEnd = useCallback(({ won }) => {
+    update(prev => ({
+      ...prev,
+      gamesPlayed: (prev.gamesPlayed || 0) + 1,
+      gamesWon: (prev.gamesWon || 0) + (won ? 1 : 0),
+    }))
+  }, [update])
+
+  const setCoachEnabled = useCallback((enabled) => {
+    update(prev => ({
+      ...prev,
+      coachEnabled: !!enabled,
+    }))
+  }, [update])
+
   const resetProfile = useCallback(() => {
     const fresh = emptyProfile()
     setProfile(fresh)
@@ -161,7 +189,12 @@ export default function useGoPlayerProfile() {
     solved: solvedSet,
     attempts: profile?.attempts ?? [],
     lessonProgress: profile?.lessonProgress ?? {},
+    gamesPlayed: profile?.gamesPlayed ?? 0,
+    gamesWon: profile?.gamesWon ?? 0,
+    coachEnabled: profile?.coachEnabled ?? true,
     recordAttempt,
+    recordGameEnd,
+    setCoachEnabled,
     markLessonComplete,
     noteLessonVisit,
     resetProfile,
