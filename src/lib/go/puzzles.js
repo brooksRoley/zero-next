@@ -23,6 +23,7 @@ const RAW = [
     prompt: 'Black to play. Capture the white stone.',
     region: { rMin: 0, rMax: 3, cMin: 0, cMax: 3 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[ba][ab][bc]AW[bb]PL[B];B[cb]C[Captured!])',
+    concept: 'capture',
   },
   {
     id: 'capture-edge',
@@ -33,6 +34,7 @@ const RAW = [
     prompt: 'Black to play. Capture the white stone on the top edge.',
     region: { rMin: 0, rMax: 2, cMin: 2, cMax: 7 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[eb][da]AW[ea]PL[B];B[fa]C[Captured!])',
+    concept: 'capture',
   },
   {
     id: 'capture-center',
@@ -43,6 +45,7 @@ const RAW = [
     prompt: 'Black to play. The white stone is in atari — capture it.',
     region: { rMin: 2, rMax: 6, cMin: 2, cMax: 6 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[ed][ef][de]AW[ee]PL[B];B[fe]C[Captured!])',
+    concept: 'capture',
   },
   {
     id: 'capture-pair',
@@ -53,6 +56,7 @@ const RAW = [
     prompt: 'Black to play. Both white stones share a single liberty — take it.',
     region: { rMin: 1, rMax: 5, cMin: 2, cMax: 7 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[ec][fc][ee][fe][dd]AW[ed][fd]PL[B];B[gd]C[Both gone!])',
+    concept: 'capture',
   },
   {
     id: 'capture-corner-pair',
@@ -63,6 +67,7 @@ const RAW = [
     prompt: 'Black to play. Capture the two white corner stones.',
     region: { rMin: 0, rMax: 3, cMin: 0, cMax: 3 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[ab][bb]AW[aa][ba]PL[B];B[ca]C[Corner cleared.])',
+    concept: 'capture',
   },
   {
     id: 'capture-l-shape',
@@ -73,6 +78,7 @@ const RAW = [
     prompt: 'Black to play. Three white stones form an L — find the vital point inside.',
     region: { rMin: 0, rMax: 3, cMin: 0, cMax: 3 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[ca][ac]AW[aa][ba][ab]PL[B];B[bb]C[Inside the L was the only liberty.])',
+    concept: 'capture',
   },
   {
     id: 'capture-wall-line',
@@ -83,6 +89,7 @@ const RAW = [
     prompt: 'Black to play. Four white stones run between two black walls — close the gap.',
     region: { rMin: 0, rMax: 2, cMin: 0, cMax: 5 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[aa][ba][ca][da][ea][ac][bc][cc][dc][ec]AW[ab][bb][cb][db]PL[B];B[eb]C[Four down!])',
+    concept: 'capture',
   },
   {
     id: 'kill-vital-point',
@@ -93,6 +100,7 @@ const RAW = [
     prompt: 'Black to play. White has three internal points — find the vital point that prevents two eyes.',
     region: { rMin: 1, rMax: 3, cMin: 2, cMax: 6 },
     sgf: '(;FF[4]GM[1]SZ[9]AW[cb][db][eb][fb][gb][cc][gc][cd][dd][ed][fd][gd]PL[B];B[ec]C[White can no longer make two eyes.])',
+    concept: 'eyes',
   },
   {
     id: 'live-make-two-eyes',
@@ -103,6 +111,7 @@ const RAW = [
     prompt: 'Black to play. Three internal points in a row — split them into two separate eyes to live.',
     region: { rMin: 1, rMax: 3, cMin: 2, cMax: 6 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[cb][db][eb][fb][gb][cc][gc][cd][dd][ed][fd][gd]PL[B];B[ec]C[Two single-point eyes — alive!])',
+    concept: 'eyes',
   },
   {
     id: 'tesuji-double-atari',
@@ -123,6 +132,7 @@ const RAW = [
     prompt: 'Black to play. White has two liberties — atari first, then capture after the forced extension.',
     region: { rMin: 0, rMax: 4, cMin: 1, cMax: 5 },
     sgf: '(;FF[4]GM[1]SZ[9]AB[cb][eb][cc][ec][cd][ed]AW[dc]PL[B];B[db];W[dd];B[de]C[Two-move chase — captured.])',
+    concept: 'capture',
   },
 ]
 
