@@ -1,8 +1,12 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import confetti from 'canvas-confetti'
 import useGameSounds from 'src/hooks/useGameSounds'
+import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
+import useCoach from 'src/hooks/useCoach'
+import { getAdaptiveBotConfig } from 'src/lib/go/adaptiveBot'
 import GoRules from 'src/components/go/GoRules'
 import {
   EMPTY,
@@ -18,13 +22,7 @@ import {
 } from 'src/lib/go/gameLogic'
 import { computeAreaScore, computeAreaScoreWithDead, computeTerritoryScore } from 'src/lib/go/scoring'
 import { GoBotWorkerManager } from 'src/lib/go/botWorker'
-import { STARTING_ELO, eloUpdateGame, rankLabel, eloDelta } from 'src/lib/go/elo'
-
-const BOT_LEVELS = [
-  { id: 1, label: 'Beginner', elo: 400 },
-  { id: 2, label: 'Casual',   elo: 750 },
-  { id: 3, label: 'Sharp',    elo: 1150 },
-]
+import { eloUpdateGame, rankLabel, eloDelta } from 'src/lib/go/elo'
 
 const KOMI_OPTIONS = [0, 6.5, 7.5]
 const SCORING_RULES = [
@@ -67,12 +65,18 @@ function buildInitialBoard(size, handicap) {
 }
 
 export default function GoPage() {
-  const [boardSize, setBoardSize] = useState(DEFAULT_BOARD_SIZE)
+  const router = useRouter()
+  const practiceStage = router.query.practice || null
+
+  const profile = useGoPlayerProfile()
+  const coach = useCoach()
+
+  const [boardSize, setBoardSize] = useState(practiceStage ? 9 : DEFAULT_BOARD_SIZE)
   const [scoringRule, setScoringRule] = useState('chinese')
   const [komi, setKomi] = useState(7.5)
   const [handicap, setHandicap] = useState(0)
 
-  const initial = useMemo(() => buildInitialBoard(DEFAULT_BOARD_SIZE, 0), [])
+  const initial = useMemo(() => buildInitialBoard(practiceStage ? 9 : DEFAULT_BOARD_SIZE, 0), [practiceStage])
   const [board, setBoard] = useState(initial.board)
   const [currentPlayer, setCurrentPlayer] = useState(initial.firstPlayer)
   const [koPoint, setKoPoint] = useState(null)
@@ -84,9 +88,6 @@ export default function GoPage() {
   // 'playing' → make moves; 'marking' → click groups to mark dead; 'finished' → game over
   const [phase, setPhase] = useState('playing')
   const [deadStones, setDeadStones] = useState(() => new Set())
-  // Marking-phase confirmation: both players must accept the dead-stone marking
-  // before the game ends. Mirrors how real Go ends — neither player has the
-  // unilateral power to declare the result.
   const [acceptedBy, setAcceptedBy] = useState(() => new Set())
   const [resignedBy, setResignedBy] = useState(null)
 
@@ -96,15 +97,25 @@ export default function GoPage() {
 
   // vs Bot mode
   const [vsBot, setVsBot] = useState(true)
-  const [botLevel, setBotLevel] = useState(1)
   const [playerColor, setPlayerColor] = useState(BLACK)
   const [botThinking, setBotThinking] = useState(false)
-  const [playerElo, setPlayerElo] = useState(STARTING_ELO)
   const [eloChange, setEloChange] = useState(null)
 
   const boardRef = useRef(null)
   const botRef = useRef(null)
   const { playPlace, playCapture, playWin } = useGameSounds()
+
+  // Map practice stage to teaching focus
+  const teachingFocus = useMemo(() => {
+    if (!practiceStage) return null
+    const map = { capture: 'capture', eyes: 'eyes', territory: 'territory' }
+    return map[practiceStage] || null
+  }, [practiceStage])
+
+  // Adaptive bot config
+  const botConfig = useMemo(() => {
+    return getAdaptiveBotConfig(profile.goElo, profile.gamesPlayed, teachingFocus)
+  }, [profile.goElo, profile.gamesPlayed, teachingFocus])
 
   const gameOver = phase === 'finished'
   const botColor = vsBot ? (playerColor === BLACK ? WHITE : BLACK) : null
@@ -328,18 +339,20 @@ export default function GoPage() {
     const manager = botRef.current
     if (!manager) { setBotThinking(false); return }
 
-    manager.findResponse(board, botColor, null, koPoint, 2500, botLevel).then(({ move }) => {
+    manager.findResponse(board, botColor, null, koPoint, botConfig.timeBudget, botConfig).then(({ move }) => {
       setBotThinking(false)
       if (move) placeStone(move[0], move[1])
       else handlePass()
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vsBot, phase, currentPlayer, botColor, board, koPoint, botThinking, botLevel])
+  }, [vsBot, phase, currentPlayer, botColor, board, koPoint, botThinking, botConfig])
 
   // ELO update when a bot game ends
   useEffect(() => {
     if (!vsBot || phase !== 'finished' || eloChange !== null) return
-    const botEloValue = BOT_LEVELS.find(l => l.id === botLevel)?.elo ?? 750
+    const playerWon = resignedBy !== null
+      ? resignedBy === botColor
+      : winner === playerColor
     let outcome = 0.0
     if (resignedBy !== null) {
       outcome = resignedBy === botColor ? 1.0 : 0.0
@@ -348,10 +361,27 @@ export default function GoPage() {
     } else if (winner === null) {
       outcome = 0.5
     }
-    const nextElo = eloUpdateGame(playerElo, botEloValue, outcome)
-    setEloChange({ before: playerElo, after: nextElo, delta: nextElo - playerElo })
-    setPlayerElo(nextElo)
-  }, [vsBot, phase, winner, botColor, playerColor, resignedBy, botLevel, playerElo, eloChange])
+    const before = profile.goElo
+    const nextElo = eloUpdateGame(before, botConfig.botElo, outcome)
+    setEloChange({ before, after: nextElo, delta: nextElo - before })
+    profile.recordGameEnd({ won: playerWon, newElo: nextElo })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vsBot, phase, winner, botColor, playerColor, resignedBy, eloChange])
+
+  // Coach: check for tips after each human move
+  useEffect(() => {
+    if (!vsBot || !profile.coachEnabled || phase !== 'playing') return
+    if (currentPlayer === botColor) return // only check after human moves
+    if (moveCount === 0) return
+    coach.checkForTip(board, playerColor, koPoint, profile.lessonProgress)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moveCount])
+
+  // Reset coach counts on new game
+  useEffect(() => {
+    coach.resetCounts()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardSize, handicap])
 
   const boardClass = [
     'game-board go-board rounded-xl',
@@ -443,7 +473,7 @@ export default function GoPage() {
             </div>
             <div className="flex items-center gap-3 text-xs text-forest-300">
               {vsBot && (
-                <span className="text-candy-400/80 font-mono">{rankLabel(playerElo)}</span>
+                <span className="text-candy-400/80 font-mono">{rankLabel(profile.goElo)}</span>
               )}
               <span>Move {moveCount}</span>
               <span className="text-forest-600">|</span>
@@ -455,6 +485,20 @@ export default function GoPage() {
           {errorToast && (
             <div className="mb-2 rounded-lg bg-red-900/30 border border-red-700/40 px-3 py-1.5 text-xs text-red-200">
               {errorToast}
+            </div>
+          )}
+
+          {coach.tip && profile.coachEnabled && (
+            <div className="go-coach-tip mb-2">
+              <span>{coach.tip.message}</span>
+              <button className="go-coach-dismiss" onClick={coach.dismissTip} aria-label="Dismiss tip">&times;</button>
+            </div>
+          )}
+
+          {/* Practice mode header */}
+          {practiceStage && (
+            <div className="mb-2 rounded-lg bg-candy-500/10 border border-candy-400/30 px-3 py-1.5 text-xs text-candy-200">
+              Practice mode: <strong>{practiceStage}</strong> focus — coach tips are on, 9×9 board
             </div>
           )}
 
@@ -672,19 +716,22 @@ export default function GoPage() {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
                   <span className="w-16 text-right">Bot:</span>
-                  {BOT_LEVELS.map(l => (
-                    <button
-                      key={l.id}
-                      onClick={() => { setBotLevel(l.id); startNewGame(boardSize, handicap) }}
-                      className={`px-2.5 py-1 rounded-md border transition ${
-                        botLevel === l.id
-                          ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                          : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
-                      }`}
-                    >
-                      {l.label}
-                    </button>
-                  ))}
+                  <span className="text-forest-300 font-mono text-[11px]">
+                    ~{botConfig.botElo} ELO (adapts to you)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+                  <span className="w-16 text-right">Coach:</span>
+                  <button
+                    onClick={() => profile.setCoachEnabled(!profile.coachEnabled)}
+                    className={`px-2.5 py-1 rounded-md border transition ${
+                      profile.coachEnabled
+                        ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
+                        : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                    }`}
+                  >
+                    {profile.coachEnabled ? 'On' : 'Off'}
+                  </button>
                 </div>
               </>
             )}
@@ -710,7 +757,7 @@ export default function GoPage() {
             {vsBot && (
               <div className="flex items-center justify-between text-xs mb-3 pb-2 border-b border-forest-800/60">
                 <span className="text-forest-400">Your ELO</span>
-                <span className="font-mono text-candy-300">{playerElo} · {rankLabel(playerElo)}</span>
+                <span className="font-mono text-candy-300">{profile.goElo} · {rankLabel(profile.goElo)}</span>
               </div>
             )}
             {gameOver && winner && (

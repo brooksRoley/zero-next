@@ -157,11 +157,13 @@ export default function useGoPlayerProfile() {
     })
   }, [update])
 
-  const recordGameEnd = useCallback(({ won }) => {
+  const recordGameEnd = useCallback(({ won, newElo }) => {
     update(prev => ({
       ...prev,
       gamesPlayed: (prev.gamesPlayed || 0) + 1,
       gamesWon: (prev.gamesWon || 0) + (won ? 1 : 0),
+      goElo: newElo !== undefined ? newElo : prev.goElo,
+      peakElo: newElo !== undefined ? Math.max(prev.peakElo, newElo) : prev.peakElo,
     }))
   }, [update])
 
