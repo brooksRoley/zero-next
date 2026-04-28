@@ -2,6 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
 import LessonShell from 'src/components/go/lessons/LessonShell'
 import StageVoid from 'src/components/go/lessons/StageVoid'
 import StageBreath from 'src/components/go/lessons/StageBreath'
@@ -46,6 +47,7 @@ const STAGES = {
 
 export default function GoLessonPage({ stageParam }) {
   const router = useRouter()
+  const profile = useGoPlayerProfile()
   const stageNum = parseInt(stageParam, 10)
 
   if (!Number.isFinite(stageNum) || !STAGES[stageNum]) {
@@ -84,6 +86,7 @@ export default function GoLessonPage({ stageParam }) {
       subtitle={stage.subtitle}
       prev={prev}
       next={next}
+      isComplete={!!profile.lessonProgress[String(stageNum)]?.completed}
     >
       <Head>
         <title>Stage {stageNum}: {stage.title} | Learn Go</title>
