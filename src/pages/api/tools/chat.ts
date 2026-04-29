@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       model: openrouter(modelId),
       system: systemPrompt,
       messages,
-      maxTokens: 2000,
+      maxOutputTokens: 2000,
       temperature: 0.8,
     });
 
