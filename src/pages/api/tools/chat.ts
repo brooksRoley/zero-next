@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { streamText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { sanitizeMessage } from "src/lib/openrouter/sanitize";
-import { getModelById } from "src/lib/openrouter/models";
+import { sanitizeMessage } from "src/lib/ai-providers/sanitize";
+import { getModelById, AI_MODELS } from "src/lib/ai-providers/models";
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -28,7 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "modelId, systemPrompt, and messages are required" });
   }
 
-  const model = getModelById(modelId);
+  // Support both new-style IDs ("openrouter/nemotron-3-nano") and legacy providerModelIds
+  const model = getModelById(modelId) ?? AI_MODELS.find((m) => m.providerModelId === modelId);
   if (!model) {
     return res.status(400).json({ error: `Unknown model: ${modelId}` });
   }
@@ -45,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const result = streamText({
-      model: openrouter(modelId),
+      model: openrouter(model.providerModelId),
       system: systemPrompt,
       messages,
       maxOutputTokens: 2000,

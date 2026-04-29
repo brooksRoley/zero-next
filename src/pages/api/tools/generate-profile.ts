@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { generateText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { buildProfilePrompt } from "src/lib/openrouter/profile-prompt";
-import { sanitizeOneLiner, sanitizeProfile } from "src/lib/openrouter/sanitize";
-import { DEFAULT_PROFILE_MODEL } from "src/lib/openrouter/models";
+import { buildProfilePrompt } from "src/lib/ai-providers/profile-prompt";
+import { sanitizeOneLiner, sanitizeProfile } from "src/lib/ai-providers/sanitize";
+import { DEFAULT_PROFILE_MODEL, getModelById } from "src/lib/ai-providers/models";
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { text } = await generateText({
-      model: openrouter(DEFAULT_PROFILE_MODEL),
+      model: openrouter(getModelById(DEFAULT_PROFILE_MODEL)?.providerModelId ?? DEFAULT_PROFILE_MODEL),
       prompt: buildProfilePrompt(name.trim(), sanitized.cleaned),
       maxOutputTokens: 1500,
       temperature: 0.9,

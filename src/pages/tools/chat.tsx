@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { FREE_MODELS } from "src/lib/openrouter/models";
-import { assignColor, assignEmoji } from "src/lib/openrouter/colors";
+import { AI_MODELS } from "src/lib/ai-providers/models";
+import { assignColor, assignEmoji } from "src/lib/ai-providers/colors";
+
+/* Backward-compatible FREE_MODELS: maps new AI_MODELS to the shape the chat UI expects.
+   Characters stored in the DB reference providerModelId, so we keep that as `.id` here.
+   This compat layer will be removed when the chat page is rewritten for multi-provider. */
+const FREE_MODELS = AI_MODELS.filter((m) => m.providerId === "openrouter").map((m) => ({
+  id: m.providerModelId,
+  displayName: m.displayName,
+  contextLength: m.contextLength,
+}));
 
 /* ── Types ── */
 type Character = {
