@@ -109,6 +109,30 @@ export default function Home() {
                   </TiltCard>
                 </Reveal>
               </div>
+
+              <div data-physics-item className="physics-field-item">
+                <Reveal delay={400}>
+                  <TiltCard>
+                    <Link href="/tools/chat" className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
+                        <div className="flex items-center gap-2 text-2xl opacity-60">
+                          <span>🎭</span><span>🤖</span><span>🧙</span>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      </div>
+                      <div className="relative px-5 pb-5 -mt-8">
+                        <h3 className="text-xl font-semibold flex items-center gap-2">
+                          Chat Sandbox <ArrowIcon />
+                        </h3>
+                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                          Create AI characters and watch them interact.
+                        </p>
+                      </div>
+                      <div className="tilt-highlight" />
+                    </Link>
+                  </TiltCard>
+                </Reveal>
+              </div>
             </PhysicsField>
           </>
         }
@@ -302,9 +326,9 @@ export default function Home() {
         <footer className="border-t border-[#C5E7EA]/10 py-6">
           <div className="flex items-center justify-between text-xs text-[#DADBD9]/46">
             <span>&copy; {new Date().getFullYear()} Brooks Roley</span>
-            <Link href="/funding" className="transition-colors hover:text-[#C5E7EA]">
+            {/* <Link href="/funding" className="transition-colors hover:text-[#C5E7EA]">
               support my work
-            </Link>
+            </Link> */}{/* commented out until LLC is set up */}
           </div>
         </footer>
       </div>
