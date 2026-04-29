@@ -12,7 +12,7 @@ module.exports = {
         'http://localhost:3000/posts/pente',
         'http://localhost:3000/posts/luminous-flow',
         'http://localhost:3000/posts/nanu-pika-td',
-        'http://localhost:3000/zero-paradox',
+        // 'http://localhost:3000/zero-paradox', // commented out until LLC is set up
       ],
       numberOfRuns: 1,
       settings: {
