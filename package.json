@@ -15,6 +15,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.42",
     "@neondatabase/serverless": "^1.0.2",
     "@openrouter/ai-sdk-provider": "^2.9.0",
     "@stripe/stripe-js": "^9.1.0",
