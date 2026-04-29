@@ -4,10 +4,9 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { buildProfilePrompt } from "src/lib/ai-providers/profile-prompt";
 import { sanitizeOneLiner, sanitizeProfile } from "src/lib/ai-providers/sanitize";
 import { DEFAULT_PROFILE_MODEL, getModelById } from "src/lib/ai-providers/models";
-
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+import { getProvider } from "src/lib/ai-providers/providers";
+import { resolveKey } from "src/lib/ai-providers/keys";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -25,9 +24,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: sanitized.reason });
   }
 
+  const model = getModelById(DEFAULT_PROFILE_MODEL);
+  if (!model) {
+    return res.status(500).json({ error: "Default profile model not found" });
+  }
+
+  const provider = getProvider(model.providerId);
+  if (!provider) {
+    return res.status(500).json({ error: "Provider not found" });
+  }
+
+  const apiKey = resolveKey(model.providerId);
+  if (!apiKey) {
+    return res.status(503).json({ error: `No API key for ${provider.name}` });
+  }
+
+  const client =
+    provider.id === "openrouter"
+      ? createOpenRouter({ apiKey })
+      : createOpenAICompatible({ name: provider.id, baseURL: provider.baseUrl, apiKey });
+
   try {
     const { text } = await generateText({
-      model: openrouter(getModelById(DEFAULT_PROFILE_MODEL)?.providerModelId ?? DEFAULT_PROFILE_MODEL),
+      model: client(model.providerModelId),
       prompt: buildProfilePrompt(name.trim(), sanitized.cleaned),
       maxOutputTokens: 1500,
       temperature: 0.9,
