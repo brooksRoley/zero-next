@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { text } = await generateText({
       model: openrouter(DEFAULT_PROFILE_MODEL),
       prompt: buildProfilePrompt(name.trim(), sanitized.cleaned),
-      maxTokens: 1500,
+      maxOutputTokens: 1500,
       temperature: 0.9,
     });
 
