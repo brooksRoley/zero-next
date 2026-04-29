@@ -397,7 +397,7 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
         <div className="max-w-2xl md:flex-[1.05]">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#C5E7EA]/20 bg-[#DADBD9]/8 px-3 py-1.5 text-xs uppercase tracking-[0.22em] text-[#C5E7EA]/82 backdrop-blur-md">
             <span className="h-2 w-2 rounded-full bg-[#B27236]" aria-hidden="true" />
-            <span>Los Angeles</span>
+            <span>Orange County, San Francisco, LA</span>
             <span className="text-[#DADBD9]/28">/</span>
             <span>games and tools</span>
           </div>

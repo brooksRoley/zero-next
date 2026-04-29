@@ -17,7 +17,7 @@ const NAV_LINKS = [
   },
   { href: '/consulting', label: 'Services' },
   { href: 'https://github.com/brooksroley', label: 'GitHub', external: true },
-  { href: '/zero-paradox', label: 'Support' },
+  // { href: '/zero-paradox', label: 'Support' }, // commented out until LLC is set up
   { href: '/intake', label: 'Contact' },
 ];
 
