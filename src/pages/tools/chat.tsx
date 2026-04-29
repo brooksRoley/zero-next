@@ -1,17 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { AI_MODELS } from "src/lib/ai-providers/models";
+import {
+  AI_MODELS,
+  getModelById,
+  getModelsGroupedByProvider,
+} from "src/lib/ai-providers/models";
 import { assignColor, assignEmoji } from "src/lib/ai-providers/colors";
-
-/* Backward-compatible FREE_MODELS: maps new AI_MODELS to the shape the chat UI expects.
-   Characters stored in the DB reference providerModelId, so we keep that as `.id` here.
-   This compat layer will be removed when the chat page is rewritten for multi-provider. */
-const FREE_MODELS = AI_MODELS.filter((m) => m.providerId === "openrouter").map((m) => ({
-  id: m.providerModelId,
-  displayName: m.displayName,
-  contextLength: m.contextLength,
-}));
 
 /* ── Types ── */
 type Character = {
@@ -36,6 +31,26 @@ type ChatMessage = {
   content: string;
   timestamp: number;
 };
+
+type StoredKeys = {
+  openrouter?: string;
+  groq?: string;
+  cerebras?: string;
+};
+
+/* ── BYOK helpers ── */
+function loadStoredKeys(): StoredKeys {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem("ai-provider-keys") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredKeys(keys: StoredKeys) {
+  localStorage.setItem("ai-provider-keys", JSON.stringify(keys));
+}
 
 /* ── API helpers ── */
 async function fetchCharacters(): Promise<Character[]> {
@@ -65,7 +80,10 @@ async function deleteCharacterFromDb(id: string): Promise<void> {
   await fetch(`/api/tools/characters?id=${id}`, { method: "DELETE" });
 }
 
-async function generateProfile(name: string, oneLiner: string): Promise<string> {
+async function generateProfile(
+  name: string,
+  oneLiner: string
+): Promise<string> {
   const res = await fetch("/api/tools/generate-profile", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -84,11 +102,24 @@ async function streamCharacterResponse(
   systemPrompt: string,
   messages: { role: "user" | "assistant"; content: string }[],
   onChunk: (text: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  byokKeys?: StoredKeys
 ): Promise<void> {
-  const res = await fetch("/api/tools/chat", {
+  const model = getModelById(modelId);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (model && byokKeys) {
+    const providerKey =
+      byokKeys[model.providerId as keyof StoredKeys];
+    if (providerKey) {
+      headers["X-Provider-Key"] = providerKey;
+    }
+  }
+
+  const res = await fetch("/api/tools/ai-gateway", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ modelId, systemPrompt, messages }),
     signal,
   });
@@ -112,6 +143,95 @@ function msgId(): string {
   return `msg-${Date.now()}-${++_msgId}`;
 }
 
+/* ── BYOK Keys Panel ── */
+function BYOKPanel({
+  keys,
+  onUpdate,
+}: {
+  keys: StoredKeys;
+  onUpdate: (keys: StoredKeys) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [local, setLocal] = useState<StoredKeys>(keys);
+
+  const providers = [
+    { id: "openrouter" as const, name: "OpenRouter" },
+    { id: "groq" as const, name: "Groq" },
+    { id: "cerebras" as const, name: "Cerebras" },
+  ];
+
+  const handleSave = () => {
+    saveStoredKeys(local);
+    onUpdate(local);
+  };
+
+  const handleClear = (id: keyof StoredKeys) => {
+    const next = { ...local };
+    delete next[id];
+    setLocal(next);
+    saveStoredKeys(next);
+    onUpdate(next);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="px-3 py-1.5 rounded-lg text-sm text-[#DADBD9]/70 hover:text-[#DADBD9] border border-[#C5E7EA]/20 hover:bg-[#415557]/30 transition-colors"
+      >
+        API Keys
+        {Object.values(keys).some(Boolean) && (
+          <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-green-400" />
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-[#C5E7EA]/20 bg-[#1c2426] p-4 shadow-2xl z-50">
+          <p className="text-xs text-[#DADBD9]/50 mb-3">
+            Keys are stored in your browser only and sent directly to the
+            provider.
+          </p>
+          {providers.map((p) => (
+            <label key={p.id} className="block mb-2">
+              <span className="text-xs text-[#DADBD9]/70 flex items-center gap-1.5">
+                {p.name}
+                {local[p.id] && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                )}
+              </span>
+              <div className="flex gap-1 mt-0.5">
+                <input
+                  type="password"
+                  value={local[p.id] || ""}
+                  onChange={(e) =>
+                    setLocal({ ...local, [p.id]: e.target.value })
+                  }
+                  placeholder={`${p.id} key`}
+                  className="flex-1 rounded-md border border-[#C5E7EA]/20 bg-[#415557]/30 px-2 py-1 text-xs text-[#DADBD9] placeholder-[#DADBD9]/30 focus:outline-none"
+                />
+                {local[p.id] && (
+                  <button
+                    onClick={() => handleClear(p.id)}
+                    className="text-xs text-red-400/70 hover:text-red-400 px-1"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </label>
+          ))}
+          <button
+            onClick={handleSave}
+            className="mt-2 w-full px-3 py-1.5 rounded-lg text-xs font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+          >
+            Save
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Add Character Modal ── */
 function AddCharacterModal({
   onClose,
@@ -126,13 +246,15 @@ function AddCharacterModal({
 }) {
   const [name, setName] = useState("");
   const [oneLiner, setOneLiner] = useState("");
-  const [modelId, setModelId] = useState(FREE_MODELS[0].id);
+  const [modelId, setModelId] = useState(AI_MODELS[0].id);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const modelGroups = getModelsGroupedByProvider();
 
   const handleCreate = async () => {
     if (!name.trim()) return setError("Give your character a name");
-    if (!oneLiner.trim()) return setError("Describe their personality in a sentence");
+    if (!oneLiner.trim())
+      return setError("Describe their personality in a sentence");
     setLoading(true);
     setError("");
     try {
@@ -157,7 +279,9 @@ function AddCharacterModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-xl border border-[#C5E7EA]/20 bg-[#1c2426] p-6 shadow-2xl">
-        <h2 className="text-lg font-semibold text-[#DADBD9] mb-4">New Character</h2>
+        <h2 className="text-lg font-semibold text-[#DADBD9] mb-4">
+          New Character
+        </h2>
 
         <label className="block mb-3">
           <span className="text-sm text-[#DADBD9]/70">Name</span>
@@ -172,7 +296,9 @@ function AddCharacterModal({
         </label>
 
         <label className="block mb-3">
-          <span className="text-sm text-[#DADBD9]/70">Personality (one-liner)</span>
+          <span className="text-sm text-[#DADBD9]/70">
+            Personality (one-liner)
+          </span>
           <input
             type="text"
             value={oneLiner}
@@ -190,10 +316,14 @@ function AddCharacterModal({
             onChange={(e) => setModelId(e.target.value)}
             className="mt-1 w-full rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-3 py-2 text-[#DADBD9] focus:border-[#C5E7EA]/50 focus:outline-none"
           >
-            {FREE_MODELS.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.displayName}
-              </option>
+            {modelGroups.map((group) => (
+              <optgroup key={group.providerId} label={group.providerName}>
+                {group.models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.displayName}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </label>
@@ -231,6 +361,7 @@ export default function ChatSandbox() {
   const [expandedProfile, setExpandedProfile] = useState<string | null>(null);
   const [streamingCharId, setStreamingCharId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [byokKeys, setByokKeys] = useState<StoredKeys>({});
   const chatEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -247,6 +378,7 @@ export default function ChatSandbox() {
       .then(setCharacters)
       .catch(console.error)
       .finally(() => setLoading(false));
+    setByokKeys(loadStoredKeys());
   }, []);
 
   const handleCharacterCreated = (c: Character) => {
@@ -314,7 +446,8 @@ export default function ChatSandbox() {
             )
           );
         },
-        controller.signal
+        controller.signal,
+        byokKeys
       );
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") return;
@@ -372,6 +505,22 @@ export default function ChatSandbox() {
     }
   };
 
+  const getModelDisplayInfo = (modelIdStr: string) => {
+    const model = getModelById(modelIdStr);
+    if (model) {
+      const providerNames: Record<string, string> = {
+        openrouter: "OpenRouter",
+        groq: "Groq",
+        cerebras: "Cerebras",
+      };
+      return {
+        name: model.displayName,
+        provider: providerNames[model.providerId] || model.providerId,
+      };
+    }
+    return { name: modelIdStr, provider: "" };
+  };
+
   return (
     <main className="min-h-screen terrain-page-bg font-sans flex flex-col">
       <Head>
@@ -391,46 +540,56 @@ export default function ChatSandbox() {
             Chat Sandbox
           </h1>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
-        >
-          + Add Character
-        </button>
+        <div className="flex items-center gap-2">
+          <BYOKPanel keys={byokKeys} onUpdate={setByokKeys} />
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+          >
+            + Add Character
+          </button>
+        </div>
       </header>
 
       {/* Character Strip */}
       {characters.length > 0 && (
         <div className="border-b border-[#C5E7EA]/10 px-4 py-3 flex gap-3 overflow-x-auto">
-          {characters.map((c) => (
-            <div
-              key={c.id}
-              className="flex-none flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer hover:bg-[#415557]/30 transition-colors"
-              style={{ borderColor: c.color + "40" }}
-              onClick={() =>
-                setExpandedProfile(expandedProfile === c.id ? null : c.id)
-              }
-            >
-              <span className="text-lg">{c.avatar_emoji}</span>
-              <div>
-                <div className="font-medium text-[#DADBD9]">{c.name}</div>
-                <div className="text-xs text-[#DADBD9]/50">
-                  {FREE_MODELS.find((m) => m.id === c.model)?.displayName ||
-                    c.model}
-                </div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteCharacter(c.id);
-                }}
-                className="ml-2 text-[#DADBD9]/30 hover:text-red-400 transition-colors"
-                title="Remove character"
+          {characters.map((c) => {
+            const info = getModelDisplayInfo(c.model);
+            return (
+              <div
+                key={c.id}
+                className="flex-none flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer hover:bg-[#415557]/30 transition-colors"
+                style={{ borderColor: c.color + "40" }}
+                onClick={() =>
+                  setExpandedProfile(expandedProfile === c.id ? null : c.id)
+                }
               >
-                &times;
-              </button>
-            </div>
-          ))}
+                <span className="text-lg">{c.avatar_emoji}</span>
+                <div>
+                  <div className="font-medium text-[#DADBD9]">{c.name}</div>
+                  <div className="text-xs text-[#DADBD9]/50">
+                    {info.name}
+                  </div>
+                  {info.provider && (
+                    <div className="text-[10px] text-[#DADBD9]/35">
+                      via {info.provider}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCharacter(c.id);
+                  }}
+                  className="ml-2 text-[#DADBD9]/30 hover:text-red-400 transition-colors"
+                  title="Remove character"
+                >
+                  &times;
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -491,9 +650,7 @@ export default function ChatSandbox() {
                   </span>
                 </div>
               )}
-              <div className="whitespace-pre-wrap">
-                {m.content || "..."}
-              </div>
+              <div className="whitespace-pre-wrap">{m.content || "..."}</div>
             </div>
           </div>
         ))}
