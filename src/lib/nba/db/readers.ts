@@ -91,3 +91,38 @@ export async function getPredictionAccuracy(sql: any) {
 export async function getOddsForEvent(sql: any, eventId: string) {
   return sql`SELECT * FROM nba_odds WHERE event_id = ${eventId} ORDER BY captured_at DESC`;
 }
+
+/**
+ * Get roster stats for simulation engine.
+ * Joins players + season stats + team stats to produce data compatible with RealPlayerStats.
+ * Missing advanced stats (ts_pct, stl_pct, blk_pct) are derived from available per-game data.
+ */
+export async function getTeamRosterForSim(sql: any, teamId: number, season: string) {
+  const rows = await sql`
+    SELECT
+      p.player_id,
+      p.player_name,
+      p.team_id,
+      p.position,
+      ps.games_played,
+      ps.mpg,
+      ps.ppg,
+      ps.rpg,
+      ps.apg,
+      ps.spg,
+      ps.bpg,
+      ps.fg_pct,
+      ps.fg3_pct,
+      ps.ft_pct,
+      ts.pace AS team_pace,
+      ts.def_rtg AS team_def_rtg
+    FROM nba_players p
+    JOIN nba_player_season_stats ps ON ps.player_id = p.player_id AND ps.season = ${season}
+    LEFT JOIN nba_team_season_stats ts ON ts.team_id = p.team_id AND ts.season = ${season}
+    WHERE p.team_id = ${teamId}
+      AND ps.mpg > 10
+    ORDER BY ps.mpg DESC
+    LIMIT 8
+  `;
+  return rows;
+}

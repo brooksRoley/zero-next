@@ -4,7 +4,9 @@ import { fetchOdds, parseOddsResponse, consensusSpread } from "src/lib/nba/odds"
 import { runMonteCarloSim } from "src/lib/nba/sim/monte-carlo";
 import { detectEdge, classifyConfidence } from "src/lib/nba/predictions/edge-detector";
 import { upsertOdds, insertPrediction } from "src/lib/nba/db/writers";
-import type { EnginePlayer } from "src/lib/nba/sim/stat-mapper";
+import { getTeamRosterForSim } from "src/lib/nba/db/readers";
+import { resolveTeam, buildRosterFromDb, fallbackRoster } from "src/lib/nba/sim/roster-builder";
+import { currentNbaSeason } from "src/lib/nba/season";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.headers["x-admin-key"] !== process.env.ADMIN_KEY) {
@@ -16,8 +18,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: "ODDS_API_KEY not configured" });
   }
 
+  const season = currentNbaSeason();
+
   try {
-    // 1. Fetch odds
     const events = await fetchOdds(apiKey);
     const results: any[] = [];
 
@@ -25,42 +28,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const oddsRows = parseOddsResponse(event);
       if (oddsRows.length === 0) continue;
 
-      // Store odds
       await upsertOdds(sql, oddsRows);
-
-      // 2. Get consensus spread
       const vegas = consensusSpread(oddsRows);
 
-      // 3. Build rosters from DB (placeholder: use average stats if real roster unavailable)
-      // In production, query nba_players for team rosters + nba_player_season_stats for advanced stats
-      // For now, use default-stat rosters
-      const defaultPlayer = (id: number, name: string, team: string): EnginePlayer => ({
-        id, name, team, shooting: 65, defense: 60, speed: 65, height_inches: 78, weight_lbs: 215, stamina: 75,
-      });
+      // Resolve team names from odds API to NBA team IDs
+      const homeTeam = resolveTeam(oddsRows[0].home_team);
+      const awayTeam = resolveTeam(oddsRows[0].away_team);
 
-      const homeRoster = Array.from({ length: 5 }, (_, i) =>
-        defaultPlayer(i + 1, `Home ${i + 1}`, "HOME")
-      );
-      const awayRoster = Array.from({ length: 5 }, (_, i) =>
-        defaultPlayer(i + 11, `Away ${i + 1}`, "AWAY")
-      );
+      let homeResult;
+      let awayResult;
 
-      // 4. Run Monte Carlo
+      if (homeTeam && awayTeam) {
+        const [homeRows, awayRows] = await Promise.all([
+          getTeamRosterForSim(sql, homeTeam.id, season),
+          getTeamRosterForSim(sql, awayTeam.id, season),
+        ]);
+        homeResult = buildRosterFromDb(homeRows, homeTeam.abbrev);
+        awayResult = buildRosterFromDb(awayRows, awayTeam.abbrev);
+      } else {
+        homeResult = { roster: fallbackRoster(homeTeam?.abbrev ?? "HOME"), source: "fallback" as const };
+        awayResult = { roster: fallbackRoster(awayTeam?.abbrev ?? "AWAY"), source: "fallback" as const };
+      }
+
+      const rosterSource = homeResult.source === "db" && awayResult.source === "db" ? "db" : "fallback";
+
       const simResult = runMonteCarloSim({
-        homeRoster,
-        awayRoster,
+        homeRoster: homeResult.roster,
+        awayRoster: awayResult.roster,
         simCount: 500,
         ticksPerSim: 600,
       });
 
-      // 5. Detect edge
       const { edge } = detectEdge(simResult.medianSpread, vegas);
       const confidence = classifyConfidence(edge, simResult.stddev);
 
-      // 6. Store prediction
       await insertPrediction(sql, {
         event_id: event.id,
-        calibration_version: "v0.1.0",
+        calibration_version: "v0.2.0",
         sim_count: simResult.simCount,
         sim_median_spread: simResult.medianSpread,
         sim_mean_spread: simResult.meanSpread,
@@ -82,6 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         sim_spread: simResult.medianSpread,
         edge,
         confidence,
+        roster_source: rosterSource,
       });
     }
 
