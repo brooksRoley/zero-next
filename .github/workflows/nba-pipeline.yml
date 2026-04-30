@@ -13,6 +13,9 @@ on:
       - 'src/lib/nba/**'
       - 'scripts/**'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -21,10 +24,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 22
+          cache: yarn
 
-      - run: npm ci
+      - run: yarn install --frozen-lockfile
 
       - name: Type check
         run: npx tsc --noEmit --pretty
@@ -37,6 +40,7 @@ jobs:
     needs: lint-and-test
     steps:
       - uses: actions/checkout@v4
+
 
       - name: Build pipeline image
         run: docker build -f Dockerfile.pipeline -t nba-pipeline:${{ github.sha }} .
