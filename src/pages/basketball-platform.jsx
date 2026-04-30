@@ -18,6 +18,7 @@ const ZONES = [
     pts: 2,
     color: '#552583',
     poly: '170,108 290,108 290,258 170,258',
+    edu: 'High efficiency zone. Close proximity makes this a high percentage shot despite heavy interior defense.',
   },
   {
     id: 'left-mid',
@@ -26,6 +27,7 @@ const ZONES = [
     pts: 2,
     color: '#166534',
     poly: '44,108 170,108 170,258 44,258',
+    edu: 'Lower efficiency. Mid-range jump shots analytically yield fewer points per possession.',
   },
   {
     id: 'right-mid',
@@ -34,6 +36,7 @@ const ZONES = [
     pts: 2,
     color: '#166534',
     poly: '290,108 416,108 416,258 290,258',
+    edu: 'Lower efficiency. Mid-range jump shots analytically yield fewer points per possession.',
   },
   {
     id: 'left-corner-3',
@@ -42,6 +45,7 @@ const ZONES = [
     pts: 3,
     color: '#1e40af',
     poly: '0,178 44,178 44,258 0,258',
+    edu: 'Most valuable shot analytically. Shorter distance (22ft) to the basket than other 3-pointers.',
   },
   {
     id: 'right-corner-3',
@@ -50,6 +54,7 @@ const ZONES = [
     pts: 3,
     color: '#1e40af',
     poly: '416,178 460,178 460,258 416,258',
+    edu: 'Most valuable shot analytically. Shorter distance (22ft) to the basket than other 3-pointers.',
   },
   {
     id: 'left-wing-3',
@@ -58,6 +63,7 @@ const ZONES = [
     pts: 3,
     color: '#1d4ed8',
     poly: '0,12 230,12 170,108 44,108 44,178 0,178',
+    edu: 'Standard 3pt range. Essential for spacing the floor and opening driving lanes.',
   },
   {
     id: 'right-wing-3',
@@ -66,6 +72,7 @@ const ZONES = [
     pts: 3,
     color: '#1d4ed8',
     poly: '230,12 460,12 460,178 416,178 416,108 290,108',
+    edu: 'Standard 3pt range. Essential for spacing the floor and opening driving lanes.',
   },
   {
     id: 'top-of-key',
@@ -74,6 +81,7 @@ const ZONES = [
     pts: 2,
     color: '#166534',
     poly: '170,108 290,108 230,12',
+    edu: 'Often the result of a pick and pop or an isolation play. High traffic area.',
   },
 ]
 
@@ -114,29 +122,45 @@ function ShootingDrill() {
   const totalAttempts = Object.values(stats).reduce((s, z) => s + z.attempts, 0)
   const totalMakes = Object.values(stats).reduce((s, z) => s + z.makes, 0)
   const totalPts = ZONES.reduce((s, z) => s + stats[z.id].makes * z.pts, 0)
+  const totalExpectedPts = ZONES.reduce((s, z) => s + stats[z.id].attempts * z.makePct * z.pts, 0)
 
   const hovered = hoveredZone ? ZONES.find(z => z.id === hoveredZone) : null
 
   return (
     <div className="rounded-2xl border border-forest-700/40 bg-forest-900/60 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-forest-800/60">
-        <div>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-forest-800/60 min-h-[5.5rem]">
+        <div className="flex-1 pr-4">
           <h3 className="text-base font-semibold text-white">Shooting Drill</h3>
-          <p className="text-xs text-forest-400 font-mono mt-0.5">
-            {hovered
-              ? `${hovered.label} — ${Math.round(hovered.makePct * 100)}% expected FG · ${hovered.pts}pt`
-              : 'Click a zone to shoot. Percentages are NBA averages.'}
-          </p>
+          {hovered ? (
+            <div className="mt-0.5">
+              <p className="text-xs font-semibold text-forest-300">
+                {hovered.label} &middot; {Math.round(hovered.makePct * 100)}% expected FG &middot; {hovered.pts}pt
+              </p>
+              <p className="text-[11px] text-forest-400 font-mono mt-0.5 leading-snug">{hovered.edu}</p>
+            </div>
+          ) : (
+            <div className="mt-0.5">
+              <p className="text-xs text-forest-400 font-mono">
+                Click a zone to shoot. Percentages are NBA averages.
+              </p>
+              <p className="text-[11px] text-forest-500 font-mono mt-0.5 leading-snug">
+                Try to beat your expected points!
+              </p>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 shrink-0 pl-4 border-l border-forest-800/60">
           {totalAttempts > 0 && (
             <div className="text-right">
               <p className="text-sm font-mono text-white">
                 {totalMakes}/{totalAttempts}{' '}
                 <span className="text-forest-400">({Math.round((totalMakes / totalAttempts) * 100)}%)</span>
               </p>
-              <p className="text-xs font-mono text-[#FDB927]">{totalPts} pts</p>
+              <div className="flex gap-2 justify-end text-xs font-mono mt-0.5">
+                <span className="text-[#FDB927]">{totalPts} pts</span>
+                <span className="text-forest-400" title="Expected Points">/ Exp: {totalExpectedPts.toFixed(1)}</span>
+              </div>
             </div>
           )}
           <button
@@ -508,11 +532,13 @@ function drawJsFrame(ctx, { ballX, ballY, spinAngle, trail, text, textColor }) {
   }
 }
 
-function JsSlider({ label, sub, value, min, max, onChange, unit = '', kyrie }) {
+function JsSlider({ label, sub, value, min, max, onChange, unit = '', kyrie, edu }) {
   return (
-    <div>
+    <div className="group relative">
       <div className="flex justify-between text-xs font-mono mb-1">
-        <span className="text-forest-400">{label} <span className="text-forest-600 text-[10px]">{sub}</span></span>
+        <span className="text-forest-400 flex items-center gap-1.5">
+          {label} <span className="text-forest-600 text-[10px]">{sub}</span>
+        </span>
         <span className="text-forest-300">{value}{unit}</span>
       </div>
       <input
@@ -525,6 +551,11 @@ function JsSlider({ label, sub, value, min, max, onChange, unit = '', kyrie }) {
         <span>Kyrie ≈ {kyrie}{unit}</span>
         <span>{max}{unit}</span>
       </div>
+      {edu && (
+        <p className="hidden group-hover:block absolute z-10 bottom-full mb-2 left-0 w-48 bg-forest-900 border border-forest-700 p-2 text-[10px] text-forest-300 font-sans rounded shadow-xl leading-relaxed">
+          {edu}
+        </p>
+      )}
     </div>
   )
 }
@@ -586,9 +617,19 @@ function JumpshotSimulator() {
     else if (made)                 comment = jsPick(JS_QUIPS.good)
     else if (isClose && spin > 5)  comment = jsPick(JS_QUIPS.rimSave)
     else if (isClose)              comment = jsPick(JS_QUIPS.rimOut)
-    else if (arc < 38)             comment = jsPick(JS_QUIPS.flat)
-    else if (rel < 45)             comment = jsPick(JS_QUIPS.late)
-    else                           comment = jsPick(JS_QUIPS.miss)
+    else {
+      // Educational Feedback: Find the biggest error
+      const maxErr = Math.max(arcErr, relErr, spinErr, gatherErr)
+      if (maxErr === arcErr) {
+        comment = arc < type.optArc ? `Too flat! Needs more arc. (Target: ~${type.optArc}°)` : `Too much arc! (Target: ~${type.optArc}°)`
+      } else if (maxErr === relErr) {
+        comment = rel < type.optRel ? `Early release on the jump. (Target: ~${type.optRel})` : `Late release. Shoot at the apex. (Target: ~${type.optRel})`
+      } else if (maxErr === gatherErr) {
+        comment = `Off-balance footwork. (Target: ~${type.optGather})`
+      } else {
+        comment = spin < type.optSpin ? `Not enough backspin for a soft touch.` : `Too much spin.`
+      }
+    }
 
     // Trajectory geometry (parametric parabola)
     const { FY, SX, RX, RY } = JS
@@ -659,9 +700,9 @@ function JumpshotSimulator() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex gap-0.5 font-mono text-sm font-bold tracking-wider">
+          <div className="flex gap-0.5 font-mono text-lg font-black tracking-widest bg-forest-950 px-2 py-0.5 rounded-md border border-forest-800/60 shadow-inner">
             {'HORSE'.split('').map((L, i) => (
-              <span key={i} className={i < horse.length ? 'text-red-400' : 'text-forest-800'}>{L}</span>
+              <span key={i} className={i < horse.length ? 'text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'text-forest-800/50'}>{L}</span>
             ))}
           </div>
           {fgPct !== null && (
@@ -690,13 +731,14 @@ function JumpshotSimulator() {
 
       {gameOver ? (
         <div className="text-center py-10 px-6">
-          <p className="font-mono text-xl font-bold text-red-400 tracking-widest mb-1">H-O-R-S-E</p>
-          <p className="text-forest-400 text-sm mb-5">
-            {fgPct}% from the field · {stats.makes} makes
+          <p className="font-mono text-3xl font-black text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] tracking-[0.2em] mb-2">H-O-R-S-E</p>
+          <p className="text-forest-300 text-sm mb-6 leading-relaxed">
+            You shot <span className="font-bold text-white">{fgPct}%</span> from the field with <span className="font-bold text-white">{stats.makes}</span> makes.<br/>
+            Analyze your form and try again to improve your consistency.
           </p>
           <button
             onClick={reset}
-            className="px-6 py-2.5 rounded-xl bg-candy-600 hover:bg-candy-500 text-white font-semibold text-sm transition-colors"
+            className="px-6 py-2.5 rounded-xl bg-candy-600 hover:bg-candy-500 text-white font-bold text-sm transition-all shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:-translate-y-0.5"
           >
             Run It Back
           </button>
@@ -723,11 +765,11 @@ function JumpshotSimulator() {
           </div>
 
           {/* Sliders */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-            <JsSlider label="Arc" sub="lift" value={arc} min={30} max={70} onChange={setArc} unit="°" kyrie={55} />
-            <JsSlider label="Release" sub="timing" value={rel} min={0} max={100} onChange={setRel} kyrie={82} />
-            <JsSlider label="Backspin" sub="touch" value={spin} min={0} max={10} onChange={setSpin} kyrie={8} />
-            <JsSlider label="Footwork" sub="gather" value={gather} min={0} max={100} onChange={setGather} kyrie={75} />
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <JsSlider label="Arc" sub="lift" value={arc} min={30} max={70} onChange={setArc} unit="°" kyrie={55} edu="Optimal arc (approx 45-55°) maximizes the effective size of the hoop." />
+            <JsSlider label="Release" sub="timing" value={rel} min={0} max={100} onChange={setRel} kyrie={82} edu="Releasing at the apex of the jump transfers maximum kinetic energy from the legs." />
+            <JsSlider label="Backspin" sub="touch" value={spin} min={0} max={10} onChange={setSpin} kyrie={8} edu="Backspin softens the bounce off the rim, increasing the chance of a favorable roll." />
+            <JsSlider label="Footwork" sub="gather" value={gather} min={0} max={100} onChange={setGather} kyrie={75} edu="A balanced gather sets the foundation for a stable upward transfer of power." />
           </div>
 
           {/* Shot type + shoot */}
@@ -1140,44 +1182,7 @@ export default function BasketballPlatformPage() {
           </section>
         </Reveal>
 
-        {/* ── CTA ── */}
-        <Reveal>
-          <section className="mb-8">
-            <div className="rounded-2xl border border-forest-700/40 bg-gradient-to-br from-forest-900/80 to-forest-950 p-6 sm:p-8 text-center">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3">
-                Let&apos;s Build Something Together
-              </h2>
-              <p className="text-forest-300 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
-                I&apos;m pursuing senior engineering roles in sports tech and data strategy.
-                If you&apos;re building at the intersection of sports and software, I&apos;d love to talk.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <a
-                  href="https://calendly.com/brooksroley/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-2.5 rounded-xl bg-forest-500 hover:bg-forest-400 text-white text-sm font-semibold transition-colors"
-                >
-                  Schedule a Call
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/brooksroley/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 border border-forest-600/40 text-white text-sm font-semibold transition-colors"
-                >
-                  Connect on LinkedIn
-                </a>
-                <Link
-                  href="/resume"
-                  className="px-6 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 border border-forest-600/40 text-white text-sm font-semibold transition-colors"
-                >
-                  View Resume
-                </Link>
-              </div>
-            </div>
-          </section>
-        </Reveal>
+
 
       </div>
     </main>
