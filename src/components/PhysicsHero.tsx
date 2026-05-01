@@ -45,10 +45,10 @@ type TokenState = TokenSpec & {
 
 const TOKEN_SPECS: TokenSpec[] = [
   {
-    label: 'Game Systems',
+    label: 'Pente',
     href: '/posts/pente',
     tone: 'aqua',
-    w: 156,
+    w: 120,
     h: 50,
     desktop: [0.22, 0.2],
     mobile: [0.22, 0.16],
@@ -63,19 +63,19 @@ const TOKEN_SPECS: TokenSpec[] = [
     mobile: [0.72, 0.22],
   },
   {
-    label: 'Fast Feedback',
-    href: '/nba',
+    label: 'Tower Defense',
+    href: '/posts/nanu-pika-td',
     tone: 'copper',
-    w: 164,
+    w: 160,
     h: 52,
     desktop: [0.55, 0.5],
     mobile: [0.5, 0.5],
   },
   {
-    label: 'Layered Surfaces',
-    href: '/basketball-platform',
+    label: 'Go',
+    href: '/posts/go',
     tone: 'slate',
-    w: 184,
+    w: 96,
     h: 50,
     desktop: [0.3, 0.74],
     mobile: [0.2, 0.76],
