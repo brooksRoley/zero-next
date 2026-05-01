@@ -366,14 +366,6 @@ export default function LuminousFlow() {
               &larr; back
             </Link>
           </div>
-          <div>
-            <h1 className="text-white/10 text-4xl sm:text-6xl font-bold tracking-tight select-none">
-              Luminous Flow
-            </h1>
-            <p className="text-white/15 text-xs sm:text-sm font-mono mt-2 max-w-md select-none">
-              curl noise &middot; incompressible flow &middot; move your mouse to disturb the field
-            </p>
-          </div>
         </div>
       </div>
     </>
