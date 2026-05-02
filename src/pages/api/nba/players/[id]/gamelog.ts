@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, parseSeasonType } from "src/lib/nba/season";
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,12 +12,13 @@ export default async function handler(
   if (isNaN(playerId)) return res.status(400).json({ error: "Invalid player ID" });
 
   try {
-    const allGames = await cached(`gamelog_${playerId}`, async () => {
+    const seasonType = parseSeasonType(req.query.season_type);
+    const allGames = await cached(`gamelog_${playerId}_${seasonType}`, async () => {
       const season = currentNbaSeason();
       const rows = await fetchStats("playergamelog", {
         PlayerID: playerId,
         Season: season,
-        SeasonType: "Regular Season",
+        SeasonType: seasonType,
       }, { resultSetName: "PlayerGameLog" });
 
       return rows.map((r, i) => ({

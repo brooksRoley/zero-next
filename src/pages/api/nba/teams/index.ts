@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
 import { TEAMS_BY_ID } from "src/lib/nba/teams-static";
 import { TeamSchema } from "src/lib/nba/schemas";
 import { validateRows } from "src/lib/nba/validate";
@@ -11,7 +11,7 @@ async function fetchTeams() {
   const rows = await fetchStats("leaguestandingsv3", {
     LeagueID: "00",
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
   }, { resultSetName: "Standings" });
 
   const validated = validateRows(TeamSchema, rows, "leaguestandingsv3/teams");

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
 import { getTeams } from "../../teams/index";
 import { getStandingsRows } from "../../standings";
 
@@ -43,7 +43,7 @@ export async function fetchTeamAnalytics(teamId: number) {
   const recentRows = await fetchStats("leaguegamefinder", {
     TeamID: teamId,
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     LeagueID: "00",
   }, { resultSetName: "LeagueGameFinderResults" });
 
@@ -60,7 +60,7 @@ export async function fetchTeamAnalytics(teamId: number) {
   // Traditional per-game stats for roster
   const tradRows = await fetchStats("leaguedashplayerstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     PerMode: "PerGame",
     MeasureType: "Base",
     LeagueID: "00",
@@ -70,7 +70,7 @@ export async function fetchTeamAnalytics(teamId: number) {
   // Advanced stats for roster
   const advRows = await fetchStats("leaguedashplayerstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     PerMode: "PerGame",
     MeasureType: "Advanced",
     LeagueID: "00",
@@ -104,7 +104,7 @@ export async function fetchTeamAnalytics(teamId: number) {
   // Team-level advanced stats
   const teamAdvRows = await fetchStats("leaguedashteamstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     PerMode: "PerGame",
     MeasureType: "Advanced",
     LeagueID: "00",

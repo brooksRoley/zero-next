@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
 import { PlayerSchema } from "src/lib/nba/schemas";
 import { validateRows } from "src/lib/nba/validate";
 
@@ -9,7 +9,7 @@ async function fetchPlayers() {
   const season = currentNbaSeason();
   const rows = await fetchStats("leaguedashplayerstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     PerMode: "PerGame",
     MeasureType: "Base",
     LeagueID: "00",
