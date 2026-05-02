@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
 
 function formatDate(d: Date): string {
   return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
@@ -9,13 +9,14 @@ function formatDate(d: Date): string {
 
 async function fetchLastNight() {
   const season = currentNbaSeason();
+  const seasonType = currentSeasonType();
 
   async function gamesForDate(dateStr: string) {
     return fetchStats("leaguegamefinder", {
       DateFrom: dateStr,
       DateTo: dateStr,
       Season: season,
-      SeasonType: "Regular Season",
+      SeasonType: seasonType,
       LeagueID: "00",
     }, { resultSetName: "LeagueGameFinderResults" });
   }
@@ -62,7 +63,7 @@ async function fetchLastNight() {
   // Player stats for that date
   const playerRows = await fetchStats("leaguedashplayerstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: seasonType,
     PerMode: "Totals",
     MeasureType: "Base",
     LeagueID: "00",

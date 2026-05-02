@@ -1,19 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, parseSeasonType } from "src/lib/nba/season";
 
 function formatDate(d: Date): string {
   return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
 }
 
-async function fetchGames(dateFrom: string, dateTo: string) {
+async function fetchGames(dateFrom: string, dateTo: string, seasonType: string) {
   const season = currentNbaSeason();
   const rows = await fetchStats("leaguegamefinder", {
     DateFrom: dateFrom,
     DateTo: dateTo,
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: seasonType,
     LeagueID: "00",
   }, { resultSetName: "LeagueGameFinderResults" });
 
@@ -67,8 +67,9 @@ export default async function handler(
       dateTo = formatDate(today);
     }
 
-    const cacheKey = `games_${dateFrom}_${dateTo}`;
-    const data = await cached(cacheKey, () => fetchGames(dateFrom, dateTo), 300);
+    const seasonType = parseSeasonType(req.query.season_type);
+    const cacheKey = `games_${dateFrom}_${dateTo}_${seasonType}`;
+    const data = await cached(cacheKey, () => fetchGames(dateFrom, dateTo, seasonType), 300);
 
     res.status(200).json({ data, _meta: { endpoint: "games" } });
   } catch (e: unknown) {

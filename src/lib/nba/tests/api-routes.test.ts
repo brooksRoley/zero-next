@@ -225,7 +225,7 @@ describe("GET /api/nba/games", () => {
     // Verify fetchStats was called with leaguegamefinder and a date-formatted param
     expect(mockFetchStats).toHaveBeenCalledWith(
       "leaguegamefinder",
-      expect.objectContaining({ Season: "2025-26", SeasonType: "Regular Season" }),
+      expect.objectContaining({ Season: "2025-26" }),
       expect.anything(),
     );
     // DateFrom and DateTo should match (same day) regardless of timezone

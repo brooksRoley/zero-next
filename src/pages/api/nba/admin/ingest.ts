@@ -10,7 +10,7 @@ import { fetchStats } from "src/lib/nba/client";
 import { PlayerSchema, StandingsSchema } from "src/lib/nba/schemas";
 import { validateRows } from "src/lib/nba/validate";
 import { upsertPlayers, upsertTeams, logBronzeIngestion } from "src/lib/nba/db/writers";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, parseSeasonType } from "src/lib/nba/season";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Auth: Vercel Cron sends CRON_SECRET, manual calls use x-admin-key
@@ -22,12 +22,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const season = (req.query.season as string) || currentNbaSeason();
+  const seasonType = parseSeasonType(req.query.season_type);
   const results: { endpoint: string; status: string; rows: number; error?: string }[] = [];
 
   // Players
   try {
     const rows = await fetchStats("leaguedashplayerstats", {
-      Season: season, SeasonType: "Regular Season", PerMode: "PerGame",
+      Season: season, SeasonType: seasonType, PerMode: "PerGame",
       MeasureType: "Base", LeagueID: "00",
     });
     await logBronzeIngestion(sql, "stats.nba.com", "leaguedashplayerstats", { season }, rows.slice(0, 2), rows.length);
@@ -41,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Standings + Teams
   try {
     const rows = await fetchStats("leaguestandingsv3", {
-      LeagueID: "00", Season: season, SeasonType: "Regular Season",
+      LeagueID: "00", Season: season, SeasonType: seasonType,
     }, { resultSetName: "Standings" });
     await logBronzeIngestion(sql, "stats.nba.com", "leaguestandingsv3", { season }, rows.slice(0, 2), rows.length);
     const valid = validateRows(StandingsSchema, rows, "leaguestandingsv3");

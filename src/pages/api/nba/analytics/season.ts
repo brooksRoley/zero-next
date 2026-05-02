@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
 
 function safe(val: unknown, scale = 1, decimals = 1): number | null {
   try {
@@ -19,7 +19,7 @@ async function fetchSeasonAnalytics() {
   // Advanced player stats (min 20 GP)
   const playerRows = await fetchStats("leaguedashplayerstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     PerMode: "PerGame",
     MeasureType: "Advanced",
     LeagueID: "00",
@@ -44,7 +44,7 @@ async function fetchSeasonAnalytics() {
   // Advanced team stats
   const teamRows = await fetchStats("leaguedashteamstats", {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: currentSeasonType(),
     PerMode: "PerGame",
     MeasureType: "Advanced",
     LeagueID: "00",
