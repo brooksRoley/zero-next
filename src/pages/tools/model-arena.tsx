@@ -64,11 +64,17 @@ function saveBattleHistory(records: BattleRecord[]) {
 function BYOKPanel({
   keys,
   onUpdate,
+  openRef,
 }: {
   keys: StoredKeys;
   onUpdate: (keys: StoredKeys) => void;
+  openRef?: React.MutableRefObject<(() => void) | null>;
 }) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (openRef) openRef.current = () => setOpen(true);
+  }, [openRef]);
   const [local, setLocal] = useState<StoredKeys>(keys);
 
   const providers = [
@@ -308,6 +314,7 @@ export default function ModelArena() {
   const [columns, setColumns] = useState<StreamColumn[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const openByokRef = useRef<(() => void) | null>(null);
 
   // Battle mode state
   const [battleRevealed, setBattleRevealed] = useState(false);
@@ -523,7 +530,7 @@ export default function ModelArena() {
             Model Arena
           </h1>
         </div>
-        <BYOKPanel keys={byokKeys} onUpdate={setByokKeys} />
+        <BYOKPanel keys={byokKeys} onUpdate={setByokKeys} openRef={openByokRef} />
       </header>
 
       {/* Mode Tabs */}
@@ -555,11 +562,22 @@ export default function ModelArena() {
       )}
 
       {mode === "battle" && columns.length === 0 && (
-        <div className="px-4 py-6 text-center">
-          <p className="text-sm text-[#DADBD9]/50">
-            Type a prompt and hit Send. Two random models will compete
-            blindly.
+        <div className="px-4 py-6 text-center space-y-2">
+          <p className="text-sm text-[#DADBD9]/60">
+            Type a prompt and hit Send. Two random models will compete blindly.
           </p>
+          {!Object.values(byokKeys).some(Boolean) && (
+            <p className="text-xs text-amber-400/70">
+              No API keys configured —{" "}
+              <button
+                onClick={() => openByokRef.current?.()}
+                className="underline hover:text-amber-400"
+              >
+                add one in API Keys
+              </button>{" "}
+              (top right) to use Groq, OpenRouter, or Cerebras.
+            </p>
+          )}
         </div>
       )}
 
@@ -643,31 +661,43 @@ export default function ModelArena() {
 
       {/* Empty state when no columns */}
       {columns.length === 0 && mode === "compare" && (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-[#DADBD9]/40">
-            Pick two models, type a prompt, and compare responses.
+        <div className="flex-1 flex flex-col items-center justify-center gap-2">
+          <p className="text-sm text-[#DADBD9]/50">
+            Pick two models, type a prompt below, and compare responses.
           </p>
+          {!Object.values(byokKeys).some(Boolean) && (
+            <p className="text-xs text-amber-400/70">
+              Requires an API key —{" "}
+              <button
+                onClick={() => openByokRef.current?.()}
+                className="underline hover:text-amber-400"
+              >
+                add one in API Keys
+              </button>{" "}
+              (top right).
+            </p>
+          )}
         </div>
       )}
 
       {/* Input Area */}
-      <div className="border-t border-[#C5E7EA]/10 px-4 py-3">
+      <div className="border-t border-[#C5E7EA]/20 bg-[#1c2426]/60 px-4 py-3">
         <div className="flex gap-2 items-end">
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter a prompt to compare models..."
-            rows={1}
-            className="flex-1 resize-none rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-3 py-2 text-sm text-[#DADBD9] placeholder-[#DADBD9]/30 focus:border-[#C5E7EA]/50 focus:outline-none"
+            placeholder="Enter a prompt to compare models…"
+            rows={2}
+            className="flex-1 resize-none rounded-lg border border-[#C5E7EA]/40 bg-[#415557]/50 px-3 py-2 text-sm text-[#DADBD9] placeholder-[#DADBD9]/50 focus:border-[#C5E7EA]/70 focus:outline-none"
             disabled={isRunning}
           />
           <button
             onClick={handleSend}
             disabled={!prompt.trim() || isRunning}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/30 text-[#C5E7EA] hover:bg-[#C5E7EA]/40 transition-colors disabled:opacity-40"
           >
-            Send
+            {isRunning ? "Running…" : "Send"}
           </button>
         </div>
       </div>
