@@ -9,17 +9,18 @@ import { fetchStats } from "../src/lib/nba/client";
 import { PlayerSchema, StandingsSchema } from "../src/lib/nba/schemas";
 import { validateRows } from "../src/lib/nba/validate";
 import { upsertPlayers, upsertTeams, logBronzeIngestion } from "../src/lib/nba/db/writers";
-import { currentNbaSeason } from "../src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType } from "../src/lib/nba/season";
 import type { NbaRow } from "../src/lib/nba/client";
 
 // Accept season as CLI arg, default to current
 const season = process.argv[2] || currentNbaSeason();
+const seasonType = currentSeasonType();
 
 async function ingestPlayers(sql: any) {
   console.log(`\n[players] Fetching leaguedashplayerstats for ${season}...`);
   const params = {
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: seasonType,
     PerMode: "PerGame",
     MeasureType: "Base",
     LeagueID: "00",
@@ -47,7 +48,7 @@ async function ingestStandings(sql: any) {
   const params = {
     LeagueID: "00",
     Season: season,
-    SeasonType: "Regular Season",
+    SeasonType: seasonType,
   };
 
   const rows = await fetchStats("leaguestandingsv3", params, { resultSetName: "Standings" });
