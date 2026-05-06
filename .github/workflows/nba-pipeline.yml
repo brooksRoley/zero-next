@@ -46,4 +46,4 @@ jobs:
         run: docker build -f Dockerfile.pipeline -t nba-pipeline:${{ github.sha }} .
 
       - name: Verify image runs
-        run: docker run --rm nba-pipeline:${{ github.sha }} -e "console.log('build ok')"
+        run: docker run --rm --entrypoint node nba-pipeline:${{ github.sha }} -e "console.log('build ok')"
