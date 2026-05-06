@@ -19,10 +19,11 @@ import {
   upsertPlayers, upsertTeams, upsertPlayerGameStats,
   logBronzeIngestion,
 } from "../src/lib/nba/db/writers";
-import { currentNbaSeason, LAKERS_TEAM_ID } from "../src/lib/nba/season";
+import { currentNbaSeason, currentSeasonType, LAKERS_TEAM_ID } from "../src/lib/nba/season";
 import type { NbaRow } from "../src/lib/nba/client";
 
 const season = process.argv[2] || currentNbaSeason();
+const seasonType = currentSeasonType();
 
 interface IngestResult {
   endpoint: string;
@@ -142,7 +143,7 @@ async function main() {
   // 1. Players
   results.push(await ingestEndpoint(
     sql, "players", "leaguedashplayerstats",
-    { Season: season, SeasonType: "Regular Season", PerMode: "PerGame", MeasureType: "Base", LeagueID: "00" },
+    { Season: season, SeasonType: seasonType, PerMode: "PerGame", MeasureType: "Base", LeagueID: "00" },
     PlayerSchema, upsertPlayers
   ));
 
@@ -151,7 +152,7 @@ async function main() {
   // 2. Standings + Teams
   results.push(await ingestEndpoint(
     sql, "standings", "leaguestandingsv3",
-    { LeagueID: "00", Season: season, SeasonType: "Regular Season" },
+    { LeagueID: "00", Season: season, SeasonType: seasonType },
     StandingsSchema,
     async (sql, rows) => {
       const teamCount = await upsertTeams(sql, rows);
