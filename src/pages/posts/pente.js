@@ -996,6 +996,12 @@ const GameBoard = () => {
                 </button>
               )}
             </div>
+            <a
+              href="/funding"
+              className="text-[11px] text-forest-500 hover:text-candy-300 transition-colors"
+            >
+              Enjoying Pente? Tip the dev ☕
+            </a>
           </div>
 
           {gameAnalysis && (

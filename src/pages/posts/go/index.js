@@ -833,12 +833,20 @@ export default function GoPage() {
                   <span className="text-forest-500">({rankLabel(eloChange.after)})</span>
                 </div>
               )}
-              <button
-                onClick={() => startNewGame(boardSize, handicap)}
-                className="mt-2 px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-xs text-candy-100 hover:bg-candy-500/30 transition"
-              >
-                Play again
-              </button>
+              <div className="mt-2 flex items-center gap-3">
+                <button
+                  onClick={() => startNewGame(boardSize, handicap)}
+                  className="px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-xs text-candy-100 hover:bg-candy-500/30 transition"
+                >
+                  Play again
+                </button>
+                <a
+                  href="/funding"
+                  className="text-[11px] text-forest-500 hover:text-candy-300 transition-colors"
+                >
+                  Enjoying Go? Tip the dev ☕
+                </a>
+              </div>
             </div>
           )}
         </aside>
