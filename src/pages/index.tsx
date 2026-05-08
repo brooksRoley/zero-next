@@ -321,7 +321,6 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Consulting route temporarily disabled
             <Reveal delay={300}>
               <TiltCard>
                 <Link href="/consulting" className={cardBase}>
@@ -341,7 +340,6 @@ export default function Home() {
                 </Link>
               </TiltCard>
             </Reveal>
-            */}
 
           </PhysicsField>
         </section>
@@ -350,9 +348,9 @@ export default function Home() {
         <footer className="border-t border-[#C5E7EA]/10 py-6">
           <div className="flex items-center justify-between text-xs text-[#DADBD9]/46">
             <span>&copy; {new Date().getFullYear()} Brooks Roley</span>
-            {/* <Link href="/funding" className="transition-colors hover:text-[#C5E7EA]">
+            <Link href="/funding" className="transition-colors hover:text-[#C5E7EA]">
               support my work
-            </Link> */}{/* commented out until LLC is set up */}
+            </Link>
           </div>
         </footer>
       </div>
