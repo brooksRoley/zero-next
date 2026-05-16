@@ -40,6 +40,7 @@ export default async function handler(
     let data = await getPlayers();
     const tid = Number(req.query.team_id);
     if (tid) data = data.filter((p) => p.team_id === tid);
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=60");
     res.status(200).json({ data, _meta: { count: data.length, endpoint: "players" } });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error";

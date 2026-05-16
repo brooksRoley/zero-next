@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { upsertPlayers, upsertTeams, upsertGames, upsertPlayerGameStats } from "./writers";
 import { SAMPLE_PLAYERS, SAMPLE_TEAMS, SAMPLE_GAMES, SAMPLE_GAME_LOG } from "../tests/fixtures";
 
@@ -9,7 +10,7 @@ function createMockSql() {
     calls.push({ strings: [...strings], values });
     return Promise.resolve([]);
   };
-  return { sql: mockSql, calls };
+  return { sql: mockSql as unknown as NeonQueryFunction<false, false>, calls };
 }
 
 describe("upsertPlayers", () => {

@@ -1,5 +1,6 @@
 // TARGET STATE: Tests define the data platform specification
 import { describe, it, expect, vi } from "vitest";
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { cleanForSilver, aggregateSeasonStats } from "../pipeline";
 import { upsertPlayers, upsertTeams, logBronzeIngestion } from "../db/writers";
 import {
@@ -15,7 +16,7 @@ function createMockSql() {
     calls.push({ strings: [...strings], values });
     return Promise.resolve([]);
   };
-  return { sql: mockSql, calls };
+  return { sql: mockSql as unknown as NeonQueryFunction<false, false>, calls };
 }
 
 describe("Pipeline - Idempotency", () => {

@@ -54,6 +54,7 @@ export default async function handler(
     result.sort((a, b) => b.pct - a.pct);
     const ranked = result.map((s, i) => ({ ...s, rank: i + 1 }));
 
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=60");
     res.status(200).json({ data: ranked, _meta: { endpoint: "standings" } });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error";

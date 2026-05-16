@@ -71,6 +71,7 @@ export default async function handler(
     const cacheKey = `games_${dateFrom}_${dateTo}_${seasonType}`;
     const data = await cached(cacheKey, () => fetchGames(dateFrom, dateTo, seasonType), 300);
 
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=60");
     res.status(200).json({ data, _meta: { endpoint: "games" } });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error";

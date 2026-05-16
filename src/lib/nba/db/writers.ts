@@ -2,11 +2,13 @@
  * Upsert functions for NBA silver tables.
  * Each function maps NbaRow fields to table columns and uses ON CONFLICT for idempotency.
  */
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 import type { OddsRow } from "../odds";
 
+type Sql = NeonQueryFunction<false, false>;
 type Row = Record<string, any>;
 
-export async function upsertPlayers(sql: any, players: Row[]): Promise<number> {
+export async function upsertPlayers(sql: Sql, players: Row[]): Promise<number> {
   let count = 0;
   for (const p of players) {
     await sql`
@@ -31,7 +33,7 @@ export async function upsertPlayers(sql: any, players: Row[]): Promise<number> {
   return count;
 }
 
-export async function upsertTeams(sql: any, teams: Row[]): Promise<number> {
+export async function upsertTeams(sql: Sql, teams: Row[]): Promise<number> {
   let count = 0;
   for (const t of teams) {
     await sql`
@@ -58,7 +60,7 @@ export async function upsertTeams(sql: any, teams: Row[]): Promise<number> {
   return count;
 }
 
-export async function upsertGames(sql: any, games: Row[]): Promise<number> {
+export async function upsertGames(sql: Sql, games: Row[]): Promise<number> {
   let count = 0;
   for (const g of games) {
     await sql`
@@ -86,7 +88,7 @@ export async function upsertGames(sql: any, games: Row[]): Promise<number> {
   return count;
 }
 
-export async function upsertPlayerGameStats(sql: any, stats: Row[]): Promise<number> {
+export async function upsertPlayerGameStats(sql: Sql, stats: Row[]): Promise<number> {
   let count = 0;
   for (const s of stats) {
     await sql`
@@ -131,7 +133,7 @@ export async function upsertPlayerGameStats(sql: any, stats: Row[]): Promise<num
 
 /** Log a raw ingestion to the bronze table */
 export async function logBronzeIngestion(
-  sql: any,
+  sql: Sql,
   source: string,
   endpoint: string,
   params: Record<string, string | number>,
@@ -144,7 +146,7 @@ export async function logBronzeIngestion(
   `;
 }
 
-export async function upsertOdds(sql: any, rows: OddsRow[]): Promise<number> {
+export async function upsertOdds(sql: Sql, rows: OddsRow[]): Promise<number> {
   let count = 0;
   for (const r of rows) {
     await sql`
@@ -157,20 +159,88 @@ export async function upsertOdds(sql: any, rows: OddsRow[]): Promise<number> {
   return count;
 }
 
-export async function insertPrediction(sql: any, pred: {
+/**
+ * Log a served prediction for later accuracy settlement.
+ * Idempotent on (event_id, calibration_version) — calling repeatedly with the
+ * same event/version is a no-op, so the today.ts endpoint can safely fire it
+ * on every fetch without inflating the table.
+ */
+export async function logPredictionServed(sql: Sql, row: {
+  event_id: string;
+  game_id?: string | null;
+  predicted_spread: number;
+  vegas_spread: number | null;
+  calibration_version: string;
+}): Promise<void> {
+  await sql`
+    INSERT INTO nba_prediction_results (event_id, game_id, predicted_spread, vegas_spread, calibration_version)
+    VALUES (${row.event_id}, ${row.game_id ?? null}, ${row.predicted_spread}, ${row.vegas_spread ?? null}, ${row.calibration_version})
+    ON CONFLICT (event_id, calibration_version) DO NOTHING
+  `;
+}
+
+/**
+ * Fill in actual_margin and derived ATS/beat_vegas fields for predictions
+ * whose game has finished. Returns the count of rows newly settled.
+ */
+export async function settlePredictions(sql: Sql): Promise<number> {
+  const rows = await sql`
+    WITH unsettled AS (
+      SELECT pr.id, pr.predicted_spread, pr.vegas_spread, g.home_score, g.away_score
+      FROM nba_prediction_results pr
+      JOIN nba_games g ON g.game_id = pr.game_id
+      WHERE pr.settled_at IS NULL
+        AND pr.game_id IS NOT NULL
+        AND g.home_score IS NOT NULL
+        AND g.away_score IS NOT NULL
+        AND g.status = 'Final'
+    )
+    UPDATE nba_prediction_results pr
+    SET actual_margin = (u.home_score - u.away_score),
+        beat_vegas = (
+          ABS(pr.predicted_spread - (u.home_score - u.away_score)) <
+          ABS(COALESCE(pr.vegas_spread, 0) - (u.home_score - u.away_score))
+        ),
+        ats_result = CASE
+          WHEN pr.vegas_spread IS NULL THEN NULL
+          WHEN pr.predicted_spread < pr.vegas_spread THEN
+            CASE
+              WHEN (u.home_score - u.away_score) < pr.vegas_spread THEN 'cover'
+              WHEN (u.home_score - u.away_score) = pr.vegas_spread THEN 'push'
+              ELSE 'miss'
+            END
+          ELSE
+            CASE
+              WHEN (u.home_score - u.away_score) > pr.vegas_spread THEN 'cover'
+              WHEN (u.home_score - u.away_score) = pr.vegas_spread THEN 'push'
+              ELSE 'miss'
+            END
+        END,
+        settled_at = NOW()
+    FROM unsettled u
+    WHERE pr.id = u.id
+    RETURNING pr.id
+  `;
+  return rows.length;
+}
+
+export async function insertPrediction(sql: Sql, pred: {
   event_id: string; game_id?: string; calibration_version: string;
   sim_count: number; sim_median_spread: number; sim_mean_spread: number;
   sim_stddev: number; sim_home_win_pct: number; vegas_spread: number;
-  edge: number; confidence: string; synergy_buffs_home: any; synergy_buffs_away: any;
-  home_team: string; away_team: string;
+  edge: number; edge_direction: string; confidence: string;
+  synergy_buffs_home: any; synergy_buffs_away: any;
+  home_team: string; away_team: string; roster_source: string;
 }): Promise<void> {
   await sql`
-    INSERT INTO nba_predictions (event_id, game_id, calibration_version, sim_count, sim_median_spread, sim_mean_spread, sim_stddev, sim_home_win_pct, vegas_spread, edge, confidence, synergy_buffs_home, synergy_buffs_away, home_team, away_team)
-    VALUES (${pred.event_id}, ${pred.game_id ?? null}, ${pred.calibration_version}, ${pred.sim_count}, ${pred.sim_median_spread}, ${pred.sim_mean_spread}, ${pred.sim_stddev}, ${pred.sim_home_win_pct}, ${pred.vegas_spread}, ${pred.edge}, ${pred.confidence}, ${JSON.stringify(pred.synergy_buffs_home)}, ${JSON.stringify(pred.synergy_buffs_away)}, ${pred.home_team}, ${pred.away_team})
+    INSERT INTO nba_predictions (event_id, game_id, calibration_version, sim_count, sim_median_spread, sim_mean_spread, sim_stddev, sim_home_win_pct, vegas_spread, edge, edge_direction, confidence, synergy_buffs_home, synergy_buffs_away, home_team, away_team, roster_source)
+    VALUES (${pred.event_id}, ${pred.game_id ?? null}, ${pred.calibration_version}, ${pred.sim_count}, ${pred.sim_median_spread}, ${pred.sim_mean_spread}, ${pred.sim_stddev}, ${pred.sim_home_win_pct}, ${pred.vegas_spread}, ${pred.edge}, ${pred.edge_direction}, ${pred.confidence}, ${JSON.stringify(pred.synergy_buffs_home)}, ${JSON.stringify(pred.synergy_buffs_away)}, ${pred.home_team}, ${pred.away_team}, ${pred.roster_source})
     ON CONFLICT (event_id, calibration_version) DO UPDATE SET
       sim_median_spread = EXCLUDED.sim_median_spread, sim_mean_spread = EXCLUDED.sim_mean_spread,
       sim_stddev = EXCLUDED.sim_stddev, sim_home_win_pct = EXCLUDED.sim_home_win_pct,
-      vegas_spread = EXCLUDED.vegas_spread, edge = EXCLUDED.edge, confidence = EXCLUDED.confidence,
-      synergy_buffs_home = EXCLUDED.synergy_buffs_home, synergy_buffs_away = EXCLUDED.synergy_buffs_away
+      vegas_spread = EXCLUDED.vegas_spread, edge = EXCLUDED.edge,
+      edge_direction = EXCLUDED.edge_direction, confidence = EXCLUDED.confidence,
+      synergy_buffs_home = EXCLUDED.synergy_buffs_home, synergy_buffs_away = EXCLUDED.synergy_buffs_away,
+      roster_source = EXCLUDED.roster_source
   `;
 }

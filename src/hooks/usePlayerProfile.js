@@ -115,11 +115,20 @@ function profileFromSupabase(row) {
   }
 }
 
-// Merge: take the "better" data from local vs remote (higher ELO, more solves, etc.)
+// Merge: union historical data (solved puzzles, peaks, totals), but take
+// live state (current ELO + streak) from whichever side played most recently.
+// This prevents an old device with a stale-but-higher ELO from ratcheting
+// the rating upward on every sync.
 function mergeProfiles(local, remote) {
   const merged = { ...remote }
-  // Keep the higher ELO
-  if (local.elo > remote.elo) merged.elo = local.elo
+  // Date-based winner for live state. Null dates lose to any real date.
+  const localTs = local.lastSolveDate ? Date.parse(local.lastSolveDate) : -Infinity
+  const remoteTs = remote.lastSolveDate ? Date.parse(remote.lastSolveDate) : -Infinity
+  const localIsNewer = localTs > remoteTs
+  merged.elo = localIsNewer ? local.elo : remote.elo
+  merged.currentStreak = localIsNewer ? local.currentStreak : remote.currentStreak
+  merged.lastSolveDate = localIsNewer ? local.lastSolveDate : remote.lastSolveDate
+  // Peak ELO is a historical high-water mark — keep the max.
   merged.peakElo = Math.max(local.peakElo, remote.peakElo)
   // Union solved puzzles
   const solvedSet = new Set([...local.solvedPuzzles, ...remote.solvedPuzzles])
@@ -130,11 +139,10 @@ function mergeProfiles(local, remote) {
   for (const [k, v] of Object.entries(local.attemptedPuzzles)) {
     merged.attemptedPuzzles[k] = Math.max(v, merged.attemptedPuzzles[k] || 0)
   }
-  // Keep higher stats
+  // Cumulative totals — keep higher
   merged.gamesPlayed = Math.max(local.gamesPlayed, remote.gamesPlayed)
   merged.gamesWon = Math.max(local.gamesWon, remote.gamesWon)
   merged.bestStreak = Math.max(local.bestStreak, remote.bestStreak)
-  merged.currentStreak = Math.max(local.currentStreak, remote.currentStreak)
   // Longer ELO history wins
   merged.eloHistory = local.eloHistory.length > remote.eloHistory.length
     ? local.eloHistory : remote.eloHistory

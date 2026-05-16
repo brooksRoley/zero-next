@@ -40,6 +40,21 @@ export default function Home() {
         featured={
           <>
             <SectionHeading number="01" label="Featured" />
+            <Reveal>
+              <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
+                  Full-stack engineer — React, TypeScript, sports tech, games.
+                  <span className="text-[#DADBD9]/56"> Available for consulting.</span>
+                </p>
+                <Link
+                  href="/consulting"
+                  className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[#B27236]/30 bg-[#B27236]/12 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-[#DADBD9] transition-colors hover:border-[#B27236]/55 hover:bg-[#B27236]/22 sm:self-auto"
+                >
+                  <span>Work with me</span>
+                  <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">&rarr;</span>
+                </Link>
+              </div>
+            </Reveal>
             <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={100}>
@@ -157,6 +172,28 @@ export default function Home() {
                   </TiltCard>
                 </Reveal>
               </div>
+
+              <div data-physics-item className="physics-field-item">
+                <Reveal delay={600}>
+                  <TiltCard>
+                    <Link href="/basketball-platform" className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
+                        <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-70 card-img-hover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      </div>
+                      <div className="relative px-5 pb-5 -mt-8">
+                        <h3 className="text-xl font-semibold flex items-center gap-2">
+                          Basketball Data Platform <ArrowIcon />
+                        </h3>
+                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                          Full-stack NBA system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS.
+                        </p>
+                      </div>
+                      <div className="tilt-highlight" />
+                    </Link>
+                  </TiltCard>
+                </Reveal>
+              </div>
             </PhysicsField>
           </>
         }
@@ -244,28 +281,6 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Basketball Data Platform */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={400}>
-                <TiltCard>
-                  <Link href="/basketball-platform" className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
-                      <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Basketball Data Platform <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
-                        Full-stack analytics system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS app.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
           </PhysicsField>
         </section>
 

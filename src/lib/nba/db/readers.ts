@@ -1,8 +1,11 @@
 /**
  * Query functions for NBA data tables.
  */
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 
-export async function getPlayerSeasonStats(sql: any, playerId: number, season: string) {
+type Sql = NeonQueryFunction<false, false>;
+
+export async function getPlayerSeasonStats(sql: Sql, playerId: number, season: string) {
   const rows = await sql`
     SELECT * FROM nba_player_season_stats
     WHERE player_id = ${playerId} AND season = ${season}
@@ -10,7 +13,7 @@ export async function getPlayerSeasonStats(sql: any, playerId: number, season: s
   return rows[0] ?? null;
 }
 
-export async function getTeamRoster(sql: any, teamId: number) {
+export async function getTeamRoster(sql: Sql, teamId: number) {
   const rows = await sql`
     SELECT * FROM nba_players
     WHERE team_id = ${teamId}
@@ -19,7 +22,7 @@ export async function getTeamRoster(sql: any, teamId: number) {
   return rows;
 }
 
-export async function getStandings(sql: any, season: string) {
+export async function getStandings(sql: Sql, season: string) {
   const rows = await sql`
     SELECT s.*, t.team_name, t.team_city, t.team_abbreviation
     FROM nba_standings s
@@ -30,7 +33,7 @@ export async function getStandings(sql: any, season: string) {
   return rows;
 }
 
-export async function getPlayerGameLog(sql: any, playerId: number, season: string) {
+export async function getPlayerGameLog(sql: Sql, playerId: number, season: string) {
   const rows = await sql`
     SELECT pgs.*, g.game_date, g.home_team_id, g.away_team_id
     FROM nba_player_game_stats pgs
@@ -41,7 +44,7 @@ export async function getPlayerGameLog(sql: any, playerId: number, season: strin
   return rows;
 }
 
-export async function getTeamSeasonStats(sql: any, teamId: number, season: string) {
+export async function getTeamSeasonStats(sql: Sql, teamId: number, season: string) {
   const rows = await sql`
     SELECT * FROM nba_team_season_stats
     WHERE team_id = ${teamId} AND season = ${season}
@@ -49,7 +52,7 @@ export async function getTeamSeasonStats(sql: any, teamId: number, season: strin
   return rows[0] ?? null;
 }
 
-export async function getRecentIngestions(sql: any, limit: number = 10) {
+export async function getRecentIngestions(sql: Sql, limit: number = 10) {
   const rows = await sql`
     SELECT id, source, endpoint, row_count, ingested_at
     FROM nba_bronze_ingestions
@@ -59,7 +62,7 @@ export async function getRecentIngestions(sql: any, limit: number = 10) {
   return rows;
 }
 
-export async function getTodayPredictions(sql: any) {
+export async function getTodayPredictions(sql: Sql) {
   return sql`
     SELECT p.*, o.spread_home as book_spread, o.bookmaker
     FROM nba_predictions p
@@ -69,12 +72,12 @@ export async function getTodayPredictions(sql: any) {
   `;
 }
 
-export async function getPrediction(sql: any, eventId: string) {
+export async function getPrediction(sql: Sql, eventId: string) {
   const rows = await sql`SELECT * FROM nba_predictions WHERE event_id = ${eventId} ORDER BY created_at DESC LIMIT 1`;
   return rows[0] ?? null;
 }
 
-export async function getPredictionAccuracy(sql: any) {
+export async function getPredictionAccuracy(sql: Sql) {
   return sql`
     SELECT
       COUNT(*) as total_predictions,
@@ -88,7 +91,7 @@ export async function getPredictionAccuracy(sql: any) {
   `;
 }
 
-export async function getOddsForEvent(sql: any, eventId: string) {
+export async function getOddsForEvent(sql: Sql, eventId: string) {
   return sql`SELECT * FROM nba_odds WHERE event_id = ${eventId} ORDER BY captured_at DESC`;
 }
 
@@ -97,7 +100,7 @@ export async function getOddsForEvent(sql: any, eventId: string) {
  * Joins players + season stats + team stats to produce data compatible with RealPlayerStats.
  * Missing advanced stats (ts_pct, stl_pct, blk_pct) are derived from available per-game data.
  */
-export async function getTeamRosterForSim(sql: any, teamId: number, season: string) {
+export async function getTeamRosterForSim(sql: Sql, teamId: number, season: string) {
   const rows = await sql`
     SELECT
       p.player_id,

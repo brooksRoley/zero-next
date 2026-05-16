@@ -11,6 +11,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json(characters);
   }
 
+  if (req.method === "POST" || req.method === "PUT" || req.method === "DELETE") {
+    if (req.headers["x-admin-key"] !== process.env.ADMIN_KEY) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+  }
+
   if (req.method === "POST") {
     const { name, one_liner, profile, model, color, avatar_emoji } = req.body;
 

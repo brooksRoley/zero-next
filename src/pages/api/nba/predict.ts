@@ -62,6 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const delta = homeNetRating - awayNetRating + HOME_COURT_ADJ;
     const homeWinProb = 1 / (1 + Math.pow(10, -delta / 10));
 
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=60");
     return res.status(200).json({
       homeWinProb: Math.round(homeWinProb * 1000) / 1000,
       awayWinProb: Math.round((1 - homeWinProb) * 1000) / 1000,
