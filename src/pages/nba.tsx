@@ -594,6 +594,11 @@ export default function NbaExplorer() {
     navigateTo(initialNode, { updateUrl: false });
     const ticker = setInterval(() => setTick((n) => n + 1), 30000);
     return () => { window.removeEventListener("resize", handleResize); clearInterval(ticker); };
+  // Invariant: mount-only initialization. Including drawGraph/navigateTo/apiMap/router
+  // would re-run init on every render whose callbacks change identity — re-attaching
+  // the resize listener and re-firing navigateTo (which pushes router state, which
+  // changes navigateTo's identity), producing a loop. The URL → node sync below
+  // handles subsequent navigation.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -646,8 +651,7 @@ export default function NbaExplorer() {
     if (node && apiMap[node] && node !== activeNode) {
       navigateTo(node, { updateUrl: false });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query.node]);
+  }, [router.query.node, apiMap, activeNode, navigateTo]);
 
   // ── Table helpers ──────────────────────────────────────────────────────────
   const tableCols = responseData && Array.isArray(responseData) && responseData.length
