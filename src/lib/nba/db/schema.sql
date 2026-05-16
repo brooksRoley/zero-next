@@ -140,3 +140,26 @@ CREATE TABLE IF NOT EXISTS nba_team_season_stats (
 
 CREATE INDEX IF NOT EXISTS idx_player_season ON nba_player_season_stats (season);
 CREATE INDEX IF NOT EXISTS idx_team_season ON nba_team_season_stats (season);
+
+-- ============================================================
+-- PREDICTIONS: served picks + settled outcomes for accuracy tracking
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS nba_prediction_results (
+  id SERIAL PRIMARY KEY,
+  game_id TEXT,
+  event_id TEXT,
+  predicted_spread NUMERIC,
+  vegas_spread NUMERIC,
+  actual_margin NUMERIC,
+  beat_vegas BOOLEAN,
+  ats_result TEXT,
+  calibration_version TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  settled_at TIMESTAMPTZ
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pred_results_event_calver
+  ON nba_prediction_results (event_id, calibration_version);
+CREATE INDEX IF NOT EXISTS idx_pred_results_unsettled
+  ON nba_prediction_results (settled_at) WHERE settled_at IS NULL;

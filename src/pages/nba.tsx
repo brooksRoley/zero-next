@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { NBA_TEAMS } from "src/lib/nba/teams-static";
 import { currentNbaSeason } from "src/lib/nba/season";
+import PredictionCard, { type Prediction } from "src/components/PredictionCard";
 
 // ── API Map (fallback, also fetched from /api/nba/map) ──────────────────────
 type NodeDef = {
@@ -158,6 +159,18 @@ export default function NbaExplorer() {
   const [tableSearch, setTableSearch] = useState("");
   const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
   const [, setTick] = useState(0); // drives "X min ago" re-renders
+  const [predictions, setPredictions] = useState<Prediction[] | null>(null);
+  const [predictionsLoading, setPredictionsLoading] = useState(true);
+  const [predictionsError, setPredictionsError] = useState<string | null>(null);
+  const [accuracy, setAccuracy] = useState<{
+    totalPredictions: number;
+    covers: number;
+    misses: number;
+    pushes: number;
+    modelMae: number;
+    vegasMae: number;
+    beatVegas: number;
+  } | null>(null);
 
   // Camera state (refs to avoid re-renders on drag)
   const cam = useRef({ x: 0, y: 0, zoom: 1 });
@@ -584,6 +597,49 @@ export default function NbaExplorer() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Fetch today's predictions ──────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/nba/predictions/today");
+        const json = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setPredictionsError(json?.error || "Couldn't load predictions");
+          setPredictions([]);
+        } else {
+          setPredictions(Array.isArray(json.data) ? (json.data as Prediction[]) : []);
+        }
+      } catch {
+        if (!cancelled) {
+          setPredictionsError("Couldn't load predictions");
+          setPredictions([]);
+        }
+      } finally {
+        if (!cancelled) setPredictionsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // ── Fetch model accuracy (settled predictions) ─────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/nba/predictions/accuracy");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (cancelled) return;
+        if (json?.data) setAccuracy(json.data);
+      } catch {
+        /* non-fatal */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   // ── Sync URL → node on browser back/forward ────────────────────────────────
   useEffect(() => {
     const node = typeof router.query.node === "string" ? router.query.node : null;
@@ -692,7 +748,13 @@ export default function NbaExplorer() {
           --text: #e2e4e9; --text2: #8b8fa3; --accent: #f97316; --accent2: #fb923c;
           font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text);
         }
-        .nba-shell { display: grid; grid-template-columns: 1fr clamp(360px, 28vw, 520px); grid-template-rows: 56px 1fr; height: 100vh; }
+        .nba-shell { display: grid; grid-template-columns: 1fr clamp(360px, 28vw, 520px); grid-template-rows: 56px auto 1fr; height: 100vh; }
+        .nba-picks { grid-column: 1 / -1; background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 20px; }
+        .nba-picks-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .nba-picks-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
+        .nba-picks-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); }
+        .nba-picks-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .nba-picks-empty { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; padding: 4px 0; }
         .nba-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 10; min-height: 56px; }
         .nba-header .logo { font-weight: 900; font-size: 18px; letter-spacing: -0.5px; color: var(--accent); }
         .nba-header .logo span { color: var(--text2); font-weight: 300; }
@@ -751,7 +813,7 @@ export default function NbaExplorer() {
         .nba-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: var(--surface2); vertical-align: middle; }
         .nba-avatar-cell { width: 36px; padding: 4px 8px; }
         @media (max-width: 768px) {
-          .nba-shell { grid-template-columns: 1fr; grid-template-rows: 56px 300px 1fr; }
+          .nba-shell { grid-template-columns: 1fr; grid-template-rows: 56px auto 300px 1fr; }
         }
       `}</style>
 
@@ -779,6 +841,69 @@ export default function NbaExplorer() {
               Source
             </a>
           </header>
+
+          <section className="nba-picks" aria-label="Today's Picks">
+            <div className="nba-picks-header">
+              <span className="nba-picks-title">Today&apos;s Picks</span>
+              <span className="nba-picks-sub">
+                {predictionsLoading
+                  ? "loading..."
+                  : predictions && predictions.length > 0
+                    ? `${predictions.length} game${predictions.length === 1 ? "" : "s"} · ranked by edge`
+                    : ""}
+              </span>
+              {accuracy && accuracy.totalPredictions > 0 && (
+                <span
+                  className="nba-picks-sub"
+                  title={`Across ${accuracy.totalPredictions} settled prediction${accuracy.totalPredictions === 1 ? "" : "s"}`}
+                  style={{
+                    marginLeft: "auto",
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <span>
+                    ATS{" "}
+                    <span style={{ color: "var(--text)", fontWeight: 600 }}>
+                      {accuracy.covers}-{accuracy.misses}
+                      {accuracy.pushes > 0 ? `-${accuracy.pushes}` : ""}
+                    </span>
+                  </span>
+                  <span>
+                    Model MAE{" "}
+                    <span style={{ color: "var(--text)", fontWeight: 600 }}>{accuracy.modelMae.toFixed(2)}</span>
+                  </span>
+                  <span>
+                    Vegas MAE{" "}
+                    <span style={{ color: "var(--text)", fontWeight: 600 }}>{accuracy.vegasMae.toFixed(2)}</span>
+                  </span>
+                  <span>
+                    Beats Vegas{" "}
+                    <span style={{ color: "var(--text)", fontWeight: 600 }}>
+                      {accuracy.beatVegas}/{accuracy.totalPredictions}
+                    </span>
+                  </span>
+                </span>
+              )}
+            </div>
+            {predictionsLoading ? (
+              <div className="nba-loading"><div className="nba-spinner" /> Loading today&apos;s model picks…</div>
+            ) : predictionsError ? (
+              <div className="nba-picks-empty">{predictionsError}</div>
+            ) : predictions && predictions.length > 0 ? (
+              <div className="nba-picks-scroll">
+                {predictions.map((p) => (
+                  <PredictionCard key={`${p.event_id}-${p.created_at ?? ""}`} p={p} />
+                ))}
+              </div>
+            ) : (
+              <div className="nba-picks-empty">
+                No picks generated in the last 24 hours. Run the simulator to populate today&apos;s slate.
+              </div>
+            )}
+          </section>
 
           {isMobile ? (
             <div style={{ overflowY: "auto", background: "var(--bg)", padding: "12px 16px" }}>

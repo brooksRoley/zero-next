@@ -1,10 +1,12 @@
 // TARGET STATE: Tests define the data platform specification
 import { describe, it, expect } from "vitest";
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { toParquetData, estimateSize, PLAYER_SEASON_SCHEMA, TEAM_SEASON_SCHEMA } from "../parquet";
 import { getPlayerSeasonStats, getStandings, getPlayerGameLog } from "../db/readers";
 
 function createMockSql(returnRows: any[] = []) {
-  return (strings: TemplateStringsArray, ...values: any[]) => Promise.resolve(returnRows);
+  const mockSql = (strings: TemplateStringsArray, ...values: any[]) => Promise.resolve(returnRows);
+  return mockSql as unknown as NeonQueryFunction<false, false>;
 }
 
 describe("Storage - Parquet Export", () => {

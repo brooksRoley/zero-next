@@ -1,7 +1,10 @@
 /**
  * Pipeline utilities: bronze→silver→gold transforms, checkpointing, idempotency.
  */
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 import type { NbaRow } from "./client";
+
+type Sql = NeonQueryFunction<false, false>;
 
 export interface Checkpoint {
   endpoint: string;
@@ -13,7 +16,7 @@ export interface Checkpoint {
 /**
  * Get the last ingestion checkpoint for an endpoint.
  */
-export async function getCheckpoint(sql: any, endpoint: string): Promise<Checkpoint | null> {
+export async function getCheckpoint(sql: Sql, endpoint: string): Promise<Checkpoint | null> {
   const rows = await sql`
     SELECT endpoint, ingested_at, row_count
     FROM nba_bronze_ingestions
@@ -124,7 +127,7 @@ export function aggregateSeasonStats(
  * Check if a pipeline run would produce the same output (idempotency check).
  * Compares row count from last bronze ingestion with current.
  */
-export async function isIdempotent(sql: any, endpoint: string, currentRowCount: number): Promise<boolean> {
+export async function isIdempotent(sql: Sql, endpoint: string, currentRowCount: number): Promise<boolean> {
   const checkpoint = await getCheckpoint(sql, endpoint);
   if (!checkpoint) return false;
   return checkpoint.rowCount === currentRowCount;

@@ -2,6 +2,9 @@
  * Database migration: creates all NBA medallion architecture tables.
  * Uses CREATE TABLE IF NOT EXISTS — safe to run repeatedly.
  */
+import type { NeonQueryFunction } from "@neondatabase/serverless";
+
+type Sql = NeonQueryFunction<false, false>;
 
 const TABLES = [
   "nba_bronze_ingestions",
@@ -18,7 +21,7 @@ const TABLES = [
   "nba_calibration",
 ] as const;
 
-export async function runMigrations(sql: any): Promise<string[]> {
+export async function runMigrations(sql: Sql): Promise<string[]> {
   // Bronze
   await sql`
     CREATE TABLE IF NOT EXISTS nba_bronze_ingestions (
@@ -210,9 +213,18 @@ export async function runMigrations(sql: any): Promise<string[]> {
       beat_vegas BOOLEAN,
       ats_result TEXT,
       calibration_version TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      settled_at TIMESTAMPTZ
     )
   `;
+  await sql`ALTER TABLE nba_prediction_results ADD COLUMN IF NOT EXISTS settled_at TIMESTAMPTZ`;
+  // Idempotent logging: one row per (event_id, calibration_version)
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_pred_results_event_calver ON nba_prediction_results (event_id, calibration_version)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_pred_results_unsettled ON nba_prediction_results (settled_at) WHERE settled_at IS NULL`;
+
+  // Additive columns on nba_predictions (idempotent)
+  await sql`ALTER TABLE nba_predictions ADD COLUMN IF NOT EXISTS edge_direction TEXT`;
+  await sql`ALTER TABLE nba_predictions ADD COLUMN IF NOT EXISTS roster_source TEXT`;
 
   // Calibration
   await sql`

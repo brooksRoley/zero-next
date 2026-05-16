@@ -1,5 +1,6 @@
 // TARGET STATE: Tests define the data platform specification
 import { describe, it, expect, vi } from "vitest";
+import type { NeonQueryFunction } from "@neondatabase/serverless";
 import { getRecentIngestions } from "../db/readers";
 import { logBronzeIngestion } from "../db/writers";
 
@@ -9,7 +10,7 @@ function createMockSql(returnRows: any[] = []) {
     calls.push({ strings: [...strings], values });
     return Promise.resolve(returnRows);
   };
-  return { sql: mockSql, calls };
+  return { sql: mockSql as unknown as NeonQueryFunction<false, false>, calls };
 }
 
 describe("Data Freshness", () => {

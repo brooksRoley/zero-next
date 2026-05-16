@@ -134,8 +134,8 @@ export default function useMultiplayerGame(gameId, playerId, playerName) {
 
     return () => {
       cancelled = true
-      if (channelRef.current) supabase.removeChannel(channelRef.current)
-      if (presenceRef.current) supabase.removeChannel(presenceRef.current)
+      if (supabase && channelRef.current) supabase.removeChannel(channelRef.current)
+      if (supabase && presenceRef.current) supabase.removeChannel(presenceRef.current)
     }
   }, [gameId, playerId, playerName, syncGameState])
 
