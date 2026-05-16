@@ -2,6 +2,14 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { sql } from "src/lib/db";
 
+// Server-side source of truth for consulting prices. Never trust client-supplied
+// amounts — a malicious POST with $0.01 would otherwise produce a valid session.
+const PRICE_MAP: Record<string, number> = {
+  strategy_session: 15000,
+  dev_sprint: 240000,
+  fractional_cto: 400000,
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -17,10 +25,15 @@ export default async function handler(
 
   const stripe = new Stripe(secretKey);
 
-  const { service_type, amount_cents, lead_id, customer_email } = req.body;
+  const { service_type, lead_id, customer_email } = req.body;
 
-  if (!service_type || !amount_cents) {
-    return res.status(400).json({ error: "service_type and amount_cents are required" });
+  if (!service_type) {
+    return res.status(400).json({ error: "service_type is required" });
+  }
+
+  const amount_cents = PRICE_MAP[service_type as string];
+  if (!amount_cents) {
+    return res.status(400).json({ error: `Unknown service_type: ${service_type}` });
   }
 
   const origin = req.headers.origin || "http://localhost:3000";
