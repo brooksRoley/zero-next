@@ -14,6 +14,19 @@ export interface AccuracyStats {
   beatVegas: number;
 }
 
+/**
+ * Did the model's edge side beat the Vegas spread for a single game?
+ * Edge direction: predicted_spread < vegas_spread → we like home; otherwise away.
+ */
+export function evaluateCover(r: PredictionRecord): "cover" | "miss" | "push" {
+  if (r.actual_margin === r.vegas_spread) return "push";
+  const edgeOnHome = r.predicted_spread < r.vegas_spread;
+  if (edgeOnHome) {
+    return r.actual_margin < r.vegas_spread ? "cover" : "miss";
+  }
+  return r.actual_margin > r.vegas_spread ? "cover" : "miss";
+}
+
 export function computeAccuracy(records: PredictionRecord[]): AccuracyStats {
   let covers = 0, misses = 0, pushes = 0, beatVegas = 0;
   let modelErrorSum = 0, vegasErrorSum = 0;
@@ -26,22 +39,10 @@ export function computeAccuracy(records: PredictionRecord[]): AccuracyStats {
 
     if (modelError < vegasError) beatVegas++;
 
-    // ATS: did the edge side cover?
-    // Edge direction: if predicted_spread < vegas_spread → edge on home
-    const edgeOnHome = r.predicted_spread < r.vegas_spread;
-    if (edgeOnHome) {
-      // We predicted home does better than Vegas thinks
-      // Cover if actual margin < vegas spread (home beat the spread)
-      if (r.actual_margin < r.vegas_spread) covers++;
-      else if (r.actual_margin === r.vegas_spread) pushes++;
-      else misses++;
-    } else {
-      // Edge on away: we predicted away does better
-      // Cover if actual margin > vegas spread (away beat the spread)
-      if (r.actual_margin > r.vegas_spread) covers++;
-      else if (r.actual_margin === r.vegas_spread) pushes++;
-      else misses++;
-    }
+    const outcome = evaluateCover(r);
+    if (outcome === "cover") covers++;
+    else if (outcome === "push") pushes++;
+    else misses++;
   }
 
   return {

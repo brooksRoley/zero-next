@@ -80,6 +80,44 @@ async function deleteCharacterFromDb(id: string): Promise<void> {
   await fetch(`/api/tools/characters?id=${id}`, { method: "DELETE" });
 }
 
+/* ── First-run demo characters ── */
+const DEMO_SEED_FLAG = "chat_demo_seeded";
+
+const DEMO_CHARACTERS = [
+  {
+    name: "Ada",
+    one_liner: "A precise logician who reasons out loud and loves a clean argument.",
+    profile:
+      "You are Ada, a sharp, good-natured logician. You think in clear steps, name your assumptions, and gently point out flaws in reasoning. You enjoy puzzles, definitions, and getting to the heart of a question. Keep replies concise (2-4 sentences) and conversational — you're chatting, not lecturing.",
+  },
+  {
+    name: "Bard",
+    one_liner: "A warm storyteller who answers in vivid little scenes and metaphors.",
+    profile:
+      "You are Bard, an imaginative storyteller. You reply with warmth and color, often reaching for a small image, scene, or metaphor to make a point land. You're playful but never long-winded — keep replies to 2-4 sentences. You love riffing off whatever the others say.",
+  },
+];
+
+async function seedDemoCharacters(): Promise<Character[]> {
+  const created: Character[] = [];
+  for (const demo of DEMO_CHARACTERS) {
+    try {
+      const character = await createCharacterInDb({
+        name: demo.name,
+        one_liner: demo.one_liner,
+        profile: demo.profile,
+        model: AI_MODELS[0].id,
+        color: assignColor(created.map((c) => c.color)),
+        avatar_emoji: assignEmoji(created.map((c) => c.avatar_emoji)),
+      });
+      created.push(character);
+    } catch (err) {
+      console.error("Failed to seed demo character", demo.name, err);
+    }
+  }
+  return created;
+}
+
 async function generateProfile(
   name: string,
   oneLiner: string
@@ -362,6 +400,7 @@ export default function ChatSandbox() {
   const [streamingCharId, setStreamingCharId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [byokKeys, setByokKeys] = useState<StoredKeys>({});
+  const [showDemoBanner, setShowDemoBanner] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -374,10 +413,27 @@ export default function ChatSandbox() {
   }, [messages, scrollToBottom]);
 
   useEffect(() => {
-    fetchCharacters()
-      .then(setCharacters)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    async function init() {
+      try {
+        const existing = await fetchCharacters();
+        const alreadySeeded =
+          typeof window !== "undefined" &&
+          localStorage.getItem(DEMO_SEED_FLAG);
+        if (existing.length === 0 && !alreadySeeded) {
+          const seeded = await seedDemoCharacters();
+          localStorage.setItem(DEMO_SEED_FLAG, "1");
+          setCharacters(seeded);
+          if (seeded.length > 0) setShowDemoBanner(true);
+        } else {
+          setCharacters(existing);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
     setByokKeys(loadStoredKeys());
   }, []);
 
@@ -550,6 +606,23 @@ export default function ChatSandbox() {
           </button>
         </div>
       </header>
+
+      {/* Demo Mode Banner */}
+      {showDemoBanner && (
+        <div className="border-b border-[#C5E7EA]/10 bg-[#C5E7EA]/5 px-4 py-2.5 flex items-center justify-between gap-3">
+          <p className="text-xs text-[#DADBD9]/70">
+            Demo mode — these characters run on the server key. Add your own API
+            keys to unlock all models.
+          </p>
+          <button
+            onClick={() => setShowDemoBanner(false)}
+            className="shrink-0 text-[#DADBD9]/40 hover:text-[#DADBD9] text-sm transition-colors"
+            aria-label="Dismiss demo banner"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Character Strip */}
       {characters.length > 0 && (

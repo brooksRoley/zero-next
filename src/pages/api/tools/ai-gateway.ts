@@ -7,43 +7,9 @@ import { getProvider, type Provider } from "src/lib/ai-providers/providers";
 import { getFallbackModels } from "src/lib/ai-providers/fallback";
 import { resolveKey } from "src/lib/ai-providers/keys";
 import { sanitizeMessage } from "src/lib/ai-providers/sanitize";
+import { createRateLimiter } from "src/lib/rate-limit";
 
-const RATE_LIMIT_MAX = 30;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-
-// In-memory per-IP timestamp log. Resets on cold start and is per-instance on
-// Vercel; that's intentional — good-enough defense against casual abuse of
-// server API keys without adding Redis. For stronger guarantees, swap in a KV
-// store later.
-const ipHits = new Map<string, number[]>();
-
-function getClientIp(req: NextApiRequest): string {
-  const fwd = req.headers["x-forwarded-for"];
-  if (typeof fwd === "string" && fwd.length > 0) return fwd.split(",")[0].trim();
-  if (Array.isArray(fwd) && fwd.length > 0) return fwd[0].split(",")[0].trim();
-  return req.socket?.remoteAddress || "unknown";
-}
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const cutoff = now - RATE_LIMIT_WINDOW_MS;
-  const hits = (ipHits.get(ip) || []).filter((t) => t > cutoff);
-  if (hits.length >= RATE_LIMIT_MAX) {
-    ipHits.set(ip, hits);
-    return true;
-  }
-  hits.push(now);
-  ipHits.set(ip, hits);
-  // Opportunistic cleanup so the Map doesn't grow unbounded across cold-warm cycles.
-  if (ipHits.size > 1000) {
-    ipHits.forEach((ts: number[], k: string) => {
-      const pruned = ts.filter((t) => t > cutoff);
-      if (pruned.length === 0) ipHits.delete(k);
-      else ipHits.set(k, pruned);
-    });
-  }
-  return false;
-}
+const limiter = createRateLimiter(30, 60 * 60 * 1000); // 30 per hour
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -97,8 +63,8 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const ip = getClientIp(req);
-  if (isRateLimited(ip)) {
+  const ip = limiter.getClientIp(req);
+  if (limiter.isRateLimited(ip)) {
     return res.status(429).json({ error: "Too many requests. Please try again later." });
   }
 

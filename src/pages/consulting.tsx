@@ -1,11 +1,63 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+
+const SESSION_KEY = 'br_session_id'
+
+function getSessionId(): string {
+  if (typeof window === 'undefined') return ''
+  let id = sessionStorage.getItem(SESSION_KEY)
+  if (!id) {
+    id = crypto.randomUUID()
+    sessionStorage.setItem(SESSION_KEY, id)
+  }
+  return id
+}
+
+function track(event_type: string, metadata: Record<string, unknown> = {}) {
+  if (typeof window === 'undefined') return
+  const body = JSON.stringify({
+    session_id: getSessionId(),
+    page: 'consulting',
+    event_type,
+    metadata,
+  })
+  // sendBeacon survives the page unload that follows external nav (Calendly).
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/events', new Blob([body], { type: 'application/json' }))
+      return
+    }
+  } catch {
+    /* fall through to fetch */
+  }
+  fetch('/api/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+    keepalive: true,
+  }).catch(() => { /* analytics is best-effort */ })
+}
 
 /* ── Commented out until LLC is signed and payment infra is ready ──
 const SERVICES = [ ... pricing tiers ... ]
 const handleCheckout = async () => { ... Stripe ... }
 ── */
+
+const PROJECT_TYPES = [
+  'New project build',
+  'Existing codebase work',
+  'Technical strategy/advisory',
+  'Other',
+]
+
+const BUDGET_RANGES = [
+  'Under $5k',
+  '$5k–$25k',
+  '$25k–$75k',
+  '$75k+',
+  'Not sure yet',
+]
 
 const SKILLS = [
   'React & Next.js', 'TypeScript', 'Node.js', 'PostgreSQL',
@@ -61,7 +113,11 @@ export default function Consulting() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const [form, setForm] = useState({ name: '', email: '', message: '', website: '' })
+  const [form, setForm] = useState({ name: '', email: '', project_type: '', budget_range: '', message: '', website: '' })
+
+  useEffect(() => {
+    track('consulting_view')
+  }, [])
 
   const updateForm = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -85,6 +141,10 @@ export default function Consulting() {
       return
     }
 
+    track('lead_submit', {
+      project_type: form.project_type || null,
+      budget_range: form.budget_range || null,
+    })
     setSubmitted(true)
     setSubmitting(false)
   }
@@ -92,8 +152,17 @@ export default function Consulting() {
   return (
     <>
       <Head>
-        <title>Let&apos;s Talk | Brooks Roley</title>
+        <title>Brooks Roley — Full-Stack Engineer for Hire</title>
         <meta name="description" content="Brooks Roley — full-stack engineer. Get in touch, book a call, or just say hi." />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Brooks Roley — Full-Stack Engineer for Hire" />
+        <meta property="og:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." />
+        <meta property="og:image" content="https://brooksroley.com/BRLogoTransparent.png" />
+        <meta property="og:url" content="https://brooksroley.com/consulting" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Brooks Roley — Full-Stack Engineer for Hire" />
+        <meta name="twitter:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." />
+        <meta name="twitter:image" content="https://brooksroley.com/BRLogoTransparent.png" />
       </Head>
 
       <div className="min-h-screen bg-forest-950 text-forest-100">
@@ -107,6 +176,7 @@ export default function Consulting() {
               href="https://calendly.com/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('cta_click', { location: 'header' })}
               className="px-4 py-2 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
             >
               Book a Call
@@ -132,6 +202,9 @@ export default function Consulting() {
               I&apos;m a full-stack engineer with a frontend lean — React, TypeScript, Node, iOS, sports tech.
               If you&apos;ve got something interesting going on and want to think through it together, reach out.
               No pitch decks required.
+            </p>
+            <p className="mt-4 text-sm text-forest-400">
+              Strategy sessions from $150 &middot; Dev sprints from $2,400/wk &middot; Fractional CTO from $4,000/mo.
             </p>
           </section>
 
@@ -224,6 +297,7 @@ export default function Consulting() {
               href="https://calendly.com/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('calendly_open', { location: 'connect_tile' })}
               className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
             >
               <span className="text-2xl">&#128222;</span>
@@ -241,14 +315,14 @@ export default function Consulting() {
             </a>
 
             <a
-              href="https://venmo.com/Brooks-Roley"
+              href="https://www.linkedin.com/in/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
             >
-              <span className="text-2xl">&#9749;</span>
-              <span className="text-sm font-medium text-white">Tip on Venmo</span>
-              <span className="text-xs text-forest-500">@Brooks-Roley</span>
+              <span className="text-2xl">&#128279;</span>
+              <span className="text-sm font-medium text-white">Connect on LinkedIn</span>
+              <span className="text-xs text-forest-500">in/brooksroley</span>
             </a>
           </section>
 
@@ -269,6 +343,7 @@ export default function Consulting() {
                   href="https://calendly.com/brooksroley/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track('calendly_open', { location: 'success_state' })}
                   className="inline-block px-5 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
                 >
                   Or book a call now
@@ -322,6 +397,39 @@ export default function Consulting() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                      Project Type
+                    </label>
+                    <select
+                      value={form.project_type}
+                      onChange={e => updateForm('project_type', e.target.value)}
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 transition-colors"
+                    >
+                      <option value="">Select one…</option>
+                      {PROJECT_TYPES.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                      Budget Range
+                    </label>
+                    <select
+                      value={form.budget_range}
+                      onChange={e => updateForm('budget_range', e.target.value)}
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 transition-colors"
+                    >
+                      <option value="">Select one…</option>
+                      {BUDGET_RANGES.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                     What&apos;s on your mind?
@@ -350,6 +458,7 @@ export default function Consulting() {
                     href="https://calendly.com/brooksroley/"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => track('calendly_open', { location: 'form_footer' })}
                     className="text-candy-500/70 hover:text-candy-400 underline"
                   >
                     Book directly on Calendly

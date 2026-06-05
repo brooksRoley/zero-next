@@ -1,12 +1,26 @@
 import { supabase } from 'src/lib/supabase'
+import { createRateLimiter } from 'src/lib/rate-limit'
+
+const limiter = createRateLimiter(20, 60 * 60 * 1000) // 20 per hour
+
+// Cap serialized metadata size to keep a bot from stuffing the JSONB column.
+const MAX_METADATA_BYTES = 4 * 1024 // 4KB
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!supabase) return res.status(503).json({ error: 'Database not configured' })
 
+  const ip = limiter.getClientIp(req)
+  if (limiter.isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' })
+  }
+
   const { visitorId, visitorName, type, content, audioUrl, metadata } = req.body
 
   if (!visitorId) return res.status(400).json({ error: 'visitorId is required' })
+  if (metadata != null && Buffer.byteLength(JSON.stringify(metadata)) > MAX_METADATA_BYTES) {
+    return res.status(400).json({ error: 'metadata too large' })
+  }
   if (!type || !['text', 'voice'].includes(type)) {
     return res.status(400).json({ error: 'type must be "text" or "voice"' })
   }

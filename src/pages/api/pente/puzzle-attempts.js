@@ -1,4 +1,9 @@
 import { supabase } from 'src/lib/supabase'
+import { calculateEloChange, MIN_ELO, MAX_ELO } from 'src/lib/pente/elo'
+
+// Slow K-factor for puzzle-side rating so a single attempt barely nudges it;
+// ratings converge over many attempts rather than swinging on one solve.
+const PUZZLE_K = 10
 
 /**
  * POST /api/pente/puzzle-attempts
@@ -6,7 +11,9 @@ import { supabase } from 'src/lib/supabase'
  *           attempts?, used_hint?, elo_before?, elo_after?, solve_time_ms? }
  *
  * Records one puzzle attempt (solved or abandoned). If a puzzle_id is provided
- * and solved=true, also bumps puzzle_bank.times_solved and times_served.
+ * it bumps puzzle_bank counters and recalibrates puzzle_bank.rating, treating
+ * the puzzle as a player: a solve pulls its rating down toward the solver, a
+ * miss pushes it up.
  */
 export default async function handler(req, res) {
   if (!supabase) return res.status(503).json({ error: 'Database not configured' })
@@ -44,7 +51,7 @@ export default async function handler(req, res) {
   if (puzzle_id) {
     const { data: cur } = await supabase
       .from('puzzle_bank')
-      .select('times_served, times_solved, avg_solve_time_ms')
+      .select('times_served, times_solved, avg_solve_time_ms, rating, rating_count')
       .eq('id', puzzle_id)
       .single()
     if (cur) {
@@ -57,9 +64,29 @@ export default async function handler(req, res) {
           ? solve_time_ms
           : Math.round(((avg || 0) * prevCount + solve_time_ms) / (prevCount + 1))
       }
+
+      const update = {
+        times_served: served,
+        times_solved: solvedCount,
+        avg_solve_time_ms: avg,
+      }
+
+      // Recalibrate the puzzle's rating against the solver's rating. We can only
+      // do this when we know the solver's ELO (elo_before). The puzzle is the
+      // "player" here: it scores 0 when solved (it lost) and 1 when missed.
+      const puzzleRating = cur.rating ?? rating
+      const solverElo = typeof elo_before === 'number' ? elo_before : null
+      if (puzzleRating != null && solverElo != null) {
+        const puzzleScore = solved ? 0 : 1
+        const delta = calculateEloChange(puzzleRating, solverElo, puzzleScore, PUZZLE_K)
+        const next = Math.max(MIN_ELO, Math.min(MAX_ELO, Math.round(puzzleRating + delta)))
+        update.rating = next
+        update.rating_count = (cur.rating_count || 0) + 1
+      }
+
       await supabase
         .from('puzzle_bank')
-        .update({ times_served: served, times_solved: solvedCount, avg_solve_time_ms: avg })
+        .update(update)
         .eq('id', puzzle_id)
     }
   }

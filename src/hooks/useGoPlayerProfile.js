@@ -234,6 +234,23 @@ export default function useGoPlayerProfile() {
         ? [...prev.solved, puzzleId]
         : prev.solved
       result = { eloBefore, eloAfter, attempt }
+
+      // Persist the attempt server-side. Fire-and-forget: local state is the
+      // source of truth, so a failed/offline POST must never block the UI.
+      fetch('/api/go/puzzle-attempts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          player_id: prev.playerId,
+          puzzle_id: puzzleId,
+          puzzle_rating: puzzleRating ?? null,
+          solved: !!solved,
+          used_hint: !!usedHint,
+          elo_before: eloBefore,
+          elo_after: eloAfter,
+        }),
+      }).catch(() => { /* offline — local attempts log has it */ })
+
       return {
         ...prev,
         goElo: eloAfter,
