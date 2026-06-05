@@ -118,7 +118,7 @@ export default function EndlessPuzzle({
 
       const solveTimeMs = Date.now() - puzzleStartRef.current
       const eloBefore = currentElo
-      const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint)
+      const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint, solveTimeMs)
 
       // Persist the attempt server-side (fire-and-forget)
       if (playerId) {

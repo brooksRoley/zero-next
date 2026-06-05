@@ -43,11 +43,21 @@ export function calculateEloChange(playerElo, opponentElo, score, K = 20) {
   return Math.round(K * (score - expected))
 }
 
+// Speed bonus tuning: a solve in 0ms earns the full bonus, decaying linearly to
+// zero at SPEED_BONUS_WINDOW_MS. MAX_SPEED_BONUS caps the multiplier uplift.
+const SPEED_BONUS_WINDOW_MS = 30000
+const MAX_SPEED_BONUS = 0.3
+
 /**
  * Puzzle-specific ELO change.
- * Accounts for attempts and hints.
+ * Accounts for attempts, hints, and (optionally) solve speed.
+ *
+ * @param {number} [solveTimeMs] - Time-to-solve in ms. When provided AND the
+ *   puzzle rating is at or above the player's rating, fast solves earn up to a
+ *   +30% score bonus. Speed is only rewarded on puzzles at/above the player's
+ *   level — quickly solving an easy puzzle is expected, not a skill signal.
  */
-export function calculatePuzzleEloChange(playerElo, puzzleRating, solved, attempts, usedHint) {
+export function calculatePuzzleEloChange(playerElo, puzzleRating, solved, attempts, usedHint, solveTimeMs) {
   if (!solved) {
     // Failed the puzzle (skipped or gave up)
     return calculateEloChange(playerElo, puzzleRating, 0, 16)
@@ -64,6 +74,13 @@ export function calculatePuzzleEloChange(playerElo, puzzleRating, solved, attemp
   // Penalty for using hint
   if (usedHint) {
     score = Math.max(0.2, score * 0.6)
+  }
+
+  // Speed bonus for fast solves on puzzles at or above the player's rating.
+  if (typeof solveTimeMs === 'number' && solveTimeMs >= 0 && puzzleRating >= playerElo) {
+    const raw = (SPEED_BONUS_WINDOW_MS - solveTimeMs) / SPEED_BONUS_WINDOW_MS
+    const speedBonus = Math.max(0, Math.min(MAX_SPEED_BONUS, raw))
+    score *= 1 + speedBonus
   }
 
   return calculateEloChange(playerElo, puzzleRating, score, 20)

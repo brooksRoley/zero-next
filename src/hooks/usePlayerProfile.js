@@ -219,7 +219,7 @@ export default function usePlayerProfile() {
     })
   }, [persist])
 
-  const markSolved = useCallback((puzzleId, puzzleRating, attempts = 0, usedHint = false) => {
+  const markSolved = useCallback((puzzleId, puzzleRating, attempts = 0, usedHint = false, solveTimeMs = null) => {
     let result = { delta: 0, newElo: STARTING_ELO, zone: getZone(STARTING_ELO) }
 
     setProfile(prev => {
@@ -238,7 +238,7 @@ export default function usePlayerProfile() {
         newStreak = wasYesterday ? prev.currentStreak + 1 : 1
       }
 
-      const delta = calculatePuzzleEloChange(prev.elo, puzzleRating, true, attempts, usedHint)
+      const delta = calculatePuzzleEloChange(prev.elo, puzzleRating, true, attempts, usedHint, solveTimeMs)
       const newElo = Math.max(MIN_ELO, Math.min(MAX_ELO, prev.elo + delta))
       const newPeak = Math.max(prev.peakElo, newElo)
 
@@ -255,6 +255,7 @@ export default function usePlayerProfile() {
         solvedPuzzles: [...prev.solvedPuzzles, puzzleId],
         eloHistory: [...prev.eloHistory, {
           timestamp: Date.now(), elo: newElo, delta, puzzleId, event: 'solve',
+          solveTimeMs: typeof solveTimeMs === 'number' ? solveTimeMs : null,
         }],
       }
       persist(updated)
