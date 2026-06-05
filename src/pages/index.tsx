@@ -48,7 +48,7 @@ export default function Home() {
                 </p>
                 <Link
                   href="/consulting"
-                  className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[#B27236]/30 bg-[#B27236]/12 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-[#DADBD9] transition-colors hover:border-[#B27236]/55 hover:bg-[#B27236]/22 sm:self-auto"
+                  className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[#B27236] bg-[#B27236]/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#B27236]/20 transition-colors hover:bg-[#B27236]/85 sm:self-auto"
                 >
                   <span>Work with me</span>
                   <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">&rarr;</span>
@@ -338,7 +338,13 @@ export default function Home() {
 
             <Reveal delay={300}>
               <TiltCard>
-                <Link href="/consulting" className={cardBase}>
+                <Link
+                  href="/consulting"
+                  className="group relative overflow-hidden rounded-xl border border-candy-500/40 bg-[#415557]/18 text-[#DADBD9] card-hover-border backdrop-blur-sm ring-1 ring-candy-500/15"
+                >
+                  <span className="absolute right-3 top-3 z-10 rounded-full bg-candy-600 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                    Hire me
+                  </span>
                   <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
                     <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
