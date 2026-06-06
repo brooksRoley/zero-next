@@ -18,12 +18,44 @@ There are no tests configured in this project.
 Personal portfolio + livelihood platform built with Next.js 13 (Pages Router), TypeScript, Tailwind CSS, and `canvas-confetti`.
 
 ### Pages
-- `/` (`src/pages/index.tsx`) — Landing page with card links to Resume, LinkedIn, GitHub, Consulting, and the Pente game
-- `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture form, Stripe Checkout deposit flow, Calendly integration
+
+The Pages Router has grown well past the original handful of routes; below is the current map grouped by purpose.
+
+**Portfolio / funnel**
+- `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
+- `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
+- `/intake` (`src/pages/intake.jsx`) — Contact / intake form that feeds the consulting funnel
+- `/funding` (`src/pages/funding.tsx`) — "Support Brooks Roley" tip-jar / funding page
+- `/zero-paradox` (`src/pages/zero-paradox.jsx`) — Zero Paradox LLC landing/brand page
+- `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — Resume page with PDF download link and the interactive MarioButton
+- `/education-tracker` (`src/pages/education-tracker.jsx`) — Personal certification-exam (AIF-C01) study progress tracker
+
+**Private / admin** (gated — see Authentication)
+- `/login` (`src/pages/login.tsx`) — Password gate for the private dashboard; POSTs to `/api/auth/login`
+- `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/middleware.ts`
+- `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads
+
+**NBA / sports tech**
+- `/nba` (`src/pages/nba.tsx`) — NBA API Explorer: players, teams, standings, predictions
+- `/stat-galaxy` (`src/pages/stat-galaxy.tsx`) — "Stat Galaxy" NBA physics-based stat visualizer
+- `/tools/nba-accuracy` (`src/pages/tools/nba-accuracy.tsx`) — Prediction-accuracy dashboard (ATS cover rate, model vs Vegas, break-even line)
+- `/posts/basketball-tactics` (`src/pages/posts/basketball-tactics.jsx`) — Showcase for the Lakers Tactics iOS app
+
+**AI tools**
+- `/tools/chat` (`src/pages/tools/chat.tsx`) — Chat Sandbox: build a cast of AI characters with per-character models/roles and watch them interact
+- `/tools/model-arena` (`src/pages/tools/model-arena.tsx`) — Model Arena: side-by-side LLM comparison
+
+**Games**
 - `/posts/pente` (`src/pages/posts/pente.js`) — Pente game with multi-player modes (1v1, vs Bot, vs 3 Bots FFA, 2v2 Bots), minimax AI engine via Web Worker, ELO tracking, touch UX
 - `/posts/pente-puzzles` (`src/pages/posts/pente-puzzles.js`) — Puzzle trainer: curated catalog + Endless mode with runtime puzzle generation, canvas physics transitions, ELO-adaptive difficulty, mountain-climbing progress metaphor
+- `/posts/go` (`src/pages/posts/go/`) — Go game: `index.js` (play), `learn.js` + `learn/[stage].js` (tutorial stages), `puzzles/index.js` + `puzzles/[id].js` (puzzle trainer)
+- `/posts/nanu-pika-td` (`src/pages/posts/nanu-pika-td.jsx`) — Nanu & Pika tower-defense game (pathfinding, wave logic, upgrades)
+
+**Misc / experiments**
 - `/posts/guestbook` (`src/pages/posts/guestbook.tsx`) — Collaborative guest book: rubric-based ad-lib story prompt builder with typography picker, writes to Neon Postgres
+- `/posts/luminous-flow` (`src/pages/posts/luminous-flow.jsx`) — Interactive generative/physics visual piece
+- `/posts/first-post` (`src/pages/posts/first-post.js`), `/posts/post-form` (`src/pages/posts/post-form.jsx`) — Early blog scaffolding (in-progress)
 
 ### Database (Neon Postgres)
 - Connection: `src/lib/db.ts` exports `sql` via `@neondatabase/serverless`
@@ -31,21 +63,93 @@ Personal portfolio + livelihood platform built with Next.js 13 (Pages Router), T
 - Env vars: `POSTGRES_URL` and related vars in `.env.local`
 
 ### Components
-- `src/components/mario.js` — Animated Mario "?" block button that triggers confetti and randomized CSS animations
-- `src/components/Scoreboard.js` — Scoreboard display used by the Pente game
-- `src/components/TiltCard.tsx` — Cursor-tracking 3D tilt card with radial glow border and specular highlight
+
+**Shared / layout**
+- `src/components/NavHeader.jsx` — Site navigation header
 - `src/components/layout.js` — Minimal container wrapper (not widely used)
+- `src/components/TiltCard.tsx` — Cursor-tracking 3D tilt card with radial glow border and specular highlight (used on the landing page)
+- `src/components/Reveal.jsx` — Scroll-triggered reveal animation wrapper
+- `src/components/mario.js` — Animated Mario "?" block button that triggers confetti and randomized CSS animations
+
+**Visual / hero**
+- `src/components/PhysicsField.tsx`, `src/components/PhysicsHero.tsx` — Physics-driven particle/field visuals
+- `src/components/WaterHero.tsx` — Water-effect hero visual
+- `src/components/WaxSeal.jsx`, `src/components/PreText.jsx` (+ `PreText.d.ts`) — Wax-seal and typography/letterform components (guest book)
+
+**Pente / puzzles**
+- `src/components/Scoreboard.js` — Scoreboard display used by the Pente game
+- `src/components/PentePlayerbot.js` — Defines `BOT_LEVELS` (search depth, time budget, blunder rate) for the minimax bot
+- `src/components/PenteTutor.js` — Pente coaching/hint logic
+- `src/components/GameLobby.jsx`, `src/components/MultiplayerStatus.jsx` — Multiplayer lobby and connection-status UI
+- `src/components/PuzzleBoard.jsx`, `src/components/PuzzleCatalog.jsx`, `src/components/PuzzleSolver.jsx`, `src/components/PuzzleTransition.jsx`, `src/components/EndlessPuzzle.jsx` — Puzzle trainer board, catalog, solver, canvas transition, and Endless mode
+- `src/components/MountainProgress.jsx` — Mountain-climbing progress metaphor for the puzzle trainer
+- `src/components/pente/` — Additional Pente-specific components
+
+**Other games / features**
+- `src/components/go/` — Go board and game UI components
+- `src/components/nanu-pika-td.jsx` — Nanu & Pika tower-defense game component
+- `src/components/PredictionCard.tsx` — NBA prediction display card (style reference for NBA UI)
 
 ### API Routes
-- `src/pages/api/consulting/leads.ts` — POST: captures consulting leads to `leads` table
+
+**Auth** — see the Authentication section below
+- `src/pages/api/auth/login.ts` — POST: validates `ADMIN_PASSWORD`, sets the `tracker_session` cookie (rate-limited 5/15min)
+- `src/pages/api/auth/logout.ts` — Clears the session cookie
+
+**Consulting / business**
+- `src/pages/api/consulting/leads.ts` — POST: captures consulting leads (name/email + UTM + referrer) to `leads`; rate-limited; best-effort Resend email notification
 - `src/pages/api/consulting/checkout.ts` — POST: creates Stripe Checkout session for consulting deposits
+- `src/pages/api/consulting/webhook.ts` — POST: Stripe webhook handler (payment confirmation)
+- `src/pages/api/admin/leads.ts` — Admin: read captured leads for `/admin/leads`
+- `src/pages/api/intake/messages.js`, `src/pages/api/intake/send.js` — Intake-form message thread (list / send)
+
+**AI tools**
+- `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 10/hr per IP. Backs the Chat Sandbox and Model Arena.
+- `src/pages/api/tools/generate-profile.ts` — POST: generates an AI character profile from a name + one-liner; sanitizes input/output. Rate-limited 10/hr.
+- `src/pages/api/tools/characters.ts` — Persistence for Chat Sandbox characters
+
+**NBA / sports tech** (the medallion data + prediction pipeline)
+- `src/pages/api/nba/admin/ingest.ts` — Cron/admin: ingest players + standings from stats.nba.com (auth: `CRON_SECRET` or `ADMIN_KEY`)
+- `src/pages/api/nba/admin/setup.ts` — Admin: run NBA DB migrations (`ADMIN_KEY`)
+- `src/pages/api/nba/admin/simulate.ts` — Admin: Monte Carlo sim → predictions vs Vegas odds (`ADMIN_KEY`)
+- `src/pages/api/nba/predictions/settle.ts` — Cron/admin: settle predictions against final scores
+- `src/pages/api/nba/predictions/accuracy.ts`, `today.ts`, `[eventId].ts` — Prediction accuracy stats, today's slate, single event
+- `src/pages/api/nba/predict.ts`, `src/pages/api/nba/odds/[eventId].ts` — On-demand prediction and odds lookup
+- `src/pages/api/nba/players/`, `teams/`, `games/`, `standings.ts`, `series.ts`, `map.ts`, `analytics/` — Read endpoints for players (incl. `[id]/gamelog`), teams, games, standings, playoff series, league map, and analytics (`lakers`, `last-night`, `season`, `team/[id]`)
+
+**Games**
+- `src/pages/api/pente/` — Pente multiplayer + persistence: `create`, `join`, `move`, `player`, `puzzle-attempts`, `puzzle-bank`
+- `src/pages/api/go/player.js`, `src/pages/api/go/puzzle-attempts.js` — Go player profile + puzzle attempt persistence
+- `src/pages/api/bball/` — Basketball Data Platform game backend: `setup`, `roster`, `run/start`, `match/submit-and-fetch`, `match/resolve`
+
+**Guest book**
 - `src/pages/api/guestbook/rubrics.ts` — GET: returns all rubrics with nested elements
 - `src/pages/api/guestbook/elements.ts` — POST: contribute a new element to a rubric
 - `src/pages/api/guestbook/pages.ts` — GET/POST: list and create guest book pages
+
+**Utility / misc**
+- `src/pages/api/events.ts` — POST: lightweight first-party analytics event ingest (rate-limited)
 - `src/pages/api/db-health.ts` — GET: Postgres connection health check
 - `src/pages/api/search.js` — Filters `stage_data.json` by location/date range; studio/stage availability lookup
 - `src/pages/api/posts.js` — Posts API (unused/in-progress)
 - `src/pages/api/hello.ts` — Default Next.js example route
+
+### Authentication
+
+There are two independent auth layers. Neither uses a third-party auth provider — both are env-var secrets, sufficient for a single-owner site.
+
+**1. Dashboard session (browser-facing).** Gates the private `/tracker` dashboard.
+- `src/middleware.ts` runs on `/tracker` and `/tracker/:path*` (see its `matcher`). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
+- `/login` (`src/pages/login.tsx`) POSTs the password to `src/pages/api/auth/login.ts`, which checks `ADMIN_PASSWORD` and, on success, sets the `tracker_session` HttpOnly cookie to `ADMIN_SESSION_TOKEN` (7-day Max-Age, `Secure` in production). Brute force is throttled to 5 attempts / 15 min per IP via `src/lib/rate-limit.ts`.
+- `src/pages/api/auth/logout.ts` clears the cookie.
+- Env vars: `ADMIN_PASSWORD` (what the user types), `ADMIN_SESSION_TOKEN` (the cookie value the middleware compares against).
+
+**2. Admin / cron API token (machine-facing).** Protects write/ingest API routes that mutate the DB or hit paid third-party APIs.
+- Pattern: each handler verifies `req.headers["x-admin-key"] === process.env.ADMIN_KEY` (manual calls) and/or `req.headers.authorization === \`Bearer ${process.env.CRON_SECRET}\`` (Vercel Cron). Unauthorized requests get `401` before any work runs.
+- Routes using this: `api/nba/admin/ingest.ts` (both), `api/nba/admin/setup.ts` (`ADMIN_KEY`), `api/nba/admin/simulate.ts` (`ADMIN_KEY`), `api/nba/predictions/settle.ts` (both).
+- Env vars: `ADMIN_KEY` (manual admin calls), `CRON_SECRET` (Vercel Cron's `Authorization` header).
+
+When adding a new admin/cron endpoint, reuse the `x-admin-key`/`CRON_SECRET` check above — do **not** introduce a new secret. When adding a new private *page*, extend the `matcher` in `src/middleware.ts` rather than rolling per-page auth.
 
 ### Stripe — Shipping Checklist (Pre-Launch)
 
