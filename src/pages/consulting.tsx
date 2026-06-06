@@ -291,8 +291,8 @@ export default function Consulting() {
             </div>
           </section>
 
-          {/* ── Three ways to connect ── */}
-          <section className="mb-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* ── Ways to connect ── */}
+          <section className="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <a
               href="https://calendly.com/brooksroley/"
               target="_blank"
@@ -324,6 +324,16 @@ export default function Consulting() {
               <span className="text-sm font-medium text-white">Connect on LinkedIn</span>
               <span className="text-xs text-forest-500">in/brooksroley</span>
             </a>
+
+            <Link
+              href="/intake"
+              onClick={() => track('intake_open', { location: 'connect_tile' })}
+              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
+            >
+              <span className="text-2xl">&#127908;</span>
+              <span className="text-sm font-medium text-white">Voice Intake</span>
+              <span className="text-xs text-forest-500">Tell me about your project &mdash; I&apos;ll listen</span>
+            </Link>
           </section>
 
           {/* ── Contact Form ── */}
