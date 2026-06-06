@@ -31,6 +31,9 @@ export default function PuzzleSolver({
   const feedback = useTactileFeedback()
   const solvedRef = useRef(solved)
   solvedRef.current = solved
+  // Captured on mount; the parent remounts this component per puzzle (keyed by
+  // puzzle id), so this is the time the player first saw the current puzzle.
+  const puzzleStartRef = useRef(Date.now())
 
   const advanceToNext = useCallback(() => {
     if (!onNext) return
@@ -78,7 +81,7 @@ export default function PuzzleSolver({
         setSolved(true)
         setShowExplanation(true)
         setWrongMove(null)
-        const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint)
+        const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint, Date.now() - puzzleStartRef.current)
         if (result) {
           setEloDelta(result.delta)
           const oldZone = getZone(elo)
@@ -115,7 +118,7 @@ export default function PuzzleSolver({
       setWrongMove(null)
 
       // Get ELO result from parent
-      const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint)
+      const result = onSolve?.(puzzle.id, puzzle.rating, attempts, showHint, Date.now() - puzzleStartRef.current)
       if (result) {
         setEloDelta(result.delta)
         // Check if we crossed into a new zone
