@@ -140,7 +140,7 @@ export default function Home() {
                           Chat Sandbox <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#DADBD9]/68">
-                          Create AI characters and watch them interact.
+                          Build a cast of AI characters. Pick their models, give them roles, watch them argue.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
