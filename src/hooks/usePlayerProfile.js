@@ -63,7 +63,7 @@ function profileToLocal(profile) {
   if (typeof window === 'undefined') return
   localStorage.setItem(ID_KEY, profile.id)
   if (profile.name) localStorage.setItem(NAME_KEY, profile.name)
-  // Write in the old format so usePuzzleProgress consumers still work during migration
+  // Mirror the legacy localStorage shape so the offline cache stays readable.
   const compat = {
     solved: profile.solvedPuzzles,
     attempted: profile.attemptedPuzzles,

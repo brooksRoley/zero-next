@@ -88,7 +88,7 @@ The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship g
 
 #### Architecture Decisions (locked)
 - **Supabase for ALL game state** — player profiles, ELO, puzzle bank, game history, multiplayer realtime. Supabase client is at `src/lib/supabase.js`. The `games` table and realtime channels already exist there.
-- **localStorage as offline cache only** — `usePuzzleProgress` currently uses localStorage; this must be migrated to Supabase with localStorage as a fallback for offline play. New features should write to Supabase first, cache locally second.
+- **localStorage as offline cache only** — `usePlayerProfile` is Supabase-first, with localStorage as the offline fallback. New features should write to Supabase first, cache locally second.
 - **Neon Postgres is for the business side** (leads, consulting, guestbook). Do NOT put game data in Neon.
 - **Web Worker for AI engine** — The minimax bot runs in `public/penteWorker.js` (self-contained, no imports). Puzzle generation also runs there. Never move engine computation to the main thread.
 
