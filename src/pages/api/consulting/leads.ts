@@ -72,8 +72,19 @@ export default async function handler(
     timeline,
     message,
     source,
+    utm_source,
+    utm_medium,
+    utm_campaign,
     website, // honeypot — humans never see this field
   } = req.body;
+
+  // Server-side attribution: the Referer header is set by the browser and can't
+  // be spoofed from the form payload. Truncated to fit a reasonable column size.
+  const referer = req.headers.referer;
+  const referrer =
+    typeof referer === "string" && referer.trim().length > 0
+      ? referer.trim().slice(0, 500)
+      : null;
 
   // Bots fill every input; humans don't see the hidden field. Silently 200 so
   // the bot believes it succeeded and doesn't retry.
@@ -97,7 +108,7 @@ export default async function handler(
 
   const lead = (
     await sql`
-    INSERT INTO leads (name, email, company, project_type, budget_range, timeline, message, source)
+    INSERT INTO leads (name, email, company, project_type, budget_range, timeline, message, source, utm_source, utm_medium, utm_campaign, referrer)
     VALUES (
       ${name.trim()},
       ${email.trim().toLowerCase()},
@@ -106,7 +117,11 @@ export default async function handler(
       ${budget_range || null},
       ${timeline?.trim() || null},
       ${message?.trim() || null},
-      ${source || "consulting_page"}
+      ${source || "consulting_page"},
+      ${utm_source?.trim() || null},
+      ${utm_medium?.trim() || null},
+      ${utm_campaign?.trim() || null},
+      ${referrer}
     )
     RETURNING id, created_at
   `

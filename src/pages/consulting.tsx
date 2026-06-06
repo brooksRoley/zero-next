@@ -114,9 +114,18 @@ export default function Consulting() {
   const [error, setError] = useState('')
 
   const [form, setForm] = useState({ name: '', email: '', project_type: '', budget_range: '', message: '', website: '' })
+  // Captured once on mount so attribution survives even if the visitor edits
+  // the URL or navigates within the SPA before submitting.
+  const [attribution, setAttribution] = useState({ utm_source: '', utm_medium: '', utm_campaign: '' })
 
   useEffect(() => {
     track('consulting_view')
+    const params = new URLSearchParams(window.location.search)
+    setAttribution({
+      utm_source: params.get('utm_source') || '',
+      utm_medium: params.get('utm_medium') || '',
+      utm_campaign: params.get('utm_campaign') || '',
+    })
   }, [])
 
   const updateForm = (field: string, value: string) => {
@@ -131,7 +140,7 @@ export default function Consulting() {
     const res = await fetch('/api/consulting/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, ...attribution }),
     })
 
     if (!res.ok) {
@@ -152,7 +161,7 @@ export default function Consulting() {
   return (
     <>
       <Head>
-        <title>Brooks Roley — Full-Stack Engineer for Hire</title>
+        <title>Consulting | Brooks Roley</title>
         <meta name="description" content="Brooks Roley — full-stack engineer. Get in touch, book a call, or just say hi." />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Brooks Roley — Full-Stack Engineer for Hire" />
