@@ -13,7 +13,7 @@ async function readRawBody(req: NextApiRequest): Promise<string> {
   for await (const chunk of req) {
     chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : (chunk as Buffer));
   }
-  return Buffer.concat(chunks as unknown as readonly Uint8Array[]).toString("utf8");
+  return Buffer.concat(chunks).toString("utf8");
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

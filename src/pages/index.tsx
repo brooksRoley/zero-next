@@ -1,10 +1,31 @@
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import PhysicsField from 'src/components/PhysicsField'
-import PhysicsHero from 'src/components/PhysicsHero'
 import Reveal from 'src/components/Reveal'
 import TiltCard from 'src/components/TiltCard'
+
+const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
+  ssr: false,
+  loading: () => <div className="physics-field-grid" />,
+})
+
+const PhysicsHero = dynamic(() => import('src/components/PhysicsHero'), {
+  ssr: false,
+  loading: () => (
+    <section className="terrain-hero relative overflow-hidden text-[#DADBD9]">
+      <div className="relative z-10 mx-auto flex min-h-[74vh] max-w-6xl flex-col justify-center gap-10 px-4 py-16 sm:px-6 md:min-h-[82vh] md:flex-row md:items-center md:gap-14 md:py-20">
+        <div className="max-w-2xl md:flex-[1.05]">
+          <h1 className="text-[clamp(3.35rem,9vw,6.8rem)] font-extrabold leading-none text-[#DADBD9]">Brooks Roley</h1>
+          <p className="mt-4 max-w-xl text-base leading-7 text-[#DADBD9]/80 sm:text-lg sm:leading-8">
+            Software engineer building games, tools, and responsive web systems with
+            a bias toward fast feedback, tactile motion, and layered interfaces.
+          </p>
+        </div>
+      </div>
+    </section>
+  ),
+})
 
 const ArrowIcon = () => (
   <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

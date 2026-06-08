@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
+import { createRateLimiter } from "src/lib/rate-limit";
+
+const limiter = createRateLimiter(20, 60 * 60 * 1000); // 20 per hour
 
 export default async function handler(
   req: NextApiRequest,
@@ -36,6 +39,11 @@ export default async function handler(
   }
 
   if (req.method === "POST") {
+    const ip = limiter.getClientIp(req);
+    if (limiter.isRateLimited(ip)) {
+      return res.status(429).json({ error: "Too many requests. Please try again later." });
+    }
+
     const { title, username, font_family, element_ids } = req.body;
 
     if (!title || !username || !element_ids?.length) {

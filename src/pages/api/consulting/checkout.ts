@@ -1,6 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { sql } from "src/lib/db";
+import { createRateLimiter } from "src/lib/rate-limit";
+
+const limiter = createRateLimiter(10, 60 * 60 * 1000); // 10 per hour
 
 // Server-side source of truth for consulting prices. Never trust client-supplied
 // amounts — a malicious POST with $0.01 would otherwise produce a valid session.
@@ -16,6 +19,11 @@ export default async function handler(
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const ip = limiter.getClientIp(req);
+  if (limiter.isRateLimited(ip)) {
+    return res.status(429).json({ error: "Too many requests. Please try again later." });
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
