@@ -215,7 +215,7 @@ export default function useGoPlayerProfile() {
     })
   }, [persist])
 
-  const recordAttempt = useCallback(({ puzzleId, puzzleRating, solved, usedHint }) => {
+  const recordAttempt = useCallback(({ puzzleId, puzzleRating, solved, usedHint, solveTimeMs }) => {
     let result = null
     update(prev => {
       const eloBefore = prev.goElo
@@ -225,6 +225,7 @@ export default function useGoPlayerProfile() {
         puzzleId,
         solved: !!solved,
         usedHint: !!usedHint,
+        solveTimeMs: Number.isFinite(solveTimeMs) ? solveTimeMs : null,
         eloBefore,
         eloAfter,
         createdAt: nowIso(),
@@ -248,6 +249,7 @@ export default function useGoPlayerProfile() {
           used_hint: !!usedHint,
           elo_before: eloBefore,
           elo_after: eloAfter,
+          solve_time_ms: Number.isFinite(solveTimeMs) ? solveTimeMs : null,
         }),
       }).catch(() => { /* offline — local attempts log has it */ })
 

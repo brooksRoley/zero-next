@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
 import { useRouter } from 'next/router';
 import GameLobby from 'src/components/GameLobby';
@@ -140,6 +141,7 @@ const GameBoard = () => {
   const [gameAnalysis, setGameAnalysis] = useState(null);
   const [analysisViewTurn, setAnalysisViewTurn] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [consultingCtaDismissed, setConsultingCtaDismissed] = useState(false);
   const [intervention, setIntervention] = useState(null); // { blunderIndex, blunderCell, tactic, tacticLabel, narrative, puzzleCategory }
   const [trainingActive, setTrainingActive] = useState(false);
 
@@ -996,12 +998,12 @@ const GameBoard = () => {
                 </button>
               )}
             </div>
-            <a
+            <Link
               href="/funding"
               className="text-[11px] text-forest-500 hover:text-candy-300 transition-colors"
             >
               Enjoying Pente? Tip the dev ☕
-            </a>
+            </Link>
           </div>
 
           {gameAnalysis && (
@@ -1053,6 +1055,42 @@ const GameBoard = () => {
                   </button>
                 </p>
               )}
+            </div>
+          )}
+
+          {!consultingCtaDismissed && (
+            <div className="mt-3 flex items-center gap-3 rounded-xl border border-candy-500/30 bg-forest-900/60 px-3 py-2.5">
+              <p className="flex-1 text-xs text-forest-200 leading-snug">
+                Enjoying the game? I build stuff like this professionally.{' '}
+                <Link
+                  href="/consulting"
+                  onClick={() => {
+                    const result = botEnabled
+                      ? (winner === humanColor ? 'win' : 'loss')
+                      : 'win';
+                    fetch('/api/events', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      keepalive: true,
+                      body: JSON.stringify({
+                        page: '/posts/pente',
+                        event_type: 'consulting_from_game',
+                        metadata: { game: 'pente', result },
+                      }),
+                    }).catch(() => {});
+                  }}
+                  className="font-semibold text-candy-300 hover:text-candy-200 transition-colors whitespace-nowrap"
+                >
+                  Work with me →
+                </Link>
+              </p>
+              <button
+                onClick={() => setConsultingCtaDismissed(true)}
+                aria-label="Dismiss"
+                className="flex-shrink-0 text-forest-500 hover:text-forest-300 transition-colors text-sm leading-none"
+              >
+                ✕
+              </button>
             </div>
           )}
         </div>

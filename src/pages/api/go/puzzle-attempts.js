@@ -3,7 +3,7 @@ import { supabase } from 'src/lib/supabase'
 /**
  * POST /api/go/puzzle-attempts
  *   body: { player_id, puzzle_id, puzzle_rating?, solved,
- *           used_hint?, elo_before?, elo_after? }
+ *           used_hint?, elo_before?, elo_after?, solve_time_ms? }
  *
  * Records one Go puzzle attempt (solved or abandoned) to go_puzzle_attempts.
  * Fire-and-forget from the client — failures here never block local progress.
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   const {
     player_id, puzzle_id, puzzle_rating,
-    solved, used_hint, elo_before, elo_after,
+    solved, used_hint, elo_before, elo_after, solve_time_ms,
   } = req.body || {}
 
   if (!player_id) return res.status(400).json({ error: 'player_id is required' })
@@ -29,6 +29,9 @@ export default async function handler(req, res) {
     used_hint: used_hint ?? false,
     elo_before: elo_before ?? null,
     elo_after: elo_after ?? null,
+    solve_time_ms: Number.isFinite(solve_time_ms) && solve_time_ms >= 0
+      ? Math.round(solve_time_ms)
+      : null,
   }
 
   const { data, error } = await supabase

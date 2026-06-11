@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import PuzzleBoard from 'src/components/go/PuzzleBoard'
@@ -21,6 +21,13 @@ export default function GoPuzzlePage({ puzzleId }) {
   const puzzle = PUZZLE_BY_ID[puzzleId]
   const { ready, goElo, solved, recordAttempt } = useGoPlayerProfile()
   const [lastResult, setLastResult] = useState(null)
+  const loadedAtRef = useRef(Date.now())
+
+  // Restart the solve clock whenever a new puzzle mounts on this route.
+  useEffect(() => {
+    loadedAtRef.current = Date.now()
+    setLastResult(null)
+  }, [puzzleId])
 
   const ordered = useMemo(() => PUZZLES.map(p => p.id), [])
   const idx = ordered.indexOf(puzzleId)
@@ -34,6 +41,7 @@ export default function GoPuzzlePage({ puzzleId }) {
       puzzleRating: puzzle.rating,
       solved: didSolve,
       usedHint,
+      solveTimeMs: didSolve ? Date.now() - loadedAtRef.current : null,
     })
     if (result) setLastResult({ ...result, solved: didSolve, usedHint })
   }, [puzzle, recordAttempt])
