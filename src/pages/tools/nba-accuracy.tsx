@@ -12,9 +12,19 @@ type AccuracyStats = {
   beatVegas: number;
 };
 
+type WeeklyBucket = {
+  week: string;
+  games: number;
+  coverRate: number;
+  modelMae: number;
+  vegasMae: number;
+  beatVegas: number;
+};
+
 type AccuracyResponse = {
   data: AccuracyStats;
   rollingCover: number[];
+  weekly?: WeeklyBucket[];
   _meta?: { rollingWindow?: number };
 };
 
@@ -84,6 +94,90 @@ function Sparkline({ values, window }: { values: number[]; window: number }) {
   );
 }
 
+function WeeklyTrend({ weekly }: { weekly: WeeklyBucket[] }) {
+  if (weekly.length < 2) {
+    return (
+      <p className="text-sm text-slate-500">
+        Need at least two weeks of settled games to chart a weekly trend.
+      </p>
+    );
+  }
+
+  const W = 640;
+  const H = 140;
+  const PAD = 6;
+  const LABEL_H = 16;
+  const n = weekly.length;
+  const x = (i: number) => PAD + (i / (n - 1)) * (W - PAD * 2);
+  const y = (v: number) => H - PAD - LABEL_H - (v / 100) * (H - PAD * 2 - LABEL_H);
+
+  const values = weekly.map((w) => w.coverRate);
+  const line = values.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+  const last = values[n - 1];
+  const breakEvenY = y(52.4);
+
+  return (
+    <div>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full h-auto"
+        role="img"
+        aria-label={`Weekly cover rate across ${n} weeks, most recent ${last}%`}
+      >
+        <line
+          x1={PAD}
+          x2={W - PAD}
+          y1={breakEvenY}
+          y2={breakEvenY}
+          stroke="#475569"
+          strokeWidth={1}
+          strokeDasharray="4 4"
+        />
+        <polyline
+          points={line}
+          fill="none"
+          stroke={ACCENT}
+          strokeWidth={2}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        {weekly.map((w, i) => (
+          <circle key={w.week} cx={x(i)} cy={y(w.coverRate)} r={3.5} fill={ACCENT}>
+            <title>{`${w.week}: ${w.coverRate}% cover (${w.games} games, MAE ${w.modelMae})`}</title>
+          </circle>
+        ))}
+        <text
+          x={PAD}
+          y={H - 2}
+          fill="#64748b"
+          fontSize={10}
+          fontFamily="monospace"
+        >
+          {weekly[0].week}
+        </text>
+        <text
+          x={W - PAD}
+          y={H - 2}
+          fill="#64748b"
+          fontSize={10}
+          fontFamily="monospace"
+          textAnchor="end"
+        >
+          {weekly[n - 1].week}
+        </text>
+      </svg>
+      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+        <span>Dashed line ≈ 52.4% break-even vs −110</span>
+        <span>
+          Latest week:{" "}
+          <span className="text-slate-300 font-medium">{last}%</span> over{" "}
+          {weekly[n - 1].games} games
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function StatCard({
   label,
   value,
@@ -118,7 +212,7 @@ export default function NbaAccuracy() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/nba/predictions/accuracy")
+    fetch("/api/nba/predictions/accuracy?groupBy=week")
       .then(async (r) => {
         if (!r.ok) {
           const e = await r.json().catch(() => ({}));
@@ -226,6 +320,20 @@ export default function NbaAccuracy() {
               </div>
               <Sparkline values={resp.rollingCover} window={window} />
             </section>
+
+            {resp.weekly && resp.weekly.length > 0 && (
+              <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+                <div className="flex items-baseline justify-between mb-4">
+                  <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400">
+                    Weekly Cover Rate
+                  </h2>
+                  <span className="text-xs text-slate-500">
+                    {resp.weekly.length} {resp.weekly.length === 1 ? "week" : "weeks"}
+                  </span>
+                </div>
+                <WeeklyTrend weekly={resp.weekly} />
+              </section>
+            )}
 
             <p className="mt-8 text-xs text-slate-600">
               MAE = mean absolute error between the predicted margin and the

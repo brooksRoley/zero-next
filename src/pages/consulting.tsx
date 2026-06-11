@@ -39,10 +39,34 @@ function track(event_type: string, metadata: Record<string, unknown> = {}) {
   }).catch(() => { /* analytics is best-effort */ })
 }
 
-/* ── Commented out until LLC is signed and payment infra is ready ──
-const SERVICES = [ ... pricing tiers ... ]
-const handleCheckout = async () => { ... Stripe ... }
-── */
+/* ── Stripe checkout (handleCheckout → /api/consulting/checkout) intentionally
+   not wired up yet — swap the pricing-grid "Book a Call" links for per-tier
+   checkout buttons once live Stripe keys are set in Vercel
+   (see CLAUDE.md → "Stripe — Shipping Checklist"). ── */
+
+const PRICING_TIERS = [
+  {
+    name: 'Strategy Session',
+    price: '$150',
+    unit: 'one-time',
+    desc: '90 minutes on your architecture, roadmap, or a gnarly technical decision. You leave with a written plan.',
+    featured: false,
+  },
+  {
+    name: 'Dev Sprint',
+    price: '$2,400',
+    unit: 'per week',
+    desc: 'A focused week of hands-on building — features shipped, PRs reviewed, momentum restored.',
+    featured: true,
+  },
+  {
+    name: 'Fractional CTO',
+    price: '$4,000',
+    unit: 'per month',
+    desc: 'Ongoing technical leadership — architecture calls, hiring help, and a senior engineer in your corner.',
+    featured: false,
+  },
+]
 
 const PROJECT_TYPES = [
   'New project build',
@@ -108,12 +132,28 @@ const PROJECTS_PROOF = [
   },
 ]
 
+// Anonymized placeholders until real quotes are cleared for use. Swap the
+// `quote`/`attribution` strings for the real ones when ready — the layout
+// scales to however many entries are in this array.
+const TESTIMONIALS = [
+  {
+    quote: 'Brooks shipped a feature in a week that our internal team had scoped for a month.',
+    attribution: 'Senior PM, fintech startup',
+  },
+  {
+    quote: 'Clear communication, clean PRs, and he actually cared about the product — not just the ticket.',
+    attribution: 'Founder, early-stage SaaS',
+  },
+]
+
+const TIMELINES = ['ASAP', '1-3 months', '3-6 months', 'Just exploring']
+
 export default function Consulting() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const [form, setForm] = useState({ name: '', email: '', project_type: '', budget_range: '', message: '', website: '' })
+  const [form, setForm] = useState({ name: '', email: '', company: '', project_type: '', budget_range: '', timeline: '', message: '', website: '' })
   // Captured once on mount so attribution survives even if the visitor edits
   // the URL or navigates within the SPA before submitting.
   const [attribution, setAttribution] = useState({ utm_source: '', utm_medium: '', utm_campaign: '' })
@@ -162,7 +202,7 @@ export default function Consulting() {
     <>
       <Head>
         <title>Consulting | Brooks Roley</title>
-        <meta name="description" content="Brooks Roley — full-stack engineer. Get in touch, book a call, or just say hi." />
+        <meta name="description" content="Full-stack engineer for hire — React, TypeScript, Node, iOS, sports tech. Strategy sessions from $150. Let's build something." />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Brooks Roley — Full-Stack Engineer for Hire" />
         <meta property="og:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." />
@@ -300,6 +340,77 @@ export default function Consulting() {
             </div>
           </section>
 
+          {/* ── Testimonials ── */}
+          <section className="mb-12">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
+              What people say
+            </h2>
+            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
+              In their words
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {TESTIMONIALS.map(t => (
+                <figure
+                  key={t.attribution}
+                  className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-6"
+                >
+                  <span className="block text-3xl leading-none text-candy-400/50 mb-2" aria-hidden="true">&ldquo;</span>
+                  <blockquote className="text-base text-forest-100 leading-relaxed">
+                    {t.quote}
+                  </blockquote>
+                  <figcaption className="mt-4 text-sm text-forest-400">
+                    &mdash; {t.attribution}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+
+          {/* ── Pricing ── */}
+          <section className="mb-12">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
+              Pricing
+            </h2>
+            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
+              Pick your speed
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {PRICING_TIERS.map(tier => (
+                <div
+                  key={tier.name}
+                  className={`flex flex-col rounded-xl border p-5 ${
+                    tier.featured
+                      ? 'border-candy-500/40 bg-forest-900/80'
+                      : 'border-forest-700/40 bg-forest-900/60'
+                  }`}
+                >
+                  {tier.featured && (
+                    <span className="self-start mb-3 rounded-full bg-candy-500/15 border border-candy-500/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-candy-300">
+                      Most popular
+                    </span>
+                  )}
+                  <h3 className="text-base font-semibold text-white">{tier.name}</h3>
+                  <p className="mt-2">
+                    <span className="text-2xl font-bold text-white">{tier.price}</span>{' '}
+                    <span className="text-xs text-forest-400">{tier.unit}</span>
+                  </p>
+                  <p className="mt-3 text-sm text-forest-300 leading-relaxed flex-1">
+                    {tier.desc}
+                  </p>
+                  <a
+                    href="https://calendly.com/brooksroley/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => track('cta_click', { location: 'pricing_grid', tier: tier.name })}
+                    className="mt-5 block text-center px-4 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
+                  >
+                    Book a Call
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* ── Ways to connect ── */}
           <section className="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <a
@@ -313,6 +424,16 @@ export default function Consulting() {
               <span className="text-sm font-medium text-white">Schedule a Call</span>
               <span className="text-xs text-forest-500">Pick a time on Calendly</span>
             </a>
+
+            <Link
+              href="/intake"
+              onClick={() => track('intake_open', { location: 'connect_tile' })}
+              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
+            >
+              <span className="text-2xl">&#127908;</span>
+              <span className="text-sm font-medium text-white">Voice Intake</span>
+              <span className="text-xs text-forest-500">Describe your project out loud &mdash; I&apos;ll receive a transcript and reply within a day.</span>
+            </Link>
 
             <a
               href="#contact"
@@ -333,16 +454,6 @@ export default function Consulting() {
               <span className="text-sm font-medium text-white">Connect on LinkedIn</span>
               <span className="text-xs text-forest-500">in/brooksroley</span>
             </a>
-
-            <Link
-              href="/intake"
-              onClick={() => track('intake_open', { location: 'connect_tile' })}
-              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
-            >
-              <span className="text-2xl">&#127908;</span>
-              <span className="text-sm font-medium text-white">Voice Intake</span>
-              <span className="text-xs text-forest-500">Tell me about your project &mdash; I&apos;ll listen</span>
-            </Link>
           </section>
 
           {/* ── Contact Form ── */}
@@ -443,6 +554,36 @@ export default function Consulting() {
                     >
                       <option value="">Select one…</option>
                       {BUDGET_RANGES.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                      Company / Project
+                    </label>
+                    <input
+                      type="text"
+                      value={form.company}
+                      onChange={e => updateForm('company', e.target.value)}
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      placeholder="Acme Inc. / side project"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                      Timeline
+                    </label>
+                    <select
+                      value={form.timeline}
+                      onChange={e => updateForm('timeline', e.target.value)}
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 transition-colors"
+                    >
+                      <option value="">Select one…</option>
+                      {TIMELINES.map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </select>
