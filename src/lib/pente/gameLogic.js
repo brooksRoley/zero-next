@@ -28,6 +28,31 @@ export function checkForFiveInARow(board, row, col, player) {
 }
 
 /**
+ * Returns the cells of the winning five-in-a-row through (row, col), or null.
+ * Used by the UI to animate the winning line. If the run is longer than five,
+ * returns the full run.
+ * @returns {Array<[number, number]>|null}
+ */
+export function getWinningLine(board, row, col, player) {
+  const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]
+  for (const [dx, dy] of directions) {
+    const cells = [[row, col]]
+    for (let i = 1; i < 5; i++) {
+      const r = row + i * dx, c = col + i * dy
+      if (!isValidPosition(r, c) || board[r][c] !== player) break
+      cells.push([r, c])
+    }
+    for (let i = 1; i < 5; i++) {
+      const r = row - i * dx, c = col - i * dy
+      if (!isValidPosition(r, c) || board[r][c] !== player) break
+      cells.unshift([r, c])
+    }
+    if (cells.length >= 5) return cells
+  }
+  return null
+}
+
+/**
  * Computes captures for a move. Returns a new board (no mutation) and metadata.
  * @param {number[][]} board
  * @param {number} row

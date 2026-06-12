@@ -10,7 +10,7 @@ import useGameSounds from 'src/hooks/useGameSounds';
 import usePlayerProfile from 'src/hooks/usePlayerProfile';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
-import { createEmptyBoard, checkForFiveInARow, computeCaptures } from 'src/lib/pente/gameLogic';
+import { createEmptyBoard, checkForFiveInARow, computeCaptures, getWinningLine } from 'src/lib/pente/gameLogic';
 import { PenteBot } from 'src/components/PentePlayerbot';
 import { BotWorkerManager } from 'src/lib/pente/botWorker';
 import { getAdaptiveBotConfig } from 'src/lib/pente/adaptiveBot';
@@ -25,6 +25,8 @@ import { getZone } from 'src/lib/pente/elo';
 import useMatchmaking from 'src/hooks/useMatchmaking';
 import QueueBanner from 'src/components/pente/QueueBanner';
 import MatchConfirmModal from 'src/components/pente/MatchConfirmModal';
+import useBoardTheme from 'src/hooks/useBoardTheme';
+import BoardCustomizer from 'src/components/pente/BoardCustomizer';
 
 // Map cell value to CSS class
 function cellClass(cell) {
@@ -134,6 +136,34 @@ const GameBoard = () => {
 
   // ── UI state ──
   const [showRules, setShowRules] = useState(false);
+
+  // ── Board customization (per-device skin / stones / motion) ──
+  const { prefs: boardPrefs, updatePrefs: updateBoardPrefs } = useBoardTheme();
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [themeWarp, setThemeWarp] = useState(false);
+  const warpTimerRef = useRef(null);
+  useEffect(() => () => clearTimeout(warpTimerRef.current), []);
+
+  const handleBoardPrefsChange = useCallback((patch) => {
+    if (patch.theme) {
+      // Brief perspective warp so the skin swap feels like a transition, not a repaint
+      setThemeWarp(false);
+      clearTimeout(warpTimerRef.current);
+      requestAnimationFrame(() => {
+        setThemeWarp(true);
+        warpTimerRef.current = setTimeout(() => setThemeWarp(false), 600);
+      });
+    }
+    updateBoardPrefs(patch);
+  }, [updateBoardPrefs]);
+
+  // Winning five-in-a-row cells, for the win-line animation
+  const [winningLine, setWinningLine] = useState(null);
+  const winningCells = useMemo(() => {
+    const m = new Map();
+    if (winningLine) winningLine.forEach(([r, c], i) => m.set(`${r}-${c}`, i));
+    return m;
+  }, [winningLine]);
 
   // ── Move history (post-game analysis) ──
   const [moveHistory, setMoveHistory] = useState([]);
@@ -389,6 +419,7 @@ const GameBoard = () => {
       return;
     }
     if (checkForFiveInARow(finalBoard, row, col, localCurrentPlayer)) {
+      setWinningLine(getWinningLine(finalBoard, row, col, localCurrentPlayer));
       endLocalGame(localCurrentPlayer);
       return;
     }
@@ -476,6 +507,7 @@ const GameBoard = () => {
     setHintCell(null);
     setHintExplanation(null);
     setEvalScore(0);
+    setWinningLine(null);
     setMoveHistory([]);
     setGameOver(false);
     setGameAnalysis(null);
@@ -615,6 +647,13 @@ const GameBoard = () => {
       <div className="relative z-10 flex flex-col flex-1 min-h-0">
       <PenteTopNav active="game" />
 
+      <BoardCustomizer
+        open={showCustomizer}
+        prefs={boardPrefs}
+        onChange={handleBoardPrefsChange}
+        onClose={() => setShowCustomizer(false)}
+      />
+
       {/* ══════════════════════════════════════════════════════════════
           COMPACT HEADER
       ══════════════════════════════════════════════════════════════ */}
@@ -652,6 +691,14 @@ const GameBoard = () => {
                 New
               </button>
             )}
+            <button
+              className={actionBtn(showCustomizer)}
+              onClick={() => setShowCustomizer(s => !s)}
+              title="Board style"
+              aria-label="Customize board style"
+            >
+              🎨
+            </button>
             <button
               className={actionBtn(showRules)}
               onClick={() => setShowRules(r => !r)}
@@ -879,7 +926,10 @@ const GameBoard = () => {
             <div className="relative">
             <div
               ref={boardRef}
-              className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''} ${intervention && !trainingActive ? 'shattered' : ''}`}
+              data-theme={boardPrefs.theme}
+              data-stones={boardPrefs.stones}
+              data-effects={boardPrefs.effects}
+              className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''} ${intervention && !trainingActive ? 'shattered' : ''} ${themeWarp ? 'theme-warp' : ''}`}
               style={boardDisabled || (intervention && !trainingActive) ? { pointerEvents: 'none' } : undefined}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -893,6 +943,8 @@ const GameBoard = () => {
                     const isBlunder = intervention && !trainingActive
                       && intervention.blunderCell?.row === rowIndex
                       && intervention.blunderCell?.col === colIndex;
+                    // Win-line sweep only applies to the live final board, not history views
+                    const winIdx = analysisViewTurn === null ? winningCells.get(cellKey) : undefined;
                     return (
                       <button
                         key={colIndex}
@@ -906,7 +958,9 @@ const GameBoard = () => {
                           isHintCell(rowIndex, colIndex) ? 'hint-glow' : '',
                           touchPreviewCell === cellKey ? 'touch-preview' : '',
                           isBlunder ? 'blunder-glow' : '',
+                          winIdx !== undefined ? 'win-stone' : '',
                         ].filter(Boolean).join(' ')}
+                        style={winIdx !== undefined ? { '--win-delay': `${winIdx * 90}ms` } : undefined}
                         onClick={() => handleClick(rowIndex, colIndex)}
                       >
                         {/* Physics eject animation for captured stones */}
