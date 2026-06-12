@@ -1,5 +1,6 @@
 import '@/styles/globals.css'
 import '@/styles/GameBoard.css';
+import '@/styles/PenteThemes.css';
 import '@/styles/GoBoard.css';
 
 import { useState, useEffect } from 'react'

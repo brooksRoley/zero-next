@@ -221,22 +221,32 @@ function evaluate(board, player, captures, gameMode) {
   return score
 }
 
+// Score the run of `color` stones starting at (r,c) in direction (dr,dc).
+// Only scores at the start of a run (no stone behind), so each run counts once.
+// Open-end counting makes threes/fours visible to leaf evaluation — the old
+// fixed-window scan counted trailing empties as "gaps" and scored a clean
+// open three as 0, leaving shallow searches blind to it.
 function scoreLine(board, r, c, dr, dc, color) {
-  var count = 0, gaps = 0, blocked = 0
-  for (var i = 0; i < 5; i++) {
-    var nr = r + i * dr, nc = c + i * dc
-    if (!isValid(nr, nc)) { blocked++; break }
-    if (board[nr][nc] === color) count++
-    else if (board[nr][nc] === EMPTY) gaps++
-    else { blocked++; break }
+  var pr = r - dr, pc = c - dc
+  if (isValid(pr, pc) && board[pr][pc] === color) return 0 // not a run start
+
+  var len = 0
+  var er = r, ec = c
+  while (isValid(er, ec) && board[er][ec] === color) {
+    len++
+    er += dr
+    ec += dc
   }
-  var br = r - dr, bc = c - dc
-  if (!isValid(br, bc) || (board[br][bc] !== EMPTY && board[br][bc] !== color)) blocked++
-  if (count < 2) return 0
-  if (count >= 5) return 500000
-  if (count === 4) { return blocked === 0 ? 50000 : blocked === 1 ? 5000 : 0 }
-  if (count === 3) { return blocked === 0 && gaps <= 1 ? 3000 : blocked === 1 && gaps <= 1 ? 300 : 0 }
-  if (count === 2) { return blocked === 0 ? 100 : 0 }
+  if (len < 2) return 0
+
+  var open =
+    (isValid(pr, pc) && board[pr][pc] === EMPTY ? 1 : 0) +
+    (isValid(er, ec) && board[er][ec] === EMPTY ? 1 : 0)
+
+  if (len >= 5) return 500000
+  if (len === 4) { return open === 2 ? 50000 : open === 1 ? 5000 : 0 }
+  if (len === 3) { return open === 2 ? 3000 : open === 1 ? 300 : 0 }
+  if (len === 2) { return open === 2 ? 100 : 0 }
   return 0
 }
 
@@ -517,8 +527,13 @@ function findBestMove(board, player, captures, config, gameMode) {
     if (bestScore >= 900000) break
   }
 
-  // Blunder injection
-  if (engineBlunderRate > 0 && Math.random() < engineBlunderRate && topMoves.length > 1) {
+  // Blunder injection.
+  // Forced moves are exempt: heuristic >= 500000 means the best move wins
+  // outright or blocks an imminent opponent win — a blunder there doesn't
+  // read as "beginner", it reads as broken.
+  var FORCED_MOVE = 500000
+  if (engineBlunderRate > 0 && Math.random() < engineBlunderRate && topMoves.length > 1 &&
+      topMoves[0].heuristic < FORCED_MOVE && bestScore < 900000) {
     var poolSize = Math.max(2, Math.ceil(topMoves.length * 0.6))
     var blunder = topMoves[Math.floor(Math.random() * poolSize)]
     return { row: blunder.row, col: blunder.col, score: blunder.heuristic, depth: completedDepth, nodes: nodesSearched, blundered: true }

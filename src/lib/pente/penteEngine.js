@@ -218,43 +218,41 @@ function evaluate(board, player, captures, gameMode) {
   return score
 }
 
-// Score a line starting at (r,c) in direction (dr,dc) for the given color
+// Score the run of `color` stones starting at (r,c) in direction (dr,dc).
+// Only scores at the start of a run (no stone behind), so each run counts once.
+// Open-end counting makes threes/fours visible to leaf evaluation — the old
+// fixed-window scan counted trailing empties as "gaps" and scored a clean
+// open three as 0, leaving shallow searches blind to it.
 function scoreLine(board, r, c, dr, dc, color) {
-  let count = 0
-  let gaps = 0
-  let blocked = 0
+  const pr = r - dr, pc = c - dc
+  if (isValid(pr, pc) && board[pr][pc] === color) return 0 // not a run start
 
-  // Count consecutive + one-gap patterns in forward direction
-  for (let i = 0; i < 5; i++) {
-    const nr = r + i * dr, nc = c + i * dc
-    if (!isValid(nr, nc)) { blocked++; break }
-    if (board[nr][nc] === color) count++
-    else if (board[nr][nc] === EMPTY) gaps++
-    else { blocked++; break }
+  let len = 0
+  let er = r, ec = c
+  while (isValid(er, ec) && board[er][ec] === color) {
+    len++
+    er += dr
+    ec += dc
   }
+  if (len < 2) return 0
 
-  // Check one step behind for openness
-  const br = r - dr, bc = c - dc
-  if (!isValid(br, bc) || (board[br][bc] !== EMPTY && board[br][bc] !== color)) {
-    blocked++
-  }
+  const open =
+    (isValid(pr, pc) && board[pr][pc] === EMPTY ? 1 : 0) +
+    (isValid(er, ec) && board[er][ec] === EMPTY ? 1 : 0)
 
-  if (count < 2) return 0
-
-  // Score based on pattern strength
-  if (count >= 5) return 500000  // five in a row (should be caught by win check, but safety)
-  if (count === 4) {
-    if (blocked === 0) return 50000  // open four — almost unstoppable
-    if (blocked === 1) return 5000   // half-open four
+  if (len >= 5) return 500000  // five in a row (should be caught by win check, but safety)
+  if (len === 4) {
+    if (open === 2) return 50000  // open four — unstoppable
+    if (open === 1) return 5000   // half-open four — wins unless answered now
     return 0
   }
-  if (count === 3) {
-    if (blocked === 0 && gaps <= 1) return 3000  // open three
-    if (blocked === 1 && gaps <= 1) return 300   // half-open three
+  if (len === 3) {
+    if (open === 2) return 3000  // open three — becomes an open four
+    if (open === 1) return 300   // half-open three
     return 0
   }
-  if (count === 2) {
-    if (blocked === 0) return 100  // open two
+  if (len === 2) {
+    if (open === 2) return 100  // open two
     return 0
   }
   return 0
@@ -407,8 +405,15 @@ export class PenteEngine {
       if (bestScore >= 900000) break
     }
 
-    // Blunder injection for lower difficulties
-    if (this.blunderRate > 0 && Math.random() < this.blunderRate && topMoves.length > 1) {
+    // Blunder injection for lower difficulties.
+    // Forced moves are exempt: heuristic >= 500000 means the best move wins
+    // outright or blocks an imminent opponent win — a blunder there doesn't
+    // read as "beginner", it reads as broken.
+    const FORCED_MOVE = 500000
+    if (
+      this.blunderRate > 0 && Math.random() < this.blunderRate &&
+      topMoves.length > 1 && topMoves[0].heuristic < FORCED_MOVE && bestScore < 900000
+    ) {
       // Pick a random move from top 60% instead of the best
       const pool = topMoves.slice(0, Math.max(2, Math.ceil(topMoves.length * 0.6)))
       const blunder = pool[Math.floor(Math.random() * pool.length)]
