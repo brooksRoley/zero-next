@@ -1,10 +1,16 @@
 import { supabase } from 'src/lib/supabase'
 import { applyMove } from 'src/lib/pente/gameLogic'
 import { BLACK, WHITE } from 'src/lib/pente/constants'
+import { createRateLimiter } from 'src/lib/rate-limit'
+
+const limiter = createRateLimiter(30, 60 * 1000) // 30 writes per minute per IP
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!supabase) return res.status(503).json({ error: 'Multiplayer not configured' })
+
+  const ip = limiter.getClientIp(req)
+  if (limiter.isRateLimited(ip)) return res.status(429).json({ error: 'Too many requests' })
 
   const { gameId, playerId, row, col } = req.body
   if (!gameId || !playerId || row == null || col == null) {

@@ -39,9 +39,13 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // `parseInt(x, 10) || fallback` is NaN-safe: a non-numeric query value like
+    // ?window=abc parses to NaN, which is falsy, so the fallback applies. The
+    // earlier `req.query.window || '200'` form let 'abc' through and produced a
+    // NaN bound that silently broke the Supabase range query.
     const rating = parseInt(req.query.rating, 10)
-    const window = parseInt(req.query.window || '200', 10)
-    const limit = Math.min(parseInt(req.query.limit || '5', 10), 25)
+    const window = parseInt(req.query.window, 10) || 200
+    const limit = Math.min(parseInt(req.query.limit, 10) || 5, 25)
 
     if (Number.isNaN(rating)) return res.status(400).json({ error: 'rating query param required' })
 
