@@ -1,11 +1,19 @@
 import { supabase } from 'src/lib/supabase'
 
+// visitorId is interpolated into a PostgREST .or() filter below, so it must be a
+// strict UUID. Without this, a crafted value (e.g. "x,parent_id.gt.0") could
+// inject filter clauses and read other visitors' messages (IDOR).
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   if (!supabase) return res.status(503).json({ error: 'Database not configured' })
 
   const { visitorId } = req.query
   if (!visitorId) return res.status(400).json({ error: 'visitorId is required' })
+  if (typeof visitorId !== 'string' || !UUID_RE.test(visitorId)) {
+    return res.status(400).json({ error: 'visitorId must be a valid UUID' })
+  }
 
   // Fetch visitor's messages and any responses to them
   const { data: visitorMessages, error: err1 } = await supabase
