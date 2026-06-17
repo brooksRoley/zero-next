@@ -60,6 +60,128 @@ function saveBattleHistory(records: BattleRecord[]) {
   localStorage.setItem("arena-battles", JSON.stringify(records));
 }
 
+/* ── Free-tier daily limit (email capture) ── */
+const FREE_DAILY_BATTLES = 10;
+const EMAIL_BONUS_BATTLES = 10;
+
+function todayStamp(): string {
+  // Local-date YYYY-MM-DD so the counter resets at the user's local midnight.
+  const d = new Date();
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tzOffset).toISOString().slice(0, 10);
+}
+
+const usageKey = () => `model_arena_battles_${todayStamp()}`;
+const unlockKey = () => `model_arena_unlocked_${todayStamp()}`;
+
+function loadUsage(): number {
+  if (typeof window === "undefined") return 0;
+  const raw = localStorage.getItem(usageKey());
+  const n = raw ? parseInt(raw, 10) : 0;
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function saveUsage(count: number) {
+  localStorage.setItem(usageKey(), String(count));
+}
+
+function loadUnlocked(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(unlockKey()) === "1";
+}
+
+function saveUnlocked() {
+  localStorage.setItem(unlockKey(), "1");
+}
+
+/* ── Email Gate Modal ── */
+function EmailGate({
+  onUnlock,
+  onUseKeys,
+  onClose,
+}: {
+  onUnlock: () => void;
+  onUseKeys: () => void;
+  onClose: () => void;
+}) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
+  const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
+
+  const handleSubmit = async () => {
+    if (!valid || status === "submitting") return;
+    setStatus("submitting");
+    try {
+      const res = await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          page: "/tools/model-arena",
+          event_type: "model_arena_email_gate",
+          metadata: { email: email.trim() },
+        }),
+      });
+      if (!res.ok) throw new Error("Request failed");
+      saveUnlocked();
+      onUnlock();
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+      <div className="w-full max-w-sm rounded-2xl border border-[#C5E7EA]/20 bg-[#1c2426] p-6 shadow-2xl">
+        <h2 className="text-lg font-semibold text-[#DADBD9]">
+          You&apos;ve hit today&apos;s free limit
+        </h2>
+        <p className="mt-2 text-sm text-[#DADBD9]/60">
+          That&apos;s {FREE_DAILY_BATTLES} free runs on the house. Drop your email
+          to unlock {EMAIL_BONUS_BATTLES} more today — or bring your own API key
+          for unlimited runs.
+        </p>
+
+        <div className="mt-4 flex gap-2">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            placeholder="you@example.com"
+            className="flex-1 rounded-lg border border-[#C5E7EA]/30 bg-[#415557]/40 px-3 py-2 text-sm text-[#DADBD9] placeholder-[#DADBD9]/40 focus:border-[#C5E7EA]/70 focus:outline-none"
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={!valid || status === "submitting"}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/30 text-[#C5E7EA] hover:bg-[#C5E7EA]/40 transition-colors disabled:opacity-40"
+          >
+            {status === "submitting" ? "…" : "Unlock"}
+          </button>
+        </div>
+        {status === "error" && (
+          <p className="mt-2 text-xs text-red-400/80">
+            Something went wrong — try again or use your own key.
+          </p>
+        )}
+
+        <button
+          onClick={onUseKeys}
+          className="mt-4 w-full px-3 py-2 rounded-lg text-sm text-[#DADBD9]/70 hover:text-[#DADBD9] border border-[#C5E7EA]/20 hover:bg-[#415557]/30 transition-colors"
+        >
+          Use my own API key instead
+        </button>
+
+        <button
+          onClick={onClose}
+          className="mt-3 w-full text-xs text-[#DADBD9]/40 hover:text-[#DADBD9]/70 transition-colors"
+        >
+          Maybe later
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── BYOK Panel ── */
 function BYOKPanel({
   keys,
@@ -321,10 +443,21 @@ export default function ModelArena() {
   const [battleModelA, setBattleModelA] = useState("");
   const [battleModelB, setBattleModelB] = useState("");
 
+  // Free-tier gating state
+  const [usage, setUsage] = useState(0);
+  const [unlocked, setUnlocked] = useState(false);
+  const [showGate, setShowGate] = useState(false);
+
   useEffect(() => {
     setByokKeys(loadStoredKeys());
     setBattles(loadBattleHistory());
+    setUsage(loadUsage());
+    setUnlocked(loadUnlocked());
   }, []);
+
+  const hasOwnKey = Object.values(byokKeys).some(Boolean);
+  const dailyAllowance = FREE_DAILY_BATTLES + (unlocked ? EMAIL_BONUS_BATTLES : 0);
+  const remaining = Math.max(0, dailyAllowance - usage);
 
   const streamToColumn = useCallback(
     async (
@@ -491,8 +624,30 @@ export default function ModelArena() {
   };
 
   const handleSend = () => {
+    if (!prompt.trim() || isRunning) return;
+    // BYOK users run on their own key — no gate. Free-tier users are metered
+    // per local day and prompted for an email once they exhaust the allowance.
+    if (!hasOwnKey && usage >= dailyAllowance) {
+      setShowGate(true);
+      return;
+    }
+    if (!hasOwnKey) {
+      const next = usage + 1;
+      setUsage(next);
+      saveUsage(next);
+    }
     if (mode === "compare") handleCompare();
     else handleBattle();
+  };
+
+  const handleUnlock = () => {
+    setUnlocked(true);
+    setShowGate(false);
+  };
+
+  const handleUseKeys = () => {
+    setShowGate(false);
+    openByokRef.current?.();
   };
 
   const handleClear = () => {
@@ -700,7 +855,31 @@ export default function ModelArena() {
             {isRunning ? "Running…" : "Send"}
           </button>
         </div>
+        {!hasOwnKey && (
+          <p className="mt-2 text-[10px] text-[#DADBD9]/40 text-right">
+            {remaining} free {remaining === 1 ? "run" : "runs"} left today
+            {!unlocked && remaining <= 3 && (
+              <>
+                {" · "}
+                <button
+                  onClick={() => setShowGate(true)}
+                  className="underline hover:text-[#DADBD9]/70"
+                >
+                  unlock more
+                </button>
+              </>
+            )}
+          </p>
+        )}
       </div>
+
+      {showGate && (
+        <EmailGate
+          onUnlock={handleUnlock}
+          onUseKeys={handleUseKeys}
+          onClose={() => setShowGate(false)}
+        />
+      )}
     </main>
   );
 }
