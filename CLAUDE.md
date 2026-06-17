@@ -273,16 +273,39 @@ Brooks is building toward financial independence through the site itself. Every 
 | 2, 5 | Tue, Fri | DESIGN |
 | 3 | Wed | PM / PRODUCT |
 
+**The schedule is a default, not a lock.** If the single highest-value item available this session clearly falls in another role's domain, do that role instead and state the override in one line at the top of the output (e.g., "Override: Wed/PM → ENGINEERING because the top item is a revenue feature, not a strategy gap"). Don't ship a low-leverage design or PM session just to honor the calendar when a needle-mover sits in another lane.
+
 ---
 
 ### Global Rules
 
+- **Read the Open Recommendations Ledger first** (see the section below). It is the routine's memory across sessions — it tells you what's already been recommended, what shipped, and what's blocked on Brooks. Choose work from open, agent-doable items before inventing something new.
 - Scan the repo with Glob and selective Read before doing anything. Be token-efficient — do not read every file blindly.
-- Produce exactly **ONE PR per session**. One complete, working PR beats several shallow ones.
+- **Read the analytics before choosing what to build.** First-party events now exist (`/api/events`, the `track()` helper). When picking work, query/inspect recent conversion data (which CTAs fire, which convert) and prioritize by evidence, not intuition. "Does this PR make money more likely?" is now partly measurable — measure it.
+- Produce **one substantial PR per session, OR a bundle of small pre-specified items** the ledger has already greenlit as "ready to ship." One complete working PR beats several shallow ones — but don't let a queue of cheap, ready revenue wins starve for weeks because of a strict one-PR rule. Quality bar is unchanged: everything shipped must be complete and working.
 - Write complete code — no TODOs, no placeholders, no stub functions.
 - Every PR must map to at least one livelihood stream (label it clearly in the PR body).
 - Attempt `git checkout -b [branch] && git add -A && git commit -m "[title]" && gh pr create` to push and open the PR. If auth fails, output the full PR as a plaintext artifact Brooks can apply manually.
+- **Log verification outcomes honestly.** If you build something user-facing, verify it (build, lint, and live-site check where possible). If verification is blocked (e.g., a 403 or missing secret), record that as an explicit failure state in the ledger — do not silently skip it. A blocker that recurs across sessions should escalate, not disappear.
 - Keep total token use lean: skip lengthy preamble, get to the work.
+
+---
+
+### Open Recommendations Ledger & Session Memory
+
+Each scheduled run starts cold with no memory of prior runs. Without a shared ledger, briefs repeat the same recommendations for weeks (e.g., "flip Stripe to live keys" led every brief for over a month because nothing tracked that it had already been said). This section fixes that.
+
+**Where it lives:** the Notion "Open Recommendations" database if Notion is connected; otherwise the agent memory directory. Treat it as the single source of truth for cross-session state. Read it at session start, write to it at session end.
+
+**Each ledger item carries:** a short title, `owner` (`agent` or `brooks`), `status` (`open` → `shipped` → `verified`, or `blocked`), `first_flagged` date, and `flagged_count`.
+
+**Protocol every session:**
+
+1. **Read the ledger first.** Do not re-derive analysis for items already in it — only add net-new items or transition existing ones.
+2. **Separate agent-doable from human-blocked.** `owner: agent` items are yours to ship. `owner: brooks` items (Stripe Dashboard, env vars, writing a PDF, real testimonials, anything needing secrets you lack) are NOT yours — never burn a session re-analyzing them.
+3. **Escalate, don't repeat.** When a `owner: brooks` item reaches `flagged_count` ≥ 3, stop writing paragraphs about it. Surface it as a single bold line at the very top of the output: **"Brooks — ~30 min, do this: <action>"** — then move on to work you can actually ship. Depth of analysis should correlate with the agent's ability to act, not inversely.
+4. **Pick agent work from open items**, prefer those with analytics or ledger evidence of value.
+5. **Write back on exit:** transition anything you shipped to `shipped`, add any new recommendations as `open`, increment `flagged_count` on anything you re-surfaced, and record verification results (including blocked checks).
 
 ---
 
@@ -354,6 +377,8 @@ No code changes. Write a weekly brief — under 500 words total — that functio
 6. **Token tip** — one specific way to make these daily agent runs more efficient
 7. **Cost vs value** — estimate sessions run this week, approximate token cost, and what concrete livelihood or portfolio value was produced
 
+The PM session **owns the Open Recommendations Ledger.** Reconcile it: mark shipped items `verified` (or back to `open` if a check failed), prune duplicates, and make sure every human-blocked item has an accurate `flagged_count`. The "Top 3 priorities" must be drawn from the ledger, and any `owner: brooks` item flagged ≥ 3 times goes at the very top as a single bold action line — not re-analyzed in prose.
+
 Also post this brief to Notion (if connected) under a "Weekly Dev Briefs" page, dated with today's date.
 
 ---
@@ -364,6 +389,7 @@ When Notion MCP is available:
 - PM briefs → "Weekly Dev Briefs" database, one entry per Wednesday
 - Engineering PRs → append a one-line summary to "Shipped This Week" page
 - Design PRs → append a one-line summary to "Shipped This Week" page
+- **Open Recommendations Ledger → "Open Recommendations" database** (the cross-session memory from the Global Rules). Read at session start, reconcile at session end. If the database doesn't exist yet, create it with columns: Title, Owner (agent/brooks), Status (open/shipped/verified/blocked), First flagged (date), Flagged count (number), Notes. When Notion is not connected, keep the same ledger in the agent memory directory instead.
 
 Keep Notion entries lean. They are for Brooks to skim, not read.
 
