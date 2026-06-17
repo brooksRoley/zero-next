@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import PuzzleCatalog from 'src/components/PuzzleCatalog'
 import PuzzleSolver from 'src/components/PuzzleSolver'
 import EndlessPuzzle from 'src/components/EndlessPuzzle'
+import DailyChallenge from 'src/components/pente/DailyChallenge'
 import PenteTopNav from 'src/components/pente/PenteTopNav'
 import SolarField from 'src/components/pente/SolarField'
 import Leaderboard from 'src/components/pente/Leaderboard'
@@ -14,6 +15,7 @@ import { track } from 'src/lib/analytics'
 
 const MODES = [
   { key: 'catalog', label: 'Catalog' },
+  { key: 'daily', label: 'Daily' },
   { key: 'endless', label: 'Endless' },
 ]
 
@@ -40,7 +42,7 @@ export default function PentePuzzlesPage() {
   useEffect(() => {
     if (!router.isReady) return
     const queryMode = router.query.mode
-    if (queryMode === 'endless' || queryMode === 'catalog') {
+    if (queryMode === 'endless' || queryMode === 'catalog' || queryMode === 'daily') {
       setMode(queryMode)
     }
   }, [router.isReady, router.query.mode])
@@ -73,7 +75,7 @@ export default function PentePuzzlesPage() {
         attempts,
         used_hint: usedHint,
         solve_time_ms: solveTimeMs,
-        mode: mode === 'endless' ? 'endless' : 'catalog',
+        mode: mode === 'endless' ? 'endless' : mode === 'daily' ? 'daily' : 'catalog',
         elo_delta: result?.delta ?? 0,
         new_elo: result?.newElo ?? null,
         zone: result?.zone?.name ?? null,
@@ -153,6 +155,16 @@ export default function PentePuzzlesPage() {
               elo={elo}
               peakElo={peakElo}
               eloHistory={eloHistory}
+            />
+          ) : mode === 'daily' ? (
+            <DailyChallenge
+              playerId={playerId}
+              elo={elo}
+              peakElo={peakElo}
+              eloHistory={eloHistory}
+              onSolve={handleSolve}
+              onAttempt={recordAttempt}
+              onBack={() => setMode('catalog')}
             />
           ) : mode === 'endless' ? (
             <EndlessPuzzle
