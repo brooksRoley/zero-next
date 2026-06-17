@@ -6,9 +6,11 @@ import PuzzleSolver from 'src/components/PuzzleSolver'
 import EndlessPuzzle from 'src/components/EndlessPuzzle'
 import PenteTopNav from 'src/components/pente/PenteTopNav'
 import SolarField from 'src/components/pente/SolarField'
+import Leaderboard from 'src/components/pente/Leaderboard'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
 import { getZone } from 'src/lib/pente/elo'
 import { puzzles, getRecommendedPuzzle } from 'src/lib/pente/puzzles'
+import { track } from 'src/lib/analytics'
 
 const MODES = [
   { key: 'catalog', label: 'Catalog' },
@@ -56,6 +58,30 @@ export default function PentePuzzlesPage() {
       setSelectedPuzzle(puzzles[nextIndex])
     }
   }, [selectedPuzzle, elo, profile.solvedPuzzles])
+
+  // Wrap markSolved so every solve also fires a first-party `puzzle_solved`
+  // event — the puzzle trainer had zero instrumentation before this. Returns
+  // markSolved's result untouched so the solver/endless components still get
+  // their elo delta. `delta === 0` means a re-solve (no ELO awarded).
+  const handleSolve = useCallback((puzzleId, puzzleRating, attempts = 0, usedHint = false, solveTimeMs = null) => {
+    const result = markSolved(puzzleId, puzzleRating, attempts, usedHint, solveTimeMs)
+    track('puzzle_solved', {
+      page: '/posts/pente-puzzles',
+      metadata: {
+        puzzle_id: puzzleId,
+        rating: puzzleRating ?? null,
+        attempts,
+        used_hint: usedHint,
+        solve_time_ms: solveTimeMs,
+        mode: mode === 'endless' ? 'endless' : 'catalog',
+        elo_delta: result?.delta ?? 0,
+        new_elo: result?.newElo ?? null,
+        zone: result?.zone?.name ?? null,
+        repeat: (result?.delta ?? 0) === 0,
+      },
+    })
+    return result
+  }, [markSolved, mode])
 
   const handleSelectPuzzle = useCallback((puzzle) => {
     setSelectedPuzzle(puzzle)
@@ -122,7 +148,7 @@ export default function PentePuzzlesPage() {
               onBack={handleBackFromSolver}
               onNext={handleNext}
               isSolved={isSolved(selectedPuzzle.id)}
-              onSolve={markSolved}
+              onSolve={handleSolve}
               onAttempt={recordAttempt}
               elo={elo}
               peakElo={peakElo}
@@ -134,7 +160,7 @@ export default function PentePuzzlesPage() {
               elo={elo}
               peakElo={peakElo}
               eloHistory={eloHistory}
-              onSolve={markSolved}
+              onSolve={handleSolve}
               onAttempt={recordAttempt}
               onBack={handleBackFromEndless}
             />
@@ -151,6 +177,13 @@ export default function PentePuzzlesPage() {
             />
           )}
         </div>
+
+        {/* Leaderboard — catalog view only, so it doesn't distract mid-solve */}
+        {mode === 'catalog' && (
+          <div className="mt-4 sm:mt-6">
+            <Leaderboard currentPlayerId={playerId} />
+          </div>
+        )}
       </div>
     </div>
   )
