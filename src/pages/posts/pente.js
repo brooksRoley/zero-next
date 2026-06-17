@@ -1056,6 +1056,13 @@ const GameBoard = () => {
           </div>
           <Link
             href="/funding"
+            onClick={() =>
+              track('cta_click', {
+                page: '/posts/pente',
+                metadata: { location: 'pente_ingame_tip' },
+                beacon: true,
+              })
+            }
             className="block mb-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
           >
             Enjoying Pente? Support development →
@@ -1187,6 +1194,13 @@ const GameBoard = () => {
           </div>
           <Link
             href="/funding"
+            onClick={() =>
+              track('cta_click', {
+                page: '/posts/pente',
+                metadata: { location: 'pente_game_result_tip' },
+                beacon: true,
+              })
+            }
             className="block mt-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
           >
             Enjoying Pente? Support development →
