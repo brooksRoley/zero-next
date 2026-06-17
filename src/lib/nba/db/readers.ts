@@ -91,6 +91,35 @@ export async function getPredictionAccuracy(sql: Sql) {
   `;
 }
 
+/**
+ * Prediction accuracy broken out per calendar month so you can see whether the
+ * model is drifting (model_mae creeping up, or beat_vegas rate decaying) instead
+ * of one flattened all-time average. Scoped to fully-settled predictions — the
+ * same filter the accuracy endpoint uses — so the monthly rows reconcile with
+ * its overall totals. Bucketed by created_at (when the prediction was made).
+ * Most-recent month first.
+ */
+export async function getPredictionAccuracyByMonth(sql: Sql) {
+  return sql`
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') as month,
+      COUNT(*) as total_predictions,
+      COUNT(*) FILTER (WHERE beat_vegas = true) as beat_vegas_count,
+      COUNT(*) FILTER (WHERE ats_result = 'cover') as covers,
+      COUNT(*) FILTER (WHERE ats_result = 'miss') as misses,
+      COUNT(*) FILTER (WHERE ats_result = 'push') as pushes,
+      ROUND(AVG(ABS(predicted_spread - actual_margin)), 2) as model_mae,
+      ROUND(AVG(ABS(vegas_spread - actual_margin)), 2) as vegas_mae
+    FROM nba_prediction_results
+    WHERE settled_at IS NOT NULL
+      AND predicted_spread IS NOT NULL
+      AND vegas_spread IS NOT NULL
+      AND actual_margin IS NOT NULL
+    GROUP BY DATE_TRUNC('month', created_at)
+    ORDER BY DATE_TRUNC('month', created_at) DESC
+  `;
+}
+
 export async function getOddsForEvent(sql: Sql, eventId: string) {
   return sql`SELECT * FROM nba_odds WHERE event_id = ${eventId} ORDER BY captured_at DESC`;
 }

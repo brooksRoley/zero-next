@@ -65,7 +65,7 @@ export default function Home() {
               <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
                   Full-stack engineer — React, TypeScript, sports tech, games.
-                  <span className="text-[#DADBD9]/56"> Available for consulting.</span>
+                  <span className="text-[#DADBD9]/88"> Available for consulting.</span>
                 </p>
                 <Link
                   href="/consulting"
@@ -215,6 +215,34 @@ export default function Home() {
                   </TiltCard>
                 </Reveal>
               </div>
+
+              <div data-physics-item className="physics-field-item">
+                <Reveal delay={700}>
+                  <TiltCard>
+                    <Link
+                      href="/consulting"
+                      className="group relative overflow-hidden rounded-xl border border-candy-500/40 bg-[#415557]/18 text-[#DADBD9] card-hover-border backdrop-blur-sm ring-1 ring-candy-500/15"
+                    >
+                      <span className="absolute right-3 top-3 z-10 rounded-full bg-candy-600 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                        Hire me
+                      </span>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
+                        <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
+                      </div>
+                      <div className="relative px-5 pb-5 -mt-8">
+                        <h3 className="text-xl font-semibold flex items-center gap-2">
+                          Consulting <ArrowIcon />
+                        </h3>
+                        <p className="text-sm text-sky-100/70 mt-1">
+                          Strategy sessions, dev sprints, and fractional CTO engagements.
+                        </p>
+                      </div>
+                      <div className="tilt-highlight" />
+                    </Link>
+                  </TiltCard>
+                </Reveal>
+              </div>
             </PhysicsField>
           </>
         }
@@ -310,7 +338,7 @@ export default function Home() {
           <Reveal>
             <SectionHeading number="03" label="Connect" />
           </Reveal>
-          <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
+          <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
             {/* LinkedIn */}
             <div data-physics-item className="physics-field-item">
               <Reveal delay={100}>
@@ -356,32 +384,6 @@ export default function Home() {
                 </TiltCard>
               </Reveal>
             </div>
-
-            <Reveal delay={300}>
-              <TiltCard>
-                <Link
-                  href="/consulting"
-                  className="group relative overflow-hidden rounded-xl border border-candy-500/40 bg-[#415557]/18 text-[#DADBD9] card-hover-border backdrop-blur-sm ring-1 ring-candy-500/15"
-                >
-                  <span className="absolute right-3 top-3 z-10 rounded-full bg-candy-600 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
-                    Hire me
-                  </span>
-                  <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                    <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                  </div>
-                  <div className="relative px-5 pb-5 -mt-8">
-                    <h3 className="text-xl font-semibold flex items-center gap-2">
-                      Consulting <ArrowIcon />
-                    </h3>
-                    <p className="text-sm text-sky-100/70 mt-1">
-                      Strategy sessions, dev sprints, and fractional CTO engagements.
-                    </p>
-                  </div>
-                  <div className="tilt-highlight" />
-                </Link>
-              </TiltCard>
-            </Reveal>
 
           </PhysicsField>
         </section>

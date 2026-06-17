@@ -8,38 +8,12 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import NavHeader from 'src/components/NavHeader'
-
-const SESSION_ID_KEY = 'br_session_id'
-
-function getSessionId(): string | null {
-  try {
-    let id = sessionStorage.getItem(SESSION_ID_KEY)
-    if (!id) {
-      id = typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
-      sessionStorage.setItem(SESSION_ID_KEY, id)
-    }
-    return id
-  } catch {
-    return null // sessionStorage unavailable (private mode) — still record the view
-  }
-}
+import { track } from 'src/lib/analytics'
 
 function trackPageView(url: string) {
   // Strip query/hash so routes aggregate cleanly (UTM params live on leads already).
   const path = url.split('?')[0].split('#')[0]
-  fetch('/api/events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      session_id: getSessionId(),
-      page: path,
-      event_type: 'page_view',
-      metadata: { path },
-    }),
-    keepalive: true,
-  }).catch(() => { /* analytics must never break navigation */ })
+  track('page_view', { page: path, metadata: { path } })
 }
 
 export default function App({ Component, pageProps }: AppProps) {

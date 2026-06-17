@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { track } from 'src/lib/analytics';
 
 import { useRouter } from 'next/router';
 import GameLobby from 'src/components/GameLobby';
@@ -1052,13 +1053,13 @@ const GameBoard = () => {
                 </button>
               )}
             </div>
-            <Link
-              href="/funding"
-              className="text-[11px] text-forest-500 hover:text-candy-300 transition-colors"
-            >
-              Enjoying Pente? Tip the dev ☕
-            </Link>
           </div>
+          <Link
+            href="/funding"
+            className="block mb-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
+          >
+            Enjoying Pente? Support development →
+          </Link>
 
           {gameAnalysis && (
             <div className="space-y-1">
@@ -1122,16 +1123,11 @@ const GameBoard = () => {
                     const result = botEnabled
                       ? (winner === humanColor ? 'win' : 'loss')
                       : 'win';
-                    fetch('/api/events', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      keepalive: true,
-                      body: JSON.stringify({
-                        page: '/posts/pente',
-                        event_type: 'consulting_from_game',
-                        metadata: { game: 'pente', result },
-                      }),
-                    }).catch(() => {});
+                    track('consulting_from_game', {
+                      page: '/posts/pente',
+                      metadata: { game: 'pente', result },
+                      beacon: true,
+                    });
                   }}
                   className="font-semibold text-candy-300 hover:text-candy-200 transition-colors whitespace-nowrap"
                 >
@@ -1189,6 +1185,12 @@ const GameBoard = () => {
               </button>
             </div>
           </div>
+          <Link
+            href="/funding"
+            className="block mt-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
+          >
+            Enjoying Pente? Support development →
+          </Link>
         </div>
       )}
       </div>

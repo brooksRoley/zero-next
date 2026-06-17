@@ -1,42 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { track as trackEvent } from 'src/lib/analytics'
 
-const SESSION_KEY = 'br_session_id'
-
-function getSessionId(): string {
-  if (typeof window === 'undefined') return ''
-  let id = sessionStorage.getItem(SESSION_KEY)
-  if (!id) {
-    id = crypto.randomUUID()
-    sessionStorage.setItem(SESSION_KEY, id)
-  }
-  return id
-}
-
+// Funnel events are tagged page:'consulting' and use sendBeacon, since most of
+// them (Calendly/checkout CTAs) fire right before the page unloads on nav.
 function track(event_type: string, metadata: Record<string, unknown> = {}) {
-  if (typeof window === 'undefined') return
-  const body = JSON.stringify({
-    session_id: getSessionId(),
-    page: 'consulting',
-    event_type,
-    metadata,
-  })
-  // sendBeacon survives the page unload that follows external nav (Calendly).
-  try {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/events', new Blob([body], { type: 'application/json' }))
-      return
-    }
-  } catch {
-    /* fall through to fetch */
-  }
-  fetch('/api/events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    keepalive: true,
-  }).catch(() => { /* analytics is best-effort */ })
+  trackEvent(event_type, { page: 'consulting', metadata, beacon: true })
 }
 
 /* ── Stripe checkout (handleCheckout → /api/consulting/checkout) intentionally
@@ -132,20 +102,6 @@ const PROJECTS_PROOF = [
   },
 ]
 
-// Anonymized placeholders until real quotes are cleared for use. Swap the
-// `quote`/`attribution` strings for the real ones when ready — the layout
-// scales to however many entries are in this array.
-const TESTIMONIALS = [
-  {
-    quote: 'Brooks shipped a feature in a week that our internal team had scoped for a month.',
-    attribution: 'Senior PM, fintech startup',
-  },
-  {
-    quote: 'Clear communication, clean PRs, and he actually cared about the product — not just the ticket.',
-    attribution: 'Founder, early-stage SaaS',
-  },
-]
-
 const TIMELINES = ['ASAP', '1-3 months', '3-6 months', 'Just exploring']
 
 export default function Consulting() {
@@ -158,6 +114,11 @@ export default function Consulting() {
   // the URL or navigates within the SPA before submitting.
   const [attribution, setAttribution] = useState({ utm_source: '', utm_medium: '', utm_campaign: '' })
 
+  // Mobile sticky CTA hides itself while the header "Book a Call" button is on
+  // screen, so the two CTAs never compete for the same fold.
+  const headerCtaRef = useRef<HTMLAnchorElement>(null)
+  const [showStickyCta, setShowStickyCta] = useState(false)
+
   useEffect(() => {
     track('consulting_view')
     const params = new URLSearchParams(window.location.search)
@@ -166,6 +127,17 @@ export default function Consulting() {
       utm_medium: params.get('utm_medium') || '',
       utm_campaign: params.get('utm_campaign') || '',
     })
+  }, [])
+
+  useEffect(() => {
+    const target = headerCtaRef.current
+    if (!target) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
   }, [])
 
   const updateForm = (field: string, value: string) => {
@@ -222,6 +194,7 @@ export default function Consulting() {
               &larr; Home
             </Link>
             <a
+              ref={headerCtaRef}
               href="https://calendly.com/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
@@ -336,32 +309,6 @@ export default function Consulting() {
                   </h3>
                   <p className="text-sm text-forest-300">{proj.desc}</p>
                 </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* ── Testimonials ── */}
-          <section className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
-              What people say
-            </h2>
-            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-              In their words
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {TESTIMONIALS.map(t => (
-                <figure
-                  key={t.attribution}
-                  className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-6"
-                >
-                  <span className="block text-3xl leading-none text-candy-400/50 mb-2" aria-hidden="true">&ldquo;</span>
-                  <blockquote className="text-base text-forest-100 leading-relaxed">
-                    {t.quote}
-                  </blockquote>
-                  <figcaption className="mt-4 text-sm text-forest-400">
-                    &mdash; {t.attribution}
-                  </figcaption>
-                </figure>
               ))}
             </div>
           </section>
@@ -630,6 +577,24 @@ export default function Consulting() {
           </section>
 
         </main>
+
+        {/* ── Mobile sticky CTA — only while the header button is out of view ── */}
+        <div
+          className={`sm:hidden fixed inset-x-0 bottom-0 z-50 border-t border-candy-500/30 bg-forest-950/95 backdrop-blur px-4 py-3 transition-transform duration-300 ${
+            showStickyCta ? 'translate-y-0' : 'translate-y-full'
+          }`}
+          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+        >
+          <a
+            href="https://calendly.com/brooksroley/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track('cta_click', { location: 'sticky_mobile' })}
+            className="block w-full text-center px-4 py-3 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-semibold transition-colors"
+          >
+            Book a free call &rarr;
+          </a>
+        </div>
 
         {/* ── Footer ── */}
         <footer className="border-t border-forest-800/50 py-8 mt-16">

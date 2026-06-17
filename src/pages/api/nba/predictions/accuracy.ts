@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { computeAccuracy, evaluateCover, type PredictionRecord } from "src/lib/nba/predictions/accuracy";
+import { getPredictionAccuracyByMonth } from "src/lib/nba/db/readers";
 
 const ROLLING_WINDOW = 10;
 
@@ -11,6 +12,36 @@ interface WeeklyBucket {
   modelMae: number;
   vegasMae: number;
   beatVegas: number;   // % of games where model error < Vegas error
+}
+
+interface MonthlyBucket {
+  month: string;       // "YYYY-MM"
+  games: number;
+  coverRate: number;   // % of decided games (pushes excluded)
+  modelMae: number;
+  vegasMae: number;
+  beatVegas: number;   // % of games where model error < Vegas error
+}
+
+// Shape the per-month SQL aggregate (counts/numerics arrive as strings from
+// Neon) into the same bucket shape the weekly view uses, so the UI can render
+// either granularity with one component.
+function toMonthlyBuckets(rows: Record<string, unknown>[]): MonthlyBucket[] {
+  return rows.map((r) => {
+    const games = Number(r.total_predictions) || 0;
+    const covers = Number(r.covers) || 0;
+    const misses = Number(r.misses) || 0;
+    const beatVegasCount = Number(r.beat_vegas_count) || 0;
+    const decided = covers + misses;
+    return {
+      month: String(r.month),
+      games,
+      coverRate: decided > 0 ? Math.round((covers / decided) * 1000) / 10 : 0,
+      modelMae: r.model_mae != null ? Number(r.model_mae) : 0,
+      vegasMae: r.vegas_mae != null ? Number(r.vegas_mae) : 0,
+      beatVegas: games > 0 ? Math.round((beatVegasCount / games) * 1000) / 10 : 0,
+    };
+  });
 }
 
 // ISO-8601 week label (weeks start Monday; week 1 contains the first Thursday).
@@ -94,10 +125,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const weekly = groupBy === "week"
       ? weeklyAccuracy(records, rows.map((r) => new Date(r.settled_at)))
       : undefined;
+
+    const granularity = Array.isArray(req.query.granularity)
+      ? req.query.granularity[0]
+      : req.query.granularity;
+    // Monthly drift breakdown is aggregated in SQL (GROUP BY month) rather than
+    // in JS — it's a coarse bucket, so let Postgres do the rollup.
+    const monthly = granularity === "month"
+      ? toMonthlyBuckets(await getPredictionAccuracyByMonth(sql))
+      : undefined;
+
     res.status(200).json({
       data: stats,
       rollingCover,
       ...(weekly ? { weekly } : {}),
+      ...(monthly ? { monthly } : {}),
       _meta: { endpoint: "predictions/accuracy", rollingWindow: ROLLING_WINDOW },
     });
   } catch (e: unknown) {
