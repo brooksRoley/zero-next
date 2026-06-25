@@ -13,6 +13,18 @@ const PRICE_MAP: Record<string, number> = {
   fractional_cto: 400000,
 };
 
+// Once the three Products exist in the Stripe Dashboard, set these env vars to
+// the saved Price IDs (e.g. price_1Abc...). When present, checkout uses the
+// saved Price (cleaner reporting + Stripe Tax support) instead of ad-hoc
+// price_data. Until then, every value is undefined and we fall back to the
+// inline price_data below — so behavior is identical with no env vars set.
+// See CLAUDE.md → "Stripe — Shipping Checklist", step 1.
+const PRICE_ID_MAP: Record<string, string | undefined> = {
+  strategy_session: process.env.STRIPE_PRICE_STRATEGY,
+  dev_sprint: process.env.STRIPE_PRICE_SPRINT,
+  fractional_cto: process.env.STRIPE_PRICE_FRACTIONAL,
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -46,14 +58,14 @@ export default async function handler(
 
   const origin = req.headers.origin || "http://localhost:3000";
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    customer_email: customer_email || undefined,
-    line_items: [
-      {
+  // Prefer a saved Stripe Price ID when configured; otherwise fall back to
+  // ad-hoc price_data so checkout keeps working before the Products exist.
+  const priceId = PRICE_ID_MAP[service_type as string];
+  const lineItem = priceId
+    ? { price: priceId, quantity: 1 }
+    : {
         price_data: {
-          currency: "usd",
+          currency: "usd" as const,
           product_data: {
             name: `Consulting — ${service_type}`,
             description: "Zero Paradox LLC consulting engagement deposit",
@@ -61,8 +73,13 @@ export default async function handler(
           unit_amount: amount_cents,
         },
         quantity: 1,
-      },
-    ],
+      };
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    customer_email: customer_email || undefined,
+    line_items: [lineItem],
     success_url: `${origin}/consulting?session=success`,
     cancel_url: `${origin}/consulting?session=cancelled`,
     metadata: {

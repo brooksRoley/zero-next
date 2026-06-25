@@ -26,6 +26,16 @@ type Lead = {
   created_at: string;
 };
 
+type LeadSource = { source: string; count: number; percent: number };
+type Summary = {
+  total: number;
+  withBudget: number;
+  withoutBudget: number;
+  last7: number;
+  prior7: number;
+  topSources: LeadSource[];
+};
+
 const STATUS_STYLES: Record<Status, string> = {
   new: "bg-candy-500/20 text-candy-200 border-candy-500/40",
   contacted: "bg-void-500/20 text-void-200 border-void-500/40",
@@ -50,6 +60,7 @@ export default function AdminLeadsPage() {
   const [authed, setAuthed] = useState(false);
   const [tokenInput, setTokenInput] = useState("");
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -83,6 +94,7 @@ export default function AdminLeadsPage() {
       }
       const data = await res.json();
       setLeads(data.leads || []);
+      setSummary(data.summary || null);
     } catch {
       setError("Network error. Is the dev server running?");
     } finally {
@@ -109,6 +121,7 @@ export default function AdminLeadsPage() {
     setToken("");
     setAuthed(false);
     setLeads([]);
+    setSummary(null);
   };
 
   const updateStatus = async (id: Lead["id"], status: Status) => {
@@ -205,6 +218,82 @@ export default function AdminLeadsPage() {
           {error && (
             <div className="mb-4 rounded-lg border border-candy-500/40 bg-candy-500/10 px-4 py-3 text-candy-200 text-sm">
               {error}
+            </div>
+          )}
+
+          {summary && summary.total > 0 && (
+            <div className="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
+                <div className="text-forest-300 text-xs uppercase tracking-wide">
+                  Total leads
+                </div>
+                <div className="text-3xl font-bold mt-1">{summary.total}</div>
+                <div className="text-forest-400 text-xs mt-1">all time</div>
+              </div>
+
+              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
+                <div className="text-forest-300 text-xs uppercase tracking-wide">
+                  Last 7 days
+                </div>
+                <div className="text-3xl font-bold mt-1">{summary.last7}</div>
+                <div
+                  className={`text-xs mt-1 ${
+                    summary.last7 >= summary.prior7
+                      ? "text-forest-200"
+                      : "text-candy-300"
+                  }`}
+                >
+                  {summary.prior7 === 0 && summary.last7 === 0
+                    ? "no recent activity"
+                    : `${summary.last7 >= summary.prior7 ? "▲" : "▼"} vs ${
+                        summary.prior7
+                      } prior 7d`}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
+                <div className="text-forest-300 text-xs uppercase tracking-wide">
+                  Budget provided
+                </div>
+                <div className="text-3xl font-bold mt-1">
+                  {summary.withBudget}
+                  <span className="text-forest-400 text-base font-medium">
+                    {" "}
+                    / {summary.total}
+                  </span>
+                </div>
+                <div className="text-forest-400 text-xs mt-1">
+                  {summary.withoutBudget} missing budget
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
+                <div className="text-forest-300 text-xs uppercase tracking-wide">
+                  Top sources
+                </div>
+                {summary.topSources.length === 0 ? (
+                  <div className="text-forest-400 text-sm mt-2">—</div>
+                ) : (
+                  <ul className="mt-2 space-y-1">
+                    {summary.topSources.map((s) => (
+                      <li
+                        key={s.source}
+                        className="flex items-center justify-between gap-2 text-sm"
+                      >
+                        <span className="text-forest-100 truncate">
+                          {s.source}
+                        </span>
+                        <span className="text-forest-300 whitespace-nowrap">
+                          {s.count}{" "}
+                          <span className="text-forest-400">
+                            ({s.percent}%)
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
 
