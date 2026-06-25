@@ -12,6 +12,9 @@ on:
     paths:
       - 'src/lib/nba/**'
       - 'scripts/**'
+      - 'Dockerfile.pipeline'
+      - 'package.json'
+      - 'yarn.lock'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
