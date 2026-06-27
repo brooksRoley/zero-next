@@ -93,14 +93,16 @@ export default async function handler(
     return res.status(400).json({ error: `Unknown provider: ${model.providerId}` });
   }
 
-  // Sanitize latest user message
-  const lastMessage = messages[messages.length - 1];
-  if (lastMessage?.role === "user") {
-    const check = sanitizeMessage(lastMessage.content);
-    if (!check.ok) {
-      return res.status(400).json({ error: check.reason });
+  // Sanitize all user messages — not just the last one. A multi-turn history
+  // can carry a prompt-injection payload in any prior user turn.
+  for (const msg of messages) {
+    if (msg.role === "user") {
+      const check = sanitizeMessage(msg.content);
+      if (!check.ok) {
+        return res.status(400).json({ error: check.reason });
+      }
+      msg.content = check.cleaned;
     }
-    lastMessage.content = check.cleaned;
   }
 
   // Resolve API key (BYOK header > env)
@@ -112,8 +114,14 @@ export default async function handler(
       .json({ error: `No API key available for ${provider.name}. Add one in the API Keys panel or set ${provider.envKey} on the server.` });
   }
 
-  const maxTok = maxTokens ?? 2000;
-  const temp = temperature ?? 0.8;
+  if (maxTokens !== undefined && !Number.isFinite(maxTokens)) {
+    return res.status(400).json({ error: "maxTokens must be a number" });
+  }
+  if (temperature !== undefined && !Number.isFinite(temperature)) {
+    return res.status(400).json({ error: "temperature must be a number" });
+  }
+  const maxTok = Math.min(Math.max(maxTokens ?? 2000, 1), 4096);
+  const temp = Math.min(Math.max(temperature ?? 0.8, 0), 2);
 
   try {
     const success = await tryStream(
