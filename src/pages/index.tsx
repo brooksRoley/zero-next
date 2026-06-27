@@ -6,7 +6,6 @@ import Reveal from 'src/components/Reveal'
 import TiltCard from 'src/components/TiltCard'
 
 const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
-  ssr: false,
   loading: () => <div className="physics-field-grid" />,
 })
 

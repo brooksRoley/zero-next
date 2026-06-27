@@ -25,6 +25,13 @@ export default async function handler(req, res) {
 
   const messageIds = visitorMessages.map((m) => m.id)
 
+  // When the visitor has no prior messages there are no possible replies,
+  // so skip the second query entirely. An empty messageIds.join(',') would
+  // produce 'parent_id.in.()' which PostgREST may reject or mishandle.
+  if (messageIds.length === 0) {
+    return res.status(200).json({ messages: [] })
+  }
+
   const { data, error } = await supabase
     .from('intake_messages')
     .select('*')
