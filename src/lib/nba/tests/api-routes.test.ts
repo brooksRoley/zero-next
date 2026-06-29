@@ -27,9 +27,13 @@ function createMockReq(query: Record<string, string> = {}, headers: Record<strin
 }
 
 function createMockRes(): any {
-  const res: any = { _status: 200, _json: null };
+  const res: any = { _status: 200, _json: null, _headers: {} as Record<string, string> };
   res.status = (code: number) => { res._status = code; return res; };
   res.json = (data: any) => { res._json = data; return res; };
+  // Route handlers set Cache-Control before sending. The real NextApiResponse
+  // implements setHeader; the mock must too, or success paths throw and fall
+  // into the catch → 503 (which is what silently red-lined CI from 2026-05-08).
+  res.setHeader = (key: string, value: string) => { res._headers[key] = value; return res; };
   return res;
 }
 
