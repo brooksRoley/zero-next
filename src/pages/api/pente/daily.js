@@ -7,10 +7,9 @@ import { supabase } from 'src/lib/supabase'
  *   POST /api/pente/daily             → { daily, supported }
  *        body: { id, daily: { streak, bestStreak, lastCompletedDate, ... } }
  *
- * Migration (run once in the Supabase SQL editor — idempotent):
- *
- *   ALTER TABLE players
- *     ADD COLUMN IF NOT EXISTS daily_challenge JSONB DEFAULT '{}'::jsonb;
+ * Migration: supabase/migrations/0003_players_daily_challenge.sql
+ * (run manually in the Supabase SQL editor — see supabase/migrations/README.md
+ * for the applied-status checklist).
  *
  * Until that column exists this route reports { supported: false } instead of
  * 500-ing, so the client falls back to localStorage and the rest of the player
