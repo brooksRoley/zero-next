@@ -2,9 +2,12 @@
 FROM node:22-alpine AS base
 WORKDIR /app
 
-# Install deps
-COPY package.json package-lock.json ./
-RUN npm ci --production=false
+# Install deps. Yarn is this project's package manager (yarn.lock is the
+# maintained lockfile; ci.yml and local dev both use yarn). Using npm here
+# broke the build: the stale package-lock.json drifted out of sync with
+# package.json and `npm ci` hard-fails on the mismatch.
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 # Copy source
 COPY src/ src/
