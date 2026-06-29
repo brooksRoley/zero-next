@@ -44,6 +44,18 @@ function toMonthlyBuckets(rows: Record<string, unknown>[]): MonthlyBucket[] {
   });
 }
 
+// True when the error is Postgres "undefined_table" (42P01) — i.e. the settled-
+// results table has not been provisioned in this environment yet (run
+// /api/nba/admin/setup). Neon surfaces the SQLSTATE on `.code`; we also match
+// the message text as a fallback in case it arrives wrapped.
+function isMissingTable(e: unknown): boolean {
+  if (typeof e === "object" && e !== null && "code" in e) {
+    if ((e as { code?: unknown }).code === "42P01") return true;
+  }
+  const msg = e instanceof Error ? e.message : String(e);
+  return /relation .*nba_prediction_results.* does not exist/i.test(msg);
+}
+
 // ISO-8601 week label (weeks start Monday; week 1 contains the first Thursday).
 function isoWeekLabel(d: Date): string {
   const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -143,6 +155,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       _meta: { endpoint: "predictions/accuracy", rollingWindow: ROLLING_WINDOW },
     });
   } catch (e: unknown) {
+    // If the results table simply isn't provisioned yet, don't 503 — the page's
+    // perpetual loading spinner masks that into a silently broken "model vs
+    // Vegas" view. Degrade to an honest empty payload (totalPredictions: 0,
+    // which the UI already renders as a "collecting data" state) and flag the
+    // unprovisioned table in _meta so it stays diagnosable for the owner.
+    // Genuine DB failures (connection, syntax) still surface as 503.
+    if (isMissingTable(e)) {
+      res.status(200).json({
+        data: computeAccuracy([]),
+        rollingCover: [],
+        _meta: {
+          endpoint: "predictions/accuracy",
+          rollingWindow: ROLLING_WINDOW,
+          tableProvisioned: false,
+        },
+      });
+      return;
+    }
     res.status(503).json({ error: e instanceof Error ? e.message : "Unknown error" });
   }
 }
