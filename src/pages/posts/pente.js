@@ -20,6 +20,7 @@ import PreText from 'src/components/PreText';
 import PenteTopNav from 'src/components/pente/PenteTopNav';
 import SolarField from 'src/components/pente/SolarField';
 import InterventionCard from 'src/components/pente/InterventionCard';
+import PostSolveTip from 'src/components/pente/PostSolveTip';
 import EndlessPuzzle from 'src/components/EndlessPuzzle';
 import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
 import { getZone } from 'src/lib/pente/elo';
@@ -172,6 +173,8 @@ const GameBoard = () => {
   const [gameAnalysis, setGameAnalysis] = useState(null);
   const [analysisViewTurn, setAnalysisViewTurn] = useState(null);
   const [winner, setWinner] = useState(null);
+  // Bumped when a game finishes to arm the one-shot post-win tip banner.
+  const [winSignal, setWinSignal] = useState(0);
   const [consultingCtaDismissed, setConsultingCtaDismissed] = useState(false);
   const [intervention, setIntervention] = useState(null); // { blunderIndex, blunderCell, tactic, tacticLabel, narrative, puzzleCategory }
   const [trainingActive, setTrainingActive] = useState(false);
@@ -442,6 +445,7 @@ const GameBoard = () => {
     const result = await mp.makeMove(row, col);
     if (result.winner) {
       playWin();
+      setWinSignal(s => s + 1);
       confetti({
         particleCount: 150, spread: 90, origin: { y: 0.6 },
         colors: ['#ff69b4', '#40916c', '#ffb8d9', '#6abf82', '#ff8cc2'],
@@ -464,6 +468,7 @@ const GameBoard = () => {
     });
     setGameOver(true);
     setWinner(winningPlayer);
+    setWinSignal(s => s + 1);
     setScores(prev => ({ ...prev, [winningPlayer]: (prev[winningPlayer] || 0) + 1 }));
     setGameCount(prev => prev + 1);
 
@@ -1208,6 +1213,13 @@ const GameBoard = () => {
         </div>
       )}
       </div>
+
+      <PostSolveTip
+        trigger={winSignal}
+        page="/posts/pente"
+        location="pente_post_win_tip"
+        label="Enjoying Pente? Keep it free →"
+      />
     </div>
   );
 };

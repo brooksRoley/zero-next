@@ -8,6 +8,7 @@ import DailyChallenge from 'src/components/pente/DailyChallenge'
 import PenteTopNav from 'src/components/pente/PenteTopNav'
 import SolarField from 'src/components/pente/SolarField'
 import Leaderboard from 'src/components/pente/Leaderboard'
+import PostSolveTip from 'src/components/pente/PostSolveTip'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
 import { getZone } from 'src/lib/pente/elo'
 import { puzzles, getRecommendedPuzzle } from 'src/lib/pente/puzzles'
@@ -23,6 +24,8 @@ export default function PentePuzzlesPage() {
   const router = useRouter()
   const [mode, setMode] = useState('catalog') // catalog | endless | solving
   const [selectedPuzzle, setSelectedPuzzle] = useState(null)
+  // Bumped on every solve to arm the one-shot post-solve tip banner.
+  const [solveSignal, setSolveSignal] = useState(0)
   const {
     playerId,
     markSolved,
@@ -67,6 +70,7 @@ export default function PentePuzzlesPage() {
   // their elo delta. `delta === 0` means a re-solve (no ELO awarded).
   const handleSolve = useCallback((puzzleId, puzzleRating, attempts = 0, usedHint = false, solveTimeMs = null) => {
     const result = markSolved(puzzleId, puzzleRating, attempts, usedHint, solveTimeMs)
+    setSolveSignal(s => s + 1)
     track('puzzle_solved', {
       page: '/posts/pente-puzzles',
       metadata: {
@@ -197,6 +201,8 @@ export default function PentePuzzlesPage() {
           </div>
         )}
       </div>
+
+      <PostSolveTip trigger={solveSignal} page="/posts/pente-puzzles" />
     </div>
   )
 }
