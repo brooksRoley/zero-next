@@ -23,6 +23,7 @@ import InterventionCard from 'src/components/pente/InterventionCard';
 import PostSolveTip from 'src/components/pente/PostSolveTip';
 import EndlessPuzzle from 'src/components/EndlessPuzzle';
 import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
+import { logGameResult } from 'src/lib/pente/gameResults';
 import { getZone } from 'src/lib/pente/elo';
 import useMatchmaking from 'src/hooks/useMatchmaking';
 import QueueBanner from 'src/components/pente/QueueBanner';
@@ -477,7 +478,20 @@ const GameBoard = () => {
     if (botEnabled && recordGameResult) {
       humanWon = winningPlayer === humanColor;
       const botElo = botEffectiveElo || playerElo;
-      recordGameResult(botElo, humanWon);
+      const eloResult = recordGameResult(botElo, humanWon);
+
+      // Persist the completed game for history/replay (best-effort; no-ops until
+      // migration 0004 adds game_results). See src/lib/pente/gameResults.js.
+      logGameResult({
+        player_id: playerId,
+        opponent_type: 'bot',
+        bot_level: botInstances[0]?.level?.label || null,
+        game_mode: gameMode?.key || 'classic',
+        winner: humanWon ? 'player' : 'opponent',
+        elo_before: eloResult?.eloBefore ?? null,
+        elo_after: eloResult?.eloAfter ?? null,
+        moves: moveHistory,
+      });
     }
 
     // Post-mortem intervention: if the human lost a bot game in classic mode,

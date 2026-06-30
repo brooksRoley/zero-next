@@ -26,6 +26,15 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | 0001 | `0001_matchmaking_queue.sql` | `matchmaking_queue` table + `claim_match()` RPC + realtime | ✅ live |
 | 0002 | `0002_go_players.sql` | `go_players` table + indexes | ✅ live |
 | 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ❌ **pending** |
+| 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ❌ **pending** |
+
+### 0004 is pending
+
+The Pente game flow writes one row per completed game to `game_results` (ELO
+before/after, opponent, mode, full move list). `POST /api/pente/game-result`
+degrades gracefully — it returns `{ supported: false }` and the client skips the
+write — so nothing is broken, but **no game history is recorded until 0004 is
+applied.** Run the file above to start capturing games (unlocks history/replay).
 
 ### 0003 is pending
 
