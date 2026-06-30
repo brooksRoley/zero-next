@@ -10,6 +10,18 @@ function isAuthorized(req: NextApiRequest): boolean {
   return req.cookies?.tracker_session === expected;
 }
 
+// Surfaced first and always shown (even at zero) because they map directly to
+// monetization decisions — e.g. premium_interest is the Daily Challenge's
+// "is the premium puzzle tier worth building?" signal, which was firing but
+// completely dark before this dashboard read it.
+const PRIORITY_EVENTS = [
+  "premium_interest",
+  "lead_submit",
+  "daily_challenge_completed",
+] as const;
+
+type EventTotalRow = { event_type: string; count: number; sessions: number };
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -30,7 +42,7 @@ export default async function handler(
   }
 
   try {
-    const [pageViews, leadCounts] = await Promise.all([
+    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage] = await Promise.all([
       sql`
         SELECT
           COALESCE(page, metadata->>'path', '(unknown)') AS path,
@@ -48,11 +60,58 @@ export default async function handler(
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '30 days')::int AS last_30_days
         FROM leads
       `,
+      // Every tracked interaction except page_view (shown separately above).
+      sql`
+        SELECT
+          event_type,
+          COUNT(*)::int AS count,
+          COUNT(DISTINCT session_id)::int AS sessions
+        FROM events
+        WHERE event_type <> 'page_view'
+          AND created_at > NOW() - INTERVAL '30 days'
+        GROUP BY event_type
+        ORDER BY count DESC
+      `,
+      // Same window, broken out by the page each event fired on.
+      sql`
+        SELECT
+          event_type,
+          COALESCE(page, '(unknown)') AS page,
+          COUNT(*)::int AS count
+        FROM events
+        WHERE event_type <> 'page_view'
+          AND created_at > NOW() - INTERVAL '30 days'
+        GROUP BY event_type, page
+        ORDER BY event_type ASC, count DESC
+      `,
     ]);
+
+    // Guarantee the monetization-signal events appear even at zero, then float
+    // them to the top so they're the first thing read.
+    const totals = eventTotalsRaw as EventTotalRow[];
+    const seen = new Map(totals.map((r) => [r.event_type, r]));
+    for (const name of PRIORITY_EVENTS) {
+      if (!seen.has(name)) {
+        const row = { event_type: name, count: 0, sessions: 0 };
+        seen.set(name, row);
+        totals.push(row);
+      }
+    }
+    const priorityRank = (t: string) => {
+      const i = PRIORITY_EVENTS.indexOf(t as (typeof PRIORITY_EVENTS)[number]);
+      return i === -1 ? PRIORITY_EVENTS.length : i;
+    };
+    const events = totals.sort((a, b) => {
+      const pr = priorityRank(a.event_type) - priorityRank(b.event_type);
+      return pr !== 0 ? pr : b.count - a.count;
+    });
 
     return res.status(200).json({
       pageViews,
       leads: leadCounts[0] ?? { total: 0, last_30_days: 0 },
+      events,
+      eventsByPage,
+      priorityEvents: PRIORITY_EVENTS,
       _meta: { windowDays: 30 },
     });
   } catch (e: unknown) {

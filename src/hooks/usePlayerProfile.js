@@ -286,26 +286,34 @@ export default function usePlayerProfile() {
     })
   }, [persist])
 
+  // Returns { eloBefore, eloAfter, delta, won } so callers can log the game to
+  // game_results without recomputing the ELO math. Computed from the current
+  // profile snapshot up front (reliable, unlike reading state after setProfile)
+  // — game endings are discrete one-at-a-time events, so this matches what the
+  // functional update below persists.
   const recordGameResult = useCallback((opponentElo, won) => {
-    setProfile(prev => {
-      const delta = calculateEloChange(prev.elo, opponentElo, won ? 1.0 : 0.0, 20)
-      const newElo = Math.max(MIN_ELO, Math.min(MAX_ELO, prev.elo + delta))
+    const eloBefore = profile.elo
+    const delta = calculateEloChange(eloBefore, opponentElo, won ? 1.0 : 0.0, 20)
+    const eloAfter = Math.max(MIN_ELO, Math.min(MAX_ELO, eloBefore + delta))
 
+    setProfile(prev => {
       const updated = {
         ...prev,
-        elo: newElo,
-        peakElo: Math.max(prev.peakElo, newElo),
+        elo: eloAfter,
+        peakElo: Math.max(prev.peakElo, eloAfter),
         gamesPlayed: prev.gamesPlayed + 1,
         gamesWon: won ? prev.gamesWon + 1 : prev.gamesWon,
         eloHistory: [...prev.eloHistory, {
-          timestamp: Date.now(), elo: newElo, delta,
+          timestamp: Date.now(), elo: eloAfter, delta,
           event: won ? 'game_win' : 'game_loss',
         }],
       }
       persist(updated)
       return updated
     })
-  }, [persist])
+
+    return { eloBefore, eloAfter, delta, won }
+  }, [persist, profile.elo])
 
   const isSolved = useCallback((puzzleId) => {
     return profile.solvedPuzzles.includes(puzzleId)

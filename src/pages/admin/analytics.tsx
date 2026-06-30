@@ -8,9 +8,24 @@ type PageViewRow = {
   sessions: number;
 };
 
+type EventRow = {
+  event_type: string;
+  count: number;
+  sessions: number;
+};
+
+type EventByPageRow = {
+  event_type: string;
+  page: string;
+  count: number;
+};
+
 type AnalyticsResponse = {
   pageViews: PageViewRow[];
   leads: { total: number; last_30_days: number };
+  events?: EventRow[];
+  eventsByPage?: EventByPageRow[];
+  priorityEvents?: string[];
   _meta?: { windowDays?: number };
 };
 
@@ -49,6 +64,12 @@ export default function AdminAnalyticsPage() {
   const totalViews = data?.pageViews.reduce((sum, r) => sum + r.views, 0) ?? 0;
   const maxViews = data?.pageViews[0]?.views ?? 0;
 
+  const events = data?.events ?? [];
+  const eventsByPage = data?.eventsByPage ?? [];
+  const prioritySet = new Set(data?.priorityEvents ?? []);
+  const totalEvents = events.reduce((sum, r) => sum + r.count, 0);
+  const maxEventCount = events.reduce((m, r) => Math.max(m, r.count), 0);
+
   return (
     <>
       <Head>
@@ -61,7 +82,7 @@ export default function AdminAnalyticsPage() {
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold">Site Analytics</h1>
               <p className="text-forest-200 text-sm mt-1">
-                Page views over the last {windowDays} days
+                Page views and conversion events over the last {windowDays} days
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -88,12 +109,18 @@ export default function AdminAnalyticsPage() {
           )}
 
           {data && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
                 <div className="text-xs uppercase tracking-wider text-forest-400">
                   Page views ({windowDays}d)
                 </div>
                 <div className="mt-2 text-3xl font-bold">{totalViews}</div>
+              </div>
+              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                <div className="text-xs uppercase tracking-wider text-forest-400">
+                  Interactions ({windowDays}d)
+                </div>
+                <div className="mt-2 text-3xl font-bold">{totalEvents}</div>
               </div>
               <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
                 <div className="text-xs uppercase tracking-wider text-forest-400">
@@ -161,6 +188,129 @@ export default function AdminAnalyticsPage() {
                 </tbody>
               </table>
             </div>
+          )}
+
+          {data && (
+            <section className="mt-8">
+              <h2 className="text-lg font-semibold mb-1">
+                Events ({windowDays}d)
+              </h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Every tracked interaction except page views.{" "}
+                <span className="text-candy-300">Highlighted</span> rows are the
+                conversion signals that drive monetization decisions.
+              </p>
+
+              {events.length === 0 ? (
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-8 text-center text-forest-300">
+                  No interaction events recorded in the last {windowDays} days
+                  yet.
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                  <table className="w-full text-sm">
+                    <thead className="bg-forest-900 text-forest-200 text-left">
+                      <tr>
+                        <th className="px-4 py-3 font-medium">Event</th>
+                        <th className="px-4 py-3 font-medium text-right">Count</th>
+                        <th className="px-4 py-3 font-medium text-right">
+                          Sessions
+                        </th>
+                        <th className="px-4 py-3 font-medium w-1/3">Share</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-forest-800">
+                      {events.map((row) => {
+                        const isPriority = prioritySet.has(row.event_type);
+                        return (
+                          <tr
+                            key={row.event_type}
+                            className={`transition-colors ${
+                              isPriority
+                                ? "bg-candy-500/5 hover:bg-candy-500/10"
+                                : "hover:bg-forest-900/40"
+                            }`}
+                          >
+                            <td className="px-4 py-3 font-mono">
+                              <span
+                                className={
+                                  isPriority ? "text-candy-200" : "text-forest-100"
+                                }
+                              >
+                                {row.event_type}
+                              </span>
+                              {isPriority && (
+                                <span className="ml-2 rounded-full border border-candy-500/40 px-2 py-0.5 text-[10px] uppercase tracking-wider text-candy-300">
+                                  key
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-right font-medium">
+                              {row.count}
+                            </td>
+                            <td className="px-4 py-3 text-right text-forest-300">
+                              {row.sessions}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="h-2 rounded-full bg-forest-900 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${
+                                    isPriority
+                                      ? "bg-candy-400/80"
+                                      : "bg-forest-500/70"
+                                  }`}
+                                  style={{
+                                    width: `${
+                                      maxEventCount > 0
+                                        ? (row.count / maxEventCount) * 100
+                                        : 0
+                                    }%`,
+                                  }}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {eventsByPage.length > 0 && (
+                <div className="mt-4 overflow-x-auto rounded-2xl border border-forest-800">
+                  <table className="w-full text-sm">
+                    <thead className="bg-forest-900/70 text-forest-300 text-left">
+                      <tr>
+                        <th className="px-4 py-2.5 font-medium">Event</th>
+                        <th className="px-4 py-2.5 font-medium">Page</th>
+                        <th className="px-4 py-2.5 font-medium text-right">
+                          Count
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-forest-800/60">
+                      {eventsByPage.map((row) => (
+                        <tr
+                          key={`${row.event_type}|${row.page}`}
+                          className="hover:bg-forest-900/30 transition-colors"
+                        >
+                          <td className="px-4 py-2 font-mono text-forest-200">
+                            {row.event_type}
+                          </td>
+                          <td className="px-4 py-2 font-mono text-forest-400">
+                            {row.page}
+                          </td>
+                          <td className="px-4 py-2 text-right text-forest-300">
+                            {row.count}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
           )}
         </div>
       </main>
