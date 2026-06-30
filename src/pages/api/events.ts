@@ -37,7 +37,7 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
-// Create the table once per cold start rather than on every request.
+// Create the tables once per cold start rather than on every request.
 let schemaReady = false;
 async function ensureSchema() {
   if (schemaReady) return;
@@ -51,7 +51,68 @@ async function ensureSchema() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `;
+  // Deduped, queryable mailing list — kept separate from the noisy events log so
+  // captured emails are easy to export and each address only lands once.
+  await sql`
+    CREATE TABLE IF NOT EXISTS email_signups (
+      id SERIAL PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      source TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
   schemaReady = true;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Best-effort owner notification when a new email lands. Calls the Resend REST
+// API directly (no SDK) so this route stays dependency-free, mirroring
+// api/consulting/leads.ts. No-op until RESEND_API_KEY is set. Never throws.
+async function notifyNewSignup(email: string, source: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey.includes("REPLACE")) return; // not configured — no-op
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "Site Signups <onboarding@resend.dev>",
+      to: ["brooksroley@gmail.com"],
+      reply_to: email,
+      subject: `New email signup — ${source}`,
+      text: `Email: ${email}\nSource: ${source}\nCaptured: ${new Date().toISOString()}`,
+    }),
+  });
+}
+
+// Funnel a captured email into the dedicated mailing list and notify the owner.
+// Only fires the Resend email on a genuinely new address (ON CONFLICT DO NOTHING
+// returns no row for duplicates), so re-triggering the gate never spams the
+// inbox. Best-effort: any failure here must not turn the event-log write into an
+// error for the visitor.
+async function handleEmailSignup(rawEmail: unknown, source: string): Promise<void> {
+  if (typeof rawEmail !== "string") return;
+  const email = rawEmail.trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return;
+
+  const inserted = await sql`
+    INSERT INTO email_signups (email, source)
+    VALUES (${email}, ${source})
+    ON CONFLICT (email) DO NOTHING
+    RETURNING id
+  `;
+
+  if (inserted.length > 0) {
+    try {
+      await notifyNewSignup(email, source);
+    } catch {
+      // Best-effort — the signup is already safely persisted.
+    }
+  }
 }
 
 export default async function handler(
@@ -84,6 +145,22 @@ export default async function handler(
         ${metadata && typeof metadata === "object" ? JSON.stringify(metadata) : null}
       )
     `;
+
+    // Email-gate captures get promoted to the dedicated mailing list and pinged
+    // to the owner. Awaited so it completes before the function freezes, but
+    // wrapped so a delivery/insert hiccup never fails the already-logged event.
+    if (
+      event_type.trim() === "model_arena_email_gate" &&
+      metadata &&
+      typeof metadata === "object"
+    ) {
+      try {
+        await handleEmailSignup((metadata as { email?: unknown }).email, "model_arena");
+      } catch {
+        // Best-effort — the raw event is already recorded above.
+      }
+    }
+
     return res.status(202).json({ success: true });
   } catch (e: unknown) {
     return res.status(503).json({ error: e instanceof Error ? e.message : "Unknown error" });

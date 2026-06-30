@@ -93,14 +93,18 @@ export default async function handler(
     return res.status(400).json({ error: `Unknown provider: ${model.providerId}` });
   }
 
-  // Sanitize latest user message
-  const lastMessage = messages[messages.length - 1];
-  if (lastMessage?.role === "user") {
-    const check = sanitizeMessage(lastMessage.content);
+  // Sanitize every user-role message, not just the latest. In multi-turn
+  // conversations the earlier user turns are forwarded to the provider too, so
+  // checking only the last message leaves prior turns as an unguarded prompt-
+  // injection surface. Mutates content in place with the cleaned (trimmed)
+  // value; rejects the whole request if any user turn trips a pattern.
+  for (const message of messages) {
+    if (message?.role !== "user") continue;
+    const check = sanitizeMessage(message.content);
     if (!check.ok) {
       return res.status(400).json({ error: check.reason });
     }
-    lastMessage.content = check.cleaned;
+    message.content = check.cleaned;
   }
 
   // Resolve API key (BYOK header > env)

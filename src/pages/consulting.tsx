@@ -16,6 +16,7 @@ function track(event_type: string, metadata: Record<string, unknown> = {}) {
 
 const PRICING_TIERS = [
   {
+    key: 'strategy',
     name: 'Strategy Session',
     price: '$150',
     unit: 'one-time',
@@ -23,6 +24,7 @@ const PRICING_TIERS = [
     featured: false,
   },
   {
+    key: 'sprint',
     name: 'Dev Sprint',
     price: '$2,400',
     unit: 'per week',
@@ -30,6 +32,7 @@ const PRICING_TIERS = [
     featured: true,
   },
   {
+    key: 'fractional',
     name: 'Fractional CTO',
     price: '$4,000',
     unit: 'per month',
@@ -149,6 +152,13 @@ export default function Consulting() {
     setSubmitting(true)
     setError('')
 
+    // Fire before the POST so the intent is captured even if the request fails
+    // or the page unloads mid-submit (beacon survives unload).
+    track('lead_form_submit', {
+      project_type: form.project_type || null,
+      budget: form.budget_range || null,
+    })
+
     const res = await fetch('/api/consulting/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -198,7 +208,7 @@ export default function Consulting() {
               href="https://calendly.com/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => track('cta_click', { location: 'header' })}
+              onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'header' })}
               className="px-4 py-2 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
             >
               Book a Call
@@ -348,7 +358,7 @@ export default function Consulting() {
                     href="https://calendly.com/brooksroley/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => track('cta_click', { location: 'pricing_grid', tier: tier.name })}
+                    onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'pricing_grid', tier: tier.key })}
                     className="mt-5 block text-center px-4 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
                   >
                     Book a Call
@@ -364,7 +374,7 @@ export default function Consulting() {
               href="https://calendly.com/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => track('calendly_open', { location: 'connect_tile' })}
+              onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'connect_tile' })}
               className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
             >
               <span className="text-2xl">&#128222;</span>
@@ -420,7 +430,7 @@ export default function Consulting() {
                   href="https://calendly.com/brooksroley/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => track('calendly_open', { location: 'success_state' })}
+                  onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'success_state' })}
                   className="inline-block px-5 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
                 >
                   Or book a call now
@@ -565,7 +575,7 @@ export default function Consulting() {
                     href="https://calendly.com/brooksroley/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => track('calendly_open', { location: 'form_footer' })}
+                    onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'form_footer' })}
                     className="text-candy-500/70 hover:text-candy-400 underline"
                   >
                     Book directly on Calendly
@@ -589,7 +599,7 @@ export default function Consulting() {
             href="https://calendly.com/brooksroley/"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => track('cta_click', { location: 'sticky_mobile' })}
+            onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'sticky_mobile' })}
             className="block w-full text-center px-4 py-3 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-semibold transition-colors"
           >
             Book a free call &rarr;
