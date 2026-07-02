@@ -8,7 +8,7 @@ import { getTeamRosterForSim } from "src/lib/nba/db/readers";
 import { resolveTeam, buildRosterFromDb, fallbackRoster } from "src/lib/nba/sim/roster-builder";
 import { currentNbaSeason } from "src/lib/nba/season";
 import { CALIBRATION_VERSION } from "src/lib/nba/predictions/version";
-import { isValidAdminKey } from "src/lib/nba/adminAuth";
+import { isValidAdminKey } from "src/lib/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {

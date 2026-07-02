@@ -9,7 +9,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { settlePredictions } from "src/lib/nba/db/writers";
-import { isAuthorizedAdminRequest } from "src/lib/nba/adminAuth";
+import { isAuthorizedAdminRequest } from "src/lib/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST" && req.method !== "GET") {

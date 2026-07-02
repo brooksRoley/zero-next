@@ -11,7 +11,7 @@ import { PlayerSchema, StandingsSchema } from "src/lib/nba/schemas";
 import { validateRows } from "src/lib/nba/validate";
 import { upsertPlayers, upsertTeams, logBronzeIngestion } from "src/lib/nba/db/writers";
 import { currentNbaSeason, parseSeasonType } from "src/lib/nba/season";
-import { isAuthorizedAdminRequest } from "src/lib/nba/adminAuth";
+import { isAuthorizedAdminRequest } from "src/lib/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Auth: Vercel Cron sends CRON_SECRET, manual calls use x-admin-key
