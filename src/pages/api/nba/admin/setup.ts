@@ -6,7 +6,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { runMigrations } from "src/lib/nba/db/migrate";
-import { isValidAdminKey } from "src/lib/nba/adminAuth";
+import { isValidAdminKey } from "src/lib/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!isValidAdminKey(req)) {
