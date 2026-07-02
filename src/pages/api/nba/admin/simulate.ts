@@ -8,6 +8,7 @@ import { getTeamRosterForSim } from "src/lib/nba/db/readers";
 import { resolveTeam, buildRosterFromDb, fallbackRoster } from "src/lib/nba/sim/roster-builder";
 import { currentNbaSeason } from "src/lib/nba/season";
 import { CALIBRATION_VERSION } from "src/lib/nba/predictions/version";
+import { isValidAdminKey } from "src/lib/nba/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -15,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (req.headers["x-admin-key"] !== process.env.ADMIN_KEY) {
+  if (!isValidAdminKey(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
