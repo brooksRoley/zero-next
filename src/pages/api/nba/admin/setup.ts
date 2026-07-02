@@ -6,9 +6,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { runMigrations } from "src/lib/nba/db/migrate";
+import { isValidAdminKey } from "src/lib/nba/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.headers["x-admin-key"] !== process.env.ADMIN_KEY) {
+  if (!isValidAdminKey(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
