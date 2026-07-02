@@ -399,6 +399,11 @@ export default function ChatSandbox() {
   const [expandedProfile, setExpandedProfile] = useState<string | null>(null);
   const [streamingCharId, setStreamingCharId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // If the character fetch is still pending after 2s, stop blocking on the
+  // spinner and show the empty state so the "+ Add Character" path is usable
+  // even on a slow or hung request. Characters still slot in if they arrive.
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [byokKeys, setByokKeys] = useState<StoredKeys>({});
   const [showDemoBanner, setShowDemoBanner] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -429,6 +434,7 @@ export default function ChatSandbox() {
         }
       } catch (err) {
         console.error(err);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -436,6 +442,12 @@ export default function ChatSandbox() {
     init();
     setByokKeys(loadStoredKeys());
   }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+    const timer = setTimeout(() => setLoadTimedOut(true), 2000);
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const handleCharacterCreated = (c: Character) => {
     setCharacters((prev) => [c, ...prev]);
@@ -677,24 +689,33 @@ export default function ChatSandbox() {
 
       {/* Chat Log */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {loading && (
+        {loading && !loadTimedOut && (
           <p className="text-[#DADBD9]/40 text-sm text-center py-8">
             Loading characters...
           </p>
         )}
-        {!loading && characters.length === 0 && messages.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-[#DADBD9]/50 text-sm mb-2">
-              No characters yet.
-            </p>
-            <button
-              onClick={() => setShowModal(true)}
-              className="text-[#C5E7EA] text-sm hover:underline"
-            >
-              Create your first character
-            </button>
-          </div>
-        )}
+        {(!loading || loadTimedOut) &&
+          characters.length === 0 &&
+          messages.length === 0 && (
+            <div className="text-center py-16">
+              {loadError ? (
+                <p className="text-red-300/80 text-sm mb-3">
+                  Couldn&apos;t load saved characters — check your connection
+                  and refresh, or add a new one below.
+                </p>
+              ) : (
+                <p className="text-[#DADBD9]/50 text-sm mb-3">
+                  No characters yet — add your first character to get started.
+                </p>
+              )}
+              <button
+                onClick={() => setShowModal(true)}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+              >
+                + Add Character
+              </button>
+            </div>
+          )}
         {messages.map((m) => (
           <div
             key={m.id}
