@@ -107,6 +107,29 @@ const PROJECTS_PROOF = [
 
 const TIMELINES = ['ASAP', '1-3 months', '3-6 months', 'Just exploring']
 
+const FAQ_ITEMS = [
+  {
+    q: 'What does a strategy session actually cover?',
+    a: 'Ninety focused minutes on whatever is blocking you — architecture review, tech-stack decisions, a roadmap gut-check, or a gnarly bug. You bring the problem; I come prepared, and you leave with a written plan of concrete next steps within 24 hours.',
+  },
+  {
+    q: 'Do you work fixed-price or hourly?',
+    a: 'Both, depending on the shape of the work. Well-scoped projects get a fixed price so you know the cost up front. Open-ended or advisory work runs hourly or as a weekly sprint. Either way, the proposal spells it out before anything starts.',
+  },
+  {
+    q: 'What timezone are you in, and when are you available?',
+    a: 'Pacific Time (Los Angeles). Core hours are roughly 9am–6pm PT on weekdays, and I can flex early or late for teams in other timezones — most US and European overlap works fine.',
+  },
+  {
+    q: 'How fast will you respond after I submit the form?',
+    a: 'Within one business day, usually much sooner. If it looks like a fit, the reply includes a Calendly link so we can get a call on the books right away.',
+  },
+  {
+    q: 'Do you only work solo, or can you join an existing team?',
+    a: 'Both. I ship solo builds end-to-end, and I also embed with existing teams — writing code alongside your engineers, reviewing PRs, or providing fractional technical leadership. I adapt to your workflow, not the other way around.',
+  },
+]
+
 export default function Consulting() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -139,6 +162,22 @@ export default function Consulting() {
       ([entry]) => setShowStickyCta(!entry.isIntersecting),
       { threshold: 0 }
     )
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [])
+
+  // Fire section_view once when the FAQ scrolls into view, so we can measure
+  // how many visitors read far enough to hit it before converting (or not).
+  const faqRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const target = faqRef.current
+    if (!target) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        track('section_view', { section: 'faq' })
+        observer.disconnect()
+      }
+    }, { threshold: 0.25 })
     observer.observe(target)
     return () => observer.disconnect()
   }, [])
@@ -364,6 +403,35 @@ export default function Consulting() {
                     Book a Call
                   </a>
                 </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── FAQ ── */}
+          <section ref={faqRef} className="mb-12">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
+              FAQ
+            </h2>
+            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
+              Before you ask
+            </p>
+            <div className="space-y-3">
+              {FAQ_ITEMS.map(item => (
+                <details
+                  key={item.q}
+                  className="group rounded-xl border border-forest-700/40 bg-forest-900/60 open:border-forest-600/60 transition-colors"
+                >
+                  <summary className="flex items-center justify-between gap-4 cursor-pointer select-none list-none px-5 py-4 [&::-webkit-details-marker]:hidden">
+                    <span className="text-sm sm:text-base font-semibold text-white">{item.q}</span>
+                    <svg
+                      className="w-4 h-4 shrink-0 text-candy-400/70 transition-transform duration-200 group-open:rotate-45"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </summary>
+                  <p className="px-5 pb-4 text-sm text-forest-300 leading-relaxed">{item.a}</p>
+                </details>
               ))}
             </div>
           </section>
