@@ -3,6 +3,8 @@ import { createRateLimiter } from 'src/lib/rate-limit'
 
 const limiter = createRateLimiter(20, 60 * 60 * 1000) // 20 per hour
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 // Cap serialized metadata size to keep a bot from stuffing the JSONB column.
 const MAX_METADATA_BYTES = 4 * 1024 // 4KB
 
@@ -18,6 +20,9 @@ export default async function handler(req, res) {
   const { visitorId, visitorName, type, content, audioUrl, metadata } = req.body
 
   if (!visitorId) return res.status(400).json({ error: 'visitorId is required' })
+  if (typeof visitorId !== 'string' || !UUID_RE.test(visitorId)) {
+    return res.status(400).json({ error: 'visitorId must be a valid UUID' })
+  }
   if (metadata != null && Buffer.byteLength(JSON.stringify(metadata)) > MAX_METADATA_BYTES) {
     return res.status(400).json({ error: 'metadata too large' })
   }

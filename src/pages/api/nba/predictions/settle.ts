@@ -9,15 +9,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { settlePredictions } from "src/lib/nba/db/writers";
+import { isAuthorizedAdminRequest } from "src/lib/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST" && req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const isVercelCron = req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`;
-  const isAdmin = req.headers["x-admin-key"] === process.env.ADMIN_KEY;
-  if (!isVercelCron && !isAdmin) {
+  if (!isAuthorizedAdminRequest(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
