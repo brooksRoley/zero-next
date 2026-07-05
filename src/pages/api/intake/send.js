@@ -8,10 +8,6 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 // Cap serialized metadata size to keep a bot from stuffing the JSONB column.
 const MAX_METADATA_BYTES = 4 * 1024 // 4KB
 
-// Mirror the same UUID check from messages.js so both endpoints enforce the
-// same visitor_id format in the intake_messages table.
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!supabase) return res.status(503).json({ error: 'Database not configured' })
