@@ -192,7 +192,7 @@ export default function useMatchmaking(playerId, playerName, playerElo) {
         .update({ status: 'cancelled' })
         .eq('id', queueRowId)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [cleanupTimer, cleanupChannel, cleanupPoll, queueRowId])
 
   const declineMatch = useCallback(() => {
