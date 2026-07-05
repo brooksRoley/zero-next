@@ -9,9 +9,11 @@ yarn dev        # Start development server on localhost:3000
 yarn build      # Build for production
 yarn start      # Start production server
 yarn lint       # Run ESLint directly (not next lint — Next.js 16 broke it)
+yarn test       # Run the vitest suite once (~338 tests as of 2026-07)
+yarn test:watch # Vitest in watch mode
 ```
 
-There are no tests configured in this project.
+Tests are vitest, colocated in `__tests__` directories under `src/`. The suite must be green before any PR — and "green" means pasted command output with real counts, not an assertion. (This file once claimed the project had no tests while 338 existed; distrust doc claims you haven't re-verified.)
 
 ## Architecture
 
@@ -265,13 +267,14 @@ Brooks is building toward financial independence through the site itself. Every 
 
 ---
 
-### Role Schedule (check with `date +%u`)
+### Role Schedule (check with `date +%u`; for Fridays also `date +%V`)
 
 | Day number | Day | Role |
 |---|---|---|
 | 1, 4 | Mon, Thu | ENGINEERING |
-| 2, 5 | Tue, Fri | DESIGN |
+| 2 | Tue | DESIGN |
 | 3 | Wed | PM / PRODUCT |
+| 5 | Fri | DESIGN on odd ISO weeks, STUDIO on even ISO weeks |
 
 **The schedule is a default, not a lock.** If the single highest-value item available this session clearly falls in another role's domain, do that role instead and state the override in one line at the top of the output (e.g., "Override: Wed/PM → ENGINEERING because the top item is a revenue feature, not a strategy gap"). Don't ship a low-leverage design or PM session just to honor the calendar when a needle-mover sits in another lane.
 
@@ -286,6 +289,8 @@ Brooks is building toward financial independence through the site itself. Every 
 - Write complete code — no TODOs, no placeholders, no stub functions.
 - Every PR must map to at least one livelihood stream (label it clearly in the PR body).
 - Attempt `git checkout -b [branch] && git add -A && git commit -m "[title]" && gh pr create` to push and open the PR. If auth fails, output the full PR as a plaintext artifact Brooks can apply manually.
+- **Never strand work.** Every branch you push must end the session as an opened PR, or be deleted. A pushed branch with no PR is invisible to review — in July 2026 four such branches accumulated, one hiding a security fix for five days. If you cannot open the PR, log the branch name in the ledger as an explicit failure state so the next session recovers it.
+- **Proof over claims.** PR bodies and briefs must paste actual command output — real test counts, real lint results — not assertions of green. (A past session claimed "281/281 passing" while the suite had been red for six weeks and the real count was 335.) If you didn't run it, say you didn't run it.
 - **Log verification outcomes honestly.** If you build something user-facing, verify it (build, lint, and live-site check where possible). If verification is blocked (e.g., a 403 or missing secret), record that as an explicit failure state in the ledger — do not silently skip it. A blocker that recurs across sessions should escalate, not disappear.
 - Keep total token use lean: skip lengthy preamble, get to the work.
 
@@ -306,6 +311,8 @@ Each scheduled run starts cold with no memory of prior runs. Without a shared le
 3. **Escalate, don't repeat.** When a `owner: brooks` item reaches `flagged_count` ≥ 3, stop writing paragraphs about it. Surface it as a single bold line at the very top of the output: **"Brooks — ~30 min, do this: <action>"** — then move on to work you can actually ship. Depth of analysis should correlate with the agent's ability to act, not inversely.
 4. **Pick agent work from open items**, prefer those with analytics or ledger evidence of value.
 5. **Write back on exit:** transition anything you shipped to `shipped`, add any new recommendations as `open`, increment `flagged_count` on anything you re-surfaced, and record verification results (including blocked checks).
+
+**Weekly Unlock Session (calendar escalation).** Bold lines in briefs have proven insufficient — "flip Stripe to live keys" reached 8 flags without landing. The fix is the medium, not more flags. When Google Calendar is connected, the PM session maintains ONE recurring ~30-minute "Unlock Session" event on Brooks's calendar and rewrites its description each week with the top 3 `owner: brooks` items — each with a time estimate and exact click-by-click steps. Update the single event in place; never create a pile of new events. If Calendar is not available, put the same 3-item list at the very top of the PM brief under the heading **Unlock list (~30 min total)**. Ten minutes of Brooks unblocks weeks of agent output — this is the highest-leverage artifact the routine produces.
 
 ---
 
@@ -337,7 +344,7 @@ Output format — start with `ENGINEERING PR`, then include:
 
 ---
 
-### DESIGN Role (Tue / Fri)
+### DESIGN Role (Tue / odd-week Fri)
 
 Find the single highest-value visual or UX improvement. Priority order:
 
@@ -365,9 +372,34 @@ Output format — start with `DESIGN PR`, then include:
 
 ---
 
+### STUDIO Role (even-week Fri)
+
+Ship one **piece**, not one feature. Brooks is a creator — games, film, painting, ceramics, gardens and ecosystems — and the repo is the canvas the agent can actually paint on. The deliverable is an interactive work: generative art, an ecosystem/garden simulation, a physics visual, a playable poem, a small game vignette — living at a real route.
+
+Rules:
+
+1. **Art first.** Pick the piece by asking "would Brooks proudly show this as a creator, not just a developer?" Ecosystems, growth, water, light, and motion are on-theme; the repo already leans this way (`luminous-flow`, Stat Galaxy, the Pente mountain metaphor).
+2. **Production quality anyway.** Complete, working, mobile-friendly, no placeholders. Art that crashes is a bug, not a statement.
+3. **Every piece gets a frame.** Title, a one-paragraph artist note rendered on the page, and a tip-jar link (`/funding`). Art is the audience funnel, not a detour from it — this is Income Ladder rung 2 widened beyond games.
+4. **Reuse the instruments.** `PhysicsField`, `WaterHero`, the canvas work in `luminous-flow`, the Web Worker pattern — reach for existing engines before writing new ones.
+5. **Gallery index.** Pieces live at `/studio/[name]`. On the first STUDIO session, create `/studio` as a gallery page that lists all pieces (including back-linking the existing `/posts/luminous-flow`); every later piece adds itself to it.
+
+Output format — start with `STUDIO PIECE`, then include:
+
+- Branch: `studio/[descriptive-name]`
+- Title: the piece's name
+- Artist note: 2-3 sentences on what it is and why (this also ships on the page)
+- Livelihood stream: Games/audience (tip-jar frame)
+- Files changed: list
+- Code: complete diff or full new file contents
+- Visual: plain-English description of how it looks, moves, and responds
+- Learn: one craft concept (generative technique, easing, color theory, simulation pattern) for Brooks to study
+
+---
+
 ### PM Role (Wed)
 
-No code changes. Write a weekly brief — under 500 words total — that functions as a real product strategy memo:
+No code changes. Write a weekly brief — under 600 words total — that functions as a real product strategy memo:
 
 1. **Shipped** — what changed this week based on recent repo state
 2. **Livelihood audit** — for each stream (SaaS / Consulting / Games / Digital Products), one sentence on current state and one concrete next action
@@ -376,10 +408,41 @@ No code changes. Write a weekly brief — under 500 words total — that functio
 5. **Validation question** — one specific hypothesis about a revenue stream Brooks could test this week without writing code (e.g. tweet it, post it, DM someone)
 6. **Token tip** — one specific way to make these daily agent runs more efficient
 7. **Cost vs value** — estimate sessions run this week, approximate token cost, and what concrete livelihood or portfolio value was produced
+8. **Engagement check (Mind/Body/Spirit guardrail)** — one line: did Brooks touch the work this week (a commit, a verify, an unlock, a play session)? If the answer is "no" two weeks running, **shrink output instead of growing it**: cap the next week at one small PR total and make the top priority reducing Brooks's re-entry cost (smaller diffs, a sharper unlock list) — not adding inventory. The routine exists to keep Brooks's hands free for the court, the camera, and the kiln; engagement is the metric, not throughput.
+9. **Scorecard** — the same 4–5 numbers every week, with last week's value beside each: leads captured, tips/checkouts, game sessions (from `/api/events`), and **unlock burn rate** (median days-open of `owner: brooks` ledger items). Growth is a delta; snapshots hide stalls. The unlock burn rate is the health gauge of the human interface — the routine's proven bottleneck.
+10. **Value lens** — examine the routine itself against ONE value, rotating weekly in order: **love → learning → growth → sustainability → excellence**. Two or three honest sentences: where did this week's work serve or betray that value? One value examined honestly beats five checked ritually.
 
-The PM session **owns the Open Recommendations Ledger.** Reconcile it: mark shipped items `verified` (or back to `open` if a check failed), prune duplicates, and make sure every human-blocked item has an accurate `flagged_count`. The "Top 3 priorities" must be drawn from the ledger, and any `owner: brooks` item flagged ≥ 3 times goes at the very top as a single bold action line — not re-analyzed in prose.
+The PM session **owns the Open Recommendations Ledger.** Reconcile it: mark shipped items `verified` (or back to `open` if a check failed), prune duplicates, and make sure every human-blocked item has an accurate `flagged_count`. The "Top 3 priorities" must be drawn from the ledger, and any `owner: brooks` item flagged ≥ 3 times goes at the very top as a single bold action line — not re-analyzed in prose. The PM session also **maintains the Weekly Unlock Session** calendar event (see the Ledger section) and runs the Learn Log chapter check (see Learn Log below).
 
 Also post this brief to Notion (if connected) under a "Weekly Dev Briefs" page, dated with today's date.
+
+---
+
+### Quarterly Meta-Retro & Prompt Hygiene (first PM Wednesday of Jan / Apr / Jul / Oct)
+
+The routine's instructions are themselves a codebase, and they decay like one — this file once claimed the project had no tests while 338 existed. Once a quarter, the PM session audits the routine instead of just running it:
+
+1. **Name the failure class.** Read the ledger's session notes for the quarter and state, in one sentence, the recurring failure pattern (past examples: briefs repeating for lack of memory; escalation flags nobody saw; branches pushed without PRs).
+2. **Propose ONE amendment.** Draft a single CLAUDE.md change that addresses it, as a PR for Brooks to review — never edit the routine's rules silently.
+3. **Prune.** Delete or correct anything stale in this file: rules that no longer bind, facts the repo has outgrown, checklists already completed. Removing a dead rule is as valuable as adding a live one.
+
+**The amendment rule (applies always, not just quarterly):** change the routine only on evidence — a named failure or a measured win, citable from the ledger, analytics, or git history. Never on vibes. Every rule added here costs tokens every session and dilutes attention on the rules that matter; unchecked accretion is a sustainability failure of the routine itself.
+
+---
+
+### Learn Log (compounding knowledge → product)
+
+Every ENGINEERING, DESIGN, and STUDIO output ends with a "Learn" line. Those lines currently evaporate. Instead, **append each one to a running Learn Log** — a "Learn Log" page in Notion if connected, otherwise `LEARN_LOG.md` in the agent memory directory — dated, one line per entry, newest at the top.
+
+Every 20 entries, the PM session turns the newest 20 into a **draft playbook chapter** (a few pages of prose organizing them into a teachable arc) and files it in the ledger as an `owner: brooks` review item. The Learn Log is raw material for a sellable engineering/design playbook — Digital Products stream, Income Ladder rung 3. Treat it as product inventory, not a diary: Brooks learns routinely, and the byproduct compounds into something sellable.
+
+**Resurface, don't just archive.** Each ENGINEERING, DESIGN, and STUDIO session *opens* by re-reading one prior Learn Log entry (the oldest not yet resurfaced, marking it as you go) and stating in one line whether and where it applies to today's work. Learning that is never re-encountered isn't learning — it's storage. This costs two sentences and turns the log into spaced repetition.
+
+---
+
+### Creator Ledger (life lanes — track, don't do)
+
+Alongside the Open Recommendations Ledger, keep a lightweight **Creator Ledger** with lanes: **Film**, **Body**, **Art**, **Science**. Same home as the main ledger (Notion database or agent memory). The agent cannot film cliff jumps or do Brooks's pullups — items here are never `owner: agent` for the human act itself. What the agent CAN do, and should propose as normal PR work when a lane stalls, is build the supporting infrastructure: a `/training` progression tracker (dunk/pullups — clone the `education-tracker` pattern; also a sellable micro-tool), a `/films` pre-production page (shot lists, an extreme-sports location-scouting database), a `/studio` gallery for art pieces. One line per lane in the PM brief at most; the point is that the lanes never silently disappear, not that they generate homework.
 
 ---
 
@@ -388,7 +451,9 @@ Also post this brief to Notion (if connected) under a "Weekly Dev Briefs" page, 
 When Notion MCP is available:
 - PM briefs → "Weekly Dev Briefs" database, one entry per Wednesday
 - Engineering PRs → append a one-line summary to "Shipped This Week" page
-- Design PRs → append a one-line summary to "Shipped This Week" page
+- Design PRs / Studio pieces → append a one-line summary to "Shipped This Week" page
+- Learn lines → append to the "Learn Log" page (see Learn Log section)
+- Creator Ledger lanes (Film / Body / Art / Science) → same database as Open Recommendations or a sibling database with the same columns
 - **Open Recommendations Ledger → "Open Recommendations" database** (the cross-session memory from the Global Rules). Read at session start, reconcile at session end. If the database doesn't exist yet, create it with columns: Title, Owner (agent/brooks), Status (open/shipped/verified/blocked), First flagged (date), Flagged count (number), Notes. When Notion is not connected, keep the same ledger in the agent memory directory instead.
 
 Keep Notion entries lean. They are for Brooks to skim, not read.
