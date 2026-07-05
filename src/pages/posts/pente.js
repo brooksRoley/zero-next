@@ -295,7 +295,7 @@ const GameBoard = () => {
     );
     setHintCell(hint.suggestedMove);
     setHintExplanation(hint.explanation);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [tutorEnabled, localCurrentPlayer, localBoard, blackCaptures, whiteCaptures, gameOver, isOnline, botEnabled, humanColor, gameMode, tutor]);
 
   // ── Bot auto-play (Web Worker minimax engine) ──
