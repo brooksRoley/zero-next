@@ -116,8 +116,14 @@ export default async function handler(
       .json({ error: `No API key available for ${provider.name}. Add one in the API Keys panel or set ${provider.envKey} on the server.` });
   }
 
-  const maxTok = maxTokens ?? 2000;
-  const temp = temperature ?? 0.8;
+  if (maxTokens !== undefined && !Number.isFinite(maxTokens)) {
+    return res.status(400).json({ error: "maxTokens must be a number" });
+  }
+  if (temperature !== undefined && !Number.isFinite(temperature)) {
+    return res.status(400).json({ error: "temperature must be a number" });
+  }
+  const maxTok = Math.min(Math.max(maxTokens ?? 2000, 1), 4096);
+  const temp = Math.min(Math.max(temperature ?? 0.8, 0), 2);
 
   try {
     const success = await tryStream(
