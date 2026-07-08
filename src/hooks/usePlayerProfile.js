@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { STARTING_ELO, MIN_ELO, MAX_ELO, calculateEloChange, calculatePuzzleEloChange, getZone } from 'src/lib/pente/elo'
+import { track } from 'src/lib/analytics'
 
 /**
  * Unified player profile hook.
@@ -32,8 +33,15 @@ const defaultProfile = {
 
 function profileFromLocal() {
   if (typeof window === 'undefined') return defaultProfile
-  const id = localStorage.getItem(ID_KEY) || crypto.randomUUID()
+  const existingId = localStorage.getItem(ID_KEY)
+  const id = existingId || crypto.randomUUID()
   localStorage.setItem(ID_KEY, id)
+  if (!existingId) {
+    // Brand-new player identity — record the join between the durable
+    // anonymous analytics id (events.anon_id, added by track()) and the new
+    // players.id, so game activity can be tied back to the same visitor.
+    track('identity_link', { metadata: { kind: 'player', player_id: id } })
+  }
   const name = localStorage.getItem(NAME_KEY) || ''
 
   const stored = localStorage.getItem(LOCAL_KEY)
@@ -267,7 +275,10 @@ export default function usePlayerProfile() {
 
   const recordAttempt = useCallback((puzzleId, puzzleRating) => {
     setProfile(prev => {
-      const delta = Math.round(-8 * (1 / (1 + Math.pow(10, (puzzleRating - prev.elo) / 400))))
+      // Wrong-attempt penalty: a loss against the puzzle at a low K so a
+      // single miss stings less than failing outright. Routed through the
+      // shared helper so all ELO math lives in src/lib/pente/elo.js.
+      const delta = calculateEloChange(prev.elo, puzzleRating, 0, 8)
       const newElo = Math.max(MIN_ELO, prev.elo + delta)
 
       const updated = {

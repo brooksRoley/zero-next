@@ -12,7 +12,7 @@ import usePlayerProfile from 'src/hooks/usePlayerProfile';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
 import { createEmptyBoard, checkForFiveInARow, computeCaptures, getWinningLine } from 'src/lib/pente/gameLogic';
-import { PenteBot } from 'src/components/PentePlayerbot';
+import { PenteBot, BOT_LEVELS } from 'src/components/PentePlayerbot';
 import { BotWorkerManager } from 'src/lib/pente/botWorker';
 import { getAdaptiveBotConfig } from 'src/lib/pente/adaptiveBot';
 import { PenteTutor } from 'src/components/PenteTutor';
@@ -477,7 +477,15 @@ const GameBoard = () => {
     let humanWon = true;
     if (botEnabled && recordGameResult) {
       humanWon = winningPlayer === humanColor;
-      const botElo = botEffectiveElo || playerElo;
+      // Bot strength for the ELO update. Never fall back to the player's own
+      // rating — that made every game a coin-flip delta regardless of bot
+      // difficulty. Prefer the adaptive engine's effective ELO from this game;
+      // if the bot never got to compute one, recompute it, and as a last
+      // resort use the bot instance's fixed BOT_LEVELS rating.
+      const adaptiveElo = botEffectiveElo ?? getAdaptiveBotConfig(playerElo, gamesPlayed).effectiveElo;
+      const botElo = Number.isFinite(adaptiveElo)
+        ? adaptiveElo
+        : (botInstances[0]?.level?.elo ?? BOT_LEVELS.expert.elo);
       const eloResult = recordGameResult(botElo, humanWon);
 
       // Persist the completed game for history/replay (best-effort; no-ops until

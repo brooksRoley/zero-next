@@ -9,6 +9,13 @@
  */
 
 const SESSION_ID_KEY = 'br_session_id'
+const ANON_ID_KEY = 'br_anon_id'
+
+function newId(): string {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+}
 
 /** Stable per-tab id, persisted in sessionStorage. Null when storage is blocked
  *  (private mode) or during SSR — the event still records, just unattributed. */
@@ -17,11 +24,26 @@ export function getSessionId(): string | null {
   try {
     let id = sessionStorage.getItem(SESSION_ID_KEY)
     if (!id) {
-      id =
-        typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+      id = newId()
       sessionStorage.setItem(SESSION_ID_KEY, id)
+    }
+    return id
+  } catch {
+    return null
+  }
+}
+
+/** Durable anonymous visitor id, persisted in localStorage — survives across
+ *  tabs and return visits, unlike the per-tab session id. Used to stitch
+ *  sessions together and to opportunistically join to players.id / leads.email
+ *  when either is created. Null when storage is blocked or during SSR. */
+export function getAnonId(): string | null {
+  if (typeof window === 'undefined') return null
+  try {
+    let id = localStorage.getItem(ANON_ID_KEY)
+    if (!id) {
+      id = newId()
+      localStorage.setItem(ANON_ID_KEY, id)
     }
     return id
   } catch {
@@ -45,6 +67,7 @@ export function track(eventType: string, options: TrackOptions = {}): void {
   const { page, metadata = {}, beacon = false } = options
   const body = JSON.stringify({
     session_id: getSessionId(),
+    anon_id: getAnonId(),
     page: page ?? window.location.pathname,
     event_type: eventType,
     metadata,

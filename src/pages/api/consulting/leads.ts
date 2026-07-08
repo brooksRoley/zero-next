@@ -4,6 +4,16 @@ import { createRateLimiter } from "src/lib/rate-limit";
 
 const limiter = createRateLimiter(5, 60 * 60 * 1000); // 5 per hour
 
+// Self-migrating column (once per cold start), mirroring api/events.ts:
+// anon_id joins a lead to the visitor's cross-session analytics identity
+// (events.anon_id), so the funnel can be tied to a real captured email.
+let schemaReady = false;
+async function ensureSchema() {
+  if (schemaReady) return;
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS anon_id TEXT`;
+  schemaReady = true;
+}
+
 type LeadNotice = {
   name: string;
   email: string;
@@ -75,6 +85,7 @@ export default async function handler(
     utm_source,
     utm_medium,
     utm_campaign,
+    anon_id,
     website, // honeypot — humans never see this field
   } = req.body;
 
@@ -106,9 +117,11 @@ export default async function handler(
     return res.status(400).json({ error: "Invalid email format" });
   }
 
+  await ensureSchema();
+
   const lead = (
     await sql`
-    INSERT INTO leads (name, email, company, project_type, budget_range, timeline, message, source, utm_source, utm_medium, utm_campaign, referrer)
+    INSERT INTO leads (name, email, company, project_type, budget_range, timeline, message, source, utm_source, utm_medium, utm_campaign, referrer, anon_id)
     VALUES (
       ${name.trim()},
       ${email.trim().toLowerCase()},
@@ -121,7 +134,8 @@ export default async function handler(
       ${utm_source?.trim() || null},
       ${utm_medium?.trim() || null},
       ${utm_campaign?.trim() || null},
-      ${referrer}
+      ${referrer},
+      ${typeof anon_id === "string" && anon_id.trim() ? anon_id.trim().slice(0, 64) : null}
     )
     RETURNING id, created_at
   `
