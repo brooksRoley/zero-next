@@ -211,8 +211,20 @@ export default function NbaAccuracy() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [timedOut, setTimedOut] = useState(false);
+
   useEffect(() => {
-    fetch("/api/nba/predictions/accuracy?groupBy=week")
+    // Guard against a hanging request: abort after 7s and show an honest
+    // fallback instead of spinning forever.
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setTimedOut(true);
+      controller.abort();
+    }, 7000);
+
+    fetch("/api/nba/predictions/accuracy?groupBy=week", {
+      signal: controller.signal,
+    })
       .then(async (r) => {
         if (!r.ok) {
           const e = await r.json().catch(() => ({}));
@@ -221,10 +233,19 @@ export default function NbaAccuracy() {
         return r.json();
       })
       .then(setResp)
-      .catch((e: unknown) =>
-        setError(e instanceof Error ? e.message : "Unknown error")
-      )
-      .finally(() => setLoading(false));
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return; // timeout state already set
+        setError(e instanceof Error ? e.message : "Unknown error");
+      })
+      .finally(() => {
+        clearTimeout(timer);
+        setLoading(false);
+      });
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, []);
 
   const stats = resp?.data;
@@ -283,9 +304,18 @@ export default function NbaAccuracy() {
           </div>
         )}
 
+        {!loading && !error && !stats && (
+          <div className="rounded-xl border border-slate-800 bg-slate-900/40 px-5 py-12 text-center text-slate-400">
+            {timedOut
+              ? "Results are taking longer than expected. Predictions settle nightly — check back after tonight's games."
+              : "No settled predictions yet. Predictions settle nightly — check back after tonight's games."}
+          </div>
+        )}
+
         {!loading && !error && stats && stats.totalPredictions === 0 && (
           <div className="rounded-xl border border-slate-800 bg-slate-900/40 px-5 py-12 text-center text-slate-400">
-            No settled predictions yet. Check back once games have been graded.
+            No settled predictions yet. Predictions settle nightly — check back
+            after tonight&apos;s games.
           </div>
         )}
 

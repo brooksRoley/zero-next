@@ -51,6 +51,9 @@ async function ensureSchema() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `;
+  // Durable cross-session visitor id (localStorage-backed, unlike the per-tab
+  // session_id). Self-migrating for deployments whose events table predates it.
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS anon_id TEXT`;
   // Deduped, queryable mailing list — kept separate from the noisy events log so
   // captured emails are easy to export and each address only lands once.
   await sql`
@@ -65,6 +68,13 @@ async function ensureSchema() {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Event types whose metadata.email gets promoted to the email_signups mailing
+// list (and pinged to the owner), keyed to the source label stored with them.
+const EMAIL_CAPTURE_EVENTS: Record<string, string> = {
+  model_arena_email_gate: "model_arena",
+  digital_product_notify: "nba_analytics_primer",
+};
 
 // Best-effort owner notification when a new email lands. Calls the Resend REST
 // API directly (no SDK) so this route stays dependency-free, mirroring
@@ -128,7 +138,7 @@ export default async function handler(
     return res.status(429).json({ error: "Too many requests. Please try again later." });
   }
 
-  const { session_id, page, event_type, metadata } = req.body || {};
+  const { session_id, anon_id, page, event_type, metadata } = req.body || {};
 
   if (typeof event_type !== "string" || event_type.trim().length === 0) {
     return res.status(400).json({ error: "event_type is required" });
@@ -137,25 +147,23 @@ export default async function handler(
   try {
     await ensureSchema();
     await sql`
-      INSERT INTO events (session_id, page, event_type, metadata)
+      INSERT INTO events (session_id, anon_id, page, event_type, metadata)
       VALUES (
         ${typeof session_id === "string" ? session_id : null},
+        ${typeof anon_id === "string" ? anon_id.slice(0, 64) : null},
         ${typeof page === "string" ? page : null},
         ${event_type.trim().slice(0, 64)},
         ${metadata && typeof metadata === "object" ? JSON.stringify(metadata) : null}
       )
     `;
 
-    // Email-gate captures get promoted to the dedicated mailing list and pinged
+    // Email captures get promoted to the dedicated mailing list and pinged
     // to the owner. Awaited so it completes before the function freezes, but
     // wrapped so a delivery/insert hiccup never fails the already-logged event.
-    if (
-      event_type.trim() === "model_arena_email_gate" &&
-      metadata &&
-      typeof metadata === "object"
-    ) {
+    const captureSource = EMAIL_CAPTURE_EVENTS[event_type.trim()];
+    if (captureSource && metadata && typeof metadata === "object") {
       try {
-        await handleEmailSignup((metadata as { email?: unknown }).email, "model_arena");
+        await handleEmailSignup((metadata as { email?: unknown }).email, captureSource);
       } catch {
         // Best-effort — the raw event is already recorded above.
       }

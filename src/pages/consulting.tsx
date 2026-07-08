@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
-import { track as trackEvent } from 'src/lib/analytics'
+import { track as trackEvent, getAnonId } from 'src/lib/analytics'
 
 // Funnel events are tagged page:'consulting' and use sendBeacon, since most of
 // them (Calendly/checkout CTAs) fire right before the page unloads on nav.
@@ -40,6 +40,15 @@ const PRICING_TIERS = [
     featured: false,
   },
 ]
+
+// Dollar value per tier, attached to lead_submit metadata so the analytics
+// funnel can weight leads by the engagement they were considering. Keep in
+// sync with PRICING_TIERS prices above.
+const TIER_VALUES: Record<string, number> = {
+  strategy: 150,
+  sprint: 2400,
+  fractional: 4000,
+}
 
 const PROJECT_TYPES = [
   'New project build',
@@ -140,6 +149,11 @@ export default function Consulting() {
   // the URL or navigates within the SPA before submitting.
   const [attribution, setAttribution] = useState({ utm_source: '', utm_medium: '', utm_campaign: '' })
 
+  // Last pricing tier the visitor engaged with (via a pricing-grid CTA click).
+  // Attached to lead_submit as tier + dollar value; null when the visitor
+  // submitted without touching the pricing grid.
+  const [selectedTier, setSelectedTier] = useState<string | null>(null)
+
   // Mobile sticky CTA hides itself while the header "Book a Call" button is on
   // screen, so the two CTAs never compete for the same fold.
   const headerCtaRef = useRef<HTMLAnchorElement>(null)
@@ -201,7 +215,9 @@ export default function Consulting() {
     const res = await fetch('/api/consulting/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, ...attribution }),
+      // anon_id joins this lead to the visitor's cross-session analytics
+      // identity (events.anon_id) the moment the lead is created.
+      body: JSON.stringify({ ...form, ...attribution, anon_id: getAnonId() }),
     })
 
     if (!res.ok) {
@@ -214,6 +230,8 @@ export default function Consulting() {
     track('lead_submit', {
       project_type: form.project_type || null,
       budget_range: form.budget_range || null,
+      tier: selectedTier,
+      value: selectedTier ? TIER_VALUES[selectedTier] ?? null : null,
     })
     setSubmitted(true)
     setSubmitting(false)
@@ -397,7 +415,10 @@ export default function Consulting() {
                     href="https://calendly.com/brooksroley/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'pricing_grid', tier: tier.key })}
+                    onClick={() => {
+                      setSelectedTier(tier.key)
+                      track('cta_click', { location: 'consulting_calendly', placement: 'pricing_grid', tier: tier.key })
+                    }}
                     className="mt-5 block text-center px-4 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
                   >
                     Book a Call

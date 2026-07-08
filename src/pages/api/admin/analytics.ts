@@ -42,7 +42,7 @@ export default async function handler(
   }
 
   try {
-    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage] = await Promise.all([
+    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage, funnelRows] = await Promise.all([
       sql`
         SELECT
           COALESCE(page, metadata->>'path', '(unknown)') AS path,
@@ -84,6 +84,22 @@ export default async function handler(
         GROUP BY event_type, page
         ORDER BY event_type ASC, count DESC
       `,
+      // Consulting funnel, one row of distinct-session counts per step.
+      // page_view is scoped to the consulting page ('/consulting' from the
+      // global _app tracker; the page's own funnel events use page 'consulting');
+      // the later steps only ever fire from the consulting funnel.
+      sql`
+        SELECT
+          COUNT(DISTINCT session_id) FILTER (
+            WHERE event_type = 'page_view'
+              AND COALESCE(page, metadata->>'path') IN ('/consulting', 'consulting')
+          )::int AS page_view,
+          COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'section_view')::int AS section_view,
+          COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'lead_form_submit')::int AS lead_form_submit,
+          COUNT(DISTINCT session_id) FILTER (WHERE event_type = 'lead_submit')::int AS lead_submit
+        FROM events
+        WHERE created_at > NOW() - INTERVAL '30 days'
+      `,
     ]);
 
     // Guarantee the monetization-signal events appear even at zero, then float
@@ -106,11 +122,21 @@ export default async function handler(
       return pr !== 0 ? pr : b.count - a.count;
     });
 
+    const funnelRow =
+      (funnelRows as Array<Record<string, number>>)[0] ?? {};
+    const funnel = [
+      { step: "page_view", label: "Consulting page view", sessions: funnelRow.page_view ?? 0 },
+      { step: "section_view", label: "Scrolled to FAQ", sessions: funnelRow.section_view ?? 0 },
+      { step: "lead_form_submit", label: "Submitted form", sessions: funnelRow.lead_form_submit ?? 0 },
+      { step: "lead_submit", label: "Lead captured", sessions: funnelRow.lead_submit ?? 0 },
+    ];
+
     return res.status(200).json({
       pageViews,
       leads: leadCounts[0] ?? { total: 0, last_30_days: 0 },
       events,
       eventsByPage,
+      funnel,
       priorityEvents: PRIORITY_EVENTS,
       _meta: { windowDays: 30 },
     });

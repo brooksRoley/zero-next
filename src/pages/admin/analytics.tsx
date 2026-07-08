@@ -20,11 +20,18 @@ type EventByPageRow = {
   count: number;
 };
 
+type FunnelStep = {
+  step: string;
+  label: string;
+  sessions: number;
+};
+
 type AnalyticsResponse = {
   pageViews: PageViewRow[];
   leads: { total: number; last_30_days: number };
   events?: EventRow[];
   eventsByPage?: EventByPageRow[];
+  funnel?: FunnelStep[];
   priorityEvents?: string[];
   _meta?: { windowDays?: number };
 };
@@ -66,6 +73,8 @@ export default function AdminAnalyticsPage() {
 
   const events = data?.events ?? [];
   const eventsByPage = data?.eventsByPage ?? [];
+  const funnel = data?.funnel ?? [];
+  const funnelMax = funnel.reduce((m, s) => Math.max(m, s.sessions), 0);
   const prioritySet = new Set(data?.priorityEvents ?? []);
   const totalEvents = events.reduce((sum, r) => sum + r.count, 0);
   const maxEventCount = events.reduce((m, r) => Math.max(m, r.count), 0);
@@ -137,6 +146,58 @@ export default function AdminAnalyticsPage() {
                 <div className="mt-2 text-3xl font-bold">{data.leads.total}</div>
               </div>
             </div>
+          )}
+
+          {data && funnel.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-lg font-semibold mb-1">
+                Consulting funnel ({windowDays}d)
+              </h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Distinct sessions at each step: page view &rarr; section view
+                &rarr; form submit &rarr; lead captured.
+              </p>
+              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5 space-y-4">
+                {funnel.map((step, i) => {
+                  const prev = i > 0 ? funnel[i - 1].sessions : null;
+                  const rate =
+                    prev != null && prev > 0
+                      ? Math.round((step.sessions / prev) * 100)
+                      : null;
+                  return (
+                    <div key={step.step}>
+                      <div className="flex items-baseline justify-between text-sm mb-1">
+                        <span className="text-forest-100">
+                          <span className="text-forest-500 font-mono mr-2">
+                            {i + 1}.
+                          </span>
+                          {step.label}
+                          <span className="ml-2 font-mono text-xs text-forest-500">
+                            {step.step}
+                          </span>
+                        </span>
+                        <span>
+                          <span className="font-semibold">{step.sessions}</span>
+                          {rate != null && (
+                            <span className="ml-2 text-xs text-forest-400">
+                              {rate}% of prev
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="h-2.5 rounded-full bg-forest-950 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-candy-500/70"
+                          style={{
+                            width: `${funnelMax > 0 ? (step.sessions / funnelMax) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
           )}
 
           {!loading && data && data.pageViews.length === 0 && !error && (
