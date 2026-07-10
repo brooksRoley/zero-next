@@ -354,6 +354,31 @@ export default function Home() {
               </Reveal>
             </div>
 
+            {/* Hardwood Autochess */}
+            <div data-physics-item className="physics-field-item">
+              <Reveal delay={500}>
+                <TiltCard>
+                  <Link href="/games/hardwood" className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
+                      <div className="flex items-center gap-3 text-2xl opacity-70">
+                        <span>&#x1F3C0;</span><span>&#x265F;&#xFE0F;</span><span>&#x1F451;</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                    </div>
+                    <div className="relative px-5 pb-5 -mt-8">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        Hardwood Autochess <ArrowIcon />
+                      </h3>
+                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        NBA auto-battler. Draft a squad, place your board, fight ghost lineups over 10 rounds.
+                      </p>
+                    </div>
+                    <div className="tilt-highlight" />
+                  </Link>
+                </TiltCard>
+              </Reveal>
+            </div>
+
           </PhysicsField>
         </section>
 
