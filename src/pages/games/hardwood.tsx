@@ -2,7 +2,10 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { track } from 'src/lib/analytics'
 
-const GAME_URL = 'https://brooksroley.github.io/BballTactics/'
+// Served same-origin from public/hardwood/ (built from the BballTactics repo
+// via `npm run build:hardwood`), so the game shares this site's /api/bball
+// backend with no CORS in the path.
+const GAME_URL = '/hardwood'
 
 export default function HardwoodAutochess() {
   return (
@@ -72,7 +75,9 @@ export default function HardwoodAutochess() {
         {/* ── Frame / tip jar ── */}
         <footer className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm">
           <p className="text-forest-400">
-            Vue 3 front end on GitHub Pages, ghost-board backend served from this site&apos;s{' '}
+            Vue 3 front end served same-origin from{' '}
+            <span className="font-mono text-forest-300">/hardwood</span>, ghost-board
+            backend on this site&apos;s{' '}
             <span className="font-mono text-forest-300">/api/bball</span> routes.
           </p>
           <Link
