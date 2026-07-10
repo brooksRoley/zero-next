@@ -27,6 +27,7 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | 0002 | `0002_go_players.sql` | `go_players` table + indexes | ✅ live |
 | 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ❌ **pending** |
 | 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ❌ **pending** |
+| 0005 | `0005_players_game_elo.sql` | `players.game_elo` + `game_peak_elo` (puzzle/game rating split) | ❌ **pending** |
 
 ### 0004 is pending
 
@@ -35,6 +36,13 @@ before/after, opponent, mode, full move list). `POST /api/pente/game-result`
 degrades gracefully — it returns `{ supported: false }` and the client skips the
 write — so nothing is broken, but **no game history is recorded until 0004 is
 applied.** Run the file above to start capturing games (unlocks history/replay).
+
+### 0005 is pending
+
+The puzzle/game ELO split (2026-07-09) stores the game rating in `players.game_elo`.
+`POST /api/pente/player` degrades gracefully — it detects the missing columns and
+retries the upsert without them — so nothing is broken, but **game ratings are
+device-local until 0005 is applied.** Ranked matchmaking needs this column. ~2 minutes.
 
 ### 0003 is pending
 

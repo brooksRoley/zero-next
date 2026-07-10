@@ -34,8 +34,8 @@ export default function PentePuzzlesPage() {
     solvedCount,
     currentStreak,
     bestStreak,
-    elo,
-    peakElo,
+    puzzleElo,
+    puzzlePeakElo,
     eloHistory,
     profile,
   } = usePlayerProfile()
@@ -54,7 +54,7 @@ export default function PentePuzzlesPage() {
   const handleNext = useCallback(() => {
     if (!selectedPuzzle) return
     const solvedIds = profile.solvedPuzzles
-    const recommended = getRecommendedPuzzle(elo, [...solvedIds, selectedPuzzle.id])
+    const recommended = getRecommendedPuzzle(puzzleElo, [...solvedIds, selectedPuzzle.id])
     if (recommended) {
       setSelectedPuzzle(recommended)
     } else {
@@ -62,7 +62,7 @@ export default function PentePuzzlesPage() {
       const nextIndex = (currentIndex + 1) % puzzles.length
       setSelectedPuzzle(puzzles[nextIndex])
     }
-  }, [selectedPuzzle, elo, profile.solvedPuzzles])
+  }, [selectedPuzzle, puzzleElo, profile.solvedPuzzles])
 
   // Wrap markSolved so every solve also fires a first-party `puzzle_solved`
   // event — the puzzle trainer had zero instrumentation before this. Returns
@@ -103,7 +103,7 @@ export default function PentePuzzlesPage() {
     setMode('catalog')
   }, [])
 
-  const zone = getZone(elo)
+  const zone = getZone(puzzleElo)
 
   return (
     <div className="min-h-screen bg-forest-950 relative">
@@ -156,15 +156,15 @@ export default function PentePuzzlesPage() {
               isSolved={isSolved(selectedPuzzle.id)}
               onSolve={handleSolve}
               onAttempt={recordAttempt}
-              elo={elo}
-              peakElo={peakElo}
+              elo={puzzleElo}
+              peakElo={puzzlePeakElo}
               eloHistory={eloHistory}
             />
           ) : mode === 'daily' ? (
             <DailyChallenge
               playerId={playerId}
-              elo={elo}
-              peakElo={peakElo}
+              elo={puzzleElo}
+              peakElo={puzzlePeakElo}
               eloHistory={eloHistory}
               onSolve={handleSolve}
               onAttempt={recordAttempt}
@@ -173,8 +173,8 @@ export default function PentePuzzlesPage() {
           ) : mode === 'endless' ? (
             <EndlessPuzzle
               playerId={playerId}
-              elo={elo}
-              peakElo={peakElo}
+              elo={puzzleElo}
+              peakElo={puzzlePeakElo}
               eloHistory={eloHistory}
               onSolve={handleSolve}
               onAttempt={recordAttempt}
@@ -187,8 +187,8 @@ export default function PentePuzzlesPage() {
               solvedCount={solvedCount}
               currentStreak={currentStreak}
               bestStreak={bestStreak}
-              elo={elo}
-              peakElo={peakElo}
+              elo={puzzleElo}
+              peakElo={puzzlePeakElo}
               eloHistory={eloHistory}
             />
           )}

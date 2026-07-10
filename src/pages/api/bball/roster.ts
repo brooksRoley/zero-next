@@ -1,8 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import fs from "fs";
+import { applyBballCors } from "src/lib/bballCors";
 
-export default function handler(_req: NextApiRequest, res: NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyBballCors(req, res)) return;
   const rosterPath = path.join(process.cwd(), "public", "engine_roster.json");
   if (!fs.existsSync(rosterPath)) {
     return res.status(404).json({ error: "Roster not found" });

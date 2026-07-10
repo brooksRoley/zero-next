@@ -4,8 +4,10 @@
  */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
+import { applyBballCors } from "src/lib/bballCors";
 
-export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyBballCors(req, res)) return;
   await sql`
     CREATE TABLE IF NOT EXISTS bball_runs (
       id TEXT PRIMARY KEY,
