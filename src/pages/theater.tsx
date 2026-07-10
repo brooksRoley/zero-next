@@ -75,6 +75,15 @@ const REPERTORY: Act[] = [
         accent: '#40916c',
       },
       {
+        id: 'moments',
+        title: 'Playoff Moments',
+        metaphor: 'the frozen second',
+        logline: 'Famous playoff plays frozen one beat before they happen — click the spot history found.',
+        note: 'Ray Allen’s backpedal, the chase-down, 0.4 seconds. Your legs are a disk, their reach is a disk, and the puzzle is the space between. Sometimes the geometry grades history a C — and history makes it anyway.',
+        href: '/games/moments',
+        accent: '#FDB927',
+      },
+      {
         id: 'nanu_pika',
         title: 'Nanu & Pika TD',
         metaphor: 'the siege',
