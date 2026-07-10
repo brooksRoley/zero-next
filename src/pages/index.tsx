@@ -329,6 +329,31 @@ export default function Home() {
               </Reveal>
             </div>
 
+            {/* The Rig Report */}
+            <div data-physics-item className="physics-field-item">
+              <Reveal delay={400}>
+                <TiltCard>
+                  <Link href="/tools/rig-report" className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
+                      <div className="flex items-center gap-3 text-2xl opacity-60">
+                        <span>&#x1F575;&#xFE0F;</span><span>&#x1F3C0;</span><span>&#x1F4C9;</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                    </div>
+                    <div className="relative px-5 pb-5 -mt-8">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        The Rig Report <ArrowIcon />
+                      </h3>
+                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        A satirical NBA &ldquo;rigging&rdquo; inspector that teaches real odds math — the vig, base rates, line movement.
+                      </p>
+                    </div>
+                    <div className="tilt-highlight" />
+                  </Link>
+                </TiltCard>
+              </Reveal>
+            </div>
+
           </PhysicsField>
         </section>
 

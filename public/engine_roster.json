@@ -2,7 +2,10 @@
     {
         "id": 1,
         "name": "Steph Curry",
+        "team": "GSW",
         "cost": 5,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 74,
             "speed": 63,
@@ -12,7 +15,10 @@
     {
         "id": 2,
         "name": "De'Aaron Fox",
+        "team": "SAS",
         "cost": 5,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 66,
             "speed": 72,
@@ -22,7 +28,10 @@
     {
         "id": 3,
         "name": "Rudy Gobert",
+        "team": "MIN",
         "cost": 5,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 47,
             "speed": 35,
@@ -32,7 +41,10 @@
     {
         "id": 4,
         "name": "Alex Caruso",
+        "team": "OKC",
         "cost": 3,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 38,
             "speed": 56,
@@ -42,7 +54,10 @@
     {
         "id": 5,
         "name": "Udonis Haslem",
+        "team": "MIA",
         "cost": 1,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 25,
             "speed": 24,
@@ -52,7 +67,10 @@
     {
         "id": 6,
         "name": "Jalen Brunson",
+        "team": "NYK",
         "cost": 4,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 68,
             "speed": 58,
@@ -62,7 +80,10 @@
     {
         "id": 7,
         "name": "Mikal Bridges",
+        "team": "NYK",
         "cost": 3,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 55,
             "speed": 60,
@@ -72,7 +93,10 @@
     {
         "id": 8,
         "name": "Bam Adebayo",
+        "team": "MIA",
         "cost": 4,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 50,
             "speed": 52,
@@ -82,7 +106,10 @@
     {
         "id": 9,
         "name": "Tyler Herro",
+        "team": "MIA",
         "cost": 3,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 62,
             "speed": 55,
@@ -92,7 +119,10 @@
     {
         "id": 10,
         "name": "Draymond Green",
+        "team": "GSW",
         "cost": 2,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 30,
             "speed": 45,
@@ -102,7 +132,10 @@
     {
         "id": 11,
         "name": "Kyle Kuzma",
+        "team": "WAS",
         "cost": 2,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 52,
             "speed": 50,
@@ -112,7 +145,10 @@
     {
         "id": 12,
         "name": "Derrick White",
+        "team": "BOS",
         "cost": 3,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 54,
             "speed": 55,
@@ -122,7 +158,10 @@
     {
         "id": 13,
         "name": "Bobby Portis",
+        "team": "MIL",
         "cost": 2,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 48,
             "speed": 42,
@@ -132,7 +171,10 @@
     {
         "id": 14,
         "name": "Patty Mills",
+        "team": "MIA",
         "cost": 1,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 45,
             "speed": 48,
@@ -142,7 +184,10 @@
     {
         "id": 15,
         "name": "Kevon Looney",
+        "team": "GSW",
         "cost": 1,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 28,
             "speed": 32,
@@ -152,7 +197,10 @@
     {
         "id": 16,
         "name": "Nikola Jokic",
+        "team": "DEN",
         "cost": 5,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 70,
             "speed": 40,
@@ -162,7 +210,10 @@
     {
         "id": 17,
         "name": "Jrue Holiday",
+        "team": "BOS",
         "cost": 4,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 55,
             "speed": 58,
@@ -172,7 +223,10 @@
     {
         "id": 18,
         "name": "Gary Trent Jr.",
+        "team": "MIL",
         "cost": 2,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 58,
             "speed": 52,
@@ -182,7 +236,10 @@
     {
         "id": 19,
         "name": "Nic Claxton",
+        "team": "BKN",
         "cost": 2,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 35,
             "speed": 48,
@@ -192,11 +249,53 @@
     {
         "id": 20,
         "name": "Jose Alvarado",
+        "team": "NOP",
         "cost": 1,
+        "is_active": true,
+        "injury_status": "",
         "stats": {
             "shooting": 40,
             "speed": 62,
             "defense": 55
+        }
+    },
+    {
+        "id": 21,
+        "name": "Victor Wembanyama",
+        "team": "SAS",
+        "cost": 5,
+        "is_active": true,
+        "injury_status": "",
+        "stats": {
+            "shooting": 65,
+            "speed": 58,
+            "defense": 88
+        }
+    },
+    {
+        "id": 22,
+        "name": "Luka Doncic",
+        "team": "LAL",
+        "cost": 5,
+        "is_active": false,
+        "injury_status": "Out — Hamstring (~4 weeks)",
+        "stats": {
+            "shooting": 78,
+            "speed": 55,
+            "defense": 40
+        }
+    },
+    {
+        "id": 23,
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "cost": 5,
+        "is_active": false,
+        "injury_status": "Out — Knee (series)",
+        "stats": {
+            "shooting": 72,
+            "speed": 42,
+            "defense": 65
         }
     }
 ]

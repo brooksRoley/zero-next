@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
+import { applyBballCors } from "src/lib/bballCors";
 
 const BOT_BOARD = {
   is_bot: true,
@@ -10,6 +11,7 @@ const BOT_BOARD = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyBballCors(req, res)) return;
   if (req.method !== "POST") return res.status(405).end();
 
   const { run_id, round_number, board_data } = req.body as {
