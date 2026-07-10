@@ -2,32 +2,59 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { applyBballCors } from "src/lib/bballCors";
 
+const MAX_ROUNDS = 10; // mirrors economy.js MAX_ROUNDS
+const LOSS_DAMAGE = 20;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (applyBballCors(req, res)) return;
   if (req.method !== "POST") return res.status(405).end();
 
-  const { run_id, result } = req.body as { run_id?: string; result?: string };
-  if (!run_id || !result) return res.status(400).json({ error: "run_id and result required" });
+  const { run_id, round_number, result } = (req.body ?? {}) as {
+    run_id?: unknown;
+    round_number?: unknown;
+    result?: unknown;
+  };
+  if (typeof run_id !== "string" || !Number.isInteger(round_number)) {
+    return res.status(400).json({ error: "run_id and round_number required" });
+  }
+  if (result !== "win" && result !== "loss") {
+    return res.status(400).json({ error: 'result must be "win" or "loss"' });
+  }
 
-  const runs = await sql`
-    SELECT health, current_round FROM bball_runs
-    WHERE id = ${run_id} AND status = 'active'
+  // A round can only resolve if its board was actually submitted — resolve
+  // without a matchup is a forged result.
+  const boards = await sql`
+    SELECT id FROM bball_board_states
+    WHERE run_id = ${run_id} AND round_number = ${round_number}
   `;
-  if (!runs.length) return res.status(400).json({ error: "Run not found or already ended" });
+  if (!boards.length) {
+    return res.status(409).json({ error: "No board submitted for this round" });
+  }
 
-  const { health, current_round } = runs[0] as { health: number; current_round: number };
-  let new_health = health;
-  const new_round = current_round + 1;
-
-  if (result === "loss") new_health -= 20;
-
-  const status = new_health <= 0 ? "lost" : new_round > 10 ? "won" : "active";
-
-  await sql`
+  // Atomic, round-bound update: the WHERE clause makes a stale or repeated
+  // resolve (replay, double-report, race) a no-op instead of extra damage
+  // or free round advancement.
+  const damage = result === "loss" ? LOSS_DAMAGE : 0;
+  const rows = await sql`
     UPDATE bball_runs
-    SET health = ${new_health}, current_round = ${new_round}, status = ${status}
-    WHERE id = ${run_id}
+    SET health = health - ${damage},
+        current_round = current_round + 1,
+        status = CASE
+          WHEN health - ${damage} <= 0 THEN 'lost'
+          WHEN current_round + 1 > ${MAX_ROUNDS} THEN 'won'
+          ELSE 'active'
+        END
+    WHERE id = ${run_id} AND status = 'active' AND current_round = ${round_number}
+    RETURNING health, current_round, status
   `;
+  if (!rows.length) {
+    return res.status(409).json({ error: "Run not found, already ended, or round already resolved" });
+  }
 
-  res.status(200).json({ health: new_health, current_round: new_round, status });
+  const { health, current_round, status } = rows[0] as {
+    health: number;
+    current_round: number;
+    status: string;
+  };
+  res.status(200).json({ health, current_round, status });
 }

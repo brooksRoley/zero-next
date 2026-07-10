@@ -29,5 +29,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     )
   `;
 
+  // One board per run per round: dedupe any legacy duplicates (keep newest),
+  // then enforce it so submit-and-fetch can upsert on conflict.
+  await sql`
+    DELETE FROM bball_board_states a
+    USING bball_board_states b
+    WHERE a.run_id = b.run_id
+      AND a.round_number = b.round_number
+      AND a.id < b.id
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS bball_board_states_run_round_idx
+    ON bball_board_states (run_id, round_number)
+  `;
+
   res.status(200).json({ ok: true, message: "bball tables ready" });
 }
