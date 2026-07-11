@@ -9,7 +9,7 @@ yarn dev        # Start development server on localhost:3000
 yarn build      # Build for production
 yarn start      # Start production server
 yarn lint       # Run ESLint directly (not next lint — Next.js 16 broke it)
-yarn test       # Run the vitest suite once (~338 tests as of 2026-07)
+yarn test       # Run the vitest suite once (445 tests as of 2026-07-11)
 yarn test:watch # Vitest in watch mode
 ```
 
@@ -17,7 +17,7 @@ Tests are vitest, colocated in `__tests__` directories under `src/`. The suite m
 
 ## Architecture
 
-Personal portfolio + livelihood platform built with Next.js 13 (Pages Router), TypeScript, Tailwind CSS, and `canvas-confetti`.
+Personal portfolio + livelihood platform built with Next.js 16 (Pages Router), TypeScript, Tailwind CSS, and `canvas-confetti`.
 
 ### Pages
 
