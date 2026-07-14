@@ -62,3 +62,10 @@ for (const [alias, fullName] of Object.entries(ESPN_NAME_ALIASES)) {
 export function findTeamByEspnName(name: string): NbaTeamStatic | undefined {
   return TEAMS_BY_FULL_NAME.get(name);
 }
+
+const TEAMS_BY_NICKNAME = new Map(NBA_TEAMS.map((t) => [t.nickname, t]));
+
+/** Canonical team record from a nickname (ESPN byathlete's `teamName`). */
+export function findTeamByNickname(name: string): NbaTeamStatic | undefined {
+  return TEAMS_BY_NICKNAME.get(name);
+}
