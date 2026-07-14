@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 
-// The /admin/analytics page is gated by src/middleware.ts via the
+// The /admin/analytics page is gated by src/proxy.ts via the
 // tracker_session cookie; this API checks the same cookie so the page can
 // fetch without re-entering a token.
 function isAuthorized(req: NextApiRequest): boolean {
