@@ -26,7 +26,7 @@ import {
   logBronzeIngestion,
   type PlayerSeasonStatsRow,
 } from "src/lib/nba/db/writers";
-import { NBA_TEAMS } from "src/lib/nba/teams-static";
+import { findTeamByEspnName } from "src/lib/nba/teams-static";
 import { currentNbaSeason } from "src/lib/nba/season";
 import { isAuthorizedAdminRequest } from "src/lib/adminAuth";
 
@@ -37,15 +37,6 @@ function espnYearFromSeason(season: string): number {
   return Number(season.slice(0, 4)) + 1;
 }
 
-const TEAM_BY_NAME = new Map(NBA_TEAMS.map((t) => [t.full_name, t]));
-// ESPN display names that differ from the canonical full_name in NBA_TEAMS.
-const ESPN_NAME_ALIASES: Record<string, string> = {
-  "LA Clippers": "Los Angeles Clippers",
-};
-for (const [alias, fullName] of Object.entries(ESPN_NAME_ALIASES)) {
-  const team = TEAM_BY_NAME.get(fullName);
-  if (team) TEAM_BY_NAME.set(alias, team);
-}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Auth: Vercel Cron sends CRON_SECRET, manual calls use x-admin-key
@@ -66,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sql, "espn.com", "team-rosters", {}, rosterPlayers.slice(0, 2), rosterPlayers.length
     );
     const rows = rosterPlayers.map((p) => {
-      const team = TEAM_BY_NAME.get(p.teamName);
+      const team = findTeamByEspnName(p.teamName);
       teamIdByPlayer.set(p.id, team?.id ?? null);
       return {
         PLAYER_ID: p.id,
@@ -133,7 +124,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let count = 0;
     const teamRows = [];
     for (const s of standings) {
-      const team = TEAM_BY_NAME.get(s.teamName);
+      const team = findTeamByEspnName(s.teamName);
       if (!team) continue; // expansion/all-star oddities: skip, don't fail
       teamRows.push({
         TeamID: team.id,

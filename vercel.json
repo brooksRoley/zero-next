@@ -15,6 +15,10 @@
     {
       "path": "/api/bball/admin/refresh-roster",
       "schedule": "30 10 * * *"
+    },
+    {
+      "path": "/api/nba/admin/ingest-salaries",
+      "schedule": "0 11 * * *"
     }
   ],
   "headers": [
