@@ -43,5 +43,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ON bball_board_states (run_id, round_number)
   `;
 
+  // Canonical game roster, regenerated from real NBA data by
+  // /api/bball/admin/refresh-roster. Ids are ESPN athlete ids.
+  await sql`
+    CREATE TABLE IF NOT EXISTS bball_roster (
+      id INT PRIMARY KEY,
+      name TEXT NOT NULL,
+      team TEXT NOT NULL DEFAULT '',
+      cost INT NOT NULL,
+      shooting INT NOT NULL,
+      speed INT NOT NULL,
+      defense INT NOT NULL,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      injury_status TEXT NOT NULL DEFAULT '',
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
   res.status(200).json({ ok: true, message: "bball tables ready" });
 }

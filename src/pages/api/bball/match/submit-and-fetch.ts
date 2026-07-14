@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(409).json({ error: `round_number ${round_number} does not match the run's current round ${run.current_round}` });
   }
 
-  const check = sanitizeBoard(board_data, round_number as number, loadRoster());
+  const check = sanitizeBoard(board_data, round_number as number, await loadRoster());
   if (!check.ok) return res.status(400).json({ error: check.error });
 
   // Upsert: re-locking the same round replaces the board instead of stacking
