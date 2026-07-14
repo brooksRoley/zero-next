@@ -25,29 +25,13 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | baseline | _(pre-dates tracked migrations)_ | `players`, `games` tables | ✅ live |
 | 0001 | `0001_matchmaking_queue.sql` | `matchmaking_queue` table + `claim_match()` RPC + realtime | ✅ live |
 | 0002 | `0002_go_players.sql` | `go_players` table + indexes | ✅ live |
-| 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ❌ **pending** |
-| 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ❌ **pending** |
-| 0005 | `0005_players_game_elo.sql` | `players.game_elo` + `game_peak_elo` (puzzle/game rating split) | ❌ **pending** |
+| 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ✅ 2026-07-14 |
+| 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ✅ 2026-07-14 |
+| 0005 | `0005_players_game_elo.sql` | `players.game_elo` + `game_peak_elo` (puzzle/game rating split) | ✅ 2026-07-14 |
 
-### 0004 is pending
-
-The Pente game flow writes one row per completed game to `game_results` (ELO
-before/after, opponent, mode, full move list). `POST /api/pente/game-result`
-degrades gracefully — it returns `{ supported: false }` and the client skips the
-write — so nothing is broken, but **no game history is recorded until 0004 is
-applied.** Run the file above to start capturing games (unlocks history/replay).
-
-### 0005 is pending
-
-The puzzle/game ELO split (2026-07-09) stores the game rating in `players.game_elo`.
-`POST /api/pente/player` degrades gracefully — it detects the missing columns and
-retries the upsert without them — so nothing is broken, but **game ratings are
-device-local until 0005 is applied.** Ranked matchmaking needs this column. ~2 minutes.
-
-### 0003 is pending
-
-The Pente Daily Challenge (shipped 2026-06-17) writes streaks to `players.daily_challenge`,
-which does not exist in production yet. `GET/POST /api/pente/daily` degrades gracefully —
-it returns `{ supported: false }` and the client falls back to localStorage — so nothing
-is broken, but **streaks are device-local until 0003 is applied.** Run the file above to
-turn on cross-device streak sync. ~2 minutes, no code deploy needed.
+All three were applied 2026-07-14 via the Supabase MCP `apply_migration` tool (so
+they also appear in the project's tracked migration history, not just the SQL
+editor). Verified same day: the three new `players` columns exist, `game_results`
++ its index exist, all 16 existing players had `game_elo`/`game_peak_elo` seeded
+from their blended rating, and the live `GET /api/pente/daily` flipped from
+`{ supported: false }` to `{ "daily": {}, "supported": true }` with no code deploy.
