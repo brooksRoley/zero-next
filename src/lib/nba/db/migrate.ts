@@ -140,6 +140,23 @@ export async function runMigrations(sql: Sql): Promise<string[]> {
   `;
 
   await sql`
+    CREATE TABLE IF NOT EXISTS nba_player_salaries (
+      player_id INT NOT NULL,
+      season_year INT NOT NULL,
+      team_id BIGINT,
+      salary BIGINT NOT NULL,
+      incoming_trade_value BIGINT,
+      outgoing_trade_value BIGINT,
+      years_remaining INT,
+      option_type INT,
+      bird_status INT,
+      minimum_salary_exception BOOLEAN DEFAULT FALSE,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (player_id, season_year)
+    )
+  `;
+
+  await sql`
     CREATE TABLE IF NOT EXISTS nba_team_season_stats (
       team_id INT NOT NULL,
       season TEXT NOT NULL,

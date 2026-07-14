@@ -111,6 +111,47 @@ export async function upsertPlayerSeasonStats(
   return count;
 }
 
+export async function upsertPlayerSalaries(
+  sql: Sql,
+  contracts: Array<{
+    playerId: number;
+    seasonYear: number;
+    teamId: number | null;
+    salary: number;
+    incomingTradeValue: number;
+    outgoingTradeValue: number;
+    yearsRemaining: number;
+    optionType: number;
+    birdStatus: number;
+    minimumSalaryException: boolean;
+  }>
+): Promise<number> {
+  let count = 0;
+  for (const c of contracts) {
+    await sql`
+      INSERT INTO nba_player_salaries
+        (player_id, season_year, team_id, salary, incoming_trade_value, outgoing_trade_value,
+         years_remaining, option_type, bird_status, minimum_salary_exception, updated_at)
+      VALUES
+        (${c.playerId}, ${c.seasonYear}, ${c.teamId}, ${c.salary}, ${c.incomingTradeValue},
+         ${c.outgoingTradeValue}, ${c.yearsRemaining}, ${c.optionType}, ${c.birdStatus},
+         ${c.minimumSalaryException}, NOW())
+      ON CONFLICT (player_id, season_year) DO UPDATE SET
+        team_id = EXCLUDED.team_id,
+        salary = EXCLUDED.salary,
+        incoming_trade_value = EXCLUDED.incoming_trade_value,
+        outgoing_trade_value = EXCLUDED.outgoing_trade_value,
+        years_remaining = EXCLUDED.years_remaining,
+        option_type = EXCLUDED.option_type,
+        bird_status = EXCLUDED.bird_status,
+        minimum_salary_exception = EXCLUDED.minimum_salary_exception,
+        updated_at = NOW()
+    `;
+    count++;
+  }
+  return count;
+}
+
 export async function upsertGames(sql: Sql, games: Row[]): Promise<number> {
   let count = 0;
   for (const g of games) {
