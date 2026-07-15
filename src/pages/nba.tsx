@@ -2,9 +2,13 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { NBA_TEAMS } from "src/lib/nba/teams-static";
 import { currentNbaSeason } from "src/lib/nba/season";
 import PredictionCard, { type Prediction } from "src/components/PredictionCard";
+
+// Client-only viz panel — keeps the explorer's initial bundle lean
+const LeagueLens = dynamic(() => import("src/components/nba/LeagueLens"), { ssr: false });
 
 // ── API Map (fallback, also fetched from /api/nba/map) ──────────────────────
 type NodeDef = {
@@ -25,7 +29,8 @@ const FALLBACK_MAP: Record<string, NodeDef> = {
   player_detail: { label: "Player Profile", description: "Stats, height, position, and averages for any player.", children: ["game_log"], endpoint: "/api/nba/players/{id}", params: [{ name: "id", type: "int", required: true }] },
   game_log: { label: "Game History", description: "How has a player been performing game by game?", children: [], endpoint: "/api/nba/players/{id}/gamelog", params: [{ name: "id", type: "int", required: true }, { name: "n", type: "int", optional: true }] },
   game_detail: { label: "Box Score", description: "Full box score for a specific game.", children: ["player_detail"], endpoint: "/api/nba/games/{id}", params: [{ name: "id", type: "int", required: true }] },
-  analytics: { label: "Analytics Hub", description: "Dig into what's happening across the season.", children: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
+  analytics: { label: "Analytics Hub", description: "Dig into what's happening across the season.", children: ["league_lens", "last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
+  league_lens: { label: "League Lens", description: "Outliers, statistical comps, year-over-year breakout deltas, and payroll vs wins — three seasons of stored stats.", children: [] },
   last_night: { label: "Last Night's Games", description: "Scores and top performers from last night.", children: [], endpoint: "/api/nba/analytics/last-night", params: [] },
   season_analytics: { label: "Season Leaders", description: "Who's dominating TS%, net rating, and usage this season?", children: [], endpoint: "/api/nba/analytics/season", params: [] },
   team_dashboard: { label: "Team Dashboard", description: "Record, roster advanced stats, and recent games for any team.", children: [], endpoint: "/api/nba/analytics/team/{id}", params: [{ name: "id", type: "int", required: true }] },
@@ -50,6 +55,7 @@ const NODE_POSITIONS: Record<string, { x: number; y: number }> = (() => {
     season_analytics: { x: cx - 100, y: cy + 390 },
     team_dashboard: { x: cx + 100, y: cy + 390 },
     lakers_dashboard: { x: cx + 280, y: cy + 330 },
+    league_lens: { x: cx, y: cy + 470 },
   };
 })();
 
@@ -58,7 +64,7 @@ const NODE_COLORS: Record<string, string> = {
   games: "#ef4444", team_detail: "#3b82f6", player_detail: "#22c55e",
   game_log: "#06b6d4", game_detail: "#ef4444", analytics: "#f59e0b",
   last_night: "#fb923c", season_analytics: "#fbbf24", team_dashboard: "#34d399",
-  lakers_dashboard: "#a78bfa",
+  lakers_dashboard: "#a78bfa", league_lens: "#38bdf8",
 };
 
 const COL_LABELS: Record<string, string> = {
@@ -103,7 +109,7 @@ const MOBILE_LEAF_NODES = new Set(["team_detail", "player_detail", "game_log", "
 
 const MOBILE_GROUPS = [
   { label: "Browse", nodes: ["teams", "players", "standings", "games", "team_detail", "player_detail", "game_log", "game_detail"] },
-  { label: "Analytics", nodes: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
+  { label: "Analytics", nodes: ["league_lens", "last_night", "season_analytics", "team_dashboard", "lakers_dashboard"] },
 ];
 
 // Preferred chart metric per node — falls back to first numeric key if not present in data
@@ -588,9 +594,12 @@ export default function NbaExplorer() {
     drawGraph();
     const handleResize = () => { checkMobile(); drawGraph(); };
     window.addEventListener("resize", handleResize);
-    const initialNode = typeof router.query.node === "string" && apiMap[router.query.node]
-      ? router.query.node
-      : "last_night";
+    // Read the node from window.location, not router.query — on first render
+    // the router hasn't hydrated the query yet, so deep links briefly resolved
+    // to the fallback node, fetched it, and left its stale response rendered
+    // under the real node once the URL→node sync caught up.
+    const qNode = new URLSearchParams(window.location.search).get("node");
+    const initialNode = qNode && apiMap[qNode] ? qNode : "last_night";
     navigateTo(initialNode, { updateUrl: false });
     const ticker = setInterval(() => setTick((n) => n + 1), 30000);
     return () => { window.removeEventListener("resize", handleResize); clearInterval(ticker); };
@@ -827,7 +836,7 @@ export default function NbaExplorer() {
             <Link href="/" style={{ textDecoration: "none" }}>
               <div className="logo">NBA<span>EXPLORER</span></div>
               <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2, fontFamily: "'DM Mono', monospace", letterSpacing: "0.02em" }}>
-                Live stats, standings &amp; analytics — sourced from stats.nba.com
+                Live stats, standings &amp; analytics — ESPN-fed data pipeline, refreshed daily
               </div>
             </Link>
             <div className="nba-pill">{currentNbaSeason()} Season</div>
@@ -1035,6 +1044,9 @@ export default function NbaExplorer() {
 
                   <p style={{ fontSize: 13, color: "var(--text2)", marginBottom: 14 }}>{activeNodeDef?.description}</p>
 
+                  {/* League Lens — self-contained viz panel, no generic fetcher */}
+                  {activeNode === "league_lens" && <LeagueLens />}
+
                   {/* Params + Fetch */}
                   {activeNodeDef?.endpoint && (
                     <div className="nba-params">
@@ -1083,7 +1095,7 @@ export default function NbaExplorer() {
                     </div>
                   )}
 
-                  {loading && <div className="nba-loading"><div className="nba-spinner" /> Fetching from stats.nba.com...</div>}
+                  {loading && <div className="nba-loading"><div className="nba-spinner" /> Fetching...</div>}
 
                   {fetchError && (
                     <div style={{ padding: "14px 16px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, marginBottom: 14 }}>
@@ -1250,7 +1262,7 @@ export default function NbaExplorer() {
 
                   {rawResponse && (
                     <div style={{ marginTop: 20, paddingTop: 12, borderTop: "1px solid var(--border)", fontSize: 11, color: "var(--text2)", fontFamily: "'DM Mono', monospace" }}>
-                      via stats.nba.com
+                      via the site&apos;s ESPN-fed data pipeline
                     </div>
                   )}
                 </>
