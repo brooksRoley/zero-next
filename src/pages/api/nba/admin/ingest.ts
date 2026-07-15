@@ -173,6 +173,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         INSERT INTO nba_standings (team_id, season, conference, division, wins, losses, win_pct, playoff_rank, updated_at)
         VALUES (${team.id}, ${season}, ${s.conference}, ${null}, ${s.wins}, ${s.losses}, ${s.winPercent}, ${s.playoffSeed}, NOW())
         ON CONFLICT (team_id, season) DO UPDATE SET
+          conference = EXCLUDED.conference,
           wins = EXCLUDED.wins, losses = EXCLUDED.losses, win_pct = EXCLUDED.win_pct,
           playoff_rank = EXCLUDED.playoff_rank, updated_at = NOW()
       `;

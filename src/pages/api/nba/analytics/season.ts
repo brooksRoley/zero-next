@@ -1,74 +1,89 @@
+/**
+ * GET /api/nba/analytics/season — season-wide leaders and team overview from
+ * the DB gold tables (ESPN-fed daily) plus payrolls (ESPN contracts).
+ *
+ * Rebuilt off the dead stats.nba.com client. The old response advertised
+ * TS%/USG%/NetRtg — no trusted free stream publishes those, so this endpoint
+ * now serves only stats the sources actually report. Published advanced
+ * metrics would come from balldontlie's paid tier (see ledger).
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fetchStats } from "src/lib/nba/client";
+import { sql } from "src/lib/db";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
+import { currentNbaSeason } from "src/lib/nba/season";
+import { TEAMS_BY_ID } from "src/lib/nba/teams-static";
+import { CAP_SEASON_YEAR } from "src/lib/nba/capConstants";
+import { normalizeConference } from "../teams/index";
 
-function safe(val: unknown, scale = 1, decimals = 1): number | null {
-  try {
-    const n = Number(val);
-    if (isNaN(n)) return null;
-    return Math.round(n * scale * 10 ** decimals) / 10 ** decimals;
-  } catch {
-    return null;
-  }
-}
+const round1 = (v: unknown) => Math.round((Number(v) || 0) * 10) / 10;
 
 async function fetchSeasonAnalytics() {
   const season = currentNbaSeason();
 
-  // Advanced player stats (min 20 GP)
-  const playerRows = await fetchStats("leaguedashplayerstats", {
-    Season: season,
-    SeasonType: currentSeasonType(),
-    PerMode: "PerGame",
-    MeasureType: "Advanced",
-    LeagueID: "00",
+  const players = (await sql`
+    SELECT p.player_id, p.player_name, p.age,
+           COALESCE(p.team_id, s.team_id) AS team_id,
+           s.games_played, s.ppg, s.rpg, s.apg, s.fga, s.fg3a, s.mpg
+    FROM nba_player_season_stats s
+    JOIN nba_players p ON p.player_id = s.player_id
+    WHERE s.season = ${season} AND s.games_played >= 20
+  `) as Array<Record<string, unknown>>;
+
+  const shaped = players.map((r) => ({
+    id: Number(r.player_id),
+    name: String(r.player_name),
+    team: TEAMS_BY_ID.get(Number(r.team_id))?.abbreviation ?? "",
+    age: r.age == null ? null : Number(r.age),
+    gp: Number(r.games_played) || 0,
+    ppg: round1(r.ppg),
+    rpg: round1(r.rpg),
+    apg: round1(r.apg),
+    fga: round1(r.fga),
+    fg3a: round1(r.fg3a),
+    mpg: round1(r.mpg),
+  }));
+
+  const byStat = (key: "ppg" | "rpg" | "apg" | "fga") =>
+    [...shaped].sort((a, b) => b[key] - a[key]).slice(0, 20);
+
+  const teamRows = (await sql`
+    SELECT st.team_id, st.conference, st.wins, st.losses, st.win_pct,
+           pay.payroll
+    FROM nba_standings st
+    LEFT JOIN (
+      SELECT COALESCE(p.team_id, s.team_id) AS team_id, SUM(s.salary)::bigint AS payroll
+      FROM nba_player_salaries s
+      LEFT JOIN nba_players p ON p.player_id = s.player_id
+      WHERE s.season_year = ${CAP_SEASON_YEAR}
+      GROUP BY COALESCE(p.team_id, s.team_id)
+    ) pay ON pay.team_id = st.team_id
+    WHERE st.season = ${season}
+    ORDER BY st.win_pct DESC
+  `) as Array<Record<string, unknown>>;
+
+  const teams = teamRows.map((r) => {
+    const tid = Number(r.team_id);
+    const staticTeam = TEAMS_BY_ID.get(tid);
+    return {
+      id: tid,
+      name: staticTeam?.full_name ?? "",
+      abbrev: staticTeam?.abbreviation ?? "",
+      conference: normalizeConference(r.conference ?? staticTeam?.conference),
+      wins: Number(r.wins) || 0,
+      losses: Number(r.losses) || 0,
+      win_pct: Math.round((Number(r.win_pct) || 0) * 1000) / 1000,
+      payroll: r.payroll == null ? null : Number(r.payroll),
+    };
   });
-
-  const players = playerRows
-    .filter((r) => Number(r.GP) >= 20)
-    .map((r) => ({
-      id: Number(r.PLAYER_ID),
-      name: r.PLAYER_NAME as string,
-      team: r.TEAM_ABBREVIATION as string,
-      gp: Number(r.GP),
-      ts_pct: safe(r.TS_PCT, 100),
-      efg_pct: safe(r.EFG_PCT, 100),
-      usg_pct: safe(r.USG_PCT, 100),
-      net_rating: safe(r.NET_RATING),
-      pie: safe(r.PIE, 100),
-      ast_pct: safe(r.AST_PCT, 100),
-      reb_pct: safe(r.REB_PCT, 100),
-    }));
-
-  // Advanced team stats
-  const teamRows = await fetchStats("leaguedashteamstats", {
-    Season: season,
-    SeasonType: currentSeasonType(),
-    PerMode: "PerGame",
-    MeasureType: "Advanced",
-    LeagueID: "00",
-  });
-
-  const teams = teamRows
-    .map((r) => ({
-      id: Number(r.TEAM_ID),
-      name: r.TEAM_NAME as string,
-      net_rating: safe(r.NET_RATING),
-      off_rating: safe(r.OFF_RATING),
-      def_rating: safe(r.DEF_RATING),
-      pace: safe(r.PACE),
-      ts_pct: safe(r.TS_PCT, 100),
-      efg_pct: safe(r.EFG_PCT, 100),
-      pie: safe(r.PIE, 100),
-    }))
-    .sort((a, b) => (b.net_rating ?? 0) - (a.net_rating ?? 0));
 
   return {
     season,
-    top_players_ts: [...players].sort((a, b) => (b.ts_pct ?? 0) - (a.ts_pct ?? 0)).slice(0, 20),
-    top_players_net: [...players].sort((a, b) => (b.net_rating ?? 0) - (a.net_rating ?? 0)).slice(0, 20),
-    top_players_usg: [...players].sort((a, b) => (b.usg_pct ?? 0) - (a.usg_pct ?? 0)).slice(0, 20),
+    leaders: {
+      scoring: byStat("ppg"),
+      rebounding: byStat("rpg"),
+      assists: byStat("apg"),
+      shot_volume: byStat("fga"),
+    },
     teams,
   };
 }
