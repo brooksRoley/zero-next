@@ -25,6 +25,7 @@ import {
   SECOND_APRON,
 } from "src/lib/nba/capConstants";
 import { evaluateTrade, type TeamTradeSide, type SideVerdict } from "src/lib/nba/tradeRules";
+import { NBA_DISPLAY_FONT, NBA_RED_LIGHT } from "src/lib/nba/brand";
 import type { SalaryTeam, SalaryPlayer } from "src/pages/api/nba/salaries";
 
 type SalariesResponse = {
@@ -687,8 +688,11 @@ export default function TradeMachinePage() {
           <Link href="/" className="text-xs text-slate-500 hover:text-slate-300">
             ← brooksroley.com
           </Link>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-white">
-            The Salary Cap, Visualized
+          <h1
+            className="mt-2 text-3xl sm:text-4xl text-white uppercase tracking-wide"
+            style={{ fontFamily: NBA_DISPLAY_FONT }}
+          >
+            The Salary Cap, <span style={{ color: NBA_RED_LIGHT }}>Visualized</span>
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-400">
             {CAP_SEASON_LABEL} payrolls from live contract data, the apron system in plain English, a trade
