@@ -60,7 +60,7 @@ const NODE_POSITIONS: Record<string, { x: number; y: number }> = (() => {
 })();
 
 const NODE_COLORS: Record<string, string> = {
-  root: "#f97316", teams: "#3b82f6", players: "#22c55e", standings: "#a855f7",
+  root: "#e5484d", teams: "#3b82f6", players: "#22c55e", standings: "#a855f7",
   games: "#ef4444", team_detail: "#3b82f6", player_detail: "#22c55e",
   game_log: "#06b6d4", game_detail: "#ef4444", analytics: "#f59e0b",
   last_night: "#fb923c", season_analytics: "#fbbf24", team_dashboard: "#34d399",
@@ -184,6 +184,20 @@ export default function NbaExplorer() {
   const hoveredNode = useRef<string | null>(null);
   const focusedNode = useRef<string | null>(null);
 
+  // Node physics: each node is a mass on a spring anchored at its layout
+  // position — hover/activate give it a dribble impulse, an ambient sway
+  // keeps the court alive. Positions live in a ref; the rAF loop redraws.
+  const phys = useRef<Record<string, { x: number; y: number; vx: number; vy: number; phase: number }>>(
+    Object.fromEntries(
+      Object.entries(NODE_POSITIONS).map(([k, p], i) => [k, { x: p.x, y: p.y, vx: 0, vy: 0, phase: i * 1.7 }])
+    )
+  );
+  const physPos = useCallback((key: string) => phys.current[key] ?? NODE_POSITIONS[key], []);
+  const bounce = useCallback((key: string, strength: number) => {
+    const n = phys.current[key];
+    if (n) n.vy -= strength;
+  }, []);
+
   // Stable node order for keyboard nav: top-to-bottom, left-to-right
   const NODE_ORDER = Object.entries(NODE_POSITIONS)
     .sort(([, a], [, b]) => a.y !== b.y ? a.y - b.y : a.x - b.x)
@@ -208,13 +222,78 @@ export default function NbaExplorer() {
     ctx.scale(c.zoom, c.zoom);
     ctx.translate(-480, -320);
 
+    // ── Court (world space, beneath everything) ──────────────────────────────
+    // Stylized full court: hardwood wash, boundary, half-court line, center
+    // circle, keys + free-throw circles, hoops and three-point arcs. All
+    // low-alpha so nodes and labels stay the loudest thing on the floor.
+    {
+      const court = { x: 70, y: 90, w: 820, h: 720 };
+      const midY = court.y + court.h / 2;
+      const courtCx = court.x + court.w / 2;
+      // hardwood
+      const wood = ctx.createLinearGradient(court.x, court.y, court.x + court.w, court.y + court.h);
+      wood.addColorStop(0, "rgba(193,138,78,0.10)");
+      wood.addColorStop(1, "rgba(146,97,52,0.05)");
+      ctx.fillStyle = wood;
+      ctx.beginPath();
+      ctx.roundRect(court.x, court.y, court.w, court.h, 18);
+      ctx.fill();
+      // plank seams
+      ctx.strokeStyle = "rgba(255,255,255,0.025)";
+      ctx.lineWidth = 1;
+      for (let px = court.x + 46; px < court.x + court.w; px += 46) {
+        ctx.beginPath(); ctx.moveTo(px, court.y + 4); ctx.lineTo(px, court.y + court.h - 4); ctx.stroke();
+      }
+      // boundary + half-court line
+      ctx.strokeStyle = "rgba(255,255,255,0.14)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(court.x, court.y, court.w, court.h, 18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(court.x, midY); ctx.lineTo(court.x + court.w, midY); ctx.stroke();
+      // center circle — NBA red inner, blue outer
+      ctx.beginPath(); ctx.arc(courtCx, midY, 64, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(29,66,138,0.55)"; ctx.stroke();
+      ctx.beginPath(); ctx.arc(courtCx, midY, 26, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(200,16,46,0.16)"; ctx.fill();
+      ctx.strokeStyle = "rgba(200,16,46,0.45)"; ctx.stroke();
+      // keys, free-throw circles, hoops, 3pt arcs — top and bottom halves
+      for (const end of [0, 1]) {
+        const baseY = end === 0 ? court.y : court.y + court.h;
+        const dir = end === 0 ? 1 : -1;
+        const ftY = baseY + dir * 190;
+        const hoopY = baseY + dir * 52;
+        // key (paint)
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.fillStyle = "rgba(29,66,138,0.10)";
+        ctx.beginPath();
+        ctx.rect(courtCx - 80, Math.min(baseY, ftY), 160, Math.abs(ftY - baseY));
+        ctx.fill(); ctx.stroke();
+        // free-throw circle
+        ctx.beginPath(); ctx.arc(courtCx, ftY, 60, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.10)"; ctx.stroke();
+        // backboard + hoop
+        ctx.strokeStyle = "rgba(255,255,255,0.20)";
+        ctx.beginPath(); ctx.moveTo(courtCx - 30, baseY + dir * 40); ctx.lineTo(courtCx + 30, baseY + dir * 40); ctx.stroke();
+        ctx.beginPath(); ctx.arc(courtCx, hoopY, 9, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(200,16,46,0.6)"; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.lineWidth = 2;
+        // three-point arc (clipped to the court)
+        ctx.save();
+        ctx.beginPath(); ctx.rect(court.x, court.y, court.w, court.h); ctx.clip();
+        ctx.beginPath();
+        ctx.arc(courtCx, hoopY, 258, end === 0 ? 0.09 * Math.PI : 1.09 * Math.PI, end === 0 ? 0.91 * Math.PI : 1.91 * Math.PI);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
     // Edges
     for (const [key, node] of Object.entries(apiMap)) {
       if (!node.children) continue;
-      const from = NODE_POSITIONS[key];
+      const from = physPos(key);
       if (!from) continue;
       for (const child of node.children) {
-        const to = NODE_POSITIONS[child];
+        const to = physPos(child);
         if (!to) continue;
         const isHighlighted = activeKey === key || activeKey === child;
         const mx = (from.x + to.x) / 2;
@@ -222,7 +301,7 @@ export default function NbaExplorer() {
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
         ctx.quadraticCurveTo(mx, my, to.x, to.y);
-        ctx.strokeStyle = isHighlighted ? "rgba(249,115,22,0.4)" : "rgba(255,255,255,0.06)";
+        ctx.strokeStyle = isHighlighted ? "rgba(229,72,77,0.45)" : "rgba(255,255,255,0.06)";
         ctx.lineWidth = isHighlighted ? 2 : 1;
         ctx.stroke();
         // Arrow
@@ -234,14 +313,15 @@ export default function NbaExplorer() {
         ctx.lineTo(ax - 8 * Math.cos(angle - 0.4), ay - 8 * Math.sin(angle - 0.4));
         ctx.lineTo(ax - 8 * Math.cos(angle + 0.4), ay - 8 * Math.sin(angle + 0.4));
         ctx.closePath();
-        ctx.fillStyle = isHighlighted ? "rgba(249,115,22,0.5)" : "rgba(255,255,255,0.08)";
+        ctx.fillStyle = isHighlighted ? "rgba(229,72,77,0.55)" : "rgba(255,255,255,0.08)";
         ctx.fill();
       }
     }
 
     // Nodes
     const R = 36;
-    for (const [key, pos] of Object.entries(NODE_POSITIONS)) {
+    for (const key of Object.keys(NODE_POSITIONS)) {
+      const pos = physPos(key);
       const isActive = activeKey === key;
       const isHovered = hoveredNode.current === key;
       const color = NODE_COLORS[key] || "#888";
@@ -284,7 +364,37 @@ export default function NbaExplorer() {
     }
 
     ctx.restore();
-  }, [apiMap, activeNode]);
+  }, [apiMap, activeNode, physPos]);
+
+  // ── Node physics loop ──────────────────────────────────────────────────────
+  // Underdamped springs give the hover/click impulses a dribble bounce; the
+  // ambient sway keeps the court feeling alive at rest. rAF pauses with the
+  // tab, and the whole scene is a dozen shapes — cheap to redraw.
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const loop = (now: number) => {
+      const dt = Math.min((now - last) / 16.7, 3);
+      last = now;
+      for (const [key, home] of Object.entries(NODE_POSITIONS)) {
+        const n = phys.current[key];
+        if (!n) continue;
+        n.vx += (home.x - n.x) * 0.02 * dt;
+        n.vy += (home.y - n.y) * 0.02 * dt;
+        const damp = 0.92 ** dt;
+        n.vx *= damp;
+        n.vy *= damp;
+        n.x += n.vx * dt;
+        n.y += n.vy * dt;
+        n.x += Math.sin(now * 0.0006 + n.phase) * 0.06 * dt;
+        n.y += Math.cos(now * 0.0005 + n.phase * 1.7) * 0.06 * dt;
+      }
+      drawGraph();
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [drawGraph]);
 
   // ── Hit Test ───────────────────────────────────────────────────────────────
   const hitTest = useCallback((mx: number, my: number) => {
@@ -294,12 +404,13 @@ export default function NbaExplorer() {
     const c = cam.current;
     const wx = (mx - c.x - rect.width / 2) / c.zoom + 480;
     const wy = (my - c.y - rect.height / 2) / c.zoom + 320;
-    for (const [key, pos] of Object.entries(NODE_POSITIONS)) {
+    for (const key of Object.keys(NODE_POSITIONS)) {
+      const pos = physPos(key);
       const dx = wx - pos.x, dy = wy - pos.y;
       if (Math.sqrt(dx * dx + dy * dy) < 40) return key;
     }
     return null;
-  }, []);
+  }, [physPos]);
 
   // ── Chart Drawing ──────────────────────────────────────────────────────────
   const drawChart = useCallback((data: AnyRow[], metric: string, nodeKey: string | null) => {
@@ -324,7 +435,7 @@ export default function NbaExplorer() {
     const pad = { t: 10, r: 10, b: 30, l: 45 };
     const gw = W - pad.l - pad.r;
     const gh = H - pad.t - pad.b;
-    const color = NODE_COLORS[nodeKey ?? ""] || "#f97316";
+    const color = NODE_COLORS[nodeKey ?? ""] || "#e5484d";
 
     // Grid
     ctx.strokeStyle = "rgba(255,255,255,0.05)";
@@ -488,12 +599,13 @@ export default function NbaExplorer() {
       const hit = hitTest(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
       if (hit !== hoveredNode.current) {
         hoveredNode.current = hit;
+        if (hit) bounce(hit, 2.2); // dribble tap on hover-in
         const canvas = graphCanvasRef.current;
         if (canvas) canvas.style.cursor = hit ? "pointer" : "grab";
         drawGraph();
       }
     }
-  }, [drawGraph, hitTest]);
+  }, [drawGraph, hitTest, bounce]);
 
   const onMouseUp = useCallback(() => { dragState.current.dragging = false; }, []);
 
@@ -501,8 +613,11 @@ export default function NbaExplorer() {
     const ds = dragState.current;
     if (Math.abs(e.nativeEvent.offsetX - ds.startX) > 5 || Math.abs(e.nativeEvent.offsetY - ds.startY) > 5) return;
     const hit = hitTest(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    if (hit) navigateTo(hit);
-  }, [hitTest, navigateTo]);
+    if (hit) {
+      bounce(hit, 6); // hard dribble on select
+      navigateTo(hit);
+    }
+  }, [hitTest, navigateTo, bounce]);
 
   const onWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
@@ -758,42 +873,43 @@ export default function NbaExplorer() {
         .nba-app * { margin: 0; padding: 0; box-sizing: border-box; }
         .nba-app {
           --bg: #0a0c10; --surface: #12151c; --surface2: #1a1e28; --border: #252a36;
-          --text: #e2e4e9; --text2: #8b8fa3; --accent: #f97316; --accent2: #fb923c;
+          /* NBA brand: red/blue chrome (light steps for text on dark), solid red for fills */
+          --text: #e2e4e9; --text2: #8b8fa3; --accent: #e5484d; --accent2: #3987e5; --accent-solid: #C8102E;
           font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text);
         }
         .nba-shell { display: grid; grid-template-columns: 1fr clamp(360px, 28vw, 520px); grid-template-rows: 56px auto 1fr; height: 100vh; }
         .nba-picks { grid-column: 1 / -1; background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 20px; }
         .nba-picks-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .nba-picks-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
+        .nba-picks-title { font-family: 'Anton', 'Outfit', sans-serif; font-size: 13px; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); }
         .nba-picks-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); }
         .nba-picks-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .nba-picks-empty { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; padding: 4px 0; }
         .nba-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 10; min-height: 56px; }
-        .nba-header .logo { font-weight: 900; font-size: 18px; letter-spacing: -0.5px; color: var(--accent); }
+        .nba-header .logo { font-family: 'Anton', 'Outfit', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
         .nba-header .logo span { color: var(--text2); font-weight: 300; }
         .nba-pill { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
-        .nba-canvas-wrap { position: relative; overflow: hidden; background: radial-gradient(circle at 30% 40%, rgba(249,115,22,0.04) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(59,130,246,0.03) 0%, transparent 50%), var(--bg); }
+        .nba-canvas-wrap { position: relative; overflow: hidden; background: radial-gradient(circle at 30% 40%, rgba(200,16,46,0.05) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(29,66,138,0.06) 0%, transparent 50%), var(--bg); }
         .nba-canvas-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; }
         .nba-canvas-overlay { position: absolute; bottom: 16px; left: 16px; display: flex; gap: 8px; }
         .nba-canvas-overlay button { font-family: 'DM Mono', monospace; font-size: 12px; padding: 6px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text2); cursor: pointer; }
         .nba-canvas-overlay button:hover { background: var(--surface2); color: var(--text); border-color: var(--accent); }
         .nba-panel { background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         .nba-panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-        .nba-panel-header h2 { font-size: 14px; font-weight: 700; }
-        .nba-endpoint-tag { font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 8px; background: rgba(249,115,22,0.12); color: var(--accent); border-radius: 4px; }
+        .nba-panel-header h2 { font-family: 'Anton', 'Outfit', sans-serif; font-size: 15px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; }
+        .nba-endpoint-tag { font-family: 'DM Mono', monospace; font-size: 11px; padding: 2px 8px; background: rgba(200,16,46,0.14); color: var(--accent); border-radius: 4px; }
         .nba-panel-body { flex: 1; overflow-y: auto; padding: 16px 20px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .nba-breadcrumb { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 16px; font-family: 'DM Mono', monospace; font-size: 11px; }
         .nba-crumb { padding: 2px 8px; background: var(--surface2); border-radius: 4px; color: var(--text2); cursor: pointer; }
         .nba-crumb:hover { color: var(--accent); }
-        .nba-crumb.active { background: rgba(249,115,22,0.15); color: var(--accent); }
+        .nba-crumb.active { background: rgba(200,16,46,0.16); color: var(--accent); }
         .nba-params { margin-bottom: 16px; padding: 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
         .nba-params label { display: block; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text2); margin-bottom: 6px; }
         .nba-param-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
         .nba-param-row span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); min-width: 70px; }
         .nba-param-row input { flex: 1; padding: 6px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; }
         .nba-param-row input:focus { border-color: var(--accent); }
-        .nba-fetch-btn { width: 100%; padding: 8px; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; letter-spacing: 0.5px; }
-        .nba-fetch-btn:hover { background: var(--accent2); }
+        .nba-fetch-btn { width: 100%; padding: 8px; background: var(--accent-solid); border: none; border-radius: 6px; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; letter-spacing: 0.5px; }
+        .nba-fetch-btn:hover { background: var(--accent); }
         .nba-fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .nba-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
         .nba-table th { text-align: left; padding: 6px 8px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; background: var(--surface); cursor: pointer; user-select: none; white-space: nowrap; }
@@ -801,13 +917,13 @@ export default function NbaExplorer() {
         .nba-table th.sorted { color: var(--accent); }
         .nba-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); }
         .nba-table tr { transition: background 0.1s; }
-        .nba-table tr[data-drillable]:hover { background: rgba(249,115,22,0.06); }
+        .nba-table tr[data-drillable]:hover { background: rgba(200,16,46,0.08); }
         .nba-table .num { text-align: right; color: #06b6d4; }
         .nba-chart-wrap { margin-bottom: 16px; padding: 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
         .nba-chart-wrap h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 10px; }
         .nba-chart-tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
         .nba-chart-tabs button { font-family: 'DM Mono', monospace; font-size: 10px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); cursor: pointer; }
-        .nba-chart-tabs button.active { border-color: var(--accent); color: var(--accent); background: rgba(249,115,22,0.1); }
+        .nba-chart-tabs button.active { border-color: var(--accent); color: var(--accent); background: rgba(200,16,46,0.12); }
         .nba-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: var(--text2); gap: 12px; }
         .nba-empty .icon { font-size: 48px; opacity: 0.3; }
         .nba-empty p { font-size: 13px; max-width: 240px; line-height: 1.5; }

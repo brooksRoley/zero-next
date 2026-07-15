@@ -55,15 +55,16 @@ const SIM_FIELDS: Array<keyof LensPlayerRow> = [
   "fg_pct", "fg3_pct", "ft_pct", "mpg",
 ];
 
-// Validated dark-surface categorical palette (dataviz skill, surface #12151c):
-// worst adjacent CVD ΔE 41.3, all ≥3:1. Order is fixed — never cycled.
+// NBA-flavored categorical palette, validated for the dark surface #12151c
+// (dataviz skill: blue/red/gold worst adjacent CVD ΔE 35.9, blue/red pair
+// 66.4, all ≥3:1). Order is fixed — never cycled.
 const POS_COLORS: Record<string, string> = {
   G: "#3987e5",
-  F: "#199e70",
+  F: "#e66767",
   C: "#c98500",
   "?": "#8b8fa3",
 };
-const CONF_COLORS: Record<string, string> = { East: "#3987e5", West: "#199e70" };
+const CONF_COLORS: Record<string, string> = { East: "#3987e5", West: "#e66767" };
 
 const SURFACE = "#12151c";
 const GRID = "#252a36";
@@ -363,7 +364,7 @@ export default function LeagueLens() {
           </svg>
           <div style={{ fontSize: 10, color: INK2, marginTop: 6, fontFamily: "'DM Mono', monospace" }}>
             {pool.length} players · ≥20 GP · {season} · labels mark the 6 biggest combined-z outliers · click a dot for comps
-            <button onClick={() => setShowTable(!showTable)} style={{ marginLeft: 10, background: "none", border: "none", color: "#fb923c", cursor: "pointer", fontSize: 10, fontFamily: "inherit", padding: 0 }}>
+            <button onClick={() => setShowTable(!showTable)} style={{ marginLeft: 10, background: "none", border: "none", color: "#e5484d", cursor: "pointer", fontSize: 10, fontFamily: "inherit", padding: 0 }}>
               {showTable ? "hide table" : "table view"}
             </button>
           </div>
@@ -406,7 +407,7 @@ export default function LeagueLens() {
                 </thead>
                 <tbody>
                   {[comps.target, ...comps.rows].map((p, i) => (
-                    <tr key={`${p.id}-c`} style={{ color: i === 0 ? "#fb923c" : INK, borderTop: `1px solid ${GRID}` }}>
+                    <tr key={`${p.id}-c`} style={{ color: i === 0 ? "#e5484d" : INK, borderTop: `1px solid ${GRID}` }}>
                       <td style={{ padding: "4px 8px" }}>{p.name}</td>
                       <td style={{ padding: "4px 8px", color: INK2 }}>{p.team}</td>
                       <td style={{ padding: "4px 8px", color: INK2 }}>{p.pos || "—"}</td>
