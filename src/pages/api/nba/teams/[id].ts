@@ -1,7 +1,11 @@
+/**
+ * GET /api/nba/teams/[id] — team identity + current roster from the DB
+ * (ESPN roster feed, refreshed daily). Replaces the dead stats.nba.com read;
+ * jersey numbers aren't collected, so `num` is no longer served.
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fetchStats } from "src/lib/nba/client";
+import { sql } from "src/lib/db";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason } from "src/lib/nba/season";
 import { getTeams } from "./index";
 
 export default async function handler(
@@ -17,17 +21,17 @@ export default async function handler(
     if (!team) return res.status(404).json({ error: "Not found" });
 
     const roster = await cached(`roster_${teamId}`, async () => {
-      const season = currentNbaSeason();
-      const rows = await fetchStats("commonteamroster", {
-        TeamID: teamId,
-        Season: season,
-      }, { resultSetName: "CommonTeamRoster" });
+      const rows = (await sql`
+        SELECT player_id, player_name, position, age
+        FROM nba_players WHERE team_id = ${teamId}
+        ORDER BY player_name
+      `) as Array<Record<string, unknown>>;
 
       return rows.map((r) => ({
-        id: Number(r.PLAYER_ID),
-        name: r.PLAYER as string,
-        pos: r.POSITION as string,
-        num: r.NUM as string,
+        id: Number(r.player_id),
+        name: String(r.player_name),
+        pos: String(r.position ?? ""),
+        age: r.age == null ? null : Number(r.age),
       }));
     }, 3600);
 

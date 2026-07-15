@@ -1,5 +1,6 @@
 import type { RosterPlayer } from "src/lib/bball/roster";
 import type { EspnSeasonStats, EspnRosterStatus } from "src/lib/bball/espn";
+import { zScores } from "src/lib/nba/analysis";
 
 /**
  * Turns real season averages into the engine roster contract
@@ -35,17 +36,6 @@ const COST_SHARES: Array<[cost: number, share: number]> = [
   [1, 0.31],
 ];
 
-function zScores(values: number[]): number[] {
-  const n = values.length;
-  if (n === 0) return [];
-  const mean = values.reduce((a, b) => a + b, 0) / n;
-  const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
-  const std = Math.sqrt(variance);
-  // Relative epsilon, not === 0: a uniform pool's mean can differ from its
-  // values by 1 ulp, leaving std ~1e-16 and z exactly ±1 (rating 70/30).
-  if (std < 1e-9 * Math.max(1, Math.abs(mean))) return values.map(() => 0);
-  return values.map((v) => (v - mean) / std);
-}
 
 /** StatNormalizer::ConvertZScoreToGameStat — keep in sync with shared-core. */
 export function zToRating(z: number): number {
