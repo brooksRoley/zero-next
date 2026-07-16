@@ -2,88 +2,12 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Reveal from 'src/components/Reveal'
+import { ZONES } from 'src/lib/nba/tft/zones'
 
 // ── Court geometry ────────────────────────────────────────────────────────────
 const CX = 230
 const W = 460
 const BASKET_Y = 238
-
-// ── Shot Zones ────────────────────────────────────────────────────────────────
-// Points approximate NBA zone boundaries. Arc boundary is visually correct.
-const ZONES = [
-  {
-    id: 'paint',
-    label: 'Paint',
-    makePct: 0.62,
-    pts: 2,
-    color: '#552583',
-    poly: '170,108 290,108 290,258 170,258',
-    edu: 'High efficiency zone. Close proximity makes this a high percentage shot despite heavy interior defense.',
-  },
-  {
-    id: 'left-mid',
-    label: 'Left Mid',
-    makePct: 0.42,
-    pts: 2,
-    color: '#166534',
-    poly: '44,108 170,108 170,258 44,258',
-    edu: 'Lower efficiency. Mid-range jump shots analytically yield fewer points per possession.',
-  },
-  {
-    id: 'right-mid',
-    label: 'Right Mid',
-    makePct: 0.42,
-    pts: 2,
-    color: '#166534',
-    poly: '290,108 416,108 416,258 290,258',
-    edu: 'Lower efficiency. Mid-range jump shots analytically yield fewer points per possession.',
-  },
-  {
-    id: 'left-corner-3',
-    label: 'Left Corner 3',
-    makePct: 0.39,
-    pts: 3,
-    color: '#1e40af',
-    poly: '0,178 44,178 44,258 0,258',
-    edu: 'Most valuable shot analytically. Shorter distance (22ft) to the basket than other 3-pointers.',
-  },
-  {
-    id: 'right-corner-3',
-    label: 'Right Corner 3',
-    makePct: 0.39,
-    pts: 3,
-    color: '#1e40af',
-    poly: '416,178 460,178 460,258 416,258',
-    edu: 'Most valuable shot analytically. Shorter distance (22ft) to the basket than other 3-pointers.',
-  },
-  {
-    id: 'left-wing-3',
-    label: 'Left Wing 3',
-    makePct: 0.35,
-    pts: 3,
-    color: '#1d4ed8',
-    poly: '0,12 230,12 170,108 44,108 44,178 0,178',
-    edu: 'Standard 3pt range. Essential for spacing the floor and opening driving lanes.',
-  },
-  {
-    id: 'right-wing-3',
-    label: 'Right Wing 3',
-    makePct: 0.35,
-    pts: 3,
-    color: '#1d4ed8',
-    poly: '230,12 460,12 460,178 416,178 416,108 290,108',
-    edu: 'Standard 3pt range. Essential for spacing the floor and opening driving lanes.',
-  },
-  {
-    id: 'top-of-key',
-    label: 'Top of Key',
-    makePct: 0.40,
-    pts: 2,
-    color: '#166534',
-    poly: '170,108 290,108 230,12',
-    edu: 'Often the result of a pick and pop or an isolation play. High traffic area.',
-  },
-]
 
 function centroid(polyStr) {
   const pts = polyStr.split(' ').map(p => p.split(',').map(Number))
