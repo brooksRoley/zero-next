@@ -4,10 +4,25 @@ import { supabase } from 'src/lib/supabase'
  * GET /api/pente/player?id=<uuid>  — Fetch player profile
  * POST /api/pente/player           — Upsert player profile (create or sync)
  *
- * POST body: { id, name?, elo?, peak_elo?, puzzles_solved?, games_played?,
- *              games_won?, current_streak?, best_streak?, last_solve_date?,
- *              elo_history?, solved_puzzles?, attempted_puzzles? }
+ * POST body: { id, name?, elo?, peak_elo?, game_elo?, game_peak_elo?,
+ *              puzzles_solved?, games_played?, games_won?, current_streak?,
+ *              best_streak?, last_solve_date?, elo_history?, solved_puzzles?,
+ *              attempted_puzzles? }
+ *
+ * `elo`/`peak_elo` are the puzzle rating; `game_elo`/`game_peak_elo` (added by
+ * migration 0005) are the game rating used for matchmaking.
  */
+
+// Columns added by migration 0005. Until it's applied, PostgREST rejects
+// upserts containing them (PGRST204 "Could not find the '<col>' column") —
+// detect that and retry without them so play keeps working pre-migration.
+const GAME_ELO_COLUMNS = ['game_elo', 'game_peak_elo']
+
+function isMissingGameEloColumn(error) {
+  if (!error) return false
+  if (error.code !== 'PGRST204' && !/could not find/i.test(error.message || '')) return false
+  return GAME_ELO_COLUMNS.some(col => (error.message || '').includes(col))
+}
 export default async function handler(req, res) {
   if (!supabase) return res.status(503).json({ error: 'Database not configured' })
 
@@ -35,7 +50,8 @@ export default async function handler(req, res) {
 
     // Sanitize: only allow known fields
     const allowed = [
-      'name', 'elo', 'peak_elo', 'puzzles_solved', 'games_played',
+      'name', 'elo', 'peak_elo', 'game_elo', 'game_peak_elo',
+      'puzzles_solved', 'games_played',
       'games_won', 'current_streak', 'best_streak', 'last_solve_date',
       'elo_history', 'solved_puzzles', 'attempted_puzzles',
     ]
@@ -44,11 +60,20 @@ export default async function handler(req, res) {
       if (fields[key] !== undefined) updates[key] = fields[key]
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('players')
       .upsert({ id, ...updates }, { onConflict: 'id' })
       .select()
       .single()
+
+    if (error && isMissingGameEloColumn(error)) {
+      for (const col of GAME_ELO_COLUMNS) delete updates[col]
+      ;({ data, error } = await supabase
+        .from('players')
+        .upsert({ id, ...updates }, { onConflict: 'id' })
+        .select()
+        .single())
+    }
 
     if (error) return res.status(500).json({ error: error.message })
     return res.status(200).json({ player: data })

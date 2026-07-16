@@ -102,8 +102,10 @@ export default function PenteHub() {
     playerId,
     playerName,
     setPlayerName,
-    elo,
-    peakElo,
+    puzzleElo,
+    puzzlePeakElo,
+    gameElo,
+    gamePeakElo,
     eloHistory,
     zone,
     puzzlesSolved,
@@ -193,8 +195,8 @@ export default function PenteHub() {
 
               {/* Stats row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <StatCard label="Rating" value={elo} accent />
-                <StatCard label="Peak" value={peakElo} />
+                <StatCard label="Puzzle ELO" value={puzzleElo} sub={`peak ${puzzlePeakElo}`} accent />
+                <StatCard label="Game ELO" value={gameElo} sub={`peak ${gamePeakElo}`} />
                 <StatCard label="Puzzles" value={puzzlesSolved} />
                 <StatCard label="Games" value={`${gamesWon}/${gamesPlayed}`} sub={gamesPlayed > 0 ? `${winRate}% win` : null} />
               </div>
@@ -208,7 +210,7 @@ export default function PenteHub() {
 
             {/* Right: mountain visualizer */}
             <div className="sm:w-72 shrink-0">
-              <MountainProgress elo={elo} peakElo={peakElo} eloHistory={eloHistory} />
+              <MountainProgress elo={puzzleElo} peakElo={puzzlePeakElo} eloHistory={eloHistory} />
             </div>
           </div>
         </div>

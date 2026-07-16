@@ -1,8 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { randomUUID } from "crypto";
+import { applyBballCors } from "src/lib/bballCors";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyBballCors(req, res)) return;
   if (req.method !== "POST") return res.status(405).end();
 
   const { player_id } = req.body as { player_id?: string };
