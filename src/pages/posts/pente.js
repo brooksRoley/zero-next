@@ -88,7 +88,7 @@ const GameBoard = () => {
   const gameId = router.query.game;
 
   // Player identity + shared ELO
-  const { playerId, playerName, setPlayerName, elo: playerElo, peakElo, eloHistory, gamesPlayed, markSolved, recordAttempt, recordGameResult } = usePlayerProfile();
+  const { playerId, playerName, setPlayerName, puzzleElo, puzzlePeakElo, gameElo, eloHistory, gamesPlayed, markSolved, recordAttempt, recordGameResult } = usePlayerProfile();
 
   // ── Core mode state ──
   const [modePreset, setModePreset] = useState(gameId ? 'online' : 'bot1v1');
@@ -188,7 +188,7 @@ const GameBoard = () => {
   );
 
   // ── Matchmaking state ──
-  const mm = useMatchmaking(playerId, playerName, playerElo);
+  const mm = useMatchmaking(playerId, playerName, gameElo);
   const isQueuing = mm.queueStatus === 'queuing' || mm.queueStatus === 'confirming';
 
   // ── Derived state ──
@@ -313,7 +313,7 @@ const GameBoard = () => {
     // Small delay before thinking starts so the UI feels natural
     const delay = 200 + Math.random() * 150;
     const timer = setTimeout(async () => {
-      const adaptiveConfig = getAdaptiveBotConfig(playerElo, gamesPlayed);
+      const adaptiveConfig = getAdaptiveBotConfig(gameElo, gamesPlayed);
       setBotEffectiveElo(adaptiveConfig.effectiveElo);
       const engineConfig = {
         searchDepth: adaptiveConfig.searchDepth,
@@ -341,7 +341,7 @@ const GameBoard = () => {
 
     return () => { cancelled = true; clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures, playerElo, gamesPlayed, gameMode]);
+  }, [localCurrentPlayer, botEnabled, isOnline, gameOver, botInstances, localBoard, captures, gameElo, gamesPlayed, gameMode]);
 
   // ── Record move history ──
   const recordMove = useCallback((boardState, capturesState, mover, row, col) => {
@@ -482,7 +482,7 @@ const GameBoard = () => {
       // difficulty. Prefer the adaptive engine's effective ELO from this game;
       // if the bot never got to compute one, recompute it, and as a last
       // resort use the bot instance's fixed BOT_LEVELS rating.
-      const adaptiveElo = botEffectiveElo ?? getAdaptiveBotConfig(playerElo, gamesPlayed).effectiveElo;
+      const adaptiveElo = botEffectiveElo ?? getAdaptiveBotConfig(gameElo, gamesPlayed).effectiveElo;
       const botElo = Number.isFinite(adaptiveElo)
         ? adaptiveElo
         : (botInstances[0]?.level?.elo ?? BOT_LEVELS.expert.elo);
@@ -653,7 +653,7 @@ const GameBoard = () => {
 
   // ─────────────────────────────────────────────────────────────────────────
 
-  const penteZone = getZone(playerElo);
+  const penteZone = getZone(gameElo);
 
   return (
     <div
@@ -742,7 +742,7 @@ const GameBoard = () => {
           <div className="flex items-center gap-2 px-3 pb-1.5">
             <span className="text-[10px] text-forest-500 uppercase tracking-wider">Adaptive Bot</span>
             <span className="text-[10px] text-forest-400 font-mono">
-              ~{botEffectiveElo ?? getAdaptiveBotConfig(playerElo, gamesPlayed).effectiveElo} ELO
+              ~{botEffectiveElo ?? getAdaptiveBotConfig(gameElo, gamesPlayed).effectiveElo} ELO
             </span>
             {gamesPlayed < 5 && (
               <span className="text-[10px] text-candy-pink/60 italic">
@@ -1007,7 +1007,7 @@ const GameBoard = () => {
               visible={!!intervention && !trainingActive}
               tacticLabel={intervention?.tacticLabel}
               narrative={intervention?.narrative}
-              trainingElo={playerElo}
+              trainingElo={puzzleElo}
               onTrain={() => setTrainingActive(true)}
               onDismiss={() => setIntervention(null)}
               onPlayAgain={() => { setIntervention(null); resetLocalBoard(); }}
@@ -1018,8 +1018,8 @@ const GameBoard = () => {
               <div className="absolute inset-0 z-40 rounded-xl overflow-auto bg-forest-950/95 backdrop-blur-sm border border-forest-700/40 p-4 sm:p-5">
                 <EndlessPuzzle
                   playerId={playerId}
-                  elo={playerElo}
-                  peakElo={peakElo}
+                  elo={puzzleElo}
+                  peakElo={puzzlePeakElo}
                   eloHistory={eloHistory}
                   onSolve={markSolved}
                   onAttempt={recordAttempt}

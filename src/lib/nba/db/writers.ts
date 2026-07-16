@@ -60,6 +60,57 @@ export async function upsertTeams(sql: Sql, teams: Row[]): Promise<number> {
   return count;
 }
 
+/** Gold-layer per-game season averages. Percentages are 0–1 fractions
+ *  (roster-builder derives ts_pct from them). */
+export type PlayerSeasonStatsRow = {
+  player_id: number;
+  team_id: number | null;
+  games_played: number;
+  mpg: number;
+  ppg: number;
+  rpg: number;
+  apg: number;
+  spg: number;
+  bpg: number;
+  topg: number;
+  fg_pct: number;
+  fg3_pct: number;
+  ft_pct: number;
+};
+
+export async function upsertPlayerSeasonStats(
+  sql: Sql,
+  season: string,
+  stats: PlayerSeasonStatsRow[]
+): Promise<number> {
+  let count = 0;
+  for (const s of stats) {
+    await sql`
+      INSERT INTO nba_player_season_stats
+        (player_id, season, team_id, games_played, mpg, ppg, rpg, apg, spg, bpg, topg, fg_pct, fg3_pct, ft_pct, updated_at)
+      VALUES
+        (${s.player_id}, ${season}, ${s.team_id}, ${s.games_played}, ${s.mpg}, ${s.ppg}, ${s.rpg},
+         ${s.apg}, ${s.spg}, ${s.bpg}, ${s.topg}, ${s.fg_pct}, ${s.fg3_pct}, ${s.ft_pct}, NOW())
+      ON CONFLICT (player_id, season) DO UPDATE SET
+        team_id = EXCLUDED.team_id,
+        games_played = EXCLUDED.games_played,
+        mpg = EXCLUDED.mpg,
+        ppg = EXCLUDED.ppg,
+        rpg = EXCLUDED.rpg,
+        apg = EXCLUDED.apg,
+        spg = EXCLUDED.spg,
+        bpg = EXCLUDED.bpg,
+        topg = EXCLUDED.topg,
+        fg_pct = EXCLUDED.fg_pct,
+        fg3_pct = EXCLUDED.fg3_pct,
+        ft_pct = EXCLUDED.ft_pct,
+        updated_at = NOW()
+    `;
+    count++;
+  }
+  return count;
+}
+
 export async function upsertGames(sql: Sql, games: Row[]): Promise<number> {
   let count = 0;
   for (const g of games) {

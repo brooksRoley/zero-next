@@ -20,6 +20,8 @@ const defaultProfile = {
   name: '',
   elo: STARTING_ELO,
   peakElo: STARTING_ELO,
+  gameElo: STARTING_ELO,
+  gamePeakElo: STARTING_ELO,
   puzzlesSolved: 0,
   gamesPlayed: 0,
   gamesWon: 0,
@@ -55,6 +57,10 @@ function profileFromLocal() {
     name,
     elo: progress.elo ?? STARTING_ELO,
     peakElo: progress.peakElo ?? STARTING_ELO,
+    // Pre-split caches only have the blended `elo` — seed the game rating
+    // from it so an existing player doesn't restart at STARTING_ELO.
+    gameElo: progress.gameElo ?? progress.elo ?? STARTING_ELO,
+    gamePeakElo: progress.gamePeakElo ?? progress.peakElo ?? STARTING_ELO,
     puzzlesSolved: progress.solved?.length ?? 0,
     gamesPlayed: progress.gamesPlayed ?? 0,
     gamesWon: progress.gamesWon ?? 0,
@@ -80,6 +86,8 @@ function profileToLocal(profile) {
     lastSolveDate: profile.lastSolveDate,
     elo: profile.elo,
     peakElo: profile.peakElo,
+    gameElo: profile.gameElo,
+    gamePeakElo: profile.gamePeakElo,
     eloHistory: profile.eloHistory,
     gamesPlayed: profile.gamesPlayed,
     gamesWon: profile.gamesWon,
@@ -93,6 +101,8 @@ function profileToSupabase(profile) {
     name: profile.name,
     elo: profile.elo,
     peak_elo: profile.peakElo,
+    game_elo: profile.gameElo,
+    game_peak_elo: profile.gamePeakElo,
     puzzles_solved: profile.puzzlesSolved,
     games_played: profile.gamesPlayed,
     games_won: profile.gamesWon,
@@ -111,6 +121,10 @@ function profileFromSupabase(row) {
     name: row.name || '',
     elo: row.elo,
     peakElo: row.peak_elo,
+    // Rows written before migration 0005 have no game_elo — seed from the
+    // blended rating so history carries over instead of resetting.
+    gameElo: row.game_elo ?? row.elo,
+    gamePeakElo: row.game_peak_elo ?? row.peak_elo,
     puzzlesSolved: row.puzzles_solved,
     gamesPlayed: row.games_played,
     gamesWon: row.games_won,
@@ -122,6 +136,23 @@ function profileFromSupabase(row) {
     attemptedPuzzles: row.attempted_puzzles || {},
   }
 }
+
+// Timestamp of the most recent game-ELO event in a profile's history.
+// Game ratings aren't tied to lastSolveDate (a puzzle timestamp), so the
+// merge derives recency from the history entries games already write.
+function lastGameTimestamp(profile) {
+  for (let i = profile.eloHistory.length - 1; i >= 0; i--) {
+    const entry = profile.eloHistory[i]
+    if (entry.event === 'game_win' || entry.event === 'game_loss') {
+      return entry.timestamp ?? -Infinity
+    }
+  }
+  return -Infinity
+}
+
+// Exported for tests (vitest can't mount the hook without a DOM harness, but
+// the sync/merge logic is pure and is where the split's correctness lives).
+export { mergeProfiles, profileFromSupabase, profileToSupabase }
 
 // Merge: union historical data (solved puzzles, peaks, totals), but take
 // live state (current ELO + streak) from whichever side played most recently.
@@ -138,6 +169,10 @@ function mergeProfiles(local, remote) {
   merged.lastSolveDate = localIsNewer ? local.lastSolveDate : remote.lastSolveDate
   // Peak ELO is a historical high-water mark — keep the max.
   merged.peakElo = Math.max(local.peakElo, remote.peakElo)
+  // Game rating: same recency rule, but judged by the last game event.
+  merged.gameElo = lastGameTimestamp(local) > lastGameTimestamp(remote)
+    ? local.gameElo : remote.gameElo
+  merged.gamePeakElo = Math.max(local.gamePeakElo, remote.gamePeakElo)
   // Union solved puzzles
   const solvedSet = new Set([...local.solvedPuzzles, ...remote.solvedPuzzles])
   merged.solvedPuzzles = [...solvedSet]
@@ -303,15 +338,15 @@ export default function usePlayerProfile() {
   // — game endings are discrete one-at-a-time events, so this matches what the
   // functional update below persists.
   const recordGameResult = useCallback((opponentElo, won) => {
-    const eloBefore = profile.elo
+    const eloBefore = profile.gameElo
     const delta = calculateEloChange(eloBefore, opponentElo, won ? 1.0 : 0.0, 20)
     const eloAfter = Math.max(MIN_ELO, Math.min(MAX_ELO, eloBefore + delta))
 
     setProfile(prev => {
       const updated = {
         ...prev,
-        elo: eloAfter,
-        peakElo: Math.max(prev.peakElo, eloAfter),
+        gameElo: eloAfter,
+        gamePeakElo: Math.max(prev.gamePeakElo, eloAfter),
         gamesPlayed: prev.gamesPlayed + 1,
         gamesWon: won ? prev.gamesWon + 1 : prev.gamesWon,
         eloHistory: [...prev.eloHistory, {
@@ -324,7 +359,7 @@ export default function usePlayerProfile() {
     })
 
     return { eloBefore, eloAfter, delta, won }
-  }, [persist, profile.elo])
+  }, [persist, profile.gameElo])
 
   const isSolved = useCallback((puzzleId) => {
     return profile.solvedPuzzles.includes(puzzleId)
@@ -335,7 +370,13 @@ export default function usePlayerProfile() {
     playerId: profile.id,
     playerName: profile.name,
     setPlayerName,
-    // ELO
+    // ELO — split ratings. Puzzles (markSolved/recordAttempt) move puzzleElo;
+    // games (recordGameResult) move gameElo. `elo`/`peakElo` remain as puzzle
+    // aliases for older call sites; prefer the explicit names.
+    puzzleElo: profile.elo,
+    puzzlePeakElo: profile.peakElo,
+    gameElo: profile.gameElo,
+    gamePeakElo: profile.gamePeakElo,
     elo: profile.elo,
     peakElo: profile.peakElo,
     eloHistory: profile.eloHistory,
