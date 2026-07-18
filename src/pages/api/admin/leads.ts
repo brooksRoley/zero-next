@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { timingSafeEqual } from "crypto";
 import { sql } from "src/lib/db";
+import { isValidAdminKey } from "src/lib/adminAuth";
 
 // Pipeline stages a lead can move through (mirrors CLAUDE.md spec).
 const ALLOWED_STATUSES = [
@@ -12,35 +12,17 @@ const ALLOWED_STATUSES = [
 ] as const;
 type LeadStatus = (typeof ALLOWED_STATUSES)[number];
 
-// Constant-time token check so we don't leak length/prefix via timing.
-function tokenMatches(provided: string, expected: string): boolean {
-  const enc = new TextEncoder();
-  const a = enc.encode(provided);
-  const b = enc.encode(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
-
-function isAuthorized(req: NextApiRequest): boolean {
-  const expected = process.env.ADMIN_TOKEN;
-  if (!expected) return false; // handled separately as 503
-  const header = req.headers["x-admin-token"];
-  const provided = Array.isArray(header) ? header[0] : header;
-  if (typeof provided !== "string" || provided.length === 0) return false;
-  return tokenMatches(provided, expected);
-}
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!process.env.ADMIN_TOKEN) {
+  if (!process.env.ADMIN_KEY) {
     return res
       .status(503)
-      .json({ error: "Admin access is not configured (missing ADMIN_TOKEN)." });
+      .json({ error: "Admin access is not configured (missing ADMIN_KEY)." });
   }
 
-  if (!isAuthorized(req)) {
+  if (!isValidAdminKey(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
