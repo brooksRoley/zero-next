@@ -46,8 +46,8 @@ export default async function handler(
     metrics,
     teams: teams.map((t) => ({
       team_id: t.team_id,
-      sim_wins: t.sim_wins,
-      actual_wins: t.actual_wins,
+      sim_wins: t.sim_wins ?? 0,
+      actual_wins: t.actual_wins ?? 0,
       sim_pred_wins: t.sim_pred_wins,
       eps_engine: (t.actual_wins ?? 0) - (t.sim_wins ?? 0),
       eps_tactics:
