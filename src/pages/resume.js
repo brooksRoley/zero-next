@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link'
 import MarioButton from 'src/components/mario';
 import Reveal from 'src/components/Reveal';
 
+// Assembled client-side only (never in server-rendered HTML) so scrapers
+// harvesting plain-text addresses from the static page can't pick this up.
+const EMAIL_USER = 'brooksroley';
+const EMAIL_DOMAIN = 'gmail.com';
+
 const Resume = () => {
+  const [email, setEmail] = useState(null);
+  useEffect(() => {
+    setEmail(`${EMAIL_USER}@${EMAIL_DOMAIN}`);
+  }, []);
+
   return (
     <div className="relative min-h-screen cover-photo">
       <Head>
@@ -22,7 +32,15 @@ const Resume = () => {
             <p className="text-xs sm:text-sm uppercase tracking-widest text-white mb-3">A brief history of me</p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Brooks Roley</h1>
             <p className="text-lg text-candy-400 font-medium mt-1">Software Engineer</p>
-            <p className="text-sm text-forest-300 mt-3">brooksroley@gmail.com</p>
+            <p className="text-sm text-forest-300 mt-3">
+              {email ? (
+                <a href={`mailto:${email}`} className="hover:text-candy-300 transition-colors">
+                  {email}
+                </a>
+              ) : (
+                'Email'
+              )}
+            </p>
           </div>
         </Reveal>
 
