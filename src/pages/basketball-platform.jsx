@@ -2,88 +2,15 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Reveal from 'src/components/Reveal'
+import { ZONES } from 'src/lib/nba/tft/zones'
+import TeamResidualsTable from 'src/components/tft/TeamResidualsTable'
+import CoefficientsTable from 'src/components/tft/CoefficientsTable'
+import ShotHeatmap from 'src/components/tft/ShotHeatmap'
 
 // ── Court geometry ────────────────────────────────────────────────────────────
 const CX = 230
 const W = 460
 const BASKET_Y = 238
-
-// ── Shot Zones ────────────────────────────────────────────────────────────────
-// Points approximate NBA zone boundaries. Arc boundary is visually correct.
-const ZONES = [
-  {
-    id: 'paint',
-    label: 'Paint',
-    makePct: 0.62,
-    pts: 2,
-    color: '#552583',
-    poly: '170,108 290,108 290,258 170,258',
-    edu: 'High efficiency zone. Close proximity makes this a high percentage shot despite heavy interior defense.',
-  },
-  {
-    id: 'left-mid',
-    label: 'Left Mid',
-    makePct: 0.42,
-    pts: 2,
-    color: '#166534',
-    poly: '44,108 170,108 170,258 44,258',
-    edu: 'Lower efficiency. Mid-range jump shots analytically yield fewer points per possession.',
-  },
-  {
-    id: 'right-mid',
-    label: 'Right Mid',
-    makePct: 0.42,
-    pts: 2,
-    color: '#166534',
-    poly: '290,108 416,108 416,258 290,258',
-    edu: 'Lower efficiency. Mid-range jump shots analytically yield fewer points per possession.',
-  },
-  {
-    id: 'left-corner-3',
-    label: 'Left Corner 3',
-    makePct: 0.39,
-    pts: 3,
-    color: '#1e40af',
-    poly: '0,178 44,178 44,258 0,258',
-    edu: 'Most valuable shot analytically. Shorter distance (22ft) to the basket than other 3-pointers.',
-  },
-  {
-    id: 'right-corner-3',
-    label: 'Right Corner 3',
-    makePct: 0.39,
-    pts: 3,
-    color: '#1e40af',
-    poly: '416,178 460,178 460,258 416,258',
-    edu: 'Most valuable shot analytically. Shorter distance (22ft) to the basket than other 3-pointers.',
-  },
-  {
-    id: 'left-wing-3',
-    label: 'Left Wing 3',
-    makePct: 0.35,
-    pts: 3,
-    color: '#1d4ed8',
-    poly: '0,12 230,12 170,108 44,108 44,178 0,178',
-    edu: 'Standard 3pt range. Essential for spacing the floor and opening driving lanes.',
-  },
-  {
-    id: 'right-wing-3',
-    label: 'Right Wing 3',
-    makePct: 0.35,
-    pts: 3,
-    color: '#1d4ed8',
-    poly: '230,12 460,12 460,178 416,178 416,108 290,108',
-    edu: 'Standard 3pt range. Essential for spacing the floor and opening driving lanes.',
-  },
-  {
-    id: 'top-of-key',
-    label: 'Top of Key',
-    makePct: 0.40,
-    pts: 2,
-    color: '#166534',
-    poly: '170,108 290,108 230,12',
-    edu: 'Often the result of a pick and pop or an isolation play. High traffic area.',
-  },
-]
 
 function centroid(polyStr) {
   const pts = polyStr.split(' ').map(p => p.split(',').map(Number))
@@ -1024,6 +951,81 @@ function LayerCard({ layer, index }) {
   )
 }
 
+// ── TFT Backtest Section ──────────────────────────────────────────────────────
+
+function TftBacktestSection() {
+  const [summary, setSummary] = useState(null)
+  const [error, setError] = useState(null)
+  const [heroPlayerId] = useState(2544) // LeBron ESPN id — fallback if not in backtest
+  const [heroData, setHeroData] = useState(null)
+
+  useEffect(() => {
+    fetch('/api/nba/tft/summary').then(async (r) => {
+      if (r.ok) setSummary(await r.json())
+      else setError((await r.json()).error)
+    }).catch((e) => setError(String(e)))
+  }, [])
+
+  useEffect(() => {
+    if (!heroPlayerId) return
+    fetch(`/api/nba/tft/player/${heroPlayerId}`).then(async (r) => {
+      if (r.ok) setHeroData(await r.json())
+      else setHeroData(null)
+    }).catch(() => setHeroData(null))
+  }, [heroPlayerId])
+
+  if (error) return <div className="text-sm opacity-70">Backtest not yet activated: {error}</div>
+  if (!summary) return <div className="text-sm opacity-70">Loading backtest...</div>
+
+  return (
+    <div className="space-y-10">
+      <div className="grid grid-cols-3 gap-6">
+        <Scorecard label="Wins MAE" value={summary.metrics?.best_loss?.toFixed(3) ?? 'n/a'} />
+        <Scorecard label="Fit season" value={summary.fit_season} />
+        <Scorecard label="Version" value={summary.version} />
+      </div>
+      <div>
+        <h3 className="text-xl mb-3">Team residuals</h3>
+        <TeamResidualsTable rows={summary.teams ?? []} />
+      </div>
+      {heroData && (
+        <div>
+          <h3 className="text-xl mb-3">Player shot origins (sim vs prior)</h3>
+          <ShotHeatmap simBins={heroData.sim_shot_bins ?? {}} priorBins={heroData.actual_shot_bins ?? {}} />
+        </div>
+      )}
+      <div>
+        <h3 className="text-xl mb-3">Active coefficients</h3>
+        <CoefficientsTable coeffs={summary.coefficients ?? {}} />
+      </div>
+      <details className="text-sm opacity-80">
+        <summary className="cursor-pointer opacity-100">Methodology</summary>
+        <p className="mt-3 leading-relaxed">
+          The engine uses a stat-mapper (real season stats → 0-100 ratings) feeding a
+          Monte Carlo game simulator. Coefficients are fit with CMA-ES against a
+          weighted multi-objective loss: L = 0.4·L_wl + 0.4·L_box + 0.2·L_spa,
+          where L_wl is MAE of season wins ÷ 82, L_box is per-player normalized
+          RMSE across (PTS, REB, AST), and L_spa is Jensen-Shannon divergence
+          between simulated and prior 8-zone shot-origin distributions.
+          Shot priors are generated from position, height, and 3-point rate;
+          real shot-chart ingest is deferred pending a new data source (stats.nba.com
+          stopped serving in 2026). Scheme extraction is a heuristic pattern-match
+          on opponent shot mix.
+        </p>
+      </details>
+    </div>
+  )
+}
+
+function Scorecard({ label, value }) {
+  return (
+    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+      <div className="text-xs opacity-60">{label}</div>
+      <div className="text-2xl font-mono mt-1">{value}</div>
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function BasketballPlatformPage() {
@@ -1183,6 +1185,20 @@ export default function BasketballPlatformPage() {
         </Reveal>
 
 
+
+        <section className="mt-24 border-t border-white/10 pt-16">
+          <div className="max-w-4xl mx-auto px-6">
+            <h2 className="text-3xl font-semibold mb-2">TFT Engine: Backtest 2025-26</h2>
+            <p className="opacity-80 mb-8">
+              A regression-tuned NBA tactical simulator. The engine&apos;s coefficients are
+              fit against the completed 2025-26 season across three targets: team W-L
+              (macro), per-player box (meso), and per-player 8-zone shot-origin
+              distributions (spatial). Shot-origin priors are synthesized from public
+              aggregates until raw shot-chart data is re-sourced.
+            </p>
+            <TftBacktestSection />
+          </div>
+        </section>
 
       </div>
     </main>
