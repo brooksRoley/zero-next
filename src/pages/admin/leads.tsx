@@ -78,11 +78,11 @@ export default function AdminLeadsPage() {
     setError("");
     try {
       const res = await fetch("/api/admin/leads", {
-        headers: { "x-admin-token": tk },
+        headers: { "x-admin-key": tk },
       });
       if (res.status === 401) {
         setError("Invalid token.");
-        sessionStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(TOKEN_KEY);
         setAuthed(false);
         setToken("");
         return;
@@ -110,14 +110,14 @@ export default function AdminLeadsPage() {
     e.preventDefault();
     const tk = tokenInput.trim();
     if (!tk) return;
-    sessionStorage.setItem(TOKEN_KEY, tk);
+    localStorage.setItem(TOKEN_KEY, tk);
     setToken(tk);
     setAuthed(true);
     setTokenInput("");
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     setToken("");
     setAuthed(false);
     setLeads([]);
@@ -133,7 +133,7 @@ export default function AdminLeadsPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token,
+          "x-admin-key": token,
         },
         body: JSON.stringify({ id, status }),
       });
