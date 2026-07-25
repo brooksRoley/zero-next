@@ -9,23 +9,25 @@ export default function CoefficientsTable({ coeffs }: { coeffs: Record<string, u
   }
 
   return (
-    <table className="w-full text-sm font-mono">
-      <thead>
-        <tr className="border-b border-white/10 text-left">
-          <th className="py-2">Group</th>
-          <th className="py-2">Coeff</th>
-          <th className="py-2">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(([g, k, v], i) => (
-          <tr key={i} className="border-b border-white/5">
-            <td className="py-1">{g}</td>
-            <td className="py-1">{k}</td>
-            <td className="py-1">{typeof v === "number" ? v.toFixed(4) : v}</td>
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm font-mono">
+        <thead>
+          <tr className="border-b border-white/10 text-left">
+            <th className="py-2">Group</th>
+            <th className="py-2">Coeff</th>
+            <th className="py-2">Value</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map(([g, k, v], i) => (
+            <tr key={i} className="border-b border-white/5">
+              <td className="py-1">{g}</td>
+              <td className="py-1">{k}</td>
+              <td className="py-1">{typeof v === "number" ? v.toFixed(4) : v}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
