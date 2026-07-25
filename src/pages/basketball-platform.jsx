@@ -979,7 +979,7 @@ function TftBacktestSection() {
 
   return (
     <div className="space-y-10">
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Scorecard label="Wins MAE" value={summary.metrics?.best_loss?.toFixed(3) ?? 'n/a'} />
         <Scorecard label="Fit season" value={summary.fit_season} />
         <Scorecard label="Version" value={summary.version} />
