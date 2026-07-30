@@ -480,6 +480,26 @@ export default function RigReport() {
                 </Link>
               </section>
 
+              <section className="rounded-xl border border-forest-500/30 bg-forest-900/30 p-5">
+                <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-forest-300">
+                  Want the Bureau&apos;s methods?
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-[#DADBD9]/80">
+                  The same possession-based model that grades the league here is
+                  written up, end to end, in the NBA Analytics Primer — how to
+                  read box-score stats, build a spread model from free public
+                  data, and judge it against the Vegas line. Worked examples in
+                  Python and SQL you can run on a laptop.
+                </p>
+                <Link
+                  href="/digital-products"
+                  onClick={() => track("rig_cta_primer")}
+                  className="mt-3 inline-block rounded-md border border-candy-400/50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-candy-200 transition-colors hover:bg-forest-800/60"
+                >
+                  NBA Analytics Primer &rarr;
+                </Link>
+              </section>
+
               <SourceShortcomings meta={data.meta} source={data.source} />
             </div>
           </>
