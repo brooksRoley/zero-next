@@ -379,6 +379,56 @@ export default function Home() {
               </Reveal>
             </div>
 
+            {/* Pass & Cut */}
+            <div data-physics-item className="physics-field-item">
+              <Reveal delay={520}>
+                <TiltCard>
+                  <Link href="/games/pass-and-cut" className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#1d4ed8] via-[#1e3a8a] to-[#0f172a]">
+                      <div className="flex items-center gap-3 text-2xl opacity-70">
+                        <span>&#x1F3C0;</span><span>&#x1F517;</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                    </div>
+                    <div className="relative px-5 pb-5 -mt-8">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        Pass &amp; Cut <ArrowIcon />
+                      </h3>
+                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        A graph-theory basketball puzzle — sever the defense before it cuts your passing lanes.
+                      </p>
+                    </div>
+                    <div className="tilt-highlight" />
+                  </Link>
+                </TiltCard>
+              </Reveal>
+            </div>
+
+            {/* Read & React */}
+            <div data-physics-item className="physics-field-item">
+              <Reveal delay={560}>
+                <TiltCard>
+                  <Link href="/games/read-and-react" className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#552583] via-[#3b1a5c] to-[#0f172a]">
+                      <div className="flex items-center gap-3 text-2xl opacity-70">
+                        <span>&#x1F3C0;</span><span>&#x1F9E0;</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                    </div>
+                    <div className="relative px-5 pb-5 -mt-8">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        Read &amp; React <ArrowIcon />
+                      </h3>
+                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        A game-theory EV matrix — read the defense, pick the play, beat the minimax.
+                      </p>
+                    </div>
+                    <div className="tilt-highlight" />
+                  </Link>
+                </TiltCard>
+              </Reveal>
+            </div>
+
             {/* The Zero Theater */}
             <div data-physics-item className="physics-field-item">
               <Reveal delay={600}>
