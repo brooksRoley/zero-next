@@ -46,3 +46,19 @@ export const NBA_TEAMS: NbaTeamStatic[] = [
 ];
 
 export const TEAMS_BY_ID = new Map(NBA_TEAMS.map((t) => [t.id, t]));
+
+// ESPN display names that differ from the canonical full_name above.
+const ESPN_NAME_ALIASES: Record<string, string> = {
+  "LA Clippers": "Los Angeles Clippers",
+};
+
+const TEAMS_BY_FULL_NAME = new Map(NBA_TEAMS.map((t) => [t.full_name, t]));
+for (const [alias, fullName] of Object.entries(ESPN_NAME_ALIASES)) {
+  const team = TEAMS_BY_FULL_NAME.get(fullName);
+  if (team) TEAMS_BY_FULL_NAME.set(alias, team);
+}
+
+/** Canonical team record from an ESPN displayName (handles ESPN aliases). */
+export function findTeamByEspnName(name: string): NbaTeamStatic | undefined {
+  return TEAMS_BY_FULL_NAME.get(name);
+}
