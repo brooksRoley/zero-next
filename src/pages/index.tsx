@@ -9,8 +9,12 @@ const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
   loading: () => <div className="physics-field-grid" />,
 })
 
+// Server-rendered: the `featured` prop carries the primary "Work with me" CTA and
+// every Featured card, so this must not be ssr:false — crawlers and no-JS clients
+// would see only the fallback below. matter-js and PreText are both SSR-safe (all
+// browser APIs live inside effects), so the physics layer mounts as a client-side
+// enhancement on top of real server HTML. Same pattern as PhysicsField above.
 const PhysicsHero = dynamic(() => import('src/components/PhysicsHero'), {
-  ssr: false,
   loading: () => (
     <section className="terrain-hero relative overflow-hidden text-[#DADBD9]">
       <div className="relative z-10 mx-auto flex min-h-[74vh] max-w-6xl flex-col justify-center gap-10 px-4 py-16 sm:px-6 md:min-h-[82vh] md:flex-row md:items-center md:gap-14 md:py-20">
