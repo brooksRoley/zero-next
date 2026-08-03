@@ -106,7 +106,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/pages/api/intake/messages.js`, `src/pages/api/intake/send.js` — Intake-form message thread (list / send)
 
 **AI tools**
-- `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 10/hr per IP. Backs the Chat Sandbox and Model Arena.
+- `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 30/hr per IP. Backs the Chat Sandbox and Model Arena.
 - `src/pages/api/tools/generate-profile.ts` — POST: generates an AI character profile from a name + one-liner; sanitizes input/output. Rate-limited 10/hr.
 - `src/pages/api/tools/characters.ts` — Persistence for Chat Sandbox characters
 
