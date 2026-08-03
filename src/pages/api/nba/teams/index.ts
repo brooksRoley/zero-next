@@ -1,31 +1,37 @@
+/**
+ * GET /api/nba/teams — team list from the DB silver table (ESPN-fed daily),
+ * with static identity fallbacks. Replaces the dead stats.nba.com read.
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fetchStats } from "src/lib/nba/client";
+import { sql } from "src/lib/db";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
 import { TEAMS_BY_ID } from "src/lib/nba/teams-static";
-import { TeamSchema } from "src/lib/nba/schemas";
-import { validateRows } from "src/lib/nba/validate";
+
+/** ESPN writes "Eastern Conference"; the old source wrote "East". */
+export function normalizeConference(value: unknown): string {
+  const v = String(value ?? "");
+  if (v.startsWith("East")) return "East";
+  if (v.startsWith("West")) return "West";
+  return v;
+}
 
 async function fetchTeams() {
-  const season = currentNbaSeason();
-  const rows = await fetchStats("leaguestandingsv3", {
-    LeagueID: "00",
-    Season: season,
-    SeasonType: currentSeasonType(),
-  }, { resultSetName: "Standings" });
+  const rows = (await sql`
+    SELECT team_id, team_name, team_city, team_abbreviation, conference, division
+    FROM nba_teams
+    ORDER BY team_city
+  `) as Array<Record<string, unknown>>;
 
-  const validated = validateRows(TeamSchema, rows, "leaguestandingsv3/teams");
-
-  return validated.map((r) => {
-    const tid = Number(r.TeamID);
+  return rows.map((r) => {
+    const tid = Number(r.team_id);
     const staticTeam = TEAMS_BY_ID.get(tid);
     return {
       id: tid,
-      name: r.TeamName as string,
-      city: r.TeamCity as string,
-      abbrev: staticTeam?.abbreviation ?? "",
-      conference: r.Conference as string,
-      division: r.Division as string,
+      name: String(r.team_name ?? staticTeam?.nickname ?? ""),
+      city: String(r.team_city ?? staticTeam?.city ?? ""),
+      abbrev: String(r.team_abbreviation ?? staticTeam?.abbreviation ?? ""),
+      conference: normalizeConference(r.conference ?? staticTeam?.conference),
+      division: r.division == null ? null : String(r.division),
     };
   });
 }

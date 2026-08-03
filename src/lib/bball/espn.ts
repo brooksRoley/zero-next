@@ -19,6 +19,11 @@ const FETCH_TIMEOUT_MS = 15_000;
 export type EspnSeasonStats = {
   id: number;
   name: string;
+  /** Age as ESPN reports it today — a player attribute, not a season one. */
+  age: number | null;
+  /** Team nickname for the season queried (e.g. "Mavericks") — byathlete is
+   *  the only feed that attributes stats to the season-correct team. */
+  teamNickname: string | null;
   gamesPlayed: number;
   avgMinutes: number;
   avgPoints: number;
@@ -27,6 +32,13 @@ export type EspnSeasonStats = {
   avgSteals: number;
   avgBlocks: number;
   avgTurnovers: number;
+  /** Per-game makes/attempts as published (offensive category). */
+  avgFgm: number;
+  avgFga: number;
+  avgFg3m: number;
+  avgFg3a: number;
+  avgFtm: number;
+  avgFta: number;
   /** Shooting percentages as 0–1 fractions (ESPN serves 0–100). */
   fgPct: number;
   fg3Pct: number;
@@ -104,9 +116,12 @@ export function parseByAthletePage(page: any): EspnSeasonStats[] {
       });
     }
 
+    const age = Number(athlete?.age);
     rows.push({
       id,
       name: athlete.displayName,
+      age: Number.isInteger(age) && age > 0 ? age : null,
+      teamNickname: athlete?.teamName || null,
       gamesPlayed: stat.get("gamesPlayed") ?? 0,
       avgMinutes: stat.get("avgMinutes") ?? 0,
       avgPoints: stat.get("avgPoints") ?? 0,
@@ -115,6 +130,12 @@ export function parseByAthletePage(page: any): EspnSeasonStats[] {
       avgSteals: stat.get("avgSteals") ?? 0,
       avgBlocks: stat.get("avgBlocks") ?? 0,
       avgTurnovers: stat.get("avgTurnovers") ?? 0,
+      avgFgm: stat.get("avgFieldGoalsMade") ?? 0,
+      avgFga: stat.get("avgFieldGoalsAttempted") ?? 0,
+      avgFg3m: stat.get("avgThreePointFieldGoalsMade") ?? 0,
+      avgFg3a: stat.get("avgThreePointFieldGoalsAttempted") ?? 0,
+      avgFtm: stat.get("avgFreeThrowsMade") ?? 0,
+      avgFta: stat.get("avgFreeThrowsAttempted") ?? 0,
       fgPct: (stat.get("fieldGoalPct") ?? 0) / 100,
       fg3Pct: (stat.get("threePointFieldGoalPct") ?? 0) / 100,
       ftPct: (stat.get("freeThrowPct") ?? 0) / 100,

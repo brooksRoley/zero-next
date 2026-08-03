@@ -1,19 +1,22 @@
+/**
+ * GET /api/nba/analytics/team/[id] — team dashboard: identity, standing, and
+ * roster per-game stats from the DB (ESPN-fed daily).
+ *
+ * The old version also served recent games and TS%/USG%/NetRtg from
+ * stats.nba.com, which stopped responding from this infra in 2026 — the whole
+ * endpoint 503'd. Game logs return when a trusted boxscore stream
+ * (cdn.nba.com liveData) is ingested; published advanced metrics need
+ * balldontlie's paid tier (see ledger). Until then this serves only what the
+ * trusted sources report.
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fetchStats } from "src/lib/nba/client";
+import { sql } from "src/lib/db";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
+import { currentNbaSeason } from "src/lib/nba/season";
 import { getTeams } from "../../teams/index";
 import { getStandingsRows } from "../../standings";
 
-function safe(val: unknown, scale = 1, decimals = 1): number | null {
-  try {
-    const n = Number(val);
-    if (isNaN(n)) return null;
-    return Math.round(n * scale * 10 ** decimals) / 10 ** decimals;
-  } catch {
-    return null;
-  }
-}
+const round1 = (v: unknown) => Math.round((Number(v) || 0) * 10) / 10;
 
 export async function fetchTeamAnalytics(teamId: number) {
   const season = currentNbaSeason();
@@ -28,106 +31,44 @@ export async function fetchTeamAnalytics(teamId: number) {
   const teamRow = standingsRows.find((r) => Number(r.TeamID) === teamId);
   const standing = teamRow
     ? {
-        wins: Number(teamRow.WINS),
-        losses: Number(teamRow.LOSSES),
-        pct: Math.round(Number(teamRow.WinPCT) * 1000) / 1000,
-        conference_rank: teamRow.PlayoffRank != null ? Number(teamRow.PlayoffRank) : null,
-        home_record: String(teamRow.HOME ?? ""),
-        away_record: String(teamRow.ROAD ?? ""),
-        last_10: String(teamRow.L10 ?? ""),
-        streak: String(teamRow.strCurrentStreak ?? ""),
+        wins: teamRow.WINS,
+        losses: teamRow.LOSSES,
+        pct: Math.round(teamRow.WinPCT * 1000) / 1000,
+        conference_rank: teamRow.PlayoffRank || null,
       }
     : {};
 
-  // Recent games
-  const recentRows = await fetchStats("leaguegamefinder", {
-    TeamID: teamId,
-    Season: season,
-    SeasonType: currentSeasonType(),
-    LeagueID: "00",
-  }, { resultSetName: "LeagueGameFinderResults" });
+  // Roster per-game stats for the season (players currently on this team)
+  const rosterRows = (await sql`
+    SELECT p.player_id, p.player_name, p.age,
+           s.games_played, s.mpg, s.ppg, s.rpg, s.apg, s.fga, s.fg3a, s.fta,
+           s.fg_pct, s.fg3_pct, s.ft_pct
+    FROM nba_players p
+    LEFT JOIN nba_player_season_stats s
+      ON s.player_id = p.player_id AND s.season = ${season}
+    WHERE p.team_id = ${teamId}
+  `) as Array<Record<string, unknown>>;
 
-  const recentGames = recentRows.slice(0, 10).map((r) => ({
-    date: r.GAME_DATE as string,
-    matchup: r.MATCHUP as string,
-    wl: r.WL as string,
-    pts: Number(r.PTS) || 0,
-    plus_minus: Number(r.PLUS_MINUS) || 0,
-    fg_pct: Math.round((Number(r.FG_PCT) || 0) * 1000) / 10,
-    fg3_pct: Math.round((Number(r.FG3_PCT) || 0) * 1000) / 10,
-  }));
-
-  // Traditional per-game stats for roster
-  const tradRows = await fetchStats("leaguedashplayerstats", {
-    Season: season,
-    SeasonType: currentSeasonType(),
-    PerMode: "PerGame",
-    MeasureType: "Base",
-    LeagueID: "00",
-    TeamID: teamId,
-  });
-
-  // Advanced stats for roster
-  const advRows = await fetchStats("leaguedashplayerstats", {
-    Season: season,
-    SeasonType: currentSeasonType(),
-    PerMode: "PerGame",
-    MeasureType: "Advanced",
-    LeagueID: "00",
-    TeamID: teamId,
-  });
-
-  const advMap = new Map(advRows.map((r) => [Number(r.PLAYER_ID), r]));
-
-  const rosterStats = tradRows
-    .map((r) => {
-      const pid = Number(r.PLAYER_ID);
-      const adv = advMap.get(pid);
-      return {
-        id: pid,
-        name: r.PLAYER_NAME as string,
-        gp: Number(r.GP),
-        min: safe(r.MIN),
-        ppg: safe(r.PTS),
-        rpg: safe(r.REB),
-        apg: safe(r.AST),
-        fg_pct: safe(r.FG_PCT, 100),
-        fg3_pct: safe(r.FG3_PCT, 100),
-        ft_pct: safe(r.FT_PCT, 100),
-        ts_pct: adv ? safe(adv.TS_PCT, 100) : null,
-        usg_pct: adv ? safe(adv.USG_PCT, 100) : null,
-        net_rating: adv ? safe(adv.NET_RATING) : null,
-      };
-    })
-    .sort((a, b) => (b.ppg ?? 0) - (a.ppg ?? 0));
-
-  // Team-level advanced stats
-  const teamAdvRows = await fetchStats("leaguedashteamstats", {
-    Season: season,
-    SeasonType: currentSeasonType(),
-    PerMode: "PerGame",
-    MeasureType: "Advanced",
-    LeagueID: "00",
-  });
-
-  const teamAdvRow = teamAdvRows.find((r) => Number(r.TEAM_ID) === teamId);
-  const teamAdvanced = teamAdvRow
-    ? {
-        net_rating: safe(teamAdvRow.NET_RATING),
-        off_rating: safe(teamAdvRow.OFF_RATING),
-        def_rating: safe(teamAdvRow.DEF_RATING),
-        pace: safe(teamAdvRow.PACE),
-        ts_pct: safe(teamAdvRow.TS_PCT, 100),
-        efg_pct: safe(teamAdvRow.EFG_PCT, 100),
-        pie: safe(teamAdvRow.PIE, 100),
-      }
-    : {};
+  const rosterStats = rosterRows
+    .map((r) => ({
+      id: Number(r.player_id),
+      name: String(r.player_name),
+      age: r.age == null ? null : Number(r.age),
+      gp: Number(r.games_played) || 0,
+      min: round1(r.mpg),
+      ppg: round1(r.ppg),
+      rpg: round1(r.rpg),
+      apg: round1(r.apg),
+      fga: round1(r.fga),
+      fg_pct: Math.round((Number(r.fg_pct) || 0) * 1000) / 10,
+      fg3_pct: Math.round((Number(r.fg3_pct) || 0) * 1000) / 10,
+      ft_pct: Math.round((Number(r.ft_pct) || 0) * 1000) / 10,
+    }))
+    .sort((a, b) => b.ppg - a.ppg);
 
   return {
     team: teamInfo,
     standing,
-    team_advanced: teamAdvanced,
-    recent_games: recentGames,
     roster_stats: rosterStats,
   };
 }

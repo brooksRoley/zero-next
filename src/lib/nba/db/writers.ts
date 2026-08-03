@@ -12,13 +12,14 @@ export async function upsertPlayers(sql: Sql, players: Row[]): Promise<number> {
   let count = 0;
   for (const p of players) {
     await sql`
-      INSERT INTO nba_players (player_id, player_name, team_id, team_abbreviation, position, updated_at)
+      INSERT INTO nba_players (player_id, player_name, team_id, team_abbreviation, position, age, updated_at)
       VALUES (
         ${Number(p.PLAYER_ID)},
         ${p.PLAYER_NAME},
         ${p.TEAM_ID != null ? Number(p.TEAM_ID) : null},
         ${p.TEAM_ABBREVIATION ?? null},
         ${p.POSITION ?? null},
+        ${p.AGE != null ? Number(p.AGE) : null},
         NOW()
       )
       ON CONFLICT (player_id) DO UPDATE SET
@@ -26,6 +27,7 @@ export async function upsertPlayers(sql: Sql, players: Row[]): Promise<number> {
         team_id = EXCLUDED.team_id,
         team_abbreviation = EXCLUDED.team_abbreviation,
         position = EXCLUDED.position,
+        age = COALESCE(EXCLUDED.age, nba_players.age),
         updated_at = NOW()
     `;
     count++;
@@ -61,7 +63,8 @@ export async function upsertTeams(sql: Sql, teams: Row[]): Promise<number> {
 }
 
 /** Gold-layer per-game season averages. Percentages are 0–1 fractions
- *  (roster-builder derives ts_pct from them). */
+ *  (roster-builder derives ts_pct from them). Makes/attempts are per-game
+ *  averages stored as published by the source. */
 export type PlayerSeasonStatsRow = {
   player_id: number;
   team_id: number | null;
@@ -73,6 +76,12 @@ export type PlayerSeasonStatsRow = {
   spg: number;
   bpg: number;
   topg: number;
+  fgm: number;
+  fga: number;
+  fg3m: number;
+  fg3a: number;
+  ftm: number;
+  fta: number;
   fg_pct: number;
   fg3_pct: number;
   ft_pct: number;
@@ -87,10 +96,12 @@ export async function upsertPlayerSeasonStats(
   for (const s of stats) {
     await sql`
       INSERT INTO nba_player_season_stats
-        (player_id, season, team_id, games_played, mpg, ppg, rpg, apg, spg, bpg, topg, fg_pct, fg3_pct, ft_pct, updated_at)
+        (player_id, season, team_id, games_played, mpg, ppg, rpg, apg, spg, bpg, topg,
+         fgm, fga, fg3m, fg3a, ftm, fta, fg_pct, fg3_pct, ft_pct, updated_at)
       VALUES
         (${s.player_id}, ${season}, ${s.team_id}, ${s.games_played}, ${s.mpg}, ${s.ppg}, ${s.rpg},
-         ${s.apg}, ${s.spg}, ${s.bpg}, ${s.topg}, ${s.fg_pct}, ${s.fg3_pct}, ${s.ft_pct}, NOW())
+         ${s.apg}, ${s.spg}, ${s.bpg}, ${s.topg}, ${s.fgm}, ${s.fga}, ${s.fg3m}, ${s.fg3a},
+         ${s.ftm}, ${s.fta}, ${s.fg_pct}, ${s.fg3_pct}, ${s.ft_pct}, NOW())
       ON CONFLICT (player_id, season) DO UPDATE SET
         team_id = EXCLUDED.team_id,
         games_played = EXCLUDED.games_played,
@@ -101,6 +112,12 @@ export async function upsertPlayerSeasonStats(
         spg = EXCLUDED.spg,
         bpg = EXCLUDED.bpg,
         topg = EXCLUDED.topg,
+        fgm = EXCLUDED.fgm,
+        fga = EXCLUDED.fga,
+        fg3m = EXCLUDED.fg3m,
+        fg3a = EXCLUDED.fg3a,
+        ftm = EXCLUDED.ftm,
+        fta = EXCLUDED.fta,
         fg_pct = EXCLUDED.fg_pct,
         fg3_pct = EXCLUDED.fg3_pct,
         ft_pct = EXCLUDED.ft_pct,

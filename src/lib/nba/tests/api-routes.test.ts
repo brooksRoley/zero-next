@@ -1,7 +1,8 @@
 /**
  * API Route Contract Tests
- * Mocks fetchStats/fetchStatsMulti to test route handler transforms,
- * error handling, and parameter validation without hitting stats.nba.com.
+ * DB-backed routes (players, teams, standings) mock the Neon sql client;
+ * game-level routes still mock fetchStats/fetchStatsMulti (stats.nba.com)
+ * until a trusted boxscore stream replaces them.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -13,6 +14,12 @@ const mockFetchStatsMulti = vi.fn();
 vi.mock("src/lib/nba/client", () => ({
   fetchStats: (...args: any[]) => mockFetchStats(...args),
   fetchStatsMulti: (...args: any[]) => mockFetchStatsMulti(...args),
+}));
+
+// Mock the Neon tagged-template client (sql`...` → mockSql(strings, ...values))
+const mockSql = vi.fn();
+vi.mock("src/lib/db", () => ({
+  sql: (...args: any[]) => mockSql(...args),
 }));
 
 // Disable caching — every call goes through the mock
@@ -39,16 +46,24 @@ function createMockRes(): any {
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
-const MOCK_PLAYER_ROWS = [
-  { PLAYER_ID: 2544, PLAYER_NAME: "LeBron James", TEAM_ID: 1610612747, TEAM_ABBREVIATION: "LAL", GP: 62, MIN: 35.2, PTS: 24.8, REB: 7.1, AST: 8.3, STL: 1.2, BLK: 0.6, TOV: 3.4, FGM: 9.2, FGA: 18.6, FG_PCT: 0.495, FG3M: 2.1, FG3A: 5.8, FG3_PCT: 0.362, FTM: 4.3, FTA: 5.6, FT_PCT: 0.768, PLUS_MINUS: 3.2 },
-  { PLAYER_ID: 203076, PLAYER_NAME: "Anthony Davis", TEAM_ID: 1610612747, TEAM_ABBREVIATION: "LAL", GP: 58, MIN: 34.1, PTS: 26.3, REB: 11.9, AST: 3.2, STL: 1.3, BLK: 2.1, TOV: 2.1, FGM: 10.1, FGA: 19.4, FG_PCT: 0.521, FG3M: 1.2, FG3A: 3.5, FG3_PCT: 0.343, FTM: 4.9, FTA: 6.3, FT_PCT: 0.778, PLUS_MINUS: 5.1 },
+// DB row shapes (snake_case, as the Neon queries return them)
+const DB_PLAYER_ROWS = [
+  { player_id: 2544, player_name: "LeBron James", position: "F", age: 41, team_id: 1610612747, games_played: 62, mpg: 35.2, ppg: 24.8, rpg: 7.1, apg: 8.3, spg: 1.2, bpg: 0.6, topg: 3.4, fga: 18.6, fg3a: 5.8, fta: 5.6, fg_pct: 0.495, fg3_pct: 0.362, ft_pct: 0.768 },
+  { player_id: 203076, player_name: "Anthony Davis", position: "F-C", age: 33, team_id: 1610612747, games_played: 58, mpg: 34.1, ppg: 26.3, rpg: 11.9, apg: 3.2, spg: 1.3, bpg: 2.1, topg: 2.1, fga: 19.4, fg3a: 3.5, fta: 6.3, fg_pct: 0.521, fg3_pct: 0.343, ft_pct: 0.778 },
 ];
 
-const MOCK_STANDINGS_ROWS = [
-  { TeamID: 1610612747, TeamName: "Lakers", TeamCity: "Los Angeles", Conference: "West", Division: "Pacific", PlayoffRank: 5, WINS: 44, LOSSES: 28, WinPCT: 0.611 },
-  { TeamID: 1610612738, TeamName: "Celtics", TeamCity: "Boston", Conference: "East", Division: "Atlantic", PlayoffRank: 1, WINS: 54, LOSSES: 18, WinPCT: 0.75 },
-  { TeamID: 1610612760, TeamName: "Thunder", TeamCity: "Oklahoma City", Conference: "West", Division: "Northwest", PlayoffRank: 1, WINS: 58, LOSSES: 14, WinPCT: 0.806 },
+const DB_STANDINGS_ROWS = [
+  { team_id: 1610612747, team_name: "Lakers", team_city: "Los Angeles", conference: "Western Conference", division: null, playoff_rank: 5, wins: 44, losses: 28, win_pct: 0.611 },
+  { team_id: 1610612738, team_name: "Celtics", team_city: "Boston", conference: "East", division: null, playoff_rank: 1, wins: 54, losses: 18, win_pct: 0.75 },
+  { team_id: 1610612760, team_name: "Thunder", team_city: "Oklahoma City", conference: "Western Conference", division: null, playoff_rank: 1, wins: 58, losses: 14, win_pct: 0.806 },
 ];
+
+const DB_TEAM_ROWS = [
+  { team_id: 1610612747, team_name: "Lakers", team_city: "Los Angeles", team_abbreviation: "LAL", conference: "Western Conference", division: null },
+  { team_id: 1610612738, team_name: "Celtics", team_city: "Boston", team_abbreviation: "BOS", conference: "Eastern Conference", division: null },
+  { team_id: 1610612760, team_name: "Thunder", team_city: "Oklahoma City", team_abbreviation: "OKC", conference: "Western Conference", division: null },
+];
+
 
 const MOCK_GAME_FINDER_ROWS = [
   { GAME_ID: "0022500850", GAME_DATE: "2026-03-15", MATCHUP: "LAL vs. BOS", TEAM_ABBREVIATION: "LAL", WL: "W", PTS: 118 },
@@ -57,19 +72,10 @@ const MOCK_GAME_FINDER_ROWS = [
   { GAME_ID: "0022500855", GAME_DATE: "2026-03-17", MATCHUP: "LAL @ DEN", TEAM_ABBREVIATION: "LAL", WL: "L", PTS: 105 },
 ];
 
-const MOCK_PLAYER_INFO_ROWS = [
-  { DISPLAY_FIRST_LAST: "LeBron James", TEAM_ID: 1610612747, POSITION: "Forward", JERSEY: "23", HEIGHT: "6-9", WEIGHT: "250", COUNTRY: "USA" },
-];
-
 const MOCK_GAMELOG_ROWS = [
   { GAME_DATE: "MAR 15, 2026", MATCHUP: "LAL vs. BOS", WL: "W", PTS: 32, REB: 8, AST: 10, FG_PCT: 0.545, MIN: "36:00" },
   { GAME_DATE: "MAR 17, 2026", MATCHUP: "LAL @ DEN", WL: "L", PTS: 22, REB: 6, AST: 7, FG_PCT: 0.4, MIN: "38:00" },
   { GAME_DATE: "MAR 19, 2026", MATCHUP: "LAL vs. GSW", WL: "W", PTS: 28, REB: 7, AST: 9, FG_PCT: 0.48, MIN: "35:00" },
-];
-
-const MOCK_ROSTER_ROWS = [
-  { PLAYER_ID: 2544, PLAYER: "LeBron James", POSITION: "F", NUM: "23" },
-  { PLAYER_ID: 203076, PLAYER: "Anthony Davis", POSITION: "F-C", NUM: "3" },
 ];
 
 const MOCK_BOXSCORE_SETS: Record<string, any[]> = {
@@ -89,31 +95,35 @@ const MOCK_BOXSCORE_SETS: Record<string, any[]> = {
 beforeEach(() => {
   mockFetchStats.mockReset();
   mockFetchStatsMulti.mockReset();
+  mockSql.mockReset();
 });
 
 describe("GET /api/nba/players", () => {
-  it("transforms player rows into API response shape", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_PLAYER_ROWS);
+  it("transforms DB rows into API response shape", async () => {
+    mockSql.mockResolvedValue(DB_PLAYER_ROWS);
     const { default: handler } = await import("src/pages/api/nba/players/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
 
     expect(res._status).toBe(200);
     expect(res._json.data).toHaveLength(2);
-    expect(res._json.data[0]).toEqual({
+    expect(res._json.data[0]).toMatchObject({
       id: 2544,
       name: "LeBron James",
       team_id: 1610612747,
-      pos: "",
+      pos: "F",
+      age: 41,
+      gp: 62,
       ppg: 24.8,
       rpg: 7.1,
       apg: 8.3,
+      fga: 18.6,
     });
     expect(res._json._meta.endpoint).toBe("players");
   });
 
   it("filters by team_id query param", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_PLAYER_ROWS);
+    mockSql.mockResolvedValue(DB_PLAYER_ROWS);
     const { default: handler } = await import("src/pages/api/nba/players/index");
     const res = createMockRes();
     await handler(createMockReq({ team_id: "1610612747" }), res);
@@ -125,17 +135,17 @@ describe("GET /api/nba/players", () => {
     expect(res2._json.data).toHaveLength(0);
   });
 
-  it("returns 503 when fetchStats throws", async () => {
-    mockFetchStats.mockRejectedValue(new Error("stats.nba.com returned 403"));
+  it("returns 503 when the DB throws", async () => {
+    mockSql.mockRejectedValue(new Error("connection refused"));
     const { default: handler } = await import("src/pages/api/nba/players/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
     expect(res._status).toBe(503);
-    expect(res._json.error).toContain("403");
+    expect(res._json.error).toContain("refused");
   });
 
-  it("handles empty response from stats.nba.com", async () => {
-    mockFetchStats.mockResolvedValue([]);
+  it("handles an empty table", async () => {
+    mockSql.mockResolvedValue([]);
     const { default: handler } = await import("src/pages/api/nba/players/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
@@ -145,8 +155,8 @@ describe("GET /api/nba/players", () => {
 });
 
 describe("GET /api/nba/teams", () => {
-  it("transforms standings rows into team list", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_STANDINGS_ROWS);
+  it("transforms DB team rows into team list", async () => {
+    mockSql.mockResolvedValue(DB_TEAM_ROWS);
     const { default: handler } = await import("src/pages/api/nba/teams/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
@@ -156,11 +166,11 @@ describe("GET /api/nba/teams", () => {
     const lakers = res._json.data.find((t: any) => t.id === 1610612747);
     expect(lakers.name).toBe("Lakers");
     expect(lakers.city).toBe("Los Angeles");
-    expect(lakers.conference).toBe("West");
+    expect(lakers.conference).toBe("West"); // normalized from "Western Conference"
   });
 
-  it("returns 503 on fetch failure", async () => {
-    mockFetchStats.mockRejectedValue(new Error("timeout"));
+  it("returns 503 on DB failure", async () => {
+    mockSql.mockRejectedValue(new Error("timeout"));
     const { default: handler } = await import("src/pages/api/nba/teams/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
@@ -170,7 +180,7 @@ describe("GET /api/nba/teams", () => {
 
 describe("GET /api/nba/standings", () => {
   it("returns ranked standings sorted by win pct", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_STANDINGS_ROWS);
+    mockSql.mockResolvedValue(DB_STANDINGS_ROWS);
     const { default: handler } = await import("src/pages/api/nba/standings");
     const res = createMockRes();
     await handler(createMockReq(), res);
@@ -182,18 +192,19 @@ describe("GET /api/nba/standings", () => {
     expect(data[0].wins).toBe(58); // Thunder first
   });
 
-  it("filters by conference", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_STANDINGS_ROWS);
+  it("filters by conference, tolerating mixed stored labels", async () => {
+    mockSql.mockResolvedValue(DB_STANDINGS_ROWS);
     const { default: handler } = await import("src/pages/api/nba/standings");
     const res = createMockRes();
     await handler(createMockReq({ conference: "East" }), res);
 
+    // "East" and "Eastern Conference" both normalize to East
     expect(res._json.data).toHaveLength(1);
     expect(res._json.data[0].name).toBe("Celtics");
   });
 
   it("conference filter is case-insensitive", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_STANDINGS_ROWS);
+    mockSql.mockResolvedValue(DB_STANDINGS_ROWS);
     const { default: handler } = await import("src/pages/api/nba/standings");
     const res = createMockRes();
     await handler(createMockReq({ conference: "west" }), res);
@@ -271,11 +282,13 @@ describe("GET /api/nba/games/[id]", () => {
 });
 
 describe("GET /api/nba/players/[id]", () => {
-  it("returns player detail with bio and stats", async () => {
-    // First call: commonplayerinfo, second call: leaguedashplayerstats (from getPlayers)
-    mockFetchStats
-      .mockResolvedValueOnce(MOCK_PLAYER_INFO_ROWS)
-      .mockResolvedValueOnce(MOCK_PLAYER_ROWS);
+  it("returns player detail with identity and season stats", async () => {
+    // First query: nba_players identity row; second: season stats (from getPlayers)
+    mockSql
+      .mockResolvedValueOnce([
+        { player_id: 2544, player_name: "LeBron James", team_id: 1610612747, team_abbreviation: "LAL", position: "F", age: 41 },
+      ])
+      .mockResolvedValueOnce(DB_PLAYER_ROWS);
 
     const { default: handler } = await import("src/pages/api/nba/players/[id]/index");
     const res = createMockRes();
@@ -283,8 +296,9 @@ describe("GET /api/nba/players/[id]", () => {
 
     expect(res._status).toBe(200);
     expect(res._json.data.name).toBe("LeBron James");
-    expect(res._json.data.pos).toBe("Forward");
-    expect(res._json.data.height).toBe("6-9");
+    expect(res._json.data.pos).toBe("F");
+    expect(res._json.data.team).toBe("LAL");
+    expect(res._json.data.age).toBe(41);
     expect(res._json.data.ppg).toBe(24.8);
   });
 
@@ -296,7 +310,7 @@ describe("GET /api/nba/players/[id]", () => {
   });
 
   it("returns 404 when player not found", async () => {
-    mockFetchStats.mockResolvedValue([]);
+    mockSql.mockResolvedValue([]);
     const { default: handler } = await import("src/pages/api/nba/players/[id]/index");
     const res = createMockRes();
     await handler(createMockReq({ id: "99999" }), res);
@@ -336,10 +350,14 @@ describe("GET /api/nba/players/[id]/gamelog", () => {
 
 describe("GET /api/nba/teams/[id]", () => {
   it("returns team detail with roster", async () => {
-    // First call: standings (for team lookup), second call: roster
-    mockFetchStats
-      .mockResolvedValueOnce(MOCK_STANDINGS_ROWS)
-      .mockResolvedValueOnce(MOCK_ROSTER_ROWS);
+    // First query: nba_teams (from getTeams), second: roster players
+    mockSql
+      .mockResolvedValueOnce(DB_TEAM_ROWS)
+      .mockResolvedValueOnce([
+        // Mocked in the query's ORDER BY player_name order
+        { player_id: 203076, player_name: "Anthony Davis", position: "F-C", age: 33 },
+        { player_id: 2544, player_name: "LeBron James", position: "F", age: 41 },
+      ]);
 
     const { default: handler } = await import("src/pages/api/nba/teams/[id]");
     const res = createMockRes();
@@ -348,7 +366,7 @@ describe("GET /api/nba/teams/[id]", () => {
     expect(res._status).toBe(200);
     expect(res._json.data.name).toBe("Lakers");
     expect(res._json.data.roster).toHaveLength(2);
-    expect(res._json.data.roster[0].name).toBe("LeBron James");
+    expect(res._json.data.roster[0].name).toBe("Anthony Davis"); // ordered by name
   });
 
   it("returns 400 for non-numeric ID", async () => {
@@ -359,7 +377,7 @@ describe("GET /api/nba/teams/[id]", () => {
   });
 
   it("returns 404 for unknown team", async () => {
-    mockFetchStats.mockResolvedValue(MOCK_STANDINGS_ROWS);
+    mockSql.mockResolvedValue(DB_TEAM_ROWS);
     const { default: handler } = await import("src/pages/api/nba/teams/[id]");
     const res = createMockRes();
     await handler(createMockReq({ id: "999" }), res);
@@ -367,17 +385,14 @@ describe("GET /api/nba/teams/[id]", () => {
   });
 });
 
-describe("Error boundary: stats.nba.com failures", () => {
-  it("all routes return 503 with error message on network failure", async () => {
-    const networkError = new Error("stats.nba.com leaguedashplayerstats returned 403");
-    mockFetchStats.mockRejectedValue(networkError);
-    mockFetchStatsMulti.mockRejectedValue(networkError);
+describe("Error boundary: data-layer failures", () => {
+  it("DB-backed routes return 503 with error message on DB failure", async () => {
+    mockSql.mockRejectedValue(new Error("Neon connection refused"));
 
     const routes = [
       { path: "src/pages/api/nba/players/index", req: createMockReq() },
       { path: "src/pages/api/nba/teams/index", req: createMockReq() },
       { path: "src/pages/api/nba/standings", req: createMockReq() },
-      { path: "src/pages/api/nba/games/index", req: createMockReq() },
     ];
 
     for (const route of routes) {
@@ -389,21 +404,22 @@ describe("Error boundary: stats.nba.com failures", () => {
     }
   });
 
-  it("route handlers propagate timeout errors", async () => {
-    mockFetchStats.mockRejectedValue(new Error("AbortError: The operation was aborted"));
-    const { default: handler } = await import("src/pages/api/nba/players/index");
+  it("game routes still 503 on stats.nba.com failure", async () => {
+    const networkError = new Error("stats.nba.com leaguegamefinder returned 403");
+    mockFetchStats.mockRejectedValue(networkError);
+    mockFetchStatsMulti.mockRejectedValue(networkError);
+
+    const { default: handler } = await import("src/pages/api/nba/games/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
     expect(res._status).toBe(503);
-    expect(res._json.error).toContain("aborted");
+    expect(res._json.error).toBeTruthy();
   });
 });
 
 describe("Data transform correctness", () => {
   it("PPG rounds to 1 decimal place", async () => {
-    mockFetchStats.mockResolvedValue([
-      { ...MOCK_PLAYER_ROWS[0], PTS: 24.85 },
-    ]);
+    mockSql.mockResolvedValue([{ ...DB_PLAYER_ROWS[0], ppg: 24.85 }]);
     const { default: handler } = await import("src/pages/api/nba/players/index");
     const res = createMockRes();
     await handler(createMockReq(), res);
@@ -412,9 +428,7 @@ describe("Data transform correctness", () => {
   });
 
   it("win pct rounds to 3 decimal places in standings", async () => {
-    mockFetchStats.mockResolvedValue([
-      { ...MOCK_STANDINGS_ROWS[0], WinPCT: 0.6111 },
-    ]);
+    mockSql.mockResolvedValue([{ ...DB_STANDINGS_ROWS[0], win_pct: 0.6111 }]);
     const { default: handler } = await import("src/pages/api/nba/standings");
     const res = createMockRes();
     await handler(createMockReq(), res);
@@ -422,8 +436,8 @@ describe("Data transform correctness", () => {
   });
 
   it("handles null stat values gracefully", async () => {
-    mockFetchStats.mockResolvedValue([
-      { PLAYER_ID: 1, PLAYER_NAME: "Rookie", TEAM_ID: 1610612747, TEAM_ABBREVIATION: "LAL", GP: 5, PTS: null, REB: null, AST: null },
+    mockSql.mockResolvedValue([
+      { player_id: 1, player_name: "Rookie", position: null, age: null, team_id: 1610612747, games_played: 5, mpg: null, ppg: null, rpg: null, apg: null, spg: null, bpg: null, topg: null, fga: null, fg3a: null, fta: null, fg_pct: null, fg3_pct: null, ft_pct: null },
     ]);
     const { default: handler } = await import("src/pages/api/nba/players/index");
     const res = createMockRes();
@@ -431,5 +445,6 @@ describe("Data transform correctness", () => {
     expect(res._json.data[0].ppg).toBe(0);
     expect(res._json.data[0].rpg).toBe(0);
     expect(res._json.data[0].apg).toBe(0);
+    expect(res._json.data[0].age).toBeNull();
   });
 });

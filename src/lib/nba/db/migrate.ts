@@ -139,6 +139,23 @@ export async function runMigrations(sql: Sql): Promise<string[]> {
     )
   `;
 
+  // Column evolution — per-game makes/attempts as published by ESPN
+  // (byathlete offensive category) and current player age. Age lives on the
+  // player, not the season row: ESPN reports today's age even for past
+  // seasons, so a per-season age column would store false history.
+  await sql`
+    ALTER TABLE nba_player_season_stats
+      ADD COLUMN IF NOT EXISTS fgm NUMERIC,
+      ADD COLUMN IF NOT EXISTS fga NUMERIC,
+      ADD COLUMN IF NOT EXISTS fg3m NUMERIC,
+      ADD COLUMN IF NOT EXISTS fg3a NUMERIC,
+      ADD COLUMN IF NOT EXISTS ftm NUMERIC,
+      ADD COLUMN IF NOT EXISTS fta NUMERIC
+  `;
+  await sql`
+    ALTER TABLE nba_players ADD COLUMN IF NOT EXISTS age INT
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS nba_player_salaries (
       player_id INT NOT NULL,

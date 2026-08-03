@@ -37,10 +37,13 @@ export type SalaryTeam = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
+    // ESPN's contract team is the *signing* team and lags trades; the roster
+    // ingest is the current-team truth. Fall back to the contract team for
+    // players on no roster (waived/dead money stays on the old team's books).
     const rows = (await sql`
-      SELECT s.player_id, s.team_id, s.salary, s.incoming_trade_value,
-             s.outgoing_trade_value, s.years_remaining, s.option_type,
-             s.minimum_salary_exception, p.player_name,
+      SELECT s.player_id, COALESCE(p.team_id, s.team_id) AS team_id, s.salary,
+             s.incoming_trade_value, s.outgoing_trade_value, s.years_remaining,
+             s.option_type, s.minimum_salary_exception, p.player_name,
              MAX(s.updated_at) OVER () AS latest
       FROM nba_player_salaries s
       LEFT JOIN nba_players p ON p.player_id = s.player_id
