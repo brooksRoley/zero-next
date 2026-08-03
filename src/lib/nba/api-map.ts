@@ -17,7 +17,14 @@ export const API_MAP: Record<string, {
   analytics: {
     label: "Analytics",
     description: "Advanced analytics hub",
-    children: ["last_night", "season_analytics", "team_dashboard", "lakers_dashboard"],
+    children: ["league_lens", "last_night", "season_analytics", "team_dashboard", "lakers_dashboard"],
+  },
+  league_lens: {
+    label: "League Lens",
+    endpoint: "/api/nba/analytics/league-lens",
+    description: "Outliers, player similarity comps, YoY breakout deltas, and payroll vs wins — 3 seasons of stored stats",
+    children: [],
+    params: [],
   },
   last_night: {
     label: "Last Night",
@@ -29,7 +36,7 @@ export const API_MAP: Record<string, {
   season_analytics: {
     label: "Season Analytics",
     endpoint: "/api/nba/analytics/season",
-    description: "Season-wide advanced player and team stats (TS%, eFG%, NetRtg, USG%)",
+    description: "Season leaders (scoring, boards, assists, shot volume) and team records with payroll",
     children: [],
     params: [],
   },
@@ -43,7 +50,7 @@ export const API_MAP: Record<string, {
   team_dashboard: {
     label: "Team Dashboard",
     endpoint: "/api/nba/analytics/team/{id}",
-    description: "Standing, roster advanced stats, and recent games for any team",
+    description: "Standing and roster per-game stats for any team",
     children: [],
     params: [{ name: "id", type: "int", required: true }],
   },

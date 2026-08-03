@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { NBA_DISPLAY_FONT, NBA_RED_LIGHT } from "src/lib/nba/brand";
 
 type AccuracyStats = {
   totalPredictions: number;
@@ -28,7 +29,7 @@ type AccuracyResponse = {
   _meta?: { rollingWindow?: number };
 };
 
-const ACCENT = "#f97316";
+const ACCENT = NBA_RED_LIGHT;
 
 function pct(n: number, d: number): number {
   return d > 0 ? Math.round((n / d) * 1000) / 10 : 0;
@@ -284,8 +285,11 @@ export default function NbaAccuracy() {
           >
             Model vs. Vegas
           </span>
-          <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-white">
-            NBA Prediction Accuracy
+          <h1
+            className="mt-4 text-4xl sm:text-5xl text-white uppercase tracking-wide"
+            style={{ fontFamily: NBA_DISPLAY_FONT }}
+          >
+            NBA Prediction <span style={{ color: NBA_RED_LIGHT }}>Accuracy</span>
           </h1>
           <p className="mt-3 text-slate-400 leading-relaxed max-w-2xl">
             Every settled prediction is scored against the closing Vegas spread.

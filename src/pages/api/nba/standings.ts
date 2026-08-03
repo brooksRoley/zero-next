@@ -1,23 +1,46 @@
+/**
+ * GET /api/nba/standings — current standings from the DB silver table
+ * (ESPN-fed daily). Replaces the dead stats.nba.com read.
+ *
+ * getStandingsRows keeps the legacy stats.nba.com row shape (TeamID, WINS,
+ * WinPCT, …) because analytics/team/[id].ts still consumes it.
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fetchStats } from "src/lib/nba/client";
+import { sql } from "src/lib/db";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason, currentSeasonType } from "src/lib/nba/season";
+import { currentNbaSeason } from "src/lib/nba/season";
 import { TEAMS_BY_ID } from "src/lib/nba/teams-static";
-import { StandingsSchema } from "src/lib/nba/schemas";
-import { validateRows } from "src/lib/nba/validate";
+import { normalizeConference } from "./teams/index";
 
-async function fetchStandings() {
+async function fetchStandingsRows() {
   const season = currentNbaSeason();
-  const rows = await fetchStats("leaguestandingsv3", {
-    LeagueID: "00",
-    Season: season,
-    SeasonType: currentSeasonType(),
-  }, { resultSetName: "Standings" });
-  return validateRows(StandingsSchema, rows, "leaguestandingsv3/standings");
+  const rows = (await sql`
+    SELECT st.team_id, st.conference, st.division, st.wins, st.losses,
+           st.win_pct, st.playoff_rank, t.team_name, t.team_city
+    FROM nba_standings st
+    LEFT JOIN nba_teams t ON t.team_id = st.team_id
+    WHERE st.season = ${season}
+  `) as Array<Record<string, unknown>>;
+
+  return rows.map((r) => {
+    const tid = Number(r.team_id);
+    const staticTeam = TEAMS_BY_ID.get(tid);
+    return {
+      TeamID: tid,
+      TeamName: String(r.team_name ?? staticTeam?.nickname ?? ""),
+      TeamCity: String(r.team_city ?? staticTeam?.city ?? ""),
+      Conference: normalizeConference(r.conference ?? staticTeam?.conference),
+      Division: r.division == null ? "" : String(r.division),
+      PlayoffRank: Number(r.playoff_rank) || 0,
+      WINS: Number(r.wins) || 0,
+      LOSSES: Number(r.losses) || 0,
+      WinPCT: Number(r.win_pct) || 0,
+    };
+  });
 }
 
 export async function getStandingsRows() {
-  return cached("standings_rows", fetchStandings, 600);
+  return cached("standings_rows", fetchStandingsRows, 600);
 }
 
 export default async function handler(
@@ -30,18 +53,17 @@ export default async function handler(
     const rows = await getStandingsRows();
 
     let result = rows.map((r) => {
-      const tid = Number(r.TeamID);
-      const staticTeam = TEAMS_BY_ID.get(tid);
+      const staticTeam = TEAMS_BY_ID.get(r.TeamID);
       return {
-        id: tid,
-        name: r.TeamName as string,
-        city: r.TeamCity as string,
+        id: r.TeamID,
+        name: r.TeamName,
+        city: r.TeamCity,
         abbrev: staticTeam?.abbreviation ?? "",
-        conference: r.Conference as string,
-        division: r.Division as string,
-        wins: Number(r.WINS),
-        losses: Number(r.LOSSES),
-        pct: Math.round(Number(r.WinPCT) * 1000) / 1000,
+        conference: r.Conference,
+        division: r.Division,
+        wins: r.WINS,
+        losses: r.LOSSES,
+        pct: Math.round(r.WinPCT * 1000) / 1000,
       };
     });
 

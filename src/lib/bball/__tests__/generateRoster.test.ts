@@ -11,6 +11,8 @@ import type { EspnSeasonStats, EspnRosterStatus } from "src/lib/bball/espn";
 function player(overrides: Partial<EspnSeasonStats> & { id: number }): EspnSeasonStats {
   return {
     name: `Player ${overrides.id}`,
+    age: 25,
+    teamNickname: null,
     gamesPlayed: 70,
     avgMinutes: 30,
     avgPoints: 15,
@@ -19,6 +21,12 @@ function player(overrides: Partial<EspnSeasonStats> & { id: number }): EspnSeaso
     avgSteals: 1,
     avgBlocks: 0.5,
     avgTurnovers: 2,
+    avgFgm: 5.5,
+    avgFga: 12,
+    avgFg3m: 1.8,
+    avgFg3a: 5,
+    avgFtm: 2.2,
+    avgFta: 2.8,
     fgPct: 0.46,
     fg3Pct: 0.36,
     ftPct: 0.78,
@@ -168,15 +176,23 @@ describe("parseByAthletePage", () => {
     const page = {
       categories: [
         { name: "general", names: ["gamesPlayed", "avgMinutes", "avgRebounds"] },
-        { name: "offensive", names: ["avgPoints", "avgAssists"] },
+        {
+          name: "offensive",
+          names: [
+            "avgPoints", "avgAssists",
+            "avgFieldGoalsMade", "avgFieldGoalsAttempted",
+            "avgThreePointFieldGoalsMade", "avgThreePointFieldGoalsAttempted",
+            "avgFreeThrowsMade", "avgFreeThrowsAttempted",
+          ],
+        },
         { name: "defensive", names: ["avgSteals", "avgBlocks"] },
       ],
       athletes: [
         {
-          athlete: { id: "3934672", displayName: "Jalen Brunson" },
+          athlete: { id: "3934672", displayName: "Jalen Brunson", age: 29, teamName: "Knicks" },
           categories: [
             { name: "general", values: [65, 35.1, 3.2] },
-            { name: "offensive", values: [28.4, 6.1] },
+            { name: "offensive", values: [28.4, 6.1, 9.8, 20.5, 2.7, 7.2, 6.1, 7.3] },
             { name: "defensive", values: [1.2, 0.1] },
           ],
         },
@@ -189,6 +205,8 @@ describe("parseByAthletePage", () => {
     expect(rows[0]).toEqual({
       id: 3934672,
       name: "Jalen Brunson",
+      age: 29,
+      teamNickname: "Knicks",
       gamesPlayed: 65,
       avgMinutes: 35.1,
       avgRebounds: 3.2,
@@ -197,6 +215,12 @@ describe("parseByAthletePage", () => {
       avgSteals: 1.2,
       avgBlocks: 0.1,
       avgTurnovers: 0,
+      avgFgm: 9.8,
+      avgFga: 20.5,
+      avgFg3m: 2.7,
+      avgFg3a: 7.2,
+      avgFtm: 6.1,
+      avgFta: 7.3,
       fgPct: 0,
       fg3Pct: 0,
       ftPct: 0,
@@ -213,6 +237,9 @@ describe("parseByAthletePage", () => {
     });
     expect(rows[0].avgPoints).toBe(0);
     expect(rows[0].gamesPlayed).toBe(0);
+    expect(rows[0].avgFga).toBe(0);
+    expect(rows[0].age).toBeNull();
+    expect(rows[0].teamNickname).toBeNull();
   });
 
   it("converts ESPN's 0-100 percentages to 0-1 fractions", () => {
