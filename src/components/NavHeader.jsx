@@ -9,9 +9,22 @@ const NAV_LINKS = [
     label: 'Projects',
     children: [
       { href: '/basketball-platform', label: 'Basketball Data Platform' },
+      { href: '/stat-galaxy', label: 'Stat Galaxy' },
+      { href: '/digital-products', label: 'Digital Products' },
+      { href: '/posts/guestbook', label: 'Guestbook' },
+    ],
+  },
+  {
+    label: 'Games',
+    children: [
+      { href: '/theater', label: 'Theater — every game' },
       { href: '/posts/pente', label: 'Pente' },
       { href: '/posts/pente-puzzles', label: 'Pente Puzzles' },
       { href: '/posts/go', label: 'Go' },
+      { href: '/games/pass-and-cut', label: 'Pass & Cut' },
+      { href: '/games/read-and-react', label: 'Read & React' },
+      { href: '/games/hardwood', label: 'Hardwood Autochess' },
+      { href: '/games/moments', label: 'Playoff Moments' },
       { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
     ],
   },
@@ -23,14 +36,16 @@ const NAV_LINKS = [
 
 export default function NavHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  // Which desktop dropdown is open, keyed by label (null = none). A single
+  // boolean can't support more than one dropdown, so this tracks the open one.
+  const [openMenu, setOpenMenu] = useState(null);
+  const desktopNavRef = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
     const handleRouteChange = () => {
       setMobileOpen(false);
-      setDropdownOpen(false);
+      setOpenMenu(null);
     };
     router.events.on('routeChangeComplete', handleRouteChange);
     return () => router.events.off('routeChangeComplete', handleRouteChange);
@@ -38,8 +53,8 @@ export default function NavHeader() {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
+      if (desktopNavRef.current && !desktopNavRef.current.contains(e.target)) {
+        setOpenMenu(null);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -64,12 +79,12 @@ export default function NavHeader() {
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-1">
+        <ul ref={desktopNavRef} className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((item) =>
             item.children ? (
-              <li key={item.label} className="relative" ref={dropdownRef}>
+              <li key={item.label} className="relative">
                 <button
-                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  onClick={() => setOpenMenu((prev) => (prev === item.label ? null : item.label))}
                   className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors
                     ${item.children.some((c) => isActive(c.href))
                       ? 'text-candy-400 bg-forest-800'
@@ -78,7 +93,7 @@ export default function NavHeader() {
                 >
                   {item.label}
                   <svg
-                    className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 transition-transform ${openMenu === item.label ? 'rotate-180' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -87,7 +102,7 @@ export default function NavHeader() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                {dropdownOpen && (
+                {openMenu === item.label && (
                   <ul className="absolute top-full right-0 mt-1 w-48 bg-forest-800 rounded-lg shadow-lg border border-forest-700/60 py-1 animate-[fadeIn_0.15s_ease-out]">
                     {item.children.map((child) => (
                       <li key={child.href}>

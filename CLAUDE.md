@@ -160,7 +160,7 @@ The consulting funnel (`/consulting`) has Stripe Checkout wired up but is curren
 1. **Create the Product in Stripe Dashboard**
    - Go to dashboard.stripe.com → Products → + Add product
    - Create three products matching the service tiers: "Strategy Session" ($150), "Dev Sprint" ($2,400/week deposit), "Fractional CTO" ($4,000/month deposit)
-   - The checkout API at `src/pages/api/consulting/checkout.ts` currently uses ad-hoc `price_data` (no saved Product/Price IDs). Once products exist in the dashboard, refactor to use `price: 'price_XXXX'` instead of inline `price_data` for cleaner reporting and Stripe Tax support.
+   - The checkout API at `src/pages/api/consulting/checkout.ts` already supports saved Price IDs: it uses `{ price: priceId, quantity: 1 }` when the tier's `STRIPE_PRICE_*` env var is set, and falls back to inline `price_data` otherwise (identical behavior with no env vars set). So once the Products exist, you only need to paste the `price_XXXX` IDs into Vercel env vars — no code change required.
 
 2. **Switch to Live Keys**
    - In Stripe Dashboard → Developers → API keys, copy the **live** secret key and publishable key
@@ -176,11 +176,10 @@ The consulting funnel (`/consulting`) has Stripe Checkout wired up but is curren
    - Rotate keys periodically via Stripe Dashboard → Developers → API keys → Roll key
    - Never commit live keys to the repo; `.env*.local` is gitignored
 
-4. **Webhook for Payment Confirmation** (next agent should build this)
-   - Create `src/pages/api/consulting/webhook.ts` to handle `checkout.session.completed` events
-   - Verify webhook signature using `STRIPE_WEBHOOK_SECRET` env var
-   - Update `checkout_sessions.status` from 'pending' → 'paid' in the DB
-   - Optionally send a notification (email or Slack) when a deposit lands
+4. **Webhook for Payment Confirmation** — ✅ **built** (`src/pages/api/consulting/webhook.ts`)
+   - Handles `checkout.session.completed`, verifies the signature with `stripe.webhooks.constructEvent` against `STRIPE_WEBHOOK_SECRET`, and updates `checkout_sessions.status` from 'pending' → 'paid'. Returns 503 until `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` are set.
+   - Remaining owner:brooks step: register the endpoint URL in Stripe Dashboard → Developers → Webhooks and paste the resulting `STRIPE_WEBHOOK_SECRET` (`whsec_...`) into Vercel.
+   - Optional future work: send a notification (email or Slack) when a deposit lands.
 
 5. **Post-Launch Hardening**
    - Add rate limiting to `/api/consulting/leads` to prevent spam
@@ -304,13 +303,17 @@ Each scheduled run starts cold with no memory of prior runs. Without a shared le
 
 **Each ledger item carries:** a short title, `owner` (`agent` or `brooks`), `status` (`open` → `shipped` → `verified`, or `blocked`), `first_flagged` date, and `flagged_count`.
 
+**Anti-duplication is the whole point.** Brooks does not act on every daily brief — that's by design; the personas exist to give different lenses across the week, not to demand a daily response. The failure mode this section exists to kill is a *skipped day turning into a re-printed day*: for the week of 2026-07-24→30, all seven personas (CFO→CTO) re-listed the identical backlog (NavHeader, rig-report CTA, funding capture, Stripe keys) in full every day — roughly 70% of each brief was recap, and agent-doable items like the NavHeader gap were *re-recommended* six times instead of shipped once. A missed day should cost one persona's delta scan, not trigger a full backlog re-run. The rules below enforce that.
+
 **Protocol every session:**
 
-1. **Read the ledger first.** Do not re-derive analysis for items already in it — only add net-new items or transition existing ones.
+1. **Read the ledger first; the email carries deltas only.** Standing items live in the ledger, not in the daily brief. Do not re-derive analysis for anything already in the ledger, and do not re-print unchanged `STANDING ITEMS` / `WAITING ON BROOKS` lists in prose. The email surfaces only (a) net-new findings, (b) deltas since the last brief, and (c) the single top action, then links the ledger. A brief with no deltas is three lines, not forty.
 2. **Separate agent-doable from human-blocked.** `owner: agent` items are yours to ship. `owner: brooks` items (Stripe Dashboard, env vars, writing a PDF, real testimonials, anything needing secrets you lack) are NOT yours — never burn a session re-analyzing them.
-3. **Escalate, don't repeat.** When a `owner: brooks` item reaches `flagged_count` ≥ 3, stop writing paragraphs about it. Surface it as a single bold line at the very top of the output: **"Brooks — ~30 min, do this: <action>"** — then move on to work you can actually ship. Depth of analysis should correlate with the agent's ability to act, not inversely.
-4. **Pick agent work from open items**, prefer those with analytics or ledger evidence of value.
-5. **Write back on exit:** transition anything you shipped to `shipped`, add any new recommendations as `open`, increment `flagged_count` on anything you re-surfaced, and record verification results (including blocked checks).
+3. **Ship agent-doable items; do not re-recommend them.** If an `owner: agent` item has been flagged **twice**, this session's job is to *open the PR*, not to write the ready-to-paste prompt a third time. Re-recommending an agent-doable item that you could have built is itself the failure — writing "here's the prompt to fix NavHeader" six times is six wasted sessions. Recommending is the fallback for when shipping is genuinely blocked; say what the block is.
+4. **Escalate human-blocked items exclusively.** When an `owner: brooks` item reaches `flagged_count` ≥ 3, it appears **only** as a single bold line at the very top — **"Brooks — ~30 min, do this: <action>"** — and in **no other section** of the brief. No paragraph, no duplicate entry in a `WAITING ON BROOKS` list. One line, then move on.
+5. **Own a disjoint beat; don't re-flag another beat's item.** Each persona audits its own domain (e.g. CTO=infra/tests, CFO=unit-economics, Designer=UX/a11y, Data Sci=analytics/instrumentation, CEO=revenue funnel). If a finding belongs to another persona's beat and is already in the ledger, leave it under its owner — do not re-surface it just because you also noticed it. (The persona definitions themselves live in the cloud routine prompt; keep them disjoint there.)
+6. **Pick agent work from open items**, prefer those with analytics or ledger evidence of value.
+7. **Write back on exit:** transition anything you shipped to `shipped`, add any new recommendations as `open`, increment `flagged_count` on anything you re-surfaced, and record verification results (including blocked checks).
 
 **Weekly Unlock Session (calendar escalation).** Bold lines in briefs have proven insufficient — "flip Stripe to live keys" reached 8 flags without landing. The fix is the medium, not more flags. When Google Calendar is connected, the PM session maintains ONE recurring ~30-minute "Unlock Session" event on Brooks's calendar and rewrites its description each week with the top 3 `owner: brooks` items — each with a time estimate and exact click-by-click steps. Update the single event in place; never create a pile of new events. If Calendar is not available, put the same 3-item list at the very top of the PM brief under the heading **Unlock list (~30 min total)**. Ten minutes of Brooks unblocks weeks of agent output — this is the highest-leverage artifact the routine produces.
 

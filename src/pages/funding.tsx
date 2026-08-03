@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import Head from 'next/head'
-import { track } from 'src/lib/analytics'
+import { getAnonId, getSessionId, track } from 'src/lib/analytics'
 
 // Stripe Payment Links — create these in the Stripe Dashboard
 // (Payments → Payment Links → + New) and paste the live URLs below.
@@ -21,7 +22,83 @@ const CUSTOM_TIP_LINK = PAYMENT_LINK_PLACEHOLDER
 // Link URLs replace the placeholders above.
 const isPlaceholder = (href: string) => href.includes('REPLACE_ME')
 
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+// While card tips are disabled, don't strand someone who wanted to help. Reuse
+// the /api/events email-capture pattern (see digital-products.tsx) so the visit
+// becomes a retargetable signup instead of a dead end. Posts a funding_notify
+// event, which api/events.ts promotes into the email_signups mailing list.
+function TipWhenLiveCapture() {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
+  const valid = EMAIL_RE.test(email.trim())
+
+  const handleSubmit = async () => {
+    if (!valid || status === 'submitting') return
+    setStatus('submitting')
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: getSessionId(),
+          anon_id: getAnonId(),
+          page: '/funding',
+          event_type: 'funding_notify',
+          metadata: { email: email.trim(), product: 'funding_tip' },
+        }),
+      })
+      if (!res.ok) throw new Error('Request failed')
+      track('cta_click', { metadata: { location: 'funding_notify' } })
+      setStatus('done')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  if (status === 'done') {
+    return (
+      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-200">
+        Thank you — I&apos;ll email you once card tips are live, and nothing else.
+      </div>
+    )
+  }
+
+  return (
+    <div className="text-left">
+      <p className="mb-2 text-xs text-forest-400">
+        Card tips aren&apos;t live yet. Leave your email and I&apos;ll ping you the
+        moment they are — no newsletter, no spam.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          placeholder="you@example.com"
+          aria-label="Email address"
+          className="flex-1 rounded-lg border border-forest-600 bg-forest-900/60 px-4 py-2.5 text-sm text-white placeholder-forest-500 focus:border-[#635BFF]/70 focus:outline-none"
+        />
+        <button
+          onClick={handleSubmit}
+          disabled={!valid || status === 'submitting'}
+          className="px-5 py-2.5 rounded-lg bg-[#635BFF] hover:bg-[#4F46E5] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {status === 'submitting' ? 'Saving…' : 'Notify me'}
+        </button>
+      </div>
+      {status === 'error' && (
+        <p className="mt-2 text-xs text-red-400/90">
+          Something went wrong — please try again in a moment.
+        </p>
+      )}
+    </div>
+  )
+}
+
 export default function Funding() {
+  const tipsLive = !isPlaceholder(CUSTOM_TIP_LINK)
   return (
     <main className="min-h-screen bg-forest-950 flex items-center justify-center px-4 py-16 font-sans">
       <Head>
@@ -90,10 +167,16 @@ export default function Funding() {
         )}
 
         <p className="text-forest-600 text-xs">
-          {isPlaceholder(CUSTOM_TIP_LINK)
-            ? 'Card payments via Stripe are being set up — check back soon.'
-            : 'Secure card payment via Stripe'}
+          {tipsLive
+            ? 'Secure card payment via Stripe'
+            : 'Card payments via Stripe are being set up.'}
         </p>
+
+        {!tipsLive && (
+          <div className="pt-2 border-t border-forest-800/40">
+            <TipWhenLiveCapture />
+          </div>
+        )}
       </div>
     </main>
   )
