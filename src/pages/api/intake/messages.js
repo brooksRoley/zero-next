@@ -1,4 +1,12 @@
 import { supabase } from 'src/lib/supabase'
+import { createRateLimiter } from 'src/lib/rate-limit'
+
+// Deliberately looser than send.js's 20/hr: this is the read side of the same
+// thread, and the client (src/pages/intake.jsx) refetches on mount and again
+// after every send. A visitor who sends the full 20 messages legitimately
+// triggers ~21 reads, so copying 20/hr here would throttle real usage. 60/hr
+// leaves room for page reloads while still bounding scripted abuse.
+const limiter = createRateLimiter(60, 60 * 60 * 1000) // 60 per hour
 
 // visitorId is interpolated into a PostgREST .or() filter below, so it must be a
 // strict UUID. Without this, a crafted value (e.g. "x,parent_id.gt.0") could
@@ -8,6 +16,13 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   if (!supabase) return res.status(503).json({ error: 'Database not configured' })
+
+  // Checked before input validation, matching send.js — a client burning the
+  // budget on malformed requests should still be throttled.
+  const ip = limiter.getClientIp(req)
+  if (limiter.isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' })
+  }
 
   const { visitorId } = req.query
   if (!visitorId) return res.status(400).json({ error: 'visitorId is required' })
