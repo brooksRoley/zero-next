@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import SupportCta from 'src/components/SupportCta'
 
 /* ── Typography options for the picker ── */
 const FONTS = [
@@ -426,6 +427,14 @@ export default function GuestBook() {
               </button>
             </div>
           )}
+
+          <footer className="mt-10 border-t border-forest-800/60 pt-6 text-center">
+            <SupportCta
+              page="/posts/guestbook"
+              location="guestbook_tip"
+              label="Enjoy the guest book? Support development →"
+            />
+          </footer>
         </main>
       </div>
     </>
