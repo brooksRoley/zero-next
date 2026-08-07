@@ -458,48 +458,57 @@ export default function Consulting() {
           </section>
 
           {/* ── Ways to connect ── */}
-          <section className="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a
-              href="https://calendly.com/brooksroley/"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'connect_tile' })}
-              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
-            >
-              <span className="text-2xl">&#128222;</span>
-              <span className="text-sm font-medium text-white">Schedule a Call</span>
-              <span className="text-xs text-forest-500">Pick a time on Calendly</span>
-            </a>
+          <section className="mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Primary — a scheduled call is the fastest path, so it gets the
+                  filled candy-accent treatment while the rest stay secondary. */}
+              <a
+                href="https://calendly.com/brooksroley/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'connect_tile' })}
+                className="group relative flex flex-col items-center gap-2 rounded-xl border border-candy-500/60 bg-candy-500/15 hover:bg-candy-500/25 hover:border-candy-400 p-6 text-center transition-all shadow-lg shadow-candy-500/10"
+              >
+                <span className="absolute right-3 top-3 rounded-full border border-candy-500/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-candy-200">
+                  Start here
+                </span>
+                <span className="text-2xl">&#128222;</span>
+                <span className="text-base font-semibold text-white">Schedule a Call</span>
+                <span className="text-xs text-candy-100/80">Pick a time on Calendly</span>
+              </a>
 
-            <Link
-              href="/intake"
-              onClick={() => track('intake_open', { location: 'connect_tile' })}
-              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
-            >
-              <span className="text-2xl">&#127908;</span>
-              <span className="text-sm font-medium text-white">Voice Intake</span>
-              <span className="text-xs text-forest-500">Describe your project out loud &mdash; I&apos;ll receive a transcript and reply within a day.</span>
-            </Link>
+              <Link
+                href="/intake"
+                onClick={() => track('intake_open', { location: 'connect_tile' })}
+                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
+              >
+                <span className="text-2xl">&#127908;</span>
+                <span className="text-sm font-medium text-white">Voice Intake</span>
+                <span className="text-xs text-forest-500">Describe your project out loud &mdash; I&apos;ll receive a transcript and reply within a day.</span>
+              </Link>
 
-            <a
-              href="#contact"
-              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
-            >
-              <span className="text-2xl">&#9993;</span>
-              <span className="text-sm font-medium text-white">Send a Message</span>
-              <span className="text-xs text-forest-500">I&apos;ll reply within a day</span>
-            </a>
+              <a
+                href="#contact"
+                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
+              >
+                <span className="text-2xl">&#9993;</span>
+                <span className="text-sm font-medium text-white">Send a Message</span>
+                <span className="text-xs text-forest-500">I&apos;ll reply within a day</span>
+              </a>
+            </div>
 
-            <a
-              href="https://www.linkedin.com/in/brooksroley/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
-            >
-              <span className="text-2xl">&#128279;</span>
-              <span className="text-sm font-medium text-white">Connect on LinkedIn</span>
-              <span className="text-xs text-forest-500">in/brooksroley</span>
-            </a>
+            {/* Secondary — LinkedIn demoted from a full tile to a quiet link. */}
+            <div className="mt-4 text-center">
+              <a
+                href="https://www.linkedin.com/in/brooksroley/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-forest-500 hover:text-forest-300 transition-colors"
+              >
+                <span>&#128279;</span>
+                <span>Connect on LinkedIn &mdash; in/brooksroley</span>
+              </a>
+            </div>
           </section>
 
           {/* ── Contact Form ── */}
