@@ -26,12 +26,19 @@ type FunnelStep = {
   sessions: number;
 };
 
+type SupabaseStats = {
+  puzzleBank: { count: number; avgRating: number | null };
+  gameResults: { total: number; byOpponentType: { bot: number; human: number } };
+  players: { count: number; avgGameElo: number | null };
+};
+
 type AnalyticsResponse = {
   pageViews: PageViewRow[];
   leads: { total: number; last_30_days: number };
   events?: EventRow[];
   eventsByPage?: EventByPageRow[];
   funnel?: FunnelStep[];
+  supabaseStats?: SupabaseStats | null;
   priorityEvents?: string[];
   _meta?: { windowDays?: number };
 };
@@ -78,6 +85,8 @@ export default function AdminAnalyticsPage() {
   const prioritySet = new Set(data?.priorityEvents ?? []);
   const totalEvents = events.reduce((sum, r) => sum + r.count, 0);
   const maxEventCount = events.reduce((m, r) => Math.max(m, r.count), 0);
+  const games = data?.supabaseStats ?? null;
+  const fmtAvg = (n: number | null) => (n == null ? "—" : n.toLocaleString());
 
   return (
     <>
@@ -196,6 +205,54 @@ export default function AdminAnalyticsPage() {
                     </div>
                   );
                 })}
+              </div>
+            </section>
+          )}
+
+          {data && games && (
+            <section className="mb-8">
+              <h2 className="text-lg font-semibold mb-1">Games (Supabase)</h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Live totals from the Pente/Go game database — puzzle bank,
+                recorded games, and player ratings.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                    Puzzle bank
+                  </div>
+                  <div className="mt-2 text-3xl font-bold">
+                    {games.puzzleBank.count.toLocaleString()}
+                  </div>
+                  <div className="mt-1 text-sm text-forest-400">
+                    avg rating {fmtAvg(games.puzzleBank.avgRating)}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                    Games recorded
+                  </div>
+                  <div className="mt-2 text-3xl font-bold">
+                    {games.gameResults.total.toLocaleString()}
+                  </div>
+                  <div className="mt-1 text-sm text-forest-400">
+                    {games.gameResults.byOpponentType.bot.toLocaleString()} vs bot
+                    {" · "}
+                    {games.gameResults.byOpponentType.human.toLocaleString()} vs
+                    human
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                    Players
+                  </div>
+                  <div className="mt-2 text-3xl font-bold">
+                    {games.players.count.toLocaleString()}
+                  </div>
+                  <div className="mt-1 text-sm text-forest-400">
+                    avg game ELO {fmtAvg(games.players.avgGameElo)}
+                  </div>
+                </div>
               </div>
             </section>
           )}
