@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import SupportCta from 'src/components/SupportCta'
 
 /* ═══════════════════════════════════════════════════════
    SIMPLEX NOISE  —  compact 2D/3D implementation
@@ -365,6 +366,14 @@ export default function LuminousFlow() {
             <Link href="/" className="pointer-events-auto text-white/30 hover:text-white/70 transition-colors text-sm font-mono tracking-wider">
               &larr; back
             </Link>
+          </div>
+          <div className="flex justify-end">
+            <SupportCta
+              page="/posts/luminous-flow"
+              location="luminous_flow_tip"
+              label="support development →"
+              className="pointer-events-auto text-white/30 hover:text-white/70 transition-colors text-sm font-mono tracking-wider"
+            />
           </div>
         </div>
       </div>

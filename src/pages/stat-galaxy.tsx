@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import Matter from 'matter-js'
+import SupportCta from 'src/components/SupportCta'
 
 // ── Team color palette (keyed by NBA team_id) ──────────────────────────
 const TEAM_COLORS: Record<number, string> = {
@@ -318,8 +319,14 @@ export default function StatGalaxy() {
             <p className="text-xs text-[#8b8fa3] font-mono mt-0.5">Matter.js Physics Data Explorer</p>
           </div>
         </div>
-        <div className="text-xs font-mono text-[#8b8fa3]">
-          Drag the Stat Wells to see players cluster by gravity.
+        <div className="flex flex-col items-end gap-1 text-xs font-mono text-[#8b8fa3]">
+          <span className="hidden sm:inline">Drag the Stat Wells to see players cluster by gravity.</span>
+          <SupportCta
+            page="/stat-galaxy"
+            location="stat_galaxy_tip"
+            label="Support development →"
+            className="text-[#f97316] hover:text-[#fb923c] transition-colors"
+          />
         </div>
       </header>
 
