@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
+import { supabase } from "src/lib/supabase";
 
 // The /admin/analytics page is gated by src/proxy.ts via the
 // tracker_session cookie; this API checks the same cookie so the page can
@@ -21,6 +22,93 @@ const PRIORITY_EVENTS = [
 ] as const;
 
 type EventTotalRow = { event_type: string; count: number; sessions: number };
+
+type SupabaseStats = {
+  puzzleBank: { count: number; avgRating: number | null };
+  gameResults: { total: number; byOpponentType: { bot: number; human: number } };
+  players: { count: number; avgGameElo: number | null };
+};
+
+// Read-only aggregate stats from the Supabase game database (Pente/Go live
+// there, not in Neon — see CLAUDE.md). Returns null when Supabase isn't
+// configured (preview/CI, where `supabase` is null) and degrades to zero/null
+// per section if a table is unmigrated or a query errors, so a game-side gap
+// never takes down the Neon-backed business analytics above.
+async function readSupabaseStats(): Promise<SupabaseStats | null> {
+  if (!supabase) return null;
+  const db = supabase;
+
+  const safe = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
+    try {
+      return await fn();
+    } catch {
+      return fallback;
+    }
+  };
+
+  // Count without transferring rows (head + exact count).
+  const countAll = async (table: string): Promise<number> => {
+    const { count, error } = await db
+      .from(table)
+      .select("*", { count: "exact", head: true });
+    if (error) throw error;
+    return count ?? 0;
+  };
+  const countEq = async (
+    table: string,
+    column: string,
+    value: string
+  ): Promise<number> => {
+    const { count, error } = await db
+      .from(table)
+      .select("*", { count: "exact", head: true })
+      .eq(column, value);
+    if (error) throw error;
+    return count ?? 0;
+  };
+  // Average a numeric column in JS (these game tables are small; PostgREST
+  // aggregate functions aren't enabled by default so we don't rely on them).
+  const avgColumn = async (
+    table: string,
+    column: string
+  ): Promise<number | null> => {
+    const { data, error } = await db.from(table).select(column);
+    if (error) throw error;
+    const nums = (data ?? [])
+      .map((row) => Number((row as unknown as Record<string, unknown>)[column]))
+      .filter((n) => Number.isFinite(n));
+    if (nums.length === 0) return null;
+    const mean = nums.reduce((sum, n) => sum + n, 0) / nums.length;
+    return Math.round(mean * 10) / 10;
+  };
+
+  const [
+    puzzleCount,
+    avgRating,
+    gameResultsTotal,
+    botGames,
+    humanGames,
+    playerCount,
+    avgGameElo,
+  ] = await Promise.all([
+    safe(() => countAll("puzzle_bank"), 0),
+    safe(() => avgColumn("puzzle_bank", "rating"), null),
+    safe(() => countAll("game_results"), 0),
+    safe(() => countEq("game_results", "opponent_type", "bot"), 0),
+    safe(() => countEq("game_results", "opponent_type", "human"), 0),
+    safe(() => countAll("players"), 0),
+    safe(() => avgColumn("players", "game_elo"), null),
+  ]);
+
+  return {
+    puzzleBank: { count: puzzleCount, avgRating },
+    gameResults: {
+      total: gameResultsTotal,
+      byOpponentType: { bot: botGames, human: humanGames },
+    },
+    players: { count: playerCount, avgGameElo },
+  };
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -131,12 +219,17 @@ export default async function handler(
       { step: "lead_submit", label: "Lead captured", sessions: funnelRow.lead_submit ?? 0 },
     ];
 
+    // Game-side stats from Supabase; null when unconfigured, and self-guarded
+    // so it can't throw the request into the 503 catch below.
+    const supabaseStats = await readSupabaseStats();
+
     return res.status(200).json({
       pageViews,
       leads: leadCounts[0] ?? { total: 0, last_30_days: 0 },
       events,
       eventsByPage,
       funnel,
+      supabaseStats,
       priorityEvents: PRIORITY_EVENTS,
       _meta: { windowDays: 30 },
     });

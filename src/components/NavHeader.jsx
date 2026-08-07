@@ -9,6 +9,8 @@ const NAV_LINKS = [
     label: 'Projects',
     children: [
       { href: '/basketball-platform', label: 'Basketball Data Platform' },
+      { href: '/nba', label: 'NBA Explorer — League Lens' },
+      { href: '/tools/trade-machine', label: 'Trade Machine' },
       { href: '/stat-galaxy', label: 'Stat Galaxy' },
       { href: '/digital-products', label: 'Digital Products' },
       { href: '/posts/guestbook', label: 'Guestbook' },
