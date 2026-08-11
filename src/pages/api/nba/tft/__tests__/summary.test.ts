@@ -13,7 +13,7 @@ vi.mock("src/lib/db", () => ({
   sql: (...args: unknown[]) => state.impl(...args),
 }));
 
-import handler from "src/pages/api/nba/tft/summary";
+import handler from "../summary";
 
 describe("GET /api/nba/tft/summary", () => {
   beforeEach(() => {
