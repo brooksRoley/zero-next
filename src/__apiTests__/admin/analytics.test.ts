@@ -121,7 +121,7 @@ describe("api/admin/analytics — Go stats", () => {
       },
     });
 
-    const { default: handler } = await import("src/pages/api/admin/analytics");
+    const { default: handler } = await import("../../pages/api/admin/analytics");
     const req = createMockReq({ tracker_session: "secret-session" });
     const res = createMockRes();
 
@@ -166,7 +166,7 @@ describe("api/admin/analytics — Go stats", () => {
       },
     };
 
-    const { default: handler } = await import("src/pages/api/admin/analytics");
+    const { default: handler } = await import("../../pages/api/admin/analytics");
     const req = createMockReq({ tracker_session: "secret-session" });
     const res = createMockRes();
 
@@ -181,7 +181,7 @@ describe("api/admin/analytics — Go stats", () => {
 
   it("returns 401 when the tracker_session cookie is missing or wrong", async () => {
     mockSql.mockReset();
-    const { default: handler } = await import("src/pages/api/admin/analytics");
+    const { default: handler } = await import("../../pages/api/admin/analytics");
     const req = createMockReq({ tracker_session: "wrong" });
     const res = createMockRes();
 

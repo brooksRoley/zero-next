@@ -59,7 +59,7 @@ describe("api/intake/send owner notification", () => {
     );
     fetchMock = vi.fn().mockResolvedValue({ ok: true });
     global.fetch = fetchMock;
-    ({ default: handler } = await import("src/pages/api/intake/send.js"));
+    ({ default: handler } = await import("../send.js"));
   });
 
   afterEach(() => {
