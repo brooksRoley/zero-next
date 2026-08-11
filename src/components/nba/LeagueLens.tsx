@@ -8,6 +8,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { zScores, zScoreMatrix, nearestNeighbors } from "src/lib/nba/analysis";
+import { track } from "src/lib/analytics";
 import type { LensPlayerRow } from "src/pages/api/nba/analytics/league-lens";
 
 type LensTeam = {
@@ -134,6 +135,7 @@ export default function LeagueLens() {
         setSeason(json.data.current_season);
         const seasons: string[] = [...new Set<string>(json.data.players.map((p: LensPlayerRow) => p.season))].sort();
         if (seasons.length >= 2) setBreakoutPeriod(`${seasons[seasons.length - 2]}→${seasons[seasons.length - 1]}`);
+        track("league_lens_view");
       })
       .catch((e) => alive && setError(e.message));
     return () => { alive = false; };
@@ -261,7 +263,7 @@ export default function LeagueLens() {
   const tabBtn = (key: typeof view, label: string) => (
     <button
       key={key}
-      onClick={() => { setView(key); setTooltip(null); }}
+      onClick={() => { setView(key); setTooltip(null); track("league_lens_view_switch", { metadata: { view: key } }); }}
       style={{
         padding: "5px 12px", fontSize: 11, fontFamily: "'DM Mono', monospace", cursor: "pointer",
         background: view === key ? GRID : "transparent", color: view === key ? INK : INK2,
@@ -344,7 +346,11 @@ export default function LeagueLens() {
                     onFocus={(e) => showTip(e, [{ label: "", value: p.name, strong: true }, { label: statLabel(String(yKey)), value: fmtValue(String(yKey), scatter.ys[i]) }])}
                     onMouseLeave={() => setTooltip(null)}
                     onBlur={() => setTooltip(null)}
-                    onClick={() => setSelectedId(p.id === selectedId ? null : p.id)}
+                    onClick={() => {
+                      const next = p.id === selectedId ? null : p.id;
+                      setSelectedId(next);
+                      if (next != null) track("league_lens_player_select", { metadata: { player_id: next, name: p.name } });
+                    }}
                   />
                   {/* selective direct labels: statistical outliers only, in ink;
                       anchor flips near the right edge so text never clips */}

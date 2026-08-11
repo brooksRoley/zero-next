@@ -31,7 +31,7 @@ async function loadHandler({ supabase = null, rateLimited = false } = {}) {
       isRateLimited: () => rateLimited,
     }),
   }))
-  const mod = await import('../game-result')
+  const mod = await import('src/pages/api/pente/game-result')
   return mod.default
 }
 
