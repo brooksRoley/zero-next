@@ -63,7 +63,7 @@ describe("api/intake/messages", () => {
       data: [{ id: 1, visitor_id: VISITOR_ID, content: "hello" }],
       error: null,
     });
-    ({ default: handler } = await import("../messages.js"));
+    ({ default: handler } = await import("src/pages/api/intake/messages.js"));
   });
 
   it("rejects a non-GET method", async () => {

@@ -27,6 +27,10 @@ type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
   gameResults: { total: number; byOpponentType: { bot: number; human: number } };
   players: { count: number; avgGameElo: number | null };
+  go: {
+    players: { count: number; avgElo: number | null };
+    puzzleAttempts: { total: number; solved: number };
+  };
 };
 
 // Read-only aggregate stats from the Supabase game database (Pente/Go live
@@ -57,7 +61,7 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
   const countEq = async (
     table: string,
     column: string,
-    value: string
+    value: string | boolean
   ): Promise<number> => {
     const { count, error } = await db
       .from(table)
@@ -90,6 +94,10 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     humanGames,
     playerCount,
     avgGameElo,
+    goPlayerCount,
+    avgGoElo,
+    goAttemptsTotal,
+    goAttemptsSolved,
   ] = await Promise.all([
     safe(() => countAll("puzzle_bank"), 0),
     safe(() => avgColumn("puzzle_bank", "rating"), null),
@@ -98,6 +106,13 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     safe(() => countEq("game_results", "opponent_type", "human"), 0),
     safe(() => countAll("players"), 0),
     safe(() => avgColumn("players", "game_elo"), null),
+    // Go lives in its own tables (go_players / go_puzzle_attempts) — isolated
+    // from Pente's ELO per CLAUDE.md, but that also meant the game was
+    // invisible here: Go engagement had zero visibility in this dashboard.
+    safe(() => countAll("go_players"), 0),
+    safe(() => avgColumn("go_players", "go_elo"), null),
+    safe(() => countAll("go_puzzle_attempts"), 0),
+    safe(() => countEq("go_puzzle_attempts", "solved", true), 0),
   ]);
 
   return {
@@ -107,6 +122,10 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
       byOpponentType: { bot: botGames, human: humanGames },
     },
     players: { count: playerCount, avgGameElo },
+    go: {
+      players: { count: goPlayerCount, avgElo: avgGoElo },
+      puzzleAttempts: { total: goAttemptsTotal, solved: goAttemptsSolved },
+    },
   };
 }
 

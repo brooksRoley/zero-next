@@ -51,7 +51,7 @@ describe("api/admin/leads auth", () => {
 
   it("returns 503 when ADMIN_KEY is not configured", async () => {
     delete process.env.ADMIN_KEY;
-    const { default: handler } = await import("../leads");
+    const { default: handler } = await import("src/pages/api/admin/leads");
     const req = createMockReq("GET", { "x-admin-key": "anything" });
     const res = createMockRes();
 
@@ -63,7 +63,7 @@ describe("api/admin/leads auth", () => {
 
   it("returns 401 when x-admin-key is missing or wrong", async () => {
     process.env.ADMIN_KEY = "correct-key";
-    const { default: handler } = await import("../leads");
+    const { default: handler } = await import("src/pages/api/admin/leads");
 
     const noHeader = createMockRes();
     await handler(createMockReq("GET"), noHeader);
@@ -78,7 +78,7 @@ describe("api/admin/leads auth", () => {
 
   it("accepts x-admin-key and returns leads + summary on GET", async () => {
     process.env.ADMIN_KEY = "correct-key";
-    const { default: handler } = await import("../leads");
+    const { default: handler } = await import("src/pages/api/admin/leads");
 
     mockSql
       .mockResolvedValueOnce([{ id: 1, name: "Brooks", status: "new" }])
@@ -104,7 +104,7 @@ describe("api/admin/leads auth", () => {
 
   it("rejects an invalid status on PATCH with 400", async () => {
     process.env.ADMIN_KEY = "correct-key";
-    const { default: handler } = await import("../leads");
+    const { default: handler } = await import("src/pages/api/admin/leads");
 
     const req = createMockReq(
       "PATCH",
@@ -121,7 +121,7 @@ describe("api/admin/leads auth", () => {
 
   it("updates status on PATCH with a valid status", async () => {
     process.env.ADMIN_KEY = "correct-key";
-    const { default: handler } = await import("../leads");
+    const { default: handler } = await import("src/pages/api/admin/leads");
 
     mockSql.mockResolvedValueOnce([{ id: 1, status: "contacted" }]);
 
