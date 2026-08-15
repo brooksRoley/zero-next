@@ -5,6 +5,27 @@
 import { mapRosterToEngine, type EnginePlayer, type RealPlayerStats } from "./stat-mapper";
 import { NBA_TEAMS } from "../teams-static";
 
+/** Row shape returned by `getTeamRosterForSim` — one player's gold-layer
+ *  per-game stats plus their team's pace/def_rtg context. */
+export type RosterSimRow = {
+  player_id: number | string;
+  player_name: string;
+  team_id: number | string;
+  position?: string | null;
+  games_played?: number | string | null;
+  mpg?: number | string | null;
+  ppg?: number | string | null;
+  rpg?: number | string | null;
+  apg?: number | string | null;
+  spg?: number | string | null;
+  bpg?: number | string | null;
+  fg_pct?: number | string | null;
+  fg3_pct?: number | string | null;
+  ft_pct?: number | string | null;
+  team_pace?: number | string | null;
+  team_def_rtg?: number | string | null;
+};
+
 /** Resolve "Los Angeles Lakers" → team_id + abbreviation */
 export function resolveTeam(fullName: string): { id: number; abbrev: string } | null {
   const team = NBA_TEAMS.find((t) => t.full_name === fullName);
@@ -34,7 +55,7 @@ const DEFAULT_BIO = { height_inches: 78, weight_lbs: 215 };
  * Convert a DB roster row (from getTeamRosterForSim) into RealPlayerStats.
  * Derives missing advanced stats from available per-game data.
  */
-export function dbRowToRealStats(row: any): RealPlayerStats {
+export function dbRowToRealStats(row: RosterSimRow): RealPlayerStats {
   const bio = POSITION_DEFAULTS[row.position ?? ""] ?? DEFAULT_BIO;
   const fgPct = Number(row.fg_pct) || 0.45;
   const fg3Pct = Number(row.fg3_pct) || 0.33;
@@ -85,7 +106,7 @@ export function fallbackRoster(teamAbbrev: string): EnginePlayer[] {
  * Build an EnginePlayer[] roster from DB rows.
  * Returns fallback roster if fewer than 5 players available.
  */
-export function buildRosterFromDb(rows: any[], teamAbbrev: string): { roster: EnginePlayer[]; source: "db" | "fallback" } {
+export function buildRosterFromDb(rows: RosterSimRow[], teamAbbrev: string): { roster: EnginePlayer[]; source: "db" | "fallback" } {
   if (rows.length < 5) {
     return { roster: fallbackRoster(teamAbbrev), source: "fallback" };
   }

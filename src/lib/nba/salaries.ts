@@ -27,22 +27,41 @@ export type PlayerContract = {
   minimumSalaryException: boolean;
 };
 
-async function fetchJson(url: string): Promise<any | null> {
+/** Minimal shape of an ESPN athlete-contract payload — only the fields
+ *  parseContract reads; ESPN doesn't publish a schema for this endpoint. */
+type EspnContractJson = {
+  salary?: number;
+  team?: { $ref?: string };
+  incomingTradeValue?: number;
+  outgoingTradeValue?: number;
+  yearsRemaining?: number;
+  optionType?: number;
+  birdStatus?: number;
+  minimumSalaryException?: boolean;
+};
+
+async function fetchJson<T = unknown>(url: string): Promise<T | null> {
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (res.status === 404) return null; // no contract for that season
   if (!res.ok) throw new Error(`ESPN ${res.status} for ${url}`);
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 /**
  * ESPN team id → canonical NBA team id, joined via displayName. Contract
  * payloads reference teams only by ESPN id.
  */
+type EspnTeamsPage = {
+  sports?: Array<{
+    leagues?: Array<{ teams?: Array<{ team?: { id?: string; displayName?: string } }> }>;
+  }>;
+};
+
 export async function fetchEspnTeamIdMap(): Promise<Map<number, number>> {
-  const page = await fetchJson(SITE_TEAMS);
+  const page = await fetchJson<EspnTeamsPage>(SITE_TEAMS);
   const map = new Map<number, number>();
   for (const entry of page?.sports?.[0]?.leagues?.[0]?.teams ?? []) {
     const team = entry?.team;
@@ -56,7 +75,7 @@ export async function fetchEspnTeamIdMap(): Promise<Map<number, number>> {
 
 /** Exported for tests. */
 export function parseContract(
-  json: any,
+  json: EspnContractJson,
   playerId: number,
   seasonYear: number,
   espnTeamToNba: Map<number, number>
@@ -94,7 +113,7 @@ export async function fetchContracts(
   async function worker() {
     while (cursor < playerIds.length) {
       const id = playerIds[cursor++];
-      const json = await fetchJson(
+      const json = await fetchJson<EspnContractJson>(
         `${CORE_BASE}/athletes/${id}/contracts/${seasonYear}?lang=en&region=us`
       );
       if (!json) continue;
