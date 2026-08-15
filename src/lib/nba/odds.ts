@@ -21,24 +21,35 @@ export const OddsSchema = z.object({
 
 export type OddsRow = z.infer<typeof OddsSchema>;
 
-export function parseOddsResponse(event: any): OddsRow[] {
+type OddsOutcome = { name: string; point?: number; price?: number };
+type OddsMarket = { key: string; outcomes: OddsOutcome[] };
+type OddsBookmaker = { key: string; markets?: OddsMarket[] };
+export type OddsApiEvent = {
+  id: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  bookmakers?: OddsBookmaker[];
+};
+
+export function parseOddsResponse(event: OddsApiEvent): OddsRow[] {
   const rows: OddsRow[] = [];
 
   for (const bk of event.bookmakers ?? []) {
-    const spreads = bk.markets?.find((m: any) => m.key === "spreads");
-    const totals = bk.markets?.find((m: any) => m.key === "totals");
-    const h2h = bk.markets?.find((m: any) => m.key === "h2h");
+    const spreads = bk.markets?.find((m) => m.key === "spreads");
+    const totals = bk.markets?.find((m) => m.key === "totals");
+    const h2h = bk.markets?.find((m) => m.key === "h2h");
 
     if (!spreads) continue;
 
-    const homeOutcome = spreads.outcomes.find((o: any) => o.name === event.home_team);
-    const awayOutcome = spreads.outcomes.find((o: any) => o.name === event.away_team);
-    if (!homeOutcome || !awayOutcome) continue;
+    const homeOutcome = spreads.outcomes.find((o) => o.name === event.home_team);
+    const awayOutcome = spreads.outcomes.find((o) => o.name === event.away_team);
+    if (homeOutcome?.point == null || awayOutcome?.point == null) continue;
 
-    const overOutcome = totals?.outcomes?.find((o: any) => o.name === "Over");
+    const overOutcome = totals?.outcomes?.find((o) => o.name === "Over");
 
-    const homeH2h = h2h?.outcomes?.find((o: any) => o.name === event.home_team);
-    const awayH2h = h2h?.outcomes?.find((o: any) => o.name === event.away_team);
+    const homeH2h = h2h?.outcomes?.find((o) => o.name === event.home_team);
+    const awayH2h = h2h?.outcomes?.find((o) => o.name === event.away_team);
 
     rows.push({
       event_id: event.id,
@@ -66,11 +77,11 @@ export function consensusSpread(rows: OddsRow[]): number {
   return spreads[mid];
 }
 
-export async function fetchOdds(apiKey: string): Promise<any[]> {
+export async function fetchOdds(apiKey: string): Promise<OddsApiEvent[]> {
   const url = `${ODDS_BASE}/sports/basketball_nba/odds/?apiKey=${apiKey}&regions=us&markets=spreads,totals,h2h&oddsFormat=american`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Odds API returned ${res.status}: ${await res.text()}`);
   }
-  return res.json();
+  return res.json() as Promise<OddsApiEvent[]>;
 }

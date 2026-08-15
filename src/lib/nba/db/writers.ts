@@ -4,6 +4,7 @@
  */
 import type { NeonQueryFunction } from "@neondatabase/serverless";
 import type { OddsRow } from "../odds";
+import type { SimScore } from "../sim/engine-bridge";
 
 type Sql = NeonQueryFunction<false, false>;
 type Row = Record<string, any>;
@@ -338,7 +339,7 @@ export async function insertPrediction(sql: Sql, pred: {
   sim_count: number; sim_median_spread: number; sim_mean_spread: number;
   sim_stddev: number; sim_home_win_pct: number; vegas_spread: number;
   edge: number; edge_direction: string; confidence: string;
-  synergy_buffs_home: any; synergy_buffs_away: any;
+  synergy_buffs_home: SimScore["synergies"]; synergy_buffs_away: SimScore["synergies"];
   home_team: string; away_team: string; roster_source: string;
 }): Promise<void> {
   await sql`

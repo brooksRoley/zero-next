@@ -77,7 +77,51 @@ export function espnSeasonYear(now: Date = new Date()): number {
   return now.getUTCMonth() >= 9 ? now.getUTCFullYear() + 1 : now.getUTCFullYear();
 }
 
-async function fetchJson(url: string): Promise<any> {
+/** Minimal shape of one byathlete page — ESPN doesn't publish a schema, so
+ *  this covers only the fields parseByAthletePage actually reads. */
+type EspnByAthletePage = {
+  categories?: Array<{ name?: string; names?: string[] }>;
+  athletes?: Array<{
+    athlete?: {
+      id?: number | string;
+      displayName?: string;
+      age?: number | string;
+      teamName?: string;
+    };
+    categories?: Array<{ name?: string; values?: number[] }>;
+  }>;
+  pagination?: { pages?: number | string };
+};
+
+type EspnTeamRef = { id?: string; abbreviation?: string; displayName?: string };
+
+type EspnTeamsPage = {
+  sports?: Array<{ leagues?: Array<{ teams?: Array<{ team?: EspnTeamRef }> }> }>;
+};
+
+type EspnRosterPage = {
+  team?: { abbreviation?: string; displayName?: string };
+  athletes?: Array<{
+    id?: number | string;
+    fullName?: string;
+    position?: { abbreviation?: string };
+    injuries?: Array<{ status?: string }>;
+  }>;
+};
+
+type EspnStandingsPage = {
+  children?: Array<{
+    name?: string;
+    standings?: {
+      entries?: Array<{
+        team?: { displayName?: string; abbreviation?: string };
+        stats?: Array<{ name?: string; value?: number }>;
+      }>;
+    };
+  }>;
+};
+
+async function fetchJson<T = unknown>(url: string): Promise<T> {
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -85,7 +129,7 @@ async function fetchJson(url: string): Promise<any> {
   if (!res.ok) {
     throw new Error(`ESPN ${res.status} for ${url}`);
   }
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 /**
@@ -94,7 +138,7 @@ async function fetchJson(url: string): Promise<any> {
  * offensive / defensive) come from the page-level `categories`. Exported for
  * tests.
  */
-export function parseByAthletePage(page: any): EspnSeasonStats[] {
+export function parseByAthletePage(page: EspnByAthletePage): EspnSeasonStats[] {
   const labelsByCategory = new Map<string, string[]>();
   for (const cat of page?.categories ?? []) {
     if (cat?.name && Array.isArray(cat.names)) labelsByCategory.set(cat.name, cat.names);
@@ -108,10 +152,11 @@ export function parseByAthletePage(page: any): EspnSeasonStats[] {
 
     const stat = new Map<string, number>();
     for (const cat of entry?.categories ?? []) {
-      const labels = labelsByCategory.get(cat?.name);
-      if (!labels || !Array.isArray(cat?.values)) continue;
+      const labels = labelsByCategory.get(cat?.name ?? "");
+      const values = cat?.values;
+      if (!labels || !Array.isArray(values)) continue;
       labels.forEach((label, i) => {
-        const v = cat.values[i];
+        const v = values[i];
         if (typeof v === "number" && Number.isFinite(v)) stat.set(label, v);
       });
     }
@@ -159,7 +204,7 @@ export async function fetchSeasonStats(
       `${STATS_URL}?region=us&lang=en&isqualified=true&seasontype=2` +
       `&season=${season}&page=${pageNum}&limit=${PAGE_LIMIT}` +
       `&sort=offensive.avgPoints%3Adesc`;
-    const page = await fetchJson(url);
+    const page = await fetchJson<EspnByAthletePage>(url);
     pages = Number(page?.pagination?.pages) || 1;
     rows.push(...parseByAthletePage(page));
   }
@@ -172,24 +217,24 @@ export async function fetchSeasonStats(
  * rosters in parallel.
  */
 export async function fetchTeamRosters(): Promise<EspnRosterPlayer[]> {
-  const teamsPage = await fetchJson(`${SITE_BASE}/teams`);
-  const teams: Array<{ id: string }> = (
+  const teamsPage = await fetchJson<EspnTeamsPage>(`${SITE_BASE}/teams`);
+  const teams: EspnTeamRef[] = (
     teamsPage?.sports?.[0]?.leagues?.[0]?.teams ?? []
   )
-    .map((t: any) => t?.team)
-    .filter((t: any) => t?.id);
+    .map((t) => t?.team)
+    .filter((t): t is EspnTeamRef => Boolean(t?.id));
   if (teams.length === 0) throw new Error("ESPN teams list came back empty");
 
   const players: EspnRosterPlayer[] = [];
   const rosters = await Promise.all(
-    teams.map((t) => fetchJson(`${SITE_BASE}/teams/${t.id}/roster`))
+    teams.map((t) => fetchJson<EspnRosterPage>(`${SITE_BASE}/teams/${t.id}/roster`))
   );
   for (const roster of rosters) {
     const teamAbbrev = roster?.team?.abbreviation ?? "";
     const teamName = roster?.team?.displayName ?? "";
     for (const athlete of roster?.athletes ?? []) {
-      const id = Number(athlete?.id);
-      if (!Number.isInteger(id) || !athlete?.fullName) continue;
+      const id = Number(athlete.id);
+      if (!Number.isInteger(id) || !athlete.fullName) continue;
       players.push({
         id,
         name: athlete.fullName,
@@ -219,7 +264,7 @@ export async function fetchRosterStatuses(): Promise<Map<number, EspnRosterStatu
  * League standings by conference. Division isn't in this feed — callers that
  * need it can join NBA_TEAMS. Exported page parser for tests.
  */
-export function parseStandingsPage(page: any): EspnStandingsEntry[] {
+export function parseStandingsPage(page: EspnStandingsPage): EspnStandingsEntry[] {
   const entries: EspnStandingsEntry[] = [];
   for (const conference of page?.children ?? []) {
     const confName = conference?.name ?? "";
@@ -245,7 +290,7 @@ export function parseStandingsPage(page: any): EspnStandingsEntry[] {
 }
 
 export async function fetchStandings(): Promise<EspnStandingsEntry[]> {
-  const page = await fetchJson(
+  const page = await fetchJson<EspnStandingsPage>(
     "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
   );
   const entries = parseStandingsPage(page);
