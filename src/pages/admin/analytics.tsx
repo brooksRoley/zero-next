@@ -30,6 +30,10 @@ type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
   gameResults: { total: number; byOpponentType: { bot: number; human: number } };
   players: { count: number; avgGameElo: number | null };
+  go: {
+    players: { count: number; avgElo: number | null };
+    puzzleAttempts: { total: number; solved: number };
+  };
 };
 
 type AnalyticsResponse = {
@@ -251,6 +255,43 @@ export default function AdminAnalyticsPage() {
                   </div>
                   <div className="mt-1 text-sm text-forest-400">
                     avg game ELO {fmtAvg(games.players.avgGameElo)}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {data && games?.go && (
+            <section className="mb-8">
+              <h2 className="text-lg font-semibold mb-1">Go (Supabase)</h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Go lives in its own tables (go_players / go_puzzle_attempts),
+                isolated from Pente&apos;s ELO — tracked separately here so Go
+                engagement isn&apos;t dark.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                    Go players
+                  </div>
+                  <div className="mt-2 text-3xl font-bold">
+                    {games.go.players.count.toLocaleString()}
+                  </div>
+                  <div className="mt-1 text-sm text-forest-400">
+                    avg ELO {fmtAvg(games.go.players.avgElo)}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                    Go puzzle attempts
+                  </div>
+                  <div className="mt-2 text-3xl font-bold">
+                    {games.go.puzzleAttempts.total.toLocaleString()}
+                  </div>
+                  <div className="mt-1 text-sm text-forest-400">
+                    {games.go.puzzleAttempts.total > 0
+                      ? `${Math.round((games.go.puzzleAttempts.solved / games.go.puzzleAttempts.total) * 100)}% solved`
+                      : "no attempts yet"}
                   </div>
                 </div>
               </div>
