@@ -2,6 +2,7 @@
  * Query functions for NBA data tables.
  */
 import type { NeonQueryFunction } from "@neondatabase/serverless";
+import type { RosterSimRow } from "../sim/roster-builder";
 
 type Sql = NeonQueryFunction<false, false>;
 
@@ -129,7 +130,11 @@ export async function getOddsForEvent(sql: Sql, eventId: string) {
  * Joins players + season stats + team stats to produce data compatible with RealPlayerStats.
  * Missing advanced stats (ts_pct, stl_pct, blk_pct) are derived from available per-game data.
  */
-export async function getTeamRosterForSim(sql: Sql, teamId: number, season: string) {
+export async function getTeamRosterForSim(
+  sql: Sql,
+  teamId: number,
+  season: string
+): Promise<RosterSimRow[]> {
   const rows = await sql`
     SELECT
       p.player_id,
@@ -156,5 +161,5 @@ export async function getTeamRosterForSim(sql: Sql, teamId: number, season: stri
     ORDER BY ps.mpg DESC
     LIMIT 8
   `;
-  return rows;
+  return rows as unknown as RosterSimRow[];
 }
