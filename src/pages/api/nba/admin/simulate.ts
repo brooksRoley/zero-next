@@ -27,9 +27,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const season = currentNbaSeason();
 
+  type SimEventSummary = {
+    event_id: string;
+    matchup: string;
+    vegas_spread: number;
+    sim_spread: number;
+    edge: number;
+    edge_direction: string;
+    confidence: string;
+    roster_source: "db" | "partial" | "fallback";
+  };
+
   try {
     const events = await fetchOdds(apiKey);
-    const results: any[] = [];
+    const results: SimEventSummary[] = [];
 
     for (const event of events) {
       const oddsRows = parseOddsResponse(event);

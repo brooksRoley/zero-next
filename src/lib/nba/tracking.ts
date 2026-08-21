@@ -43,11 +43,32 @@ export interface PlayerMovementStats {
   frameCount: number;
 }
 
+/** One frame as published by the tracking feed, before normalization —
+ *  field names vary by provider (camelCase vs snake_case), hence the pairs. */
+type RawTrackingFrame = {
+  timestamp?: number;
+  frameIndex?: number;
+  quarter?: number;
+  period?: number;
+  gameClock?: number;
+  game_clock?: number;
+  shotClock?: number | null;
+  players?: Array<{
+    playerId?: number;
+    player_id?: number;
+    teamId?: number;
+    team_id?: number;
+    x: number | string;
+    y: number | string;
+  }>;
+  ball?: { x: number | string; y: number | string; z?: number | string };
+};
+
 /**
  * Parse raw tracking JSON into typed TrackingFrame array.
  * Expected input: array of frame objects from tracking feed.
  */
-export function parseTrackingData(raw: any[]): TrackingFrame[] {
+export function parseTrackingData(raw: RawTrackingFrame[]): TrackingFrame[] {
   const frames: TrackingFrame[] = [];
 
   for (let i = 0; i < raw.length; i++) {
@@ -57,7 +78,7 @@ export function parseTrackingData(raw: any[]): TrackingFrame[] {
     if (Array.isArray(r.players)) {
       for (const p of r.players) {
         entities.push({
-          entityId: p.playerId ?? p.player_id,
+          entityId: p.playerId ?? p.player_id ?? NaN,
           teamId: p.teamId ?? p.team_id ?? 0,
           x: Number(p.x),
           y: Number(p.y),
