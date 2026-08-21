@@ -7,6 +7,7 @@ import {
   getModelsGroupedByProvider,
 } from "src/lib/ai-providers/models";
 import { assignColor, assignEmoji } from "src/lib/ai-providers/colors";
+import { track } from "src/lib/analytics";
 
 /* ── Types ── */
 type Character = {
@@ -452,6 +453,10 @@ export default function ChatSandbox() {
   const handleCharacterCreated = (c: Character) => {
     setCharacters((prev) => [c, ...prev]);
     setShowModal(false);
+    track("chat_character_created", {
+      page: "/tools/chat",
+      metadata: { model: c.model, castSize: characters.length + 1 },
+    });
   };
 
   const handleDeleteCharacter = async (id: string) => {
@@ -545,6 +550,11 @@ export default function ChatSandbox() {
     };
     setMessages((prev) => [...prev, userMessage]);
 
+    track("chat_message_sent", {
+      page: "/tools/chat",
+      metadata: { recipients: sendTo, castSize: characters.length },
+    });
+
     if (sendTo === "all") {
       for (const char of characters) {
         await sendToCharacter(char, text);
@@ -556,6 +566,10 @@ export default function ChatSandbox() {
   };
 
   const handleNextRound = async (targetId?: string) => {
+    track("chat_next_round", {
+      page: "/tools/chat",
+      metadata: { targeted: Boolean(targetId), castSize: characters.length },
+    });
     if (targetId) {
       const char = characters.find((c) => c.id === targetId);
       if (char) await sendToCharacter(char);

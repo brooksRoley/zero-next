@@ -7,6 +7,7 @@ import {
   getModelsGroupedByProvider,
   type AIModel,
 } from "src/lib/ai-providers/models";
+import { track } from "src/lib/analytics";
 
 /* ── Types ── */
 type StoredKeys = {
@@ -556,6 +557,10 @@ export default function ModelArena() {
 
   const handleCompare = async () => {
     if (!prompt.trim()) return;
+    track("arena_compare_run", {
+      page: "/tools/model-arena",
+      metadata: { modelA, modelB },
+    });
     setIsRunning(true);
     const controller = new AbortController();
     abortRef.current = controller;
@@ -585,6 +590,10 @@ export default function ModelArena() {
 
   const handleBattle = async () => {
     if (!prompt.trim()) return;
+    track("arena_battle_run", {
+      page: "/tools/model-arena",
+      metadata: { blind: true },
+    });
     setIsRunning(true);
     setBattleRevealed(false);
     const controller = new AbortController();
@@ -611,6 +620,10 @@ export default function ModelArena() {
 
   const handleVote = (winner: "a" | "b" | "tie") => {
     setBattleRevealed(true);
+    track("arena_vote", {
+      page: "/tools/model-arena",
+      metadata: { winner, modelA: battleModelA, modelB: battleModelB },
+    });
     const record: BattleRecord = {
       modelA: battleModelA,
       modelB: battleModelB,
