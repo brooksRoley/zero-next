@@ -32,16 +32,21 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — Resume page with PDF download link and the interactive MarioButton
 - `/education-tracker` (`src/pages/education-tracker.jsx`) — Personal certification-exam (AIF-C01) study progress tracker
+- `/digital-products` (`src/pages/digital-products.tsx`) — Digital Products storefront; leads with the "NBA Analytics Primer" ($19 Gumroad, launching soon) + email capture
+- `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
 
 **Private / admin** (gated — see Authentication)
 - `/login` (`src/pages/login.tsx`) — Password gate for the private dashboard; POSTs to `/api/auth/login`
 - `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/proxy.ts`
 - `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads (also gated by `src/proxy.ts`)
+- `/admin/analytics` (`src/pages/admin/analytics.tsx`) — Admin analytics dashboard over first-party `/api/events` data (also gated by `src/proxy.ts`)
 
 **NBA / sports tech**
 - `/nba` (`src/pages/nba.tsx`) — NBA API Explorer: players, teams, standings, predictions
 - `/stat-galaxy` (`src/pages/stat-galaxy.tsx`) — "Stat Galaxy" NBA physics-based stat visualizer
 - `/tools/nba-accuracy` (`src/pages/tools/nba-accuracy.tsx`) — Prediction-accuracy dashboard (ATS cover rate, model vs Vegas, break-even line)
+- `/tools/trade-machine` (`src/pages/tools/trade-machine.tsx`) — NBA Salary Cap & Trade Machine: every team's payroll vs cap/tax/aprons + a CBA-rules trade builder
+- `/tools/rig-report` (`src/pages/tools/rig-report.tsx`) — "The Rig Report": satirical NBA "rigging" inspector that teaches real sports analytics (implied probability, the vig, line movement)
 - `/posts/basketball-tactics` (`src/pages/posts/basketball-tactics.jsx`) — Showcase for the Lakers Tactics iOS app
 
 **AI tools**
@@ -53,6 +58,11 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/posts/pente-puzzles` (`src/pages/posts/pente-puzzles.js`) — Puzzle trainer: curated catalog + Endless mode with runtime puzzle generation, canvas physics transitions, ELO-adaptive difficulty, mountain-climbing progress metaphor
 - `/posts/go` (`src/pages/posts/go/`) — Go game: `index.js` (play), `learn.js` + `learn/[stage].js` (tutorial stages), `puzzles/index.js` + `puzzles/[id].js` (puzzle trainer)
 - `/posts/nanu-pika-td` (`src/pages/posts/nanu-pika-td.jsx`) — Nanu & Pika tower-defense game (pathfinding, wave logic, upgrades)
+- `/games/pass-and-cut` (`src/pages/games/pass-and-cut.tsx`) — Pass & Cut: a basketball puzzle that *is* the Shannon switching game — secure pass lanes to connect inbounder→rim; teaches graph connectivity + min-cut
+- `/games/read-and-react` (`src/pages/games/read-and-react.tsx`) — Read & React: basketball game-theory puzzle; find the mixed strategy that beats an adaptive defense (exact minimax solver sets par)
+- `/games/hardwood` (`src/pages/games/hardwood.tsx`) — Hardwood Autochess: NBA auto-battler — draft a squad on a 5×5 court, pick schemes, fight ghost boards over 10 rounds
+- `/games/moments` (`src/pages/games/moments.tsx`) — Playoff Moments: famous NBA plays frozen one beat early, replayed as court shape-and-speed click puzzles
+- `/theater` (`src/pages/theater.tsx`) — See Portfolio/funnel; the games gallery that indexes all of the above
 
 **Misc / experiments**
 - `/posts/guestbook` (`src/pages/posts/guestbook.tsx`) — Collaborative guest book: rubric-based ad-lib story prompt builder with typography picker, writes to Neon Postgres

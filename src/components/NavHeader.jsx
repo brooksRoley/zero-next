@@ -87,6 +87,9 @@ export default function NavHeader() {
               <li key={item.label} className="relative">
                 <button
                   onClick={() => setOpenMenu((prev) => (prev === item.label ? null : item.label))}
+                  aria-haspopup="true"
+                  aria-expanded={openMenu === item.label}
+                  aria-controls={`nav-submenu-${item.label}`}
                   className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors
                     ${item.children.some((c) => isActive(c.href))
                       ? 'text-candy-400 bg-forest-800'
@@ -105,7 +108,7 @@ export default function NavHeader() {
                   </svg>
                 </button>
                 {openMenu === item.label && (
-                  <ul className="absolute top-full right-0 mt-1 w-48 bg-forest-800 rounded-lg shadow-lg border border-forest-700/60 py-1 animate-[fadeIn_0.15s_ease-out]">
+                  <ul id={`nav-submenu-${item.label}`} className="absolute top-full right-0 mt-1 w-48 bg-forest-800 rounded-lg shadow-lg border border-forest-700/60 py-1 animate-[fadeIn_0.15s_ease-out]">
                     {item.children.map((child) => (
                       <li key={child.href}>
                         <Link
