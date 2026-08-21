@@ -6,6 +6,7 @@ import ReadReactBoard, {
 } from "src/components/games/ReadReactBoard";
 import { LEVELS, evMatrix } from "src/lib/games/readreact/levels";
 import { solveZeroSum } from "src/lib/games/readreact/matrixGame";
+import { track } from "src/lib/analytics";
 
 const GOLD = "#FDB927";
 const PROGRESS_KEY = "readreact_progress"; // finished level ids (unlocks next)
@@ -60,6 +61,15 @@ export default function ReadAndReact() {
           return next;
         });
       }
+      track("readreact_result", {
+        page: "/games/read-and-react",
+        metadata: {
+          level: level.id,
+          points: r.points,
+          benchmark: r.benchmark,
+          beatPar: r.points >= r.benchmark,
+        },
+      });
     },
     [level.id]
   );
@@ -220,6 +230,13 @@ export default function ReadAndReact() {
           </p>
           <Link
             href="/funding"
+            onClick={() =>
+              track("cta_click", {
+                page: "/games/read-and-react",
+                metadata: { location: "readreact_tip" },
+                beacon: true,
+              })
+            }
             className="mt-2 inline-block text-sm font-medium text-candy-500 hover:underline"
           >
             Enjoying the puzzle? Support development →
