@@ -104,6 +104,25 @@ describe("twoEdgeDisjointTerminalTrees", () => {
       twoEdgeDisjointTerminalTrees([E("s", "w"), E("w", "t")], ["s", "t"]).exists
     ).toBe(false);
   });
+
+  it("throws instead of silently hanging when the edge count exceeds the brute-force limit", () => {
+    // The solver is 3^n; 15 edges would be 3^15 ≈ 14.3M assignments per call.
+    // A future hand-authored level exceeding the documented "≤ ~10 edges"
+    // assumption must fail loudly, not freeze the tab.
+    const oversized: Edge[] = [];
+    for (let i = 0; i < 15; i++) oversized.push(E(`n${i}`, `n${i + 1}`));
+    expect(() => twoEdgeDisjointTerminalTrees(oversized, ["n0", "n15"])).toThrow(
+      /exceeds the brute-force limit/
+    );
+  });
+
+  it("still succeeds exactly at the limit (14 edges)", () => {
+    const atLimit: Edge[] = [];
+    for (let i = 0; i < 14; i++) atLimit.push(E(`n${i}`, `n${i + 1}`));
+    expect(() =>
+      twoEdgeDisjointTerminalTrees(atLimit, ["n0", "n14"])
+    ).not.toThrow();
+  });
 });
 
 describe("minimalCut", () => {

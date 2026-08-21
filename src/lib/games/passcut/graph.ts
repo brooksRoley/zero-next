@@ -158,6 +158,11 @@ function isSpanningTree(edgeSet: Edge[], vertexSet: Set<NodeId>): boolean {
  * counterexample). List elements are treated as DISTINCT edges (parallels are
  * meaningful and are not de-duplicated here).
  */
+// 3^14 ≈ 4.8M iterations, well under ~200ms — comfortably above the
+// documented "≤ ~10 edges" real-board assumption while still catching a
+// future oversized hand-authored level before it hangs a player's tab.
+const MAX_EDGES_FOR_BRUTE_FORCE = 14;
+
 export function twoEdgeDisjointTerminalTrees(
   edges: Edge[],
   terminals: [NodeId, NodeId]
@@ -166,8 +171,14 @@ export function twoEdgeDisjointTerminalTrees(
   const es = edges.filter((e) => e.a !== e.b);
   const [t0, t1] = terminals;
   const n = es.length;
+  if (n > MAX_EDGES_FOR_BRUTE_FORCE) {
+    throw new Error(
+      `twoEdgeDisjointTerminalTrees: ${n} edges exceeds the brute-force limit of ` +
+        `${MAX_EDGES_FOR_BRUTE_FORCE} (3^${n} assignments would be evaluated). ` +
+        `This solver is 3^n and only safe for small hand-authored levels.`
+    );
+  }
   // Assign each edge to group 0 (unused), 1 (tree A), or 2 (tree B): 3^n.
-  // n is tiny for real boards (≤ ~10 edges).
   const pow3 = Math.pow(3, n);
   for (let code = 0; code < pow3; code++) {
     const treeA: Edge[] = [];
