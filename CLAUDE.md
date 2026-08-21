@@ -35,8 +35,8 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 **Private / admin** (gated — see Authentication)
 - `/login` (`src/pages/login.tsx`) — Password gate for the private dashboard; POSTs to `/api/auth/login`
-- `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/middleware.ts`
-- `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads
+- `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/proxy.ts`
+- `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads (also gated by `src/proxy.ts`)
 
 **NBA / sports tech**
 - `/nba` (`src/pages/nba.tsx`) — NBA API Explorer: players, teams, standings, predictions
@@ -140,8 +140,8 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 There are two independent auth layers. Neither uses a third-party auth provider — both are env-var secrets, sufficient for a single-owner site.
 
-**1. Dashboard session (browser-facing).** Gates the private `/tracker` dashboard.
-- `src/middleware.ts` runs on `/tracker` and `/tracker/:path*` (see its `matcher`). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
+**1. Dashboard session (browser-facing).** Gates the private `/tracker` dashboard and the `/admin` routes.
+- `src/proxy.ts` runs on `matcher: ['/tracker', '/tracker/:path*', '/admin', '/admin/:path*']` (Next.js 16 renamed the `middleware.ts` convention to `proxy.ts`; there is no `src/middleware.ts` in this repo). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
 - `/login` (`src/pages/login.tsx`) POSTs the password to `src/pages/api/auth/login.ts`, which checks `ADMIN_PASSWORD` and, on success, sets the `tracker_session` HttpOnly cookie to `ADMIN_SESSION_TOKEN` (7-day Max-Age, `Secure` in production). Brute force is throttled to 5 attempts / 15 min per IP via `src/lib/rate-limit.ts`.
 - `src/pages/api/auth/logout.ts` clears the cookie.
 - Env vars: `ADMIN_PASSWORD` (what the user types), `ADMIN_SESSION_TOKEN` (the cookie value the middleware compares against).
@@ -151,7 +151,7 @@ There are two independent auth layers. Neither uses a third-party auth provider 
 - Routes using this: `api/nba/admin/ingest.ts` (both), `api/nba/admin/setup.ts` (`ADMIN_KEY`), `api/nba/admin/simulate.ts` (`ADMIN_KEY`), `api/nba/predictions/settle.ts` (both).
 - Env vars: `ADMIN_KEY` (manual admin calls), `CRON_SECRET` (Vercel Cron's `Authorization` header).
 
-When adding a new admin/cron endpoint, reuse the `x-admin-key`/`CRON_SECRET` check above — do **not** introduce a new secret. When adding a new private *page*, extend the `matcher` in `src/middleware.ts` rather than rolling per-page auth.
+When adding a new admin/cron endpoint, reuse the `x-admin-key`/`CRON_SECRET` check above — do **not** introduce a new secret. When adding a new private *page*, extend the `matcher` in `src/proxy.ts` rather than rolling per-page auth.
 
 ### Stripe — Shipping Checklist (Pre-Launch)
 
