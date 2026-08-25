@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { generateText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { buildProfilePrompt } from "src/lib/ai-providers/profile-prompt";
-import { sanitizeOneLiner, sanitizeProfile } from "src/lib/ai-providers/sanitize";
+import { sanitizeName, sanitizeOneLiner, sanitizeProfile } from "src/lib/ai-providers/sanitize";
 import { DEFAULT_PROFILE_MODEL, getModelById } from "src/lib/ai-providers/models";
 import { getProvider } from "src/lib/ai-providers/providers";
 import { resolveKey } from "src/lib/ai-providers/keys";
@@ -23,11 +23,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { name, oneLiner } = req.body;
 
-  if (!name?.trim()) {
-    return res.status(400).json({ error: "name is required" });
+  // Both fields are sanitized. `name` used to get only a truthiness check while
+  // `oneLiner` beside it was capped and pattern-checked, even though `name` is
+  // interpolated into the profile prompt twice (see buildProfilePrompt) — the
+  // guarded field was the one an attacker would ignore.
+  const cleanName = sanitizeName(name);
+  if (!cleanName.ok) {
+    return res.status(400).json({ error: cleanName.reason });
   }
 
-  const sanitized = sanitizeOneLiner(oneLiner || "");
+  const sanitized = sanitizeOneLiner(oneLiner ?? "");
   if (!sanitized.ok) {
     return res.status(400).json({ error: sanitized.reason });
   }
@@ -55,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { text } = await generateText({
       model: client(model.providerModelId),
-      prompt: buildProfilePrompt(name.trim(), sanitized.cleaned),
+      prompt: buildProfilePrompt(cleanName.cleaned, sanitized.cleaned),
       maxOutputTokens: 1500,
       temperature: 0.9,
     });

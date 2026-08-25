@@ -1,13 +1,33 @@
 /**
  * One-time setup: creates bball tables in Neon Postgres.
- * GET /api/bball/setup — run once after deploy.
+ * GET or POST /api/bball/setup with x-admin-key — run once after deploy.
+ *
+ * Admin-only. This was previously unauthenticated: any caller could trigger
+ * DDL plus a DELETE ... USING self-join against production Neon, as often as
+ * they liked. The DDL is idempotent and the DELETE is a dedup that the unique
+ * index below makes a no-op in steady state, so the exposure was database load
+ * rather than data loss — but CLAUDE.md requires the shared x-admin-key check
+ * on admin endpoints, and every sibling under bball/admin already had it.
  */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { applyBballCors } from "src/lib/bballCors";
+import { isValidAdminKey } from "src/lib/adminAuth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (applyBballCors(req, res)) return;
+
+  // Preflight is answered above; everything past here is a real invocation.
+  if (req.method !== "GET" && req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // isValidAdminKey (not isAuthorizedAdminRequest) — this is a manual
+  // post-deploy step, not a cron target, matching simulate/setup elsewhere.
+  if (!isValidAdminKey(req)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   await sql`
     CREATE TABLE IF NOT EXISTS bball_runs (
       id TEXT PRIMARY KEY,
