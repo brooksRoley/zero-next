@@ -17,7 +17,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/lib/**', 'src/components/**'],
+      // API routes are in scope deliberately. They were absent from this list
+      // until 2026-08-25, so `src/pages/api` never appeared in the coverage
+      // report at all — not as 0%, just missing. That is how "the tests protect
+      // the money-path routes" survived as an assertion while Stripe checkout
+      // and webhook had no tests: nothing in the report could contradict it.
+      // An untested route should show up as a zero, not as a blank space.
+      include: ['src/lib/**', 'src/components/**', 'src/pages/api/**'],
     },
   },
   resolve: {
