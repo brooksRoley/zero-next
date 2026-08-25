@@ -6,10 +6,19 @@ import { getModelById, type AIModel } from "src/lib/ai-providers/models";
 import { getProvider, type Provider } from "src/lib/ai-providers/providers";
 import { getFallbackModels } from "src/lib/ai-providers/fallback";
 import { resolveKey } from "src/lib/ai-providers/keys";
-import { sanitizeMessage } from "src/lib/ai-providers/sanitize";
+import {
+  sanitizeMessage,
+  sanitizeAssistantMessage,
+} from "src/lib/ai-providers/sanitize";
 import { createRateLimiter } from "src/lib/rate-limit";
 
 const limiter = createRateLimiter(30, 60 * 60 * 1000); // 30 per hour
+
+// Nothing bounded conversation length before, so a caller could pad each of
+// their 30 hourly requests with fabricated history up to Next's 1MB body limit
+// and have all of it forwarded to the provider as real context — billed to the
+// server's key. 100 turns is far past any genuine Chat Sandbox session.
+const MAX_MESSAGES = 100;
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -93,14 +102,39 @@ export default async function handler(
     return res.status(400).json({ error: `Unknown provider: ${model.providerId}` });
   }
 
-  // Sanitize every user-role message, not just the latest. In multi-turn
-  // conversations the earlier user turns are forwarded to the provider too, so
-  // checking only the last message leaves prior turns as an unguarded prompt-
-  // injection surface. Mutates content in place with the cleaned (trimmed)
-  // value; rejects the whole request if any user turn trips a pattern.
+  // Validate the whole message array before any of it reaches a provider.
+  //
+  // The ChatMessage type above declares `role: "user" | "assistant"`, but
+  // `req.body` is raw parsed JSON and the destructure is a compile-time
+  // assertion — nothing enforced that at runtime. The previous loop skipped
+  // any message whose role wasn't "user", so a caller could send
+  // `{role: "system", content: "..."}` and have it forwarded verbatim as a
+  // real system message: no pattern check, no length cap. `role` is
+  // caller-controlled, so "only sanitize user turns" was a boundary the caller
+  // could step around simply by relabeling. The system prompt has exactly one
+  // supported source — the `systemPrompt` field — so the fix is to enforce the
+  // two roles the type already promises.
+  if (messages.length > MAX_MESSAGES) {
+    return res
+      .status(400)
+      .json({ error: `Too many messages (max ${MAX_MESSAGES})` });
+  }
   for (const message of messages) {
-    if (message?.role !== "user") continue;
-    const check = sanitizeMessage(message.content);
+    if (!message || typeof message !== "object") {
+      return res.status(400).json({ error: "Each message must be an object" });
+    }
+    if (message.role !== "user" && message.role !== "assistant") {
+      return res
+        .status(400)
+        .json({ error: 'Each message role must be "user" or "assistant"' });
+    }
+    // User turns get the full check; assistant turns are type-checked and
+    // length-capped but skip the injection blocklist, which matches strings a
+    // model legitimately emits. See sanitizeAssistantMessage.
+    const check =
+      message.role === "user"
+        ? sanitizeMessage(message.content)
+        : sanitizeAssistantMessage(message.content);
     if (!check.ok) {
       return res.status(400).json({ error: check.reason });
     }
