@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { track } from "src/lib/analytics";
 import type { RigReportResponse, CaseFileEntry } from "src/pages/api/tools/rig-report";
+import { absoluteUrl } from 'src/lib/routes'
 
 /**
  * The Rig Report — the Entertainment Integrity Bureau's public reading room.
@@ -378,6 +379,14 @@ export default function RigReport() {
           name="description"
           content="A satirical NBA 'rigging' inspector that teaches real sports analytics: implied probability, the vig, line movement, and why upsets are supposed to happen."
         />
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="The Rig Report — Is the NBA Rigged?" key="og:title" />
+        <meta
+          property="og:description"
+          content="A satirical rigging inspector that teaches real sports analytics: implied probability, the vig, line movement, and why upsets are supposed to happen."
+          key="og:description"
+        />
+        <meta property="og:url" content={absoluteUrl('rigReport')} key="og:url" />
       </Head>
 
       <header className="border-b border-[#C5E7EA]/10 px-6 py-4">

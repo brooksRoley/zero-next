@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { track } from 'src/lib/analytics'
+import { absoluteUrl } from 'src/lib/routes'
 
 // Served same-origin from public/hardwood/ (built from the BballTactics repo
 // via `npm run build:hardwood`), so the game shares this site's /api/bball
@@ -16,6 +17,14 @@ export default function HardwoodAutochess() {
           name="description"
           content="Hardwood Autochess — an NBA auto-battler. Draft a squad, place them on a 5x5 court, pick your schemes, and fight ghost boards over 10 rounds."
         />
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="Hardwood Autochess — Brooks Roley" key="og:title" />
+        <meta
+          property="og:description"
+          content="An NBA auto-battler. Draft a squad on a 5x5 court, pick your schemes, and fight ghost boards over 10 rounds."
+          key="og:description"
+        />
+        <meta property="og:url" content={absoluteUrl('hardwood')} key="og:url" />
       </Head>
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-14">

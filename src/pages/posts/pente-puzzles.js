@@ -111,8 +111,8 @@ export default function PentePuzzlesPage() {
       <Head>
         <title>Pente Puzzles | Brooks Roley</title>
         <meta name="description" content="Practice Pente tactics with puzzles — captures, five-in-a-row, defense, and more. Track your rating as you climb." />
-        <meta property="og:title" content="Pente Puzzles | Brooks Roley" />
-        <meta property="og:description" content="Practice Pente tactics with puzzles. Climb the mountain." />
+        <meta property="og:title" content="Pente Puzzles | Brooks Roley" key="og:title" />
+        <meta property="og:description" content="Practice Pente tactics with puzzles. Climb the mountain." key="og:description" />
       </Head>
 
       <div aria-hidden className="fixed inset-0 pointer-events-none z-0">
