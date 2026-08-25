@@ -1034,9 +1034,9 @@ export default function BasketballPlatformPage() {
       <Head>
         <title>Basketball Data Platform | Brooks Roley</title>
         <meta name="description" content="A unified basketball analytics system: Python data pipeline, C++ WASM simulation engine, Vue 3 auto-battler game, and native SwiftUI iOS app." />
-        <meta property="og:title" content="Basketball Data Platform | Brooks Roley" />
-        <meta property="og:description" content="Real-time NBA analytics, physics-based simulation, and interactive game experiences — built across Python, C++, Vue 3, and SwiftUI." />
-        <meta property="og:image" content="/BRBaller.png" />
+        <meta property="og:title" content="Basketball Data Platform | Brooks Roley" key="og:title" />
+        <meta property="og:description" content="Real-time NBA analytics, physics-based simulation, and interactive game experiences — built across Python, C++, Vue 3, and SwiftUI." key="og:description" />
+        <meta property="og:image" content="/BRBaller.png" key="og:image" />
       </Head>
 
       <style>{`

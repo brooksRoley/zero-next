@@ -7,6 +7,7 @@ import ReadReactBoard, {
 import { LEVELS, evMatrix } from "src/lib/games/readreact/levels";
 import { solveZeroSum } from "src/lib/games/readreact/matrixGame";
 import { track } from "src/lib/analytics";
+import { absoluteUrl } from 'src/lib/routes'
 
 const GOLD = "#FDB927";
 const PROGRESS_KEY = "readreact_progress"; // finished level ids (unlocks next)
@@ -98,6 +99,14 @@ export default function ReadAndReact() {
           name="description"
           content="Read & React — a basketball game-theory puzzle. Call plays against an adaptive defense that punishes predictability; find the mixed strategy that beats a perfect read."
         />
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="Read & React — Brooks Roley" key="og:title" />
+        <meta
+          property="og:description"
+          content="A basketball game-theory puzzle. Call plays against an adaptive defense that punishes predictability, and find the mixed strategy that beats a perfect read."
+          key="og:description"
+        />
+        <meta property="og:url" content={absoluteUrl('readAndReact')} key="og:url" />
       </Head>
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 md:py-14">
