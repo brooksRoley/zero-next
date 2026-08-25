@@ -29,6 +29,7 @@ type EventTotalRow = { event_type: string; count: number; sessions: number };
 
 type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
+  puzzleAttempts: { total: number; solved: number };
   gameResults: { total: number; byOpponentType: { bot: number; human: number } };
   players: { count: number; avgGameElo: number | null };
   go: {
@@ -93,6 +94,8 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
   const [
     puzzleCount,
     avgRating,
+    attemptsTotal,
+    attemptsSolved,
     gameResultsTotal,
     botGames,
     humanGames,
@@ -105,6 +108,8 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
   ] = await Promise.all([
     safe(() => countAll("puzzle_bank"), 0),
     safe(() => avgColumn("puzzle_bank", "rating"), null),
+    safe(() => countAll("puzzle_attempts"), 0),
+    safe(() => countEq("puzzle_attempts", "solved", true), 0),
     safe(() => countAll("game_results"), 0),
     safe(() => countEq("game_results", "opponent_type", "bot"), 0),
     safe(() => countEq("game_results", "opponent_type", "human"), 0),
@@ -121,6 +126,7 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
 
   return {
     puzzleBank: { count: puzzleCount, avgRating },
+    puzzleAttempts: { total: attemptsTotal, solved: attemptsSolved },
     gameResults: {
       total: gameResultsTotal,
       byOpponentType: { bot: botGames, human: humanGames },
