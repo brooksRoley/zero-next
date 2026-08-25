@@ -1,14 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { supabase } from "src/lib/supabase";
+import { isValidAdminKey } from "src/lib/adminAuth";
 
 // The /admin/analytics page is gated by src/proxy.ts via the
-// tracker_session cookie; this API checks the same cookie so the page can
-// fetch without re-entering a token.
+// tracker_session cookie, so browser requests are checked against that same
+// cookie here. Also accepts the shared x-admin-key header (same pattern as
+// /api/admin/leads) so non-browser sessions — this routine's own CFO/CTO/
+// Data-Sci audits included — can read unit-economics data without a browser
+// session, instead of estimating cost/engagement off rate-limit ceilings.
 function isAuthorized(req: NextApiRequest): boolean {
   const expected = process.env.ADMIN_SESSION_TOKEN;
-  if (!expected) return false;
-  return req.cookies?.tracker_session === expected;
+  const cookieOk = !!expected && req.cookies?.tracker_session === expected;
+  return cookieOk || isValidAdminKey(req);
 }
 
 // Surfaced first and always shown (even at zero) because they map directly to
@@ -138,9 +142,10 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!process.env.ADMIN_SESSION_TOKEN) {
+  if (!process.env.ADMIN_SESSION_TOKEN && !process.env.ADMIN_KEY) {
     return res.status(503).json({
-      error: "Admin access is not configured (missing ADMIN_SESSION_TOKEN).",
+      error:
+        "Admin access is not configured (missing ADMIN_SESSION_TOKEN or ADMIN_KEY).",
     });
   }
 
