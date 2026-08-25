@@ -138,8 +138,8 @@ export default function PenteHub() {
       <Head>
         <title>Pente Arena | Brooks Roley</title>
         <meta name="description" content="Play Pente — classic, free-for-all, 2v2, or online. Solve puzzles, climb the mountain, track your rating." />
-        <meta property="og:title" content="Pente Arena | Brooks Roley" />
-        <meta property="og:description" content="Play Pente — classic, free-for-all, 2v2, or online. Solve puzzles, track your rating." />
+        <meta property="og:title" content="Pente Arena | Brooks Roley" key="og:title" />
+        <meta property="og:description" content="Play Pente — classic, free-for-all, 2v2, or online. Solve puzzles, track your rating." key="og:description" />
       </Head>
 
       <div aria-hidden className="fixed inset-0 pointer-events-none z-0">

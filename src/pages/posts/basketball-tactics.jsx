@@ -109,9 +109,9 @@ export default function BasketballTacticsPage() {
       <Head>
         <title>Lakers Tactics iOS | Brooks Roley</title>
         <meta name="description" content="SwiftUI iOS app for Lakers basketball data — live game scores, roster season averages, and an interactive tactics board." />
-        <meta property="og:title" content="Lakers Tactics iOS | Brooks Roley" />
-        <meta property="og:description" content="SwiftUI iOS app: live Lakers stats, roster averages with animated stat bars, interactive play-drawing court." />
-        <meta property="og:image" content="/BRBaller.png" />
+        <meta property="og:title" content="Lakers Tactics iOS | Brooks Roley" key="og:title" />
+        <meta property="og:description" content="SwiftUI iOS app: live Lakers stats, roster averages with animated stat bars, interactive play-drawing court." key="og:description" />
+        <meta property="og:image" content="/BRBaller.png" key="og:image" />
       </Head>
 
       {/* Header */}

@@ -10,6 +10,7 @@ import {
   type Level,
 } from "src/lib/games/passcut/graph";
 import { track } from "src/lib/analytics";
+import { absoluteUrl } from 'src/lib/routes'
 
 const PROGRESS_KEY = "passcut_progress"; // array of completed level ids (any result)
 const SOLVED_KEY = "passcut_solved"; // array of level ids won as offense
@@ -125,6 +126,14 @@ export default function PassAndCutPage() {
           name="description"
           content="Pass & Cut — a basketball puzzle that IS the Shannon switching game. Secure pass lanes to connect the inbounder to the rim before the defense denies you. Learn graph connectivity and min-cut by playing."
         />
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="Pass & Cut — Brooks Roley" key="og:title" />
+        <meta
+          property="og:description"
+          content="A basketball puzzle that IS the Shannon switching game. Secure pass lanes from the inbounder to the rim and learn graph connectivity by playing."
+          key="og:description"
+        />
+        <meta property="og:url" content={absoluteUrl('passAndCut')} key="og:url" />
       </Head>
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 md:py-14">

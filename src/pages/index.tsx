@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Reveal from 'src/components/Reveal'
 import TiltCard from 'src/components/TiltCard'
+import { route } from 'src/lib/routes'
 
 const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
   loading: () => <div className="physics-field-grid" />,
@@ -71,7 +72,7 @@ export default function Home() {
                   <span className="text-[#DADBD9]/88"> Available for consulting.</span>
                 </p>
                 <Link
-                  href="/consulting"
+                  href={route('consulting').href}
                   className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[#B27236] bg-[#B27236]/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#B27236]/20 transition-colors hover:bg-[#B27236]/85 sm:self-auto"
                 >
                   <span>Work with me</span>
@@ -83,7 +84,7 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={100}>
                   <TiltCard>
-                    <Link href="/resume" className={cardBase}>
+                    <Link href={route('resume').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden">
                         <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 card-img-hover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
@@ -105,7 +106,7 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={200}>
                   <TiltCard>
-                    <Link href="/posts/pente" className={cardBase}>
+                    <Link href={route('pente').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden">
                         <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-hover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
@@ -127,7 +128,7 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={300}>
                   <TiltCard>
-                    <Link href="/posts/go" className={cardBase}>
+                    <Link href={route('go').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#B9968D]">
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
@@ -152,7 +153,7 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={400}>
                   <TiltCard>
-                    <Link href="/tools/chat" className={cardBase}>
+                    <Link href={route('chat').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
                         <div className="flex items-center gap-2 text-2xl opacity-60">
                           <span>🎭</span><span>🤖</span><span>🧙</span>
@@ -176,7 +177,7 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={500}>
                   <TiltCard>
-                    <Link href="/tools/model-arena" className={cardBase}>
+                    <Link href={route('modelArena').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
                         <div className="flex items-center gap-3 text-2xl opacity-60">
                           <span>&#x2694;&#xFE0F;</span><span>&#x1F916;</span><span>&#x1F3C6;</span>
@@ -200,7 +201,7 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={600}>
                   <TiltCard>
-                    <Link href="/basketball-platform" className={cardBase}>
+                    <Link href={route('basketballPlatform').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
                         <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-70 card-img-hover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
@@ -223,7 +224,7 @@ export default function Home() {
                 <Reveal delay={700}>
                   <TiltCard>
                     <Link
-                      href="/consulting"
+                      href={route('consulting').href}
                       className="group relative overflow-hidden rounded-xl border border-candy-500/40 bg-[#415557]/18 text-[#DADBD9] card-hover-border backdrop-blur-sm ring-1 ring-candy-500/15"
                     >
                       <span className="absolute right-3 top-3 z-10 rounded-full bg-candy-600 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
@@ -262,7 +263,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={100}>
                 <TiltCard>
-                  <Link href="/posts/luminous-flow" className={cardBase}>
+                  <Link href={route('luminousFlow').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden">
                       <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-hover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
@@ -285,7 +286,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={200}>
                 <TiltCard>
-                  <Link href="/posts/nanu-pika-td" className={cardBase}>
+                  <Link href={route('nanuPikaTd').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden">
                       <Image src="/lion.jpg" alt="Nanu and Pika TD" fill className="object-cover opacity-50 card-img-hover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
@@ -308,7 +309,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={300}>
                 <TiltCard>
-                  <Link href="/nba" className={cardBase}>
+                  <Link href={route('nba').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
                       <div className="flex items-center gap-3">
                         <div className="h-3 w-3 rounded-full bg-[#C5E7EA]" />
@@ -337,7 +338,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={350}>
                 <TiltCard>
-                  <Link href="/tools/trade-machine" className={cardBase}>
+                  <Link href={route('tradeMachine').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
                       <div className="flex items-center gap-3 text-2xl opacity-60">
                         <span>&#x1F4B0;</span><span>&#x1F504;</span><span>&#x1F3C0;</span>
@@ -362,7 +363,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={400}>
                 <TiltCard>
-                  <Link href="/tools/rig-report" className={cardBase}>
+                  <Link href={route('rigReport').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
                       <div className="flex items-center gap-3 text-2xl opacity-60">
                         <span>&#x1F575;&#xFE0F;</span><span>&#x1F3C0;</span><span>&#x1F4C9;</span>
@@ -387,7 +388,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={500}>
                 <TiltCard>
-                  <Link href="/games/hardwood" className={cardBase}>
+                  <Link href={route('hardwood').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x265F;&#xFE0F;</span><span>&#x1F451;</span>
@@ -412,7 +413,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={520}>
                 <TiltCard>
-                  <Link href="/games/pass-and-cut" className={cardBase}>
+                  <Link href={route('passAndCut').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#1d4ed8] via-[#1e3a8a] to-[#0f172a]">
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x1F517;</span>
@@ -437,7 +438,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={560}>
                 <TiltCard>
-                  <Link href="/games/read-and-react" className={cardBase}>
+                  <Link href={route('readAndReact').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#552583] via-[#3b1a5c] to-[#0f172a]">
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x1F9E0;</span>
@@ -462,7 +463,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={600}>
                 <TiltCard>
-                  <Link href="/theater" className={cardBase}>
+                  <Link href={route('theater').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-candy-900 via-forest-900 to-forest-950">
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3AD;</span><span>&#x2728;</span><span>&#x1F3AB;</span>
@@ -496,7 +497,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={100}>
                 <TiltCard>
-                  <Link href="https://www.linkedin.com/in/brooksroley/" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                  <Link href={route('linkedin').href} target="_blank" rel="noopener noreferrer" className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
                       <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/68 to-transparent" />
@@ -519,7 +520,7 @@ export default function Home() {
             <div data-physics-item className="physics-field-item">
               <Reveal delay={200}>
                 <TiltCard>
-                  <Link href="https://github.com/brooksroley" target="_blank" rel="noopener noreferrer" className={cardBase}>
+                  <Link href={route('github').href} target="_blank" rel="noopener noreferrer" className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
                       <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/68 to-transparent" />
@@ -545,7 +546,7 @@ export default function Home() {
         <footer className="border-t border-[#C5E7EA]/10 py-6">
           <div className="flex items-center justify-between text-xs text-[#DADBD9]/46">
             <span>&copy; {new Date().getFullYear()} Brooks Roley</span>
-            <Link href="/funding" className="transition-colors hover:text-[#C5E7EA]">
+            <Link href={route('funding').href} className="transition-colors hover:text-[#C5E7EA]">
               support my work
             </Link>
           </div>
