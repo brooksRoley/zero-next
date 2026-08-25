@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { track } from 'src/lib/analytics'
+import { route } from 'src/lib/routes'
 
 /**
  * The Zero Theater — the games staged as productions.
@@ -38,7 +39,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the duel',
         logline: 'Five in a row, or five captures — against a friend, a bot, or three of them at once.',
         note: 'A minimax engine breathes in a Web Worker while you play. The oldest kind of drama: two minds, one board.',
-        href: '/posts/pente',
+        href: route('pente').href,
         accent: '#f24da0',
       },
       {
@@ -47,7 +48,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the old game',
         logline: 'Territory, liberties, and a tutor that teaches by asking.',
         note: 'Four thousand years old and still undefeated as a lesson in patience. Start with the learn track if the empty board stares back.',
-        href: '/posts/go',
+        href: route('go').href,
         accent: '#6abf82',
       },
     ],
@@ -62,7 +63,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the mountain',
         logline: 'Curated positions, an endless generated climb, and an ELO that remembers.',
         note: 'Every solve is a foothold. The mountain does not get shorter; you get stronger.',
-        href: '/posts/pente-puzzles',
+        href: route('pentePuzzles').href,
         accent: '#ff69b4',
       },
       {
@@ -71,7 +72,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the quiet climb',
         logline: 'Life-and-death problems, one breath at a time.',
         note: 'Smaller boards, sharper questions. The trial is noticing what the stones already know.',
-        href: '/posts/go/puzzles',
+        href: route('goPuzzles').href,
         accent: '#40916c',
       },
       {
@@ -80,7 +81,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the open lane',
         logline: 'A graph-theory basketball puzzle: sever the defense before it severs your passing lanes.',
         note: 'The Shannon switching game wearing a jersey. Every possession is a proof — connect two hoops through the network faster than the defender can cut it.',
-        href: '/games/pass-and-cut',
+        href: route('passAndCut').href,
         accent: '#FDB927',
       },
       {
@@ -89,7 +90,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the mind game',
         logline: 'A game-theory EV matrix: read the defense, pick the play, beat the minimax.',
         note: 'Zero-sum poker in high-tops. There is a correct mixed strategy hiding in the payoff grid — the trial is finding it before the adaptive defense finds you.',
-        href: '/games/read-and-react',
+        href: route('readAndReact').href,
         accent: '#552583',
       },
       {
@@ -98,7 +99,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the frozen second',
         logline: 'Famous playoff plays frozen one beat before they happen — click the spot history found.',
         note: 'Ray Allen’s backpedal, the chase-down, 0.4 seconds. Your legs are a disk, their reach is a disk, and the puzzle is the space between. Sometimes the geometry grades history a C — and history makes it anyway.',
-        href: '/games/moments',
+        href: route('moments').href,
         accent: '#FDB927',
       },
       {
@@ -107,7 +108,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the siege',
         logline: 'Two small heroes, waves of trouble, and the geometry of holding a line.',
         note: 'Tower defense as a story about preparation: everything you place before the wave is a promise you keep during it.',
-        href: '/posts/nanu-pika-td',
+        href: route('nanuPikaTd').href,
         accent: '#a78bfa',
       },
     ],
@@ -122,7 +123,7 @@ const REPERTORY: Act[] = [
         metaphor: 'court as stage',
         logline: 'An NBA auto-battler: draft a squad, call your schemes, fight ghost boards for ten rounds.',
         note: 'The newest production. Your opponents are the recorded runs of other players — the theater fights back with its own audience.',
-        href: '/games/hardwood',
+        href: route('hardwood').href,
         accent: '#FDB927',
       },
     ],
@@ -137,7 +138,7 @@ const REPERTORY: Act[] = [
         metaphor: 'the observatory',
         logline: 'A season of NBA stats hung in space, drifting under physics.',
         note: 'Not a game — a place to stand and look. Numbers become bodies with mass; league hierarchy becomes orbit.',
-        href: '/stat-galaxy',
+        href: route('statGalaxy').href,
         accent: '#8b5cf6',
       },
       {
@@ -146,7 +147,7 @@ const REPERTORY: Act[] = [
         metaphor: 'water',
         logline: 'Light that moves like something alive under your cursor.',
         note: 'The first piece in the repertory, and still the house lighting test: one accent, darkness, motion with a reason.',
-        href: '/posts/luminous-flow',
+        href: route('luminousFlow').href,
         accent: '#ff8cc2',
       },
     ],
@@ -261,7 +262,7 @@ export default function Theater() {
               Seats are free forever. The lights cost a little.
             </p>
             <Link
-              href="/funding"
+              href={route('funding').href}
               onClick={() =>
                 track('cta_click', {
                   page: '/theater',

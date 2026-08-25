@@ -2,38 +2,42 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { route } from 'src/lib/routes';
 
+// Destinations come from the shared registry (src/lib/routes.ts) so this list,
+// the landing page, and the Theater can't drift apart. Grouping and order are
+// still this component's call — only the hrefs are shared.
 const NAV_LINKS = [
-  { href: '/resume', label: 'Resume' },
+  route('resume'),
   {
     label: 'Projects',
     children: [
-      { href: '/basketball-platform', label: 'Basketball Data Platform' },
-      { href: '/nba', label: 'NBA Explorer — League Lens' },
-      { href: '/tools/trade-machine', label: 'Trade Machine' },
-      { href: '/stat-galaxy', label: 'Stat Galaxy' },
-      { href: '/digital-products', label: 'Digital Products' },
-      { href: '/posts/guestbook', label: 'Guestbook' },
+      route('basketballPlatform'),
+      route('nba'),
+      route('tradeMachine'),
+      route('statGalaxy'),
+      route('digitalProducts'),
+      route('guestbook'),
     ],
   },
   {
     label: 'Games',
     children: [
-      { href: '/theater', label: 'Theater — every game' },
-      { href: '/posts/pente', label: 'Pente' },
-      { href: '/posts/pente-puzzles', label: 'Pente Puzzles' },
-      { href: '/posts/go', label: 'Go' },
-      { href: '/games/pass-and-cut', label: 'Pass & Cut' },
-      { href: '/games/read-and-react', label: 'Read & React' },
-      { href: '/games/hardwood', label: 'Hardwood Autochess' },
-      { href: '/games/moments', label: 'Playoff Moments' },
-      { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
+      route('theater'),
+      route('pente'),
+      route('pentePuzzles'),
+      route('go'),
+      route('passAndCut'),
+      route('readAndReact'),
+      route('hardwood'),
+      route('moments'),
+      route('nanuPikaTd'),
     ],
   },
-  { href: '/consulting', label: 'Services' },
-  { href: 'https://github.com/brooksroley', label: 'GitHub', external: true },
-  // { href: '/zero-paradox', label: 'Support' }, // commented out until LLC is set up
-  { href: '/intake', label: 'Contact' },
+  route('consulting'),
+  route('github'),
+  // route('zeroParadox') — commented out until LLC is set up
+  route('intake'),
 ];
 
 export default function NavHeader() {
