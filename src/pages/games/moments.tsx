@@ -14,6 +14,7 @@ import {
   type Vec,
 } from 'src/lib/moments/geometry'
 import { MOMENTS } from 'src/lib/moments/moments'
+import { absoluteUrl } from 'src/lib/routes'
 
 /**
  * Playoff Moments — "the frozen second."
@@ -166,6 +167,14 @@ export default function PlayoffMoments() {
           name="description"
           content="Famous NBA playoff plays frozen one beat before they happen, replayed as court shape-and-speed puzzles. Your legs against their closing speed — click the spot."
         />
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="Playoff Moments — Brooks Roley" key="og:title" />
+        <meta
+          property="og:description"
+          content="Famous NBA playoff plays frozen one beat before they happen, replayed as court shape-and-speed puzzles. Click the spot history found."
+          key="og:description"
+        />
+        <meta property="og:url" content={absoluteUrl('moments')} key="og:url" />
       </Head>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">

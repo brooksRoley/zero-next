@@ -663,9 +663,9 @@ const GameBoard = () => {
       <Head>
         <title>Pente | Brooks Roley</title>
         <meta name="description" content="Play Pente — a classic strategy board game with captures and five-in-a-row. 1v1, vs bots, FFA, and 2v2 team modes." />
-        <meta property="og:title" content="Pente | Brooks Roley" />
-        <meta property="og:description" content="Play Pente — a classic strategy board game with captures and five-in-a-row." />
-        <meta property="og:image" content="/marathon.png" />
+        <meta property="og:title" content="Pente | Brooks Roley" key="og:title" />
+        <meta property="og:description" content="Play Pente — a classic strategy board game with captures and five-in-a-row." key="og:description" />
+        <meta property="og:image" content="/marathon.png" key="og:image" />
       </Head>
 
       <div aria-hidden className="absolute inset-0 pointer-events-none z-0">

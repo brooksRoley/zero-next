@@ -163,9 +163,9 @@ export default function ZeroParadox() {
       <Head>
         <title>Zero Paradox LLC</title>
         <meta name="description" content="Support games, tools, and technology built at the edge of what's possible." />
-        <meta property="og:title" content="Zero Paradox LLC" />
-        <meta property="og:description" content="Support games, tools, and technology built at the edge of what's possible." />
-        <meta property="og:image" content="/cover.png" />
+        <meta property="og:title" content="Zero Paradox LLC" key="og:title" />
+        <meta property="og:description" content="Support games, tools, and technology built at the edge of what's possible." key="og:description" />
+        <meta property="og:image" content="/cover.png" key="og:image" />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 

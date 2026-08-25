@@ -54,10 +54,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <title>Brooks Roley | Software Engineer</title>
         <meta name="description" content="Brooks Roley — Software Engineer building games, tools, and things for the web." />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Brooks Roley | Software Engineer" />
-        <meta property="og:description" content="Software Engineer building games, tools, and things for the web." />
-        <meta property="og:image" content="/cover.png" />
+        {/*
+          Site-wide Open Graph defaults. The `key` is load-bearing: next/head
+          de-duplicates by `key`, NOT by `property`, so without it a page that
+          sets its own og:title emits *both* tags and scrapers read the first —
+          this generic one. Any page overriding these must reuse the same keys.
+        */}
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="Brooks Roley | Software Engineer" key="og:title" />
+        <meta property="og:description" content="Software Engineer building games, tools, and things for the web." key="og:description" />
+        <meta property="og:image" content="/cover.png" key="og:image" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>

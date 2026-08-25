@@ -97,13 +97,14 @@ export default function DigitalProducts() {
           name="description"
           content="NBA Analytics Primer — a practical guide to building basketball prediction models from public data. $19 on Gumroad, launching soon."
         />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="NBA Analytics Primer — Brooks Roley" />
+        <meta property="og:type" content="website" key="og:type" />
+        <meta property="og:title" content="NBA Analytics Primer — Brooks Roley" key="og:title" />
         <meta
           property="og:description"
           content="A practical guide to building basketball prediction models from public data. Launching soon."
+          key="og:description"
         />
-        <meta property="og:url" content="https://brooksroley.com/digital-products" />
+        <meta property="og:url" content="https://brooksroley.com/digital-products" key="og:url" />
       </Head>
 
       <div className="min-h-screen bg-forest-950 text-forest-100">
