@@ -28,6 +28,7 @@ type FunnelStep = {
 
 type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
+  puzzleAttempts: { total: number; solved: number };
   gameResults: { total: number; byOpponentType: { bot: number; human: number } };
   players: { count: number; avgGameElo: number | null };
   go: {
@@ -218,9 +219,9 @@ export default function AdminAnalyticsPage() {
               <h2 className="text-lg font-semibold mb-1">Games (Supabase)</h2>
               <p className="text-forest-400 text-sm mb-3">
                 Live totals from the Pente/Go game database — puzzle bank,
-                recorded games, and player ratings.
+                puzzle solve rate, recorded games, and player ratings.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
                   <div className="text-xs uppercase tracking-wider text-forest-400">
                     Puzzle bank
@@ -230,6 +231,19 @@ export default function AdminAnalyticsPage() {
                   </div>
                   <div className="mt-1 text-sm text-forest-400">
                     avg rating {fmtAvg(games.puzzleBank.avgRating)}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                    Puzzle attempts
+                  </div>
+                  <div className="mt-2 text-3xl font-bold">
+                    {games.puzzleAttempts.total.toLocaleString()}
+                  </div>
+                  <div className="mt-1 text-sm text-forest-400">
+                    {games.puzzleAttempts.total > 0
+                      ? `${Math.round((games.puzzleAttempts.solved / games.puzzleAttempts.total) * 100)}% solved`
+                      : "no attempts yet"}
                   </div>
                 </div>
                 <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
