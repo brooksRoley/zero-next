@@ -78,7 +78,7 @@ function TipWhenLiveCapture() {
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder="you@example.com"
           aria-label="Email address"
-          className="flex-1 rounded-lg border border-forest-600 bg-forest-900/60 px-4 py-2.5 text-sm text-white placeholder-forest-500 focus:border-[#635BFF]/70 focus:outline-none"
+          className="flex-1 rounded-lg border border-forest-600 bg-forest-900/60 px-4 py-2.5 text-sm text-white placeholder-forest-500 focus:border-[#635BFF]/70 focus:outline-none focus:ring-1 focus:ring-[#635BFF]/40"
         />
         <button
           onClick={handleSubmit}
