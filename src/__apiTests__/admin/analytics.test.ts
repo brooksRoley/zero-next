@@ -179,6 +179,64 @@ describe("api/admin/analytics — Go stats", () => {
     });
   });
 
+  it("ranks puzzle_bank rows by solve-rate calibration gap against the median player ELO", async () => {
+    mockSqlDefaults();
+    // Standalone mock (not makeSupabaseMock) since this needs to return
+    // different rows depending on which columns were requested from the
+    // same table — makeSupabaseMock's shared helper only keys by table.
+    mockSupabase = {
+      from(table: string) {
+        return {
+          select(sel: string, opts?: { count?: string; head?: boolean }) {
+            if (opts?.count === "exact" && opts?.head) {
+              const p = Promise.resolve({ count: 0, error: null }) as Promise<CountResult> & {
+                eq?: () => Promise<CountResult>;
+              };
+              p.eq = () => Promise.resolve({ count: 0, error: null });
+              return p;
+            }
+            if (table === "puzzle_bank" && sel.includes("times_served")) {
+              return Promise.resolve({
+                data: [
+                  // Rated at the reference ELO (1200) but solved 95% of the
+                  // time — badly miscalibrated (too easy for its rating).
+                  { id: "puzzle-a", rating: 1200, times_served: 20, times_solved: 19 },
+                  // Rated at the reference ELO, solved ~50% — well calibrated.
+                  { id: "puzzle-b", rating: 1200, times_served: 20, times_solved: 11 },
+                  // Below the minimum attempt threshold — excluded.
+                  { id: "puzzle-c", rating: 1200, times_served: 2, times_solved: 2 },
+                ],
+                error: null,
+              });
+            }
+            if (table === "players" && sel.trim() === "elo") {
+              return Promise.resolve({
+                data: [{ elo: 1000 }, { elo: 1200 }, { elo: 1400 }],
+                error: null,
+              });
+            }
+            return Promise.resolve({ data: [], error: null });
+          },
+        };
+      },
+    };
+
+    const { default: handler } = await import("../../pages/api/admin/analytics");
+    const req = createMockReq({ tracker_session: "secret-session" });
+    const res = createMockRes();
+
+    await handler(req, res);
+
+    expect(res._status).toBe(200);
+    const calibration = res._json.supabaseStats.puzzleCalibration;
+    expect(calibration.referenceElo).toBe(1200); // median of [1000, 1200, 1400]
+    expect(calibration.worst.map((r: { id: string }) => r.id)).toEqual([
+      "puzzle-a",
+      "puzzle-b",
+    ]); // puzzle-c excluded (below the min-attempts threshold)
+    expect(calibration.worst[0].gap).toBeGreaterThan(calibration.worst[1].gap);
+  });
+
   it("returns 401 when the tracker_session cookie is missing or wrong", async () => {
     mockSql.mockReset();
     const { default: handler } = await import("../../pages/api/admin/analytics");
