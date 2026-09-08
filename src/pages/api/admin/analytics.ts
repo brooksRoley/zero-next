@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { supabase } from "src/lib/supabase";
 import { isValidAdminKey } from "src/lib/adminAuth";
+import { computeCalibration, median } from "src/lib/pente/puzzleCalibration";
+import { STARTING_ELO } from "src/lib/pente/elo";
 
 // The /admin/analytics page is gated by src/proxy.ts via the
 // tracker_session cookie, so browser requests are checked against that same
@@ -27,6 +29,16 @@ const PRIORITY_EVENTS = [
 
 type EventTotalRow = { event_type: string; count: number; sessions: number };
 
+type CalibrationRow = {
+  id: string;
+  rating: number;
+  timesServed: number;
+  timesSolved: number;
+  solveRate: number;
+  expectedSolveRate: number;
+  gap: number;
+};
+
 type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
   puzzleAttempts: { total: number; solved: number };
@@ -36,6 +48,7 @@ type SupabaseStats = {
     players: { count: number; avgElo: number | null };
     puzzleAttempts: { total: number; solved: number };
   };
+  puzzleCalibration: { referenceElo: number; worst: CalibrationRow[] };
 };
 
 // Read-only aggregate stats from the Supabase game database (Pente/Go live
@@ -90,6 +103,17 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     const mean = nums.reduce((sum, n) => sum + n, 0) / nums.length;
     return Math.round(mean * 10) / 10;
   };
+  // Full rows (not an aggregate) for a small set of columns — used by the
+  // puzzle-rating calibration report below, which needs per-row rating +
+  // attempt counts rather than a single averaged number.
+  const selectRows = async <T>(
+    table: string,
+    columns: string
+  ): Promise<T[]> => {
+    const { data, error } = await db.from(table).select(columns);
+    if (error) throw error;
+    return (data ?? []) as T[];
+  };
 
   const [
     puzzleCount,
@@ -105,6 +129,8 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     avgGoElo,
     goAttemptsTotal,
     goAttemptsSolved,
+    puzzleBankRows,
+    playerEloRows,
   ] = await Promise.all([
     safe(() => countAll("puzzle_bank"), 0),
     safe(() => avgColumn("puzzle_bank", "rating"), null),
@@ -122,7 +148,25 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     safe(() => avgColumn("go_players", "go_elo"), null),
     safe(() => countAll("go_puzzle_attempts"), 0),
     safe(() => countEq("go_puzzle_attempts", "solved", true), 0),
+    // Per-puzzle rating + attempt counts, and per-player puzzle ELO — raw
+    // rows, not aggregates, since calibration needs to compare each puzzle
+    // individually against the field's median strength.
+    safe(
+      () =>
+        selectRows<{ id: string; rating: number; times_served: number; times_solved: number }>(
+          "puzzle_bank",
+          "id, rating, times_served, times_solved"
+        ),
+      []
+    ),
+    safe(() => selectRows<{ elo: number }>("players", "elo"), []),
   ]);
+
+  const referenceElo =
+    median(
+      playerEloRows.map((r) => Number(r.elo)).filter((n) => Number.isFinite(n))
+    ) ?? STARTING_ELO;
+  const worstCalibrated = computeCalibration(puzzleBankRows, referenceElo);
 
   return {
     puzzleBank: { count: puzzleCount, avgRating },
@@ -136,6 +180,7 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
       players: { count: goPlayerCount, avgElo: avgGoElo },
       puzzleAttempts: { total: goAttemptsTotal, solved: goAttemptsSolved },
     },
+    puzzleCalibration: { referenceElo, worst: worstCalibrated },
   };
 }
 
