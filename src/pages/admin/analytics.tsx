@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { MIN_ATTEMPTS_FOR_CALIBRATION } from "src/lib/pente/puzzleCalibration";
 
 type PageViewRow = {
   path: string;
@@ -26,6 +27,16 @@ type FunnelStep = {
   sessions: number;
 };
 
+type CalibrationRow = {
+  id: string;
+  rating: number;
+  timesServed: number;
+  timesSolved: number;
+  solveRate: number;
+  expectedSolveRate: number;
+  gap: number;
+};
+
 type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
   puzzleAttempts: { total: number; solved: number };
@@ -35,6 +46,7 @@ type SupabaseStats = {
     players: { count: number; avgElo: number | null };
     puzzleAttempts: { total: number; solved: number };
   };
+  puzzleCalibration?: { referenceElo: number; worst: CalibrationRow[] };
 };
 
 type AnalyticsResponse = {
@@ -308,6 +320,72 @@ export default function AdminAnalyticsPage() {
                       : "no attempts yet"}
                   </div>
                 </div>
+              </div>
+            </section>
+          )}
+
+          {data && games?.puzzleCalibration && games.puzzleCalibration.worst.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-lg font-semibold mb-1">
+                Puzzle rating calibration
+              </h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Puzzles whose actual solve rate diverges most from what their{" "}
+                <span className="text-white">rating</span> predicts, given a
+                reference solver at{" "}
+                <span className="text-white">
+                  {games.puzzleCalibration.referenceElo.toLocaleString()} ELO
+                </span>{" "}
+                (the field&apos;s median puzzle rating). A large gap means the
+                puzzle is likely mis-rated, not that solvers are unusual —
+                puzzles below {MIN_ATTEMPTS_FOR_CALIBRATION} attempts are
+                excluded as too noisy to judge.
+                Visibility only; no rating is auto-adjusted.
+              </p>
+              <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                <table className="w-full text-sm">
+                  <thead className="bg-forest-900 text-forest-200 text-left">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Puzzle</th>
+                      <th className="px-4 py-3 font-medium text-right">Rating</th>
+                      <th className="px-4 py-3 font-medium text-right">Attempts</th>
+                      <th className="px-4 py-3 font-medium text-right">
+                        Actual solve rate
+                      </th>
+                      <th className="px-4 py-3 font-medium text-right">
+                        Expected
+                      </th>
+                      <th className="px-4 py-3 font-medium text-right">Gap</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-forest-800">
+                    {games.puzzleCalibration.worst.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="hover:bg-forest-900/40 transition-colors"
+                      >
+                        <td className="px-4 py-3 font-mono text-forest-400 text-xs">
+                          {row.id.slice(0, 8)}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium">
+                          {row.rating}
+                        </td>
+                        <td className="px-4 py-3 text-right text-forest-300">
+                          {row.timesSolved}/{row.timesServed}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {Math.round(row.solveRate * 100)}%
+                        </td>
+                        <td className="px-4 py-3 text-right text-forest-400">
+                          {Math.round(row.expectedSolveRate * 100)}%
+                        </td>
+                        <td className="px-4 py-3 text-right font-semibold text-candy-300">
+                          {Math.round(row.gap * 100)} pts
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </section>
           )}
