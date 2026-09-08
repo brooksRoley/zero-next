@@ -257,7 +257,7 @@ export default function Consulting() {
         {/* ── Nav ── */}
         <header className="border-b border-forest-800/50 px-6 py-4">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <Link href="/" className="text-forest-400 hover:text-candy-400 transition-colors text-sm">
+            <Link href="/" className="text-forest-400 hover:text-candy-400 transition-colors text-sm rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950">
               &larr; Home
             </Link>
             <a
@@ -266,7 +266,7 @@ export default function Consulting() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'header' })}
-              className="px-4 py-2 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
             >
               Book a Call
             </a>
@@ -366,7 +366,7 @@ export default function Consulting() {
                 <Link
                   key={proj.title}
                   href={proj.href}
-                  className="group block rounded-xl border border-forest-700/40 bg-forest-900/60 p-5 transition-colors hover:border-forest-600/60"
+                  className="group block rounded-xl border border-forest-700/40 bg-forest-900/60 p-5 transition-colors hover:border-forest-600/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                 >
                   <h3 className="text-base font-semibold text-white mb-1 flex items-center gap-2">
                     {proj.title}
@@ -419,9 +419,9 @@ export default function Consulting() {
                       setSelectedTier(tier.key)
                       track('cta_click', { location: 'consulting_calendly', placement: 'pricing_grid', tier: tier.key })
                     }}
-                    className="mt-5 block text-center px-4 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
+                    className="mt-5 block text-center px-4 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                   >
-                    Book a Call
+                    Check Availability
                   </a>
                 </div>
               ))}
@@ -467,7 +467,7 @@ export default function Consulting() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'connect_tile' })}
-                className="group relative flex flex-col items-center gap-2 rounded-xl border border-candy-500/60 bg-candy-500/15 hover:bg-candy-500/25 hover:border-candy-400 p-6 text-center transition-all shadow-lg shadow-candy-500/10"
+                className="group relative flex flex-col items-center gap-2 rounded-xl border border-candy-500/60 bg-candy-500/15 hover:bg-candy-500/25 hover:border-candy-400 p-6 text-center transition-all shadow-lg shadow-candy-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
               >
                 <span className="absolute right-3 top-3 rounded-full border border-candy-500/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-candy-200">
                   Start here
@@ -480,7 +480,7 @@ export default function Consulting() {
               <Link
                 href="/intake"
                 onClick={() => track('intake_open', { location: 'connect_tile' })}
-                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
+                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
               >
                 <span className="text-2xl">&#127908;</span>
                 <span className="text-sm font-medium text-white">Voice Intake</span>
@@ -489,7 +489,7 @@ export default function Consulting() {
 
               <a
                 href="#contact"
-                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all"
+                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
               >
                 <span className="text-2xl">&#9993;</span>
                 <span className="text-sm font-medium text-white">Send a Message</span>
@@ -503,7 +503,7 @@ export default function Consulting() {
                 href="https://www.linkedin.com/in/brooksroley/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-forest-500 hover:text-forest-300 transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm text-forest-500 hover:text-forest-300 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
               >
                 <span>&#128279;</span>
                 <span>Connect on LinkedIn &mdash; in/brooksroley</span>
@@ -529,7 +529,7 @@ export default function Consulting() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'success_state' })}
-                  className="inline-block px-5 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
+                  className="inline-block px-5 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                 >
                   Or book a call now
                 </a>
@@ -563,7 +563,7 @@ export default function Consulting() {
                       required
                       value={form.name}
                       onChange={e => updateForm('name', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
                       placeholder="Your name"
                     />
                   </div>
@@ -576,7 +576,7 @@ export default function Consulting() {
                       required
                       value={form.email}
                       onChange={e => updateForm('email', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -590,7 +590,7 @@ export default function Consulting() {
                     <select
                       value={form.project_type}
                       onChange={e => updateForm('project_type', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
                     >
                       <option value="">Select one…</option>
                       {PROJECT_TYPES.map(opt => (
@@ -605,7 +605,7 @@ export default function Consulting() {
                     <select
                       value={form.budget_range}
                       onChange={e => updateForm('budget_range', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
                     >
                       <option value="">Select one…</option>
                       {BUDGET_RANGES.map(opt => (
@@ -624,7 +624,7 @@ export default function Consulting() {
                       type="text"
                       value={form.company}
                       onChange={e => updateForm('company', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
                       placeholder="Acme Inc. / side project"
                     />
                   </div>
@@ -635,7 +635,7 @@ export default function Consulting() {
                     <select
                       value={form.timeline}
                       onChange={e => updateForm('timeline', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 transition-colors"
+                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
                     >
                       <option value="">Select one…</option>
                       {TIMELINES.map(opt => (
@@ -654,7 +654,7 @@ export default function Consulting() {
                     value={form.message}
                     onChange={e => updateForm('message', e.target.value)}
                     rows={5}
-                    className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors resize-none"
+                    className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors resize-none"
                     placeholder="What are you working on? What would be helpful?"
                   />
                 </div>
@@ -662,7 +662,7 @@ export default function Consulting() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 rounded-xl bg-candy-600 hover:bg-candy-500 disabled:bg-forest-700 disabled:text-forest-500 text-white font-medium transition-colors"
+                  className="w-full py-3 rounded-xl bg-candy-600 hover:bg-candy-500 disabled:bg-forest-700 disabled:text-forest-500 text-white font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                 >
                   {submitting ? 'Sending...' : 'Send Message'}
                 </button>
@@ -674,7 +674,7 @@ export default function Consulting() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'form_footer' })}
-                    className="text-candy-500/70 hover:text-candy-400 underline"
+                    className="text-candy-500/70 hover:text-candy-400 underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                   >
                     Book directly on Calendly
                   </a>
@@ -698,7 +698,7 @@ export default function Consulting() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'sticky_mobile' })}
-            className="block w-full text-center px-4 py-3 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-semibold transition-colors"
+            className="block w-full text-center px-4 py-3 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
           >
             Book a free call &rarr;
           </a>
@@ -708,7 +708,7 @@ export default function Consulting() {
         <footer className="border-t border-forest-800/50 py-8 mt-16">
           <div className="max-w-3xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-forest-600 text-xs">
             <span>Brooks Roley &middot; {new Date().getFullYear()}</span>
-            <Link href="/" className="hover:text-forest-400 transition-colors">&larr; brooksroley.com</Link>
+            <Link href="/" className="hover:text-forest-400 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950">&larr; brooksroley.com</Link>
           </div>
         </footer>
       </div>
