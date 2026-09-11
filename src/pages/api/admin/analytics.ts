@@ -29,6 +29,15 @@ const PRIORITY_EVENTS = [
 
 type EventTotalRow = { event_type: string; count: number; sessions: number };
 
+type LlmUsageRow = {
+  route: string;
+  provider: string | null;
+  model: string | null;
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+};
+
 type CalibrationRow = {
   id: string;
   rating: number;
@@ -205,7 +214,7 @@ export default async function handler(
   }
 
   try {
-    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage, funnelRows] = await Promise.all([
+    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage, funnelRows, llmUsageRaw] = await Promise.all([
       sql`
         SELECT
           COALESCE(page, metadata->>'path', '(unknown)') AS path,
@@ -263,6 +272,24 @@ export default async function handler(
         FROM events
         WHERE created_at > NOW() - INTERVAL '30 days'
       `,
+      // Token usage for the site's two unmetered LLM routes (ai-gateway,
+      // generate-profile), logged by src/lib/ai-providers/usageLog.ts.
+      // Token counts only — no dollar conversion, since pricing varies per
+      // provider/model and both routes let the caller pick either.
+      sql`
+        SELECT
+          COALESCE(page, '(unknown)') AS route,
+          metadata->>'provider' AS provider,
+          metadata->>'model' AS model,
+          COUNT(*)::int AS calls,
+          COALESCE(SUM((metadata->>'inputTokens')::int), 0)::int AS input_tokens,
+          COALESCE(SUM((metadata->>'outputTokens')::int), 0)::int AS output_tokens
+        FROM events
+        WHERE event_type = 'llm_usage'
+          AND created_at > NOW() - INTERVAL '7 days'
+        GROUP BY 1, 2, 3
+        ORDER BY (input_tokens + output_tokens) DESC
+      `,
     ]);
 
     // Guarantee the monetization-signal events appear even at zero, then float
@@ -298,6 +325,16 @@ export default async function handler(
     // so it can't throw the request into the 503 catch below.
     const supabaseStats = await readSupabaseStats();
 
+    const llmUsage = llmUsageRaw as LlmUsageRow[];
+    const llmUsageTotals = llmUsage.reduce(
+      (acc, row) => ({
+        calls: acc.calls + row.calls,
+        inputTokens: acc.inputTokens + row.input_tokens,
+        outputTokens: acc.outputTokens + row.output_tokens,
+      }),
+      { calls: 0, inputTokens: 0, outputTokens: 0 }
+    );
+
     return res.status(200).json({
       pageViews,
       leads: leadCounts[0] ?? { total: 0, last_30_days: 0 },
@@ -306,6 +343,7 @@ export default async function handler(
       funnel,
       supabaseStats,
       priorityEvents: PRIORITY_EVENTS,
+      llmUsage: { rows: llmUsage, totals: llmUsageTotals, windowDays: 7 },
       _meta: { windowDays: 30 },
     });
   } catch (e: unknown) {
