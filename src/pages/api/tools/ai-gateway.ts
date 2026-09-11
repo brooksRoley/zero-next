@@ -11,6 +11,7 @@ import {
   sanitizeAssistantMessage,
 } from "src/lib/ai-providers/sanitize";
 import { createRateLimiter } from "src/lib/rate-limit";
+import { logLlmUsage } from "src/lib/ai-providers/usageLog";
 
 const limiter = createRateLimiter(30, 60 * 60 * 1000); // 30 per hour
 
@@ -54,6 +55,11 @@ async function tryStream(
       messages,
       maxOutputTokens: maxTokens,
       temperature,
+      onFinish: ({ totalUsage }) =>
+        logLlmUsage("ai-gateway", provider.id, model.id, {
+          inputTokens: totalUsage.inputTokens,
+          outputTokens: totalUsage.outputTokens,
+        }),
     });
     result.pipeTextStreamToResponse(res);
     return true;
