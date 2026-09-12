@@ -30,58 +30,17 @@ import QueueBanner from 'src/components/pente/QueueBanner';
 import MatchConfirmModal from 'src/components/pente/MatchConfirmModal';
 import useBoardTheme from 'src/hooks/useBoardTheme';
 import BoardCustomizer from 'src/components/pente/BoardCustomizer';
-
-// Map cell value to CSS class
-function cellClass(cell) {
-  switch (cell) {
-    case BLACK: return 'black';
-    case WHITE: return 'white';
-    case RED:   return 'red';
-    case BLUE:  return 'blue';
-    default:    return '';
-  }
-}
-
-// Map cell value to capture-eject CSS class
-function captureClass(color) {
-  switch (color) {
-    case BLACK: return 'capture-black';
-    case WHITE: return 'capture-white';
-    case RED:   return 'capture-red';
-    case BLUE:  return 'capture-blue';
-    default:    return 'capture-black';
-  }
-}
-
-// Get hover class for current player
-function hoverClass(player) {
-  return `board-hover-${PLAYER_COLORS[player]?.css || 'black'}`;
-}
-
-// Game mode presets for the mode selector
-const MODE_PRESETS = [
-  { key: 'local', label: 'Local', modeKey: null, bots: false },
-  { key: 'bot1v1', label: 'vs Bot', modeKey: 'classic', bots: true },
-  { key: 'bot4ffa', label: 'vs 3 Bots', modeKey: 'ffa4', bots: true },
-  { key: 'bot2v2', label: '2v2 Bots', modeKey: 'team2v2', bots: true },
-  { key: 'online', label: 'Online', modeKey: null, bots: false },
-];
-
-// Rules text per game mode
-const MODE_RULES = {
-  classic: {
-    title: 'Classic Pente',
-    captures: 'Bracket exactly two opponent stones with yours in a straight line to capture them.',
-  },
-  ffa4: {
-    title: 'Free-for-All (4 Players)',
-    captures: 'You can capture any opponent\'s pair. All three other players are opponents. Pairs must be the same color \u2014 you can\'t capture a mixed pair.',
-  },
-  team2v2: {
-    title: '2v2 Team Pente',
-    captures: 'You and your teammate share a capture count. Your teammate\'s stones count as brackets for captures \u2014 their stone at one end and yours at the other can capture an opponent pair between you. Five-in-a-row must be your stones only.',
-  },
-};
+import TurnStatusBar from 'src/components/pente/TurnStatusBar';
+import RulesPanel from 'src/components/pente/RulesPanel';
+import GameOverDrawer from 'src/components/pente/GameOverDrawer';
+import {
+  cellClass,
+  captureClass,
+  hoverClass,
+  MODE_PRESETS,
+  modeBtnClass,
+  actionBtnClass,
+} from 'src/lib/pente/boardDisplay';
 
 const GameBoard = () => {
   const router = useRouter();
@@ -636,22 +595,6 @@ const GameBoard = () => {
   const showEval = !isOnline && !showLobby && (!gameMode || gameMode.key === 'classic');
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Style helpers
-  const modeBtn = (active) =>
-    `px-3 py-2 text-xs transition-colors ${
-      active
-        ? 'bg-forest-700/70 text-white'
-        : 'bg-forest-900/60 text-forest-400 hover:text-forest-200'
-    }`;
-
-  const actionBtn = (active = false) =>
-    `text-xs px-3 py-2 rounded-lg border transition-colors min-h-[36px] ${
-      active
-        ? 'bg-cyan-900/50 text-cyan-300 border-cyan-600/50'
-        : 'bg-forest-900/60 text-forest-400 hover:text-forest-200 border-forest-700/40 hover:border-forest-500'
-    }`;
-
-  // ─────────────────────────────────────────────────────────────────────────
 
   const penteZone = getZone(gameElo);
 
@@ -694,7 +637,7 @@ const GameBoard = () => {
             {MODE_PRESETS.map((preset, i) => (
               <button
                 key={preset.key}
-                className={`${modeBtn(modePreset === preset.key)} ${i > 0 ? 'border-l border-forest-700/40' : ''}`}
+                className={`${modeBtnClass(modePreset === preset.key)} ${i > 0 ? 'border-l border-forest-700/40' : ''}`}
                 onClick={() => switchPreset(preset.key)}
               >
                 {preset.label}
@@ -706,7 +649,7 @@ const GameBoard = () => {
           <div className="ml-auto flex items-center gap-1.5">
             {!isOnline && !gameOver && (!gameMode || gameMode.key === 'classic') && (
               <button
-                className={actionBtn(tutorEnabled)}
+                className={actionBtnClass(tutorEnabled)}
                 onClick={handleToggleTutor}
                 disabled={botEnabled && localCurrentPlayer !== humanColor}
                 title={tutorEnabled ? 'Tutor active' : 'Get move hints'}
@@ -715,12 +658,12 @@ const GameBoard = () => {
               </button>
             )}
             {!isOnline && (
-              <button className={actionBtn()} onClick={resetLocalBoard} title="New game">
+              <button className={actionBtnClass()} onClick={resetLocalBoard} title="New game">
                 New
               </button>
             )}
             <button
-              className={actionBtn(showCustomizer)}
+              className={actionBtnClass(showCustomizer)}
               onClick={() => setShowCustomizer(s => !s)}
               title="Board style"
               aria-label="Customize board style"
@@ -728,7 +671,7 @@ const GameBoard = () => {
               🎨
             </button>
             <button
-              className={actionBtn(showRules)}
+              className={actionBtnClass(showRules)}
               onClick={() => setShowRules(r => !r)}
               title="Rules"
             >
@@ -758,52 +701,20 @@ const GameBoard = () => {
         )}
 
         {/* Row 2 — Turn indicator + score + captures */}
-        {!showLobby && mp.gameStatus !== 'error' && (
-          <div className="flex items-center px-3 pb-2 gap-2">
-            {/* Turn dot */}
-            <div
-              className="turn-dot w-4 h-4 rounded-full border-2 shrink-0 transition-colors duration-300"
-              style={{
-                backgroundColor: PLAYER_COLORS[currentPlayer]?.hex || '#1a1a1a',
-                borderColor: currentPlayer === WHITE ? '#9ca3af' : 'rgba(255,255,255,0.3)',
-              }}
-            />
-            <span className="text-white text-xs font-semibold leading-none">
-              {playerName_}
-              {botEnabled && currentPlayer !== humanColor ? ' (Bot)' : ''}
-              {botThinking ? '\u2026' : '\u2019s turn'}
-            </span>
-            {moveCount > 0 && (
-              <span className="text-forest-600 text-xs font-mono">#{moveCount}</span>
-            )}
-            {lastBotStats && botEnabled && !botThinking && (
-              <span className="text-forest-700 text-[10px] font-mono opacity-60" title="Engine search depth / nodes evaluated">
-                d{lastBotStats.depth} {lastBotStats.nodes > 1000 ? `${(lastBotStats.nodes / 1000).toFixed(1)}k` : lastBotStats.nodes}n
-              </span>
-            )}
-
-            {/* Score + captures — right-aligned */}
-            <div className="ml-auto flex items-center gap-2 text-xs font-mono">
-              {/* Compact score display for all active players */}
-              {activePlayers.map((p, i) => (
-                <span key={p} className="flex items-center gap-0.5">
-                  {i > 0 && <span className="text-forest-700 mx-0.5">{i === 1 ? '\u2013' : ':'}</span>}
-                  <span
-                    className="inline-block w-2 h-2 rounded-full"
-                    style={{ backgroundColor: PLAYER_COLORS[p]?.hex }}
-                  />
-                  <span style={{ color: currentPlayer === p ? '#fff' : '#9ca3af' }}>
-                    {gameMode?.teams
-                      ? (captures[`team${gameMode.teams.findIndex(t => t.includes(p))}`] || 0)
-                      : (captures[p] || 0)
-                    }
-                  </span>
-                  <span className="text-forest-600">/{gameMode?.captureThreshold || 5}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <TurnStatusBar
+          showLobby={showLobby}
+          gameStatus={mp.gameStatus}
+          currentPlayer={currentPlayer}
+          playerName={playerName_}
+          botEnabled={botEnabled}
+          humanColor={humanColor}
+          botThinking={botThinking}
+          moveCount={moveCount}
+          lastBotStats={lastBotStats}
+          activePlayers={activePlayers}
+          gameMode={gameMode}
+          captures={captures}
+        />
 
         {/* Multiplayer status */}
         {isOnline && mp.gameStatus !== 'loading' && mp.gameStatus !== 'error' && (
@@ -867,47 +778,7 @@ const GameBoard = () => {
         )}
 
         {/* Collapsible rules */}
-        {showRules && (
-          <div className="mx-3 mb-2 rounded-xl bg-forest-900/80 border border-forest-700/40 px-4 py-3">
-            <p className="text-xs text-forest-300 mb-2 leading-relaxed">
-              {gameMode && MODE_RULES[gameMode.key]
-                ? <strong className="text-forest-100">{MODE_RULES[gameMode.key].title}</strong>
-                : <>19\u00d719 board. First to <strong className="text-forest-100">five-in-a-row</strong> or{' '}
-                  <strong className="text-forest-100">five captured pairs</strong> wins.</>
-              }
-            </p>
-            <ul className="text-xs text-forest-400 space-y-1.5">
-              <li>
-                <strong className="text-forest-200">Capture:</strong>{' '}
-                {gameMode && MODE_RULES[gameMode.key]
-                  ? MODE_RULES[gameMode.key].captures
-                  : 'Bracket exactly two opponent stones with yours in a straight line.'
-                }
-              </li>
-              <li>
-                <strong className="text-forest-200">Five in a row:</strong>{' '}
-                Any direction — horizontal, vertical, or diagonal.
-                {gameMode?.teams && (
-                  <span className="text-forest-500"> (Your stones only — teammate stones don&rsquo;t count.)</span>
-                )}
-              </li>
-              {(!gameMode || gameMode.key === 'classic') && (
-                <li>
-                  <strong className="text-forest-200">Pro rule:</strong>{' '}
-                  First player&rsquo;s second stone must be \u22653 intersections from center.
-                </li>
-              )}
-              {gameMode?.teams && (
-                <li>
-                  <strong className="text-forest-200">Teams:</strong>{' '}
-                  {PLAYER_COLORS[gameMode.teams[0][0]]?.name} + {PLAYER_COLORS[gameMode.teams[0][1]]?.name} vs{' '}
-                  {PLAYER_COLORS[gameMode.teams[1][0]]?.name} + {PLAYER_COLORS[gameMode.teams[1][1]]?.name}.
-                  Captures are shared within your team.
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+        {showRules && <RulesPanel gameMode={gameMode} />}
       </header>
 
       {/* ══════════════════════════════════════════════════════════════
@@ -1049,136 +920,22 @@ const GameBoard = () => {
       {/* ══════════════════════════════════════════════════════════════
           GAME-OVER DRAWER
       ══════════════════════════════════════════════════════════════ */}
-      {gameOver && !isOnline && (
-        <div className="flex-shrink-0 border-t border-forest-700/40 bg-forest-900/90 px-4 py-3 max-h-56 overflow-y-auto">
-          <div className="flex items-center justify-between mb-2.5">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <span
-                className="inline-block w-3 h-3 rounded-full"
-                style={{ backgroundColor: PLAYER_COLORS[winner]?.hex }}
-              />
-              {PLAYER_COLORS[winner]?.name || 'Unknown'} Wins!
-              {gameMode?.teams && (
-                <span className="text-xs text-forest-400 font-normal ml-1">
-                  (Team {gameMode.teams.findIndex(t => t.includes(winner)) + 1})
-                </span>
-              )}
-            </h2>
-            <div className="flex gap-2">
-              <button
-                onClick={resetLocalBoard}
-                className="text-xs px-3 py-1.5 rounded-lg bg-forest-700/60 text-white border border-forest-600 hover:bg-forest-600/60 transition-colors"
-              >
-                Play Again
-              </button>
-              {moveHistory.length > 0 && !gameAnalysis && (!gameMode || gameMode.key === 'classic') && (
-                <button
-                  onClick={handleAnalyze}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-cyan-800/40 text-cyan-200 border border-cyan-700/40 hover:bg-cyan-700/40 transition-colors"
-                >
-                  Analyze
-                </button>
-              )}
-            </div>
-          </div>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track('cta_click', {
-                page: '/posts/pente',
-                metadata: { location: 'pente_ingame_tip' },
-                beacon: true,
-              })
-            }
-            className="block mb-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
-          >
-            Enjoying Pente? Support development →
-          </Link>
-
-          {gameAnalysis && (
-            <div className="space-y-1">
-              {gameAnalysis.map((entry, idx) => {
-                const isBlunder = entry.annotation.includes('Blunder');
-                const isMistake = entry.annotation.includes('Mistake');
-                const isViewing = analysisViewTurn === idx;
-                const mover = moveHistory[idx]?.moveMadeBy;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setAnalysisViewTurn(isViewing ? null : idx)}
-                    className={`w-full text-left text-xs px-3 py-1.5 rounded-lg transition-colors ${
-                      isViewing
-                        ? 'bg-forest-700/60 border border-forest-500'
-                        : isBlunder
-                          ? 'bg-red-900/30 border border-red-700/30 hover:bg-red-900/50'
-                          : isMistake
-                            ? 'bg-yellow-900/20 border border-yellow-700/30 hover:bg-yellow-900/40'
-                            : 'bg-forest-900/40 border border-forest-700/20 hover:bg-forest-800/40'
-                    }`}
-                  >
-                    <span className="font-mono text-forest-400 mr-2">#{idx + 1}</span>
-                    <span style={{ color: PLAYER_COLORS[mover]?.hex || '#fff' }}>
-                      {PLAYER_COLORS[mover]?.name || '?'}
-                    </span>
-                    <span className={`ml-2 ${
-                      isBlunder ? 'text-red-400 font-semibold' :
-                      isMistake ? 'text-yellow-400' :
-                      'text-forest-400'
-                    }`}>
-                      {entry.annotation}
-                    </span>
-                    <span className="float-right text-forest-600 font-mono">
-                      {(entry.evaluation / 1000).toFixed(1)}k
-                    </span>
-                  </button>
-                );
-              })}
-              {analysisViewTurn !== null && (
-                <p className="text-xs text-forest-500 pt-1">
-                  Viewing move #{analysisViewTurn + 1}.{' '}
-                  <button
-                    onClick={() => setAnalysisViewTurn(null)}
-                    className="text-cyan-400 hover:text-cyan-300"
-                  >
-                    Back to final
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
-
-          {!consultingCtaDismissed && (
-            <div className="mt-3 flex items-center gap-3 rounded-xl border border-candy-500/30 bg-forest-900/60 px-3 py-2.5">
-              <p className="flex-1 text-xs text-forest-200 leading-snug">
-                Enjoying the game? I build stuff like this professionally.{' '}
-                <Link
-                  href="/consulting"
-                  onClick={() => {
-                    const result = botEnabled
-                      ? (winner === humanColor ? 'win' : 'loss')
-                      : 'win';
-                    track('consulting_from_game', {
-                      page: '/posts/pente',
-                      metadata: { game: 'pente', result },
-                      beacon: true,
-                    });
-                  }}
-                  className="font-semibold text-candy-300 hover:text-candy-200 transition-colors whitespace-nowrap"
-                >
-                  Work with me →
-                </Link>
-              </p>
-              <button
-                onClick={() => setConsultingCtaDismissed(true)}
-                aria-label="Dismiss"
-                className="flex-shrink-0 text-forest-500 hover:text-forest-300 transition-colors text-sm leading-none"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      <GameOverDrawer
+        gameOver={gameOver}
+        isOnline={isOnline}
+        winner={winner}
+        gameMode={gameMode}
+        resetLocalBoard={resetLocalBoard}
+        moveHistory={moveHistory}
+        gameAnalysis={gameAnalysis}
+        handleAnalyze={handleAnalyze}
+        analysisViewTurn={analysisViewTurn}
+        setAnalysisViewTurn={setAnalysisViewTurn}
+        consultingCtaDismissed={consultingCtaDismissed}
+        setConsultingCtaDismissed={setConsultingCtaDismissed}
+        botEnabled={botEnabled}
+        humanColor={humanColor}
+      />
       {/* Post-multiplayer game result */}
       {isOnline && mp.gameStatus === 'finished' && (
         <div className="flex-shrink-0 border-t border-forest-700/40 bg-forest-900/90 px-4 py-3">
