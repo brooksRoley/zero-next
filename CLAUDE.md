@@ -9,7 +9,7 @@ yarn dev        # Start development server on localhost:3000
 yarn build      # Build for production
 yarn start      # Start production server
 yarn lint       # Run ESLint directly (not next lint — Next.js 16 broke it)
-yarn test       # Run the vitest suite once (445 tests as of 2026-07-11)
+yarn test       # Run the vitest suite once (843 tests as of 2026-09-14)
 yarn test:watch # Vitest in watch mode
 ```
 
