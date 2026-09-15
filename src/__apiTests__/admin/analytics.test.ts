@@ -74,15 +74,16 @@ function createMockRes(): any {
   return res;
 }
 
-// Five queries fire in a fixed order: pageViews, leadCounts, eventTotalsRaw,
-// eventsByPage, funnelRows.
+// Six queries fire in a fixed order: pageViews, leadCounts, eventTotalsRaw,
+// eventsByPage, funnelRows, llmUsageRaw.
 function mockSqlDefaults() {
   mockSql
     .mockResolvedValueOnce([]) // pageViews
     .mockResolvedValueOnce([{ total: 0, last_30_days: 0 }]) // leadCounts
     .mockResolvedValueOnce([]) // eventTotalsRaw
     .mockResolvedValueOnce([]) // eventsByPage
-    .mockResolvedValueOnce([{}]); // funnelRows
+    .mockResolvedValueOnce([{}]) // funnelRows
+    .mockResolvedValueOnce([]); // llmUsageRaw
 }
 
 describe("api/admin/analytics — Go stats", () => {
@@ -247,5 +248,63 @@ describe("api/admin/analytics — Go stats", () => {
 
     expect(res._status).toBe(401);
     expect(mockSql).not.toHaveBeenCalled();
+  });
+
+  it("surfaces LLM token usage rows and totals from the llm_usage events", async () => {
+    mockSql
+      .mockResolvedValueOnce([]) // pageViews
+      .mockResolvedValueOnce([{ total: 0, last_30_days: 0 }]) // leadCounts
+      .mockResolvedValueOnce([]) // eventTotalsRaw
+      .mockResolvedValueOnce([]) // eventsByPage
+      .mockResolvedValueOnce([{}]) // funnelRows
+      .mockResolvedValueOnce([
+        {
+          route: "ai-gateway",
+          provider: "openrouter",
+          model: "openrouter/nemotron-3-super",
+          calls: 5,
+          input_tokens: 1200,
+          output_tokens: 3400,
+        },
+        {
+          route: "generate-profile",
+          provider: "openrouter",
+          model: "openrouter/gpt-oss-120b",
+          calls: 2,
+          input_tokens: 300,
+          output_tokens: 900,
+        },
+      ]); // llmUsageRaw
+    mockSupabase = null;
+
+    const { default: handler } = await import("../../pages/api/admin/analytics");
+    const req = createMockReq({ tracker_session: "secret-session" });
+    const res = createMockRes();
+
+    await handler(req, res);
+
+    expect(res._status).toBe(200);
+    expect(res._json.llmUsage).toEqual({
+      rows: [
+        {
+          route: "ai-gateway",
+          provider: "openrouter",
+          model: "openrouter/nemotron-3-super",
+          calls: 5,
+          input_tokens: 1200,
+          output_tokens: 3400,
+        },
+        {
+          route: "generate-profile",
+          provider: "openrouter",
+          model: "openrouter/gpt-oss-120b",
+          calls: 2,
+          input_tokens: 300,
+          output_tokens: 900,
+        },
+      ],
+      totals: { calls: 7, inputTokens: 1500, outputTokens: 4300 },
+      windowDays: 7,
+    });
   });
 });

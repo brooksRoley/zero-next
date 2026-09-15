@@ -49,6 +49,21 @@ type SupabaseStats = {
   puzzleCalibration?: { referenceElo: number; worst: CalibrationRow[] };
 };
 
+type LlmUsageRow = {
+  route: string;
+  provider: string | null;
+  model: string | null;
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+};
+
+type LlmUsage = {
+  rows: LlmUsageRow[];
+  totals: { calls: number; inputTokens: number; outputTokens: number };
+  windowDays: number;
+};
+
 type AnalyticsResponse = {
   pageViews: PageViewRow[];
   leads: { total: number; last_30_days: number };
@@ -57,6 +72,7 @@ type AnalyticsResponse = {
   funnel?: FunnelStep[];
   supabaseStats?: SupabaseStats | null;
   priorityEvents?: string[];
+  llmUsage?: LlmUsage;
   _meta?: { windowDays?: number };
 };
 
@@ -560,6 +576,105 @@ export default function AdminAnalyticsPage() {
                     </tbody>
                   </table>
                 </div>
+              )}
+            </section>
+          )}
+
+          {data?.llmUsage && (
+            <section className="mt-8">
+              <h2 className="text-lg font-semibold mb-1">
+                LLM usage ({data.llmUsage.windowDays}d)
+              </h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Token volume on the site&apos;s two unmetered AI routes —
+                Chat Sandbox / Model Arena (<span className="font-mono">ai-gateway</span>)
+                and the Chat Sandbox character generator (
+                <span className="font-mono">generate-profile</span>). Token
+                counts only, not dollars — pricing varies per provider/model
+                and both routes let the caller pick either.
+              </p>
+
+              {data.llmUsage.rows.length === 0 ? (
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-8 text-center text-forest-300">
+                  No LLM usage logged in the last {data.llmUsage.windowDays}{" "}
+                  days yet.
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                        Calls
+                      </div>
+                      <div className="mt-2 text-3xl font-bold">
+                        {data.llmUsage.totals.calls.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                        Input tokens
+                      </div>
+                      <div className="mt-2 text-3xl font-bold">
+                        {data.llmUsage.totals.inputTokens.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                        Output tokens
+                      </div>
+                      <div className="mt-2 text-3xl font-bold">
+                        {data.llmUsage.totals.outputTokens.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                    <table className="w-full text-sm">
+                      <thead className="bg-forest-900 text-forest-200 text-left">
+                        <tr>
+                          <th className="px-4 py-3 font-medium">Route</th>
+                          <th className="px-4 py-3 font-medium">Provider</th>
+                          <th className="px-4 py-3 font-medium">Model</th>
+                          <th className="px-4 py-3 font-medium text-right">
+                            Calls
+                          </th>
+                          <th className="px-4 py-3 font-medium text-right">
+                            Input tok.
+                          </th>
+                          <th className="px-4 py-3 font-medium text-right">
+                            Output tok.
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-forest-800">
+                        {data.llmUsage.rows.map((row) => (
+                          <tr
+                            key={`${row.route}|${row.provider}|${row.model}`}
+                            className="hover:bg-forest-900/40 transition-colors"
+                          >
+                            <td className="px-4 py-3 font-mono text-forest-100">
+                              {row.route}
+                            </td>
+                            <td className="px-4 py-3 text-forest-300">
+                              {row.provider ?? "—"}
+                            </td>
+                            <td className="px-4 py-3 font-mono text-forest-400 text-xs">
+                              {row.model ?? "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-medium">
+                              {row.calls.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-right text-forest-300">
+                              {row.input_tokens.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-right text-forest-300">
+                              {row.output_tokens.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </section>
           )}
