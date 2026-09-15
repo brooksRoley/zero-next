@@ -1,0 +1,52 @@
+Hardwood Autochess — vendored bundle provenance
+=================================================
+
+WHAT THIS FILE IS FOR
+---------------------
+The game bundle in this directory (engine.js, engine.wasm, engine_roster.json,
+index.html, assets/) is NOT built here. It is compiled in a separate repo
+(BballTactics — Vue 3 + a C++ engine compiled to WASM) and copied in as built
+artifacts. This file records which source build the currently-deployed bundle
+came from, so the next person who rebuilds it can reproduce it and knows what
+they are replacing. A stale/mismatched bundle already shipped once (PR #43) and
+had to be reverted the same day; CI now fails a PR that touches these files
+without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
+
+CURRENTLY-DEPLOYED BUNDLE
+-------------------------
+zero-next commit that restored/vendored this bundle:
+  e99e60e  revert(hardwood): restore July-monolith bundle (undo #43 regression)
+           Tue Sep 8 2026 — reverts PR #43, restoring the bundle originally
+           vendored in commit aeb7fce ("feat(hardwood): serve the game
+           same-origin at /hardwood", 2026-07-10).
+
+Build identity:
+  This is the "July monolith" build of BballTactics.
+
+BballTactics source SHA (recorded provenance, per zero-next project memory):
+  f7b01e3  "Push to actions and github pages" (2026-07-10) — the BballTactics
+           origin/main monolith rewrite that the deployed /hardwood bundle was
+           built from.
+
+  NOTE: f7b01e3 is the provenance RECORDED IN PROJECT MEMORY, not a SHA verified
+  against the BballTactics repo during the creation of this file. If you cannot
+  confirm this exact upstream build SHA against BballTactics origin/main, treat
+  it as:
+      BballTactics source SHA: UNKNOWN — record on next rebuild
+
+HOW TO REBUILD / RE-SYNC (and what to update here)
+--------------------------------------------------
+In BballTactics: git fetch, then build from CURRENT origin/main (the canonical
+build is the July monolith line, not the older May base):
+
+  vite build --base=/hardwood/ --outDir dist-hardwood
+
+The --base=/hardwood/ matters: dynamic-import chunks bake the base into their
+load URLs, so rewriting index.html alone is not enough once code is split.
+Copy index.html + assets/* (and engine.js/engine.wasm/engine_roster.json only if
+they actually changed — the two repos' engine files differ) into this directory.
+
+When you do, UPDATE THIS FILE with:
+  - the exact BballTactics commit SHA you built from (git rev-parse HEAD there)
+  - the date
+  - the zero-next commit/PR that vendored the new bundle
