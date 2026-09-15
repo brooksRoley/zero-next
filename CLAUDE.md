@@ -71,7 +71,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 ### Database (Neon Postgres)
 - Connection: `src/lib/db.ts` exports `sql` via `@neondatabase/serverless`
-- **Tables:** `users`, `rubrics`, `elements`, `pages`, `page_elements` (guest book schema), `leads`, `checkout_sessions` (consulting funnel)
+- **Tables:** `users`, `rubrics`, `elements`, `pages`, `page_elements` (guest book schema), `leads`, `checkout_sessions` (consulting funnel), `bball_runs`, `bball_board_states`, `bball_roster` (Basketball Data Platform game backend — see note under Pente Game Platform below on why this predates and sits outside the Supabase-for-game-state rule)
 - Env vars: `POSTGRES_URL` and related vars in `.env.local`
 
 ### Components
@@ -204,7 +204,7 @@ The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship g
 #### Architecture Decisions (locked)
 - **Supabase for ALL game state** — player profiles, ELO, puzzle bank, game history, multiplayer realtime. Supabase client is at `src/lib/supabase.ts`. The `games` table and realtime channels already exist there.
 - **localStorage as offline cache only** — `usePlayerProfile` is Supabase-first, with localStorage as the offline fallback. New features should write to Supabase first, cache locally second.
-- **Neon Postgres is for the business side** (leads, consulting, guestbook). Do NOT put game data in Neon.
+- **Neon Postgres is for the business side** (leads, consulting, guestbook). Do NOT put game data in Neon. This rule is scoped to Pente/Go — their realtime multiplayer + ELO needs are why Supabase was chosen. It does not (and, as written, cannot retroactively) cover the Basketball Data Platform's `bball_runs`/`bball_board_states`/`bball_roster` tables, which live in Neon (`src/pages/api/bball/setup.ts`) and predate this decision (commit `85ac30e`, no rationale recorded). That game has no realtime/multiplayer component, so the Supabase rationale may not even apply to it — flagging the tension rather than asserting it should move; a migration is a real project, not a doc fix.
 - **Web Worker for AI engine** — The minimax bot runs in `public/penteWorker.js` (self-contained, no imports). Puzzle generation also runs there. Never move engine computation to the main thread.
 
 #### Supabase Tables (planned migration order)
