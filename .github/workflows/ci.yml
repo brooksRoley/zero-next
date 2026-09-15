@@ -18,6 +18,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Guard vendored Hardwood bundle provenance
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          # The public/hardwood/ bundle is a VENDORED build from the separate
+          # BballTactics repo. A stale bundle shipped once (PR #43) and had to be
+          # reverted same-day. Any PR that changes the bundle must also bump
+          # public/hardwood/SOURCE_COMMIT.txt so provenance never drifts.
+          git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+          CHANGED="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD")"
+          BUNDLE_CHANGED="$(echo "$CHANGED" | grep -E '^public/hardwood/' | grep -v -E '^public/hardwood/SOURCE_COMMIT\.txt$' || true)"
+          SOURCE_CHANGED="$(echo "$CHANGED" | grep -E '^public/hardwood/SOURCE_COMMIT\.txt$' || true)"
+          if [ -n "$BUNDLE_CHANGED" ] && [ -z "$SOURCE_CHANGED" ]; then
+            echo "::error::Hardwood bundle changed but public/hardwood/SOURCE_COMMIT.txt was NOT updated."
+            echo "The public/hardwood/ bundle is vendored from the separate BballTactics repo."
+            echo "Files changed under public/hardwood/ in this PR:"
+            echo "$BUNDLE_CHANGED" | sed 's/^/  - /'
+            echo ""
+            echo "FIX: edit public/hardwood/SOURCE_COMMIT.txt to record the BballTactics"
+            echo "source SHA (and date) this bundle was built from, then commit it in this PR."
+            exit 1
+          fi
+          echo "Hardwood bundle provenance guard passed."
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
