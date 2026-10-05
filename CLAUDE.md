@@ -30,7 +30,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/funding` (`src/pages/funding.tsx`) — "Support Brooks Roley" tip-jar / funding page
 - `/zero-paradox` (`src/pages/zero-paradox.jsx`) — Zero Paradox LLC landing/brand page
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
-- `/resume` (`src/pages/resume.js`) — Resume page with PDF download link and the interactive MarioButton
+- `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
 - `/education-tracker` (`src/pages/education-tracker.jsx`) — Personal certification-exam (AIF-C01) study progress tracker
 - `/digital-products` (`src/pages/digital-products.tsx`) — Digital Products storefront; leads with the "NBA Analytics Primer" ($19 Gumroad, launching soon) + email capture
 - `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
@@ -240,7 +240,7 @@ When building puzzle/game features, always ask: *does this make the free tier st
 Internal components use the `src/` path alias (e.g., `import ScoreBoard from 'src/components/Scoreboard.js'`), configured in `tsconfig.json`.
 
 ### Public assets
-Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`).
+Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`). It must say the same thing as `src/lib/resume.ts`; when one changes, the other is stale until Brooks re-exports it.
 
 ---
 
@@ -256,8 +256,48 @@ This section drives the scheduled remote dev agent that runs every weekday at 8:
 - **Stack:** React, TypeScript, Next.js, SwiftUI, Tailwind, Node.js, PostgreSQL
 - **Site:** brooksroley.com (this repo — Next.js + Vercel)
 - **iOS project:** BasketballTactics (SwiftUI + MVVM + balldontlie.io NBA API, Lakers colors #552583 purple / #FDB927 gold)
-- **Career goal:** Senior engineering roles in sports tech; actively targeting LA Lakers Software Developer - Basketball Data Strategy
+- **Location:** Orange County, CA (homeowner — not relocating). Remote, or hybrid in Orange County / South Bay LA. Never list San Francisco.
+- **Career goal:** A full-time senior full-stack or front-end role (updated 2026-10-05). Sports tech is a welcome fit, not the filter. Until an offer is signed, **hiring readiness outranks every livelihood stream** — see the next section.
+- **Entity:** None. Sole proprietor; no LLC has been formed. Never write "LLC" or "Zero Paradox" on a public page.
 - **Growth mindset:** Wants concrete, encouraging feedback. Identifies gaps and learns from each PR.
+
+---
+
+### Hiring Readiness (takes priority until Brooks is hired)
+
+Added 2026-10-05 after an audit found the site working against the job search it is linked from: the Resume
+page held no resume, the PDF had carried misspellings ("Node.is", "Veutify") for fourteen months, the hero
+advertised consulting and never said Brooks was open to a role, a live page claimed an LLC that does not
+exist, and three public pages said "Coming soon". Every application email links this site. A recruiter gives
+it about a minute.
+
+**Why it happened:** the Livelihood Strategy below told every session to move a revenue needle, so sessions
+shipped games, tools and funnels, and nothing owned "what does a hiring manager see?". This section owns it.
+
+**Every session, before choosing work, run the readiness check** (read-only, a few minutes) and record the
+result in the ledger under one standing item, `hiring-readiness`:
+
+1. `/resume` renders the experience from `src/lib/resume.ts`, and the first entry is current.
+2. `public/Brooks_Roley.pdf` is not older than the last change to `src/lib/resume.ts` (`git log -1 --format=%cs`
+   on each). If it is, that is an `owner: brooks` item: he exports the PDF.
+3. No public page shows "Coming soon", "Configure in .env.local", "(unavailable)", or a 0% tracker. Unfinished
+   pages are gated behind `src/proxy.ts` or removed from the build until they work.
+4. No public page claims an LLC or another entity.
+5. The home hero says what Brooks does and that he is open to full-time roles; consulting comes second.
+6. `robots.txt`, `sitemap.xml`, a canonical tag and an absolute `og:image` exist.
+7. Location reads "Orange County, CA" everywhere.
+
+**A failing check is this session's work** if it is agent-doable, ahead of any livelihood item and regardless
+of the day's role. Fix it, add a test that would have caught it (as `resume.test.ts` does for wording), and
+say so in the PR. When all seven pass, say "hiring readiness: 7 of 7" in one line and move on — do not
+re-audit in prose.
+
+**Two standing rules for any copy a recruiter can reach:** proofread product names against their official
+spelling, and never publish a claim about employment, clients or an entity that Brooks has not stated.
+Client work may be named only where `src/lib/resume.ts` already names it.
+
+This section retires when Brooks says he has accepted an offer. Until then the question for every PR is
+"does this make an interview more likely?" before "does this make money more likely?".
 
 ---
 
@@ -372,7 +412,7 @@ Find the single highest-value visual or UX improvement. Priority order:
 
 Avoid full redesigns or breaking the existing visual identity.
 
-**Livelihood lens:** Does the site currently make it obvious that Brooks is available for consulting? Is there a clear path from "visitor" to "paying customer" or "lead"? If not, that's the design problem to solve first.
+**Livelihood lens (after Hiring Readiness passes):** Does the site currently make it obvious that Brooks is available for consulting? Is there a clear path from "visitor" to "paying customer" or "lead"? If not, that's the design problem to solve first.
 
 Output format — start with `DESIGN PR`, then include:
 
