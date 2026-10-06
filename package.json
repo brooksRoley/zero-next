@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "resume:pdf": "tsx --tsconfig tsconfig.json scripts/build-resume-pdf.ts",
     "tft:backtest": "tsx --tsconfig tsconfig.json scripts/tft-backtest.ts",
     "tft:activate": "tsx --tsconfig tsconfig.json scripts/tft-activate.ts"
   },

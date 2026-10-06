@@ -1,7 +1,7 @@
-// The resume as data: the single source for the /resume page.
-// Keep it in step with public/Brooks_Roley.pdf — src/lib/__tests__/resume.test.ts
-// guards the wording (known misspellings, entity claims) so a typo can't sit
-// on the page for a year unnoticed.
+// The resume as data: the single source for the /resume page and the PDF.
+// public/Brooks_Roley.pdf is built from this file: after any change here, run
+// `yarn resume:pdf` and commit both. src/lib/__tests__/resume.test.ts guards the
+// wording (known misspellings, entity claims) so a typo can't sit unnoticed.
 
 export interface ResumeRole {
   org: string

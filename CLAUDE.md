@@ -240,7 +240,7 @@ When building puzzle/game features, always ask: *does this make the free tier st
 Internal components use the `src/` path alias (e.g., `import ScoreBoard from 'src/components/Scoreboard.js'`), configured in `tsconfig.json`.
 
 ### Public assets
-Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`). It must say the same thing as `src/lib/resume.ts`; when one changes, the other is stale until Brooks re-exports it.
+Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`). It is **built** from `src/lib/resume.ts` by `yarn resume:pdf` (`scripts/build-resume-pdf.ts`, headless Chrome) — never hand-edited or exported from another document. Change the data, rebuild, commit both.
 
 ---
 
@@ -279,7 +279,8 @@ result in the ledger under one standing item, `hiring-readiness`:
 
 1. `/resume` renders the experience from `src/lib/resume.ts`, and the first entry is current.
 2. `public/Brooks_Roley.pdf` is not older than the last change to `src/lib/resume.ts` (`git log -1 --format=%cs`
-   on each). If it is, that is an `owner: brooks` item: he exports the PDF.
+   on each). If it is, run `yarn resume:pdf` where Chrome is available; where it is not, that is an
+   `owner: brooks` item.
 3. No public page shows "Coming soon", "Configure in .env.local", "(unavailable)", or a 0% tracker. Unfinished
    pages are gated behind `src/proxy.ts` or removed from the build until they work.
 4. No public page claims an LLC or another entity.
