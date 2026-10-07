@@ -104,7 +104,7 @@ export default function DigitalProducts() {
           content="A practical guide to building basketball prediction models from public data. Launching soon."
           key="og:description"
         />
-        <meta property="og:url" content="https://brooksroley.com/digital-products" key="og:url" />
+        <meta property="og:url" content="https://www.brooksroley.com/digital-products" key="og:url" />
       </Head>
 
       <div className="min-h-screen bg-forest-950 text-forest-100">

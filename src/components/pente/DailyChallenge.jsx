@@ -88,9 +88,6 @@ function PremiumTeaser({ daily }) {
           <div className="flex items-center gap-2">
             <span className="text-candy-400" aria-hidden>🔒</span>
             <h3 className="text-base font-semibold text-white">Daily Challenge Pro</h3>
-            <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-candy-500/20 text-candy-300 border border-candy-500/30">
-              Coming soon
-            </span>
           </div>
           <p className="text-sm text-forest-300 mt-1">
             Keep your streak honest and prove it on the global board.
