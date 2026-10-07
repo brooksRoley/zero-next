@@ -31,6 +31,11 @@ describe('resume data', () => {
     expect(ALL_TEXT).not.toMatch(/\bLLC\b|\bInc\b\.?|Zero Paradox/)
   })
 
+  // main has no branch protection, so a red check does not block a merge.
+  it('does not claim that CI blocks merges', () => {
+    expect(ALL_TEXT).not.toMatch(/blocks? (the |a )?merge/i)
+  })
+
   it('leads with current work, so the page never ends at a past role', () => {
     expect(EXPERIENCE[0].dates).toMatch(/Present$/)
   })
