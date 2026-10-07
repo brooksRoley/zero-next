@@ -9,7 +9,7 @@ import {
   type Edge,
   type Level,
 } from "src/lib/games/passcut/graph";
-import { track } from "src/lib/analytics";
+import { track, trackGame } from "src/lib/analytics";
 import { absoluteUrl } from 'src/lib/routes'
 
 const PROGRESS_KEY = "passcut_progress"; // array of completed level ids (any result)
@@ -71,6 +71,10 @@ export default function PassAndCutPage() {
       track("passcut_result", {
         page: "/games/pass-and-cut",
         metadata: { level: level.id, winner },
+      });
+      trackGame("game_end", "pass-and-cut", {
+        level: level.id,
+        result: winner === "offense" ? "win" : "loss",
       });
     },
     [level.id, persist]

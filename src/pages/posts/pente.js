@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import Head from 'next/head';
 import Link from 'next/link';
 import { track } from 'src/lib/analytics';
+import useGameTracking from 'src/hooks/useGameTracking';
 
 import { useRouter } from 'next/router';
 import GameLobby from 'src/components/GameLobby';
@@ -156,6 +157,20 @@ const GameBoard = () => {
   const currentPlayer = isOnline ? mp.currentPlayer : localCurrentPlayer;
   const lastMove = isOnline ? mp.lastMove : localLastMove;
   const moveCount = isOnline ? mp.moveCount : localMoveCount;
+
+  useGameTracking('pente', {
+    moveCount,
+    finished: gameOver,
+    getStartMeta: () => ({
+      mode: gameMode?.key ?? 'classic',
+      opponent: isOnline ? 'online' : botEnabled ? 'bot' : 'local',
+    }),
+    getEndMeta: () => ({
+      mode: gameMode?.key ?? 'classic',
+      opponent: isOnline ? 'online' : botEnabled ? 'bot' : 'local',
+      result: !botEnabled || isOnline ? 'n/a' : winner === humanColor ? 'win' : 'loss',
+    }),
+  });
 
   // Backward-compat derived captures for online + classic display
   const blackCaptures = isOnline ? mp.blackCaptures : (captures[BLACK] || 0);

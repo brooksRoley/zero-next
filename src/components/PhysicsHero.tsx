@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ReactNode, useEffect, useRef } from 'react'
 import Matter from 'matter-js'
 import PreText from 'src/components/PreText'
+import { AVAILABILITY } from 'src/lib/resume'
 
 const PALETTE = {
   mist: '#DADBD9',
@@ -424,8 +425,10 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
           </div>
 
           <p className="max-w-xl text-base leading-7 text-[#DADBD9]/80 sm:text-lg sm:leading-8">
-            Software engineer building games, tools, and responsive web systems with
-            a bias toward fast feedback, tactile motion, and layered interfaces.
+            Full-stack software engineer with a front-end lean. I build fast, accessible
+            interfaces in React, Vue and TypeScript and the Python and Node services
+            behind them.{' '}
+            <span className="font-medium text-[#C5E7EA]">{AVAILABILITY}</span>
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

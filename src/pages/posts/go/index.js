@@ -6,6 +6,7 @@ import confetti from 'canvas-confetti'
 import useGameSounds from 'src/hooks/useGameSounds'
 import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
 import useCoach from 'src/hooks/useCoach'
+import useGameTracking from 'src/hooks/useGameTracking'
 import { getAdaptiveBotConfig } from 'src/lib/go/adaptiveBot'
 import GoRules from 'src/components/go/GoRules'
 import {
@@ -367,6 +368,19 @@ export default function GoPage() {
     profile.recordGameEnd({ won: playerWon, newElo: nextElo })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vsBot, phase, winner, botColor, playerColor, resignedBy, eloChange])
+
+  useGameTracking('go', {
+    moveCount,
+    finished: phase === 'finished',
+    getStartMeta: () => ({ size: boardSize, handicap, opponent: vsBot ? 'bot' : 'human', practice: practiceStage || null }),
+    getEndMeta: () => ({
+      size: boardSize,
+      opponent: vsBot ? 'bot' : 'human',
+      ended_by: resignedBy !== null ? 'resign' : 'score',
+      // From the visitor's side in a bot game; in a two-player game there is no "player".
+      result: !vsBot ? 'n/a' : winner === null ? 'draw' : winner === playerColor ? 'win' : 'loss',
+    }),
+  })
 
   // Coach: check for tips after each human move
   useEffect(() => {

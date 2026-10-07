@@ -6,7 +6,7 @@ import ReadReactBoard, {
 } from "src/components/games/ReadReactBoard";
 import { LEVELS, evMatrix } from "src/lib/games/readreact/levels";
 import { solveZeroSum } from "src/lib/games/readreact/matrixGame";
-import { track } from "src/lib/analytics";
+import { track, trackGame } from "src/lib/analytics";
 import { absoluteUrl } from 'src/lib/routes'
 
 const GOLD = "#FDB927";
@@ -70,6 +70,10 @@ export default function ReadAndReact() {
           benchmark: r.benchmark,
           beatPar: r.points >= r.benchmark,
         },
+      });
+      trackGame("game_end", "read-and-react", {
+        level: level.id,
+        result: r.points >= r.benchmark ? "win" : "loss",
       });
     },
     [level.id]

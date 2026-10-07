@@ -51,6 +51,21 @@ export function getAnonId(): string | null {
   }
 }
 
+/** Campaign tags on the current URL (`?utm_source=…`), or null when there are none. */
+function readUtm(): Record<string, string> | null {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const utm: Record<string, string> = {}
+    for (const key of ['source', 'medium', 'campaign'] as const) {
+      const value = params.get(`utm_${key}`)
+      if (value) utm[key] = value.slice(0, 80)
+    }
+    return Object.keys(utm).length > 0 ? utm : null
+  } catch {
+    return null
+  }
+}
+
 type TrackOptions = {
   /** Logical page for this event. Defaults to the current pathname. */
   page?: string
@@ -65,12 +80,15 @@ type TrackOptions = {
 export function track(eventType: string, options: TrackOptions = {}): void {
   if (typeof window === 'undefined') return
   const { page, metadata = {}, beacon = false } = options
+  const utm = readUtm()
   const body = JSON.stringify({
     session_id: getSessionId(),
     anon_id: getAnonId(),
     page: page ?? window.location.pathname,
     event_type: eventType,
-    metadata,
+    metadata: utm ? { ...metadata, utm } : metadata,
+    // Where the visitor came from. The server keeps it only when it is another site.
+    referrer: document.referrer || null,
   })
 
   if (beacon) {
@@ -92,4 +110,73 @@ export function track(eventType: string, options: TrackOptions = {}): void {
   }).catch(() => {
     /* analytics must never break the page */
   })
+}
+
+/**
+ * The shared game-event vocabulary. Every game fires these same names with a
+ * `game` key in metadata, so /admin/analytics can count sessions per game
+ * without knowing each game's private event names.
+ */
+export const GAME_EVENTS = [
+  'game_start',
+  'game_end',
+  'puzzle_start',
+  'puzzle_solved',
+  'puzzle_failed',
+  'tutorial_stage_complete',
+] as const
+
+export type GameEvent = (typeof GAME_EVENTS)[number]
+
+/** Fire one game event. `game` is a short slug: 'go', 'pente', 'pass-and-cut'… */
+export function trackGame(
+  event: GameEvent,
+  game: string,
+  metadata: Record<string, unknown> = {},
+): void {
+  track(event, { metadata: { ...metadata, game } })
+}
+
+type GameTrackerState = { moveCount: number; finished: boolean }
+type GameTrackerMeta = {
+  start?: () => Record<string, unknown>
+  end?: () => Record<string, unknown>
+}
+
+/**
+ * Turns a game's (moveCount, finished) state into exactly one game_start and
+ * one game_end per game played. A game starts on its first move, not on page
+ * load, so a visitor who only looks at the board is a page view, not a game.
+ * Call update() whenever either value changes; a fresh board (0 moves, not
+ * finished) re-arms it for the next game.
+ */
+export function createGameTracker(
+  game: string,
+  emit: typeof trackGame = trackGame,
+  now: () => number = Date.now,
+) {
+  let startedAt: number | null = null
+  let ended = false
+  return {
+    update(state: GameTrackerState, meta: GameTrackerMeta = {}): void {
+      if (state.moveCount === 0 && !state.finished) {
+        startedAt = null
+        ended = false
+        return
+      }
+      if (startedAt === null && state.moveCount > 0) {
+        startedAt = now()
+        ended = false
+        emit('game_start', game, meta.start?.() ?? {})
+      }
+      if (state.finished && startedAt !== null && !ended) {
+        ended = true
+        emit('game_end', game, {
+          ...(meta.end?.() ?? {}),
+          moves: state.moveCount,
+          duration_ms: now() - startedAt,
+        })
+      }
+    },
+  }
 }

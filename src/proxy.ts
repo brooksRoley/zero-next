@@ -16,5 +16,14 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/tracker', '/tracker/:path*', '/admin', '/admin/:path*'],
+  matcher: [
+    '/tracker',
+    '/tracker/:path*',
+    '/admin',
+    '/admin/:path*',
+    // Unfinished pages stay private until they work (see CLAUDE.md, Hiring Readiness).
+    '/zero-paradox',
+    '/education-tracker',
+    '/digital-products',
+  ],
 }

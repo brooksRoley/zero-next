@@ -13,7 +13,7 @@ import SupportCta from 'src/components/SupportCta'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
 import { getZone } from 'src/lib/pente/elo'
 import { puzzles, getRecommendedPuzzle } from 'src/lib/pente/puzzles'
-import { track } from 'src/lib/analytics'
+import { trackGame } from 'src/lib/analytics'
 
 const MODES = [
   { key: 'catalog', label: 'Catalog' },
@@ -72,20 +72,17 @@ export default function PentePuzzlesPage() {
   const handleSolve = useCallback((puzzleId, puzzleRating, attempts = 0, usedHint = false, solveTimeMs = null) => {
     const result = markSolved(puzzleId, puzzleRating, attempts, usedHint, solveTimeMs)
     setSolveSignal(s => s + 1)
-    track('puzzle_solved', {
-      page: '/posts/pente-puzzles',
-      metadata: {
-        puzzle_id: puzzleId,
-        rating: puzzleRating ?? null,
-        attempts,
-        used_hint: usedHint,
-        solve_time_ms: solveTimeMs,
-        mode: mode === 'endless' ? 'endless' : mode === 'daily' ? 'daily' : 'catalog',
-        elo_delta: result?.delta ?? 0,
-        new_elo: result?.newElo ?? null,
-        zone: result?.zone?.name ?? null,
-        repeat: (result?.delta ?? 0) === 0,
-      },
+    trackGame('puzzle_solved', 'pente', {
+      puzzle_id: puzzleId,
+      rating: puzzleRating ?? null,
+      attempts,
+      used_hint: usedHint,
+      solve_time_ms: solveTimeMs,
+      mode: mode === 'endless' ? 'endless' : mode === 'daily' ? 'daily' : 'catalog',
+      elo_delta: result?.delta ?? 0,
+      new_elo: result?.newElo ?? null,
+      zone: result?.zone?.name ?? null,
+      repeat: (result?.delta ?? 0) === 0,
     })
     return result
   }, [markSolved, mode])
