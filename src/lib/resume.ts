@@ -36,9 +36,6 @@ export const EXPERIENCE: ResumeRole[] = [
     role: 'Software Engineer',
     dates: '2026 – Present',
     bullets: [
-      'Built a bilingual (English and Spanish) family intake system for Centerpointe for Children, a pediatric occupational therapy clinic, replacing its paper packet. Answers are encrypted in the parent’s browser (RSA-OAEP and AES-256-GCM), so the form service and inbox only ever hold ciphertext.',
-      'Designed the clinic’s PostgreSQL schema on Supabase with role-based access, covered by 40 automated access-control checks, and a HIPAA Safe Harbor de-identified export for clinicians.',
-      'Built the clinician workflow backend in TypeScript: it scores eight standard assessments and drafts report sections with an LLM that sees only de-identified data, checking every citation.',
       'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility failure blocks the merge.',
       'Work daily with AI coding agents under tests and my own review. A scheduled agent opens pull requests on this site that I review before they merge.',
       'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',

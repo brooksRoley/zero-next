@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import fs from 'fs'
+import path from 'path'
 import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume'
 
 // Everything a visitor reads on /resume, as one string.
@@ -43,6 +45,12 @@ describe('resume data', () => {
   it('places the interlude between two real entries', () => {
     expect(INTERLUDE.afterIndex).toBeGreaterThanOrEqual(0)
     expect(INTERLUDE.afterIndex).toBeLessThan(EXPERIENCE.length - 1)
+  })
+
+  // The repository and the PDF are public; the PDF carries an email and links only.
+  it('puts no phone number in the PDF build script', () => {
+    const script = fs.readFileSync(path.join(process.cwd(), 'scripts', 'build-resume-pdf.ts'), 'utf8')
+    expect(script).not.toMatch(/PHONE|\d{3}[-.\s'\], ]+\d{3}[-.\s'\], ]+\d{4}/)
   })
 
   it('states one location and no second metro', () => {

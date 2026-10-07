@@ -14,10 +14,10 @@ import os from 'os'
 import path from 'path'
 import { EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from '../src/lib/resume'
 
-// Contact details appear on the PDF only, never in the page's HTML. Kept in
-// pieces so a plain-text scrape of this repository doesn't lift them whole.
+// The email appears on the PDF only, never in the page's HTML. Kept in pieces
+// so a plain-text scrape of this repository doesn't lift it whole. No phone
+// number: this repository and the PDF are both public.
 const EMAIL = ['brooksroley', 'gmail.com'].join('@')
-const PHONE = ['949', '525', '5124'].join('-')
 const LINKS = ['linkedin.com/in/brooksroley', 'github.com/brooksroley', 'brooksroley.com']
 
 const CHROME =
@@ -70,7 +70,7 @@ const html = `<!doctype html>
 <body>
   <header>
     <div><h1>Brooks Roley</h1><p class="title">Software Engineer · ${esc(LOCATION)}</p></div>
-    <div class="contact">${PHONE} · ${EMAIL}<br>${LINKS.join(' · ')}</div>
+    <div class="contact">${EMAIL}<br>${LINKS.join(' · ')}</div>
   </header>
   <p class="summary">${esc(SUMMARY)}</p>
   <div class="cols">
