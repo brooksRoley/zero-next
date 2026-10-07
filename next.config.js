@@ -12,6 +12,9 @@ const nextConfig = {
       { source: '/hardwood', destination: '/hardwood/index.html' },
     ]
   },
+  // Security headers (X-Frame-Options, X-Content-Type-Options, etc.) are
+  // already set platform-side in vercel.json for every route — don't
+  // duplicate them here.
 }
 
 module.exports = nextConfig
