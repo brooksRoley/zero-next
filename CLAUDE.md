@@ -9,7 +9,7 @@ yarn dev        # Start development server on localhost:3000
 yarn build      # Build for production
 yarn start      # Start production server
 yarn lint       # Run ESLint directly (not next lint — Next.js 16 broke it)
-yarn test       # Run the vitest suite once (906 tests as of 2026-10-07)
+yarn test       # Run the vitest suite once (962 tests as of 2026-10-07)
 yarn test:watch # Vitest in watch mode
 ```
 
@@ -28,18 +28,16 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
 - `/intake` (`src/pages/intake.jsx`) — Contact / intake form that feeds the consulting funnel
 - `/funding` (`src/pages/funding.tsx`) — "Support Brooks Roley" tip-jar / funding page
-- `/zero-paradox` (`src/pages/zero-paradox.jsx`) — Zero Paradox LLC landing/brand page
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
-- `/education-tracker` (`src/pages/education-tracker.jsx`) — Personal certification-exam (AIF-C01) study progress tracker
-- `/digital-products` (`src/pages/digital-products.tsx`) — Digital Products storefront; leads with the "NBA Analytics Primer" ($19 Gumroad, launching soon) + email capture
 - `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
 
 **Private / admin** (gated — see Authentication)
 - `/login` (`src/pages/login.tsx`) — Password gate for the private dashboard; POSTs to `/api/auth/login`
 - `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/proxy.ts`
 - `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads (also gated by `src/proxy.ts`)
-- `/admin/analytics` (`src/pages/admin/analytics.tsx`) — Admin analytics dashboard over first-party `/api/events` data (also gated by `src/proxy.ts`)
+- `/admin/analytics` (`src/pages/admin/analytics.tsx`) — Admin analytics dashboard over first-party `/api/events` data (also gated by `src/proxy.ts`). Leads with "who stops by": weekly scorecard, visitors, resume views and PDF downloads, recent visits, referrers, locations, devices and games played (`src/lib/visitorStats.ts`, `src/components/admin/VisitorSections.tsx`)
+- `/zero-paradox`, `/education-tracker`, `/digital-products` — unfinished pages, gated by `src/proxy.ts` since 2026-10-07 and unlinked from public chrome (an entity that does not exist, a personal tracker that reads 0% to visitors, a storefront for an unwritten PDF). To publish one: finish it, remove its `matcher` entry, and add it back to `src/lib/routes.ts`. `src/lib/__tests__/hiringReadiness.test.ts` guards this
 
 **NBA / sports tech**
 - `/nba` (`src/pages/nba.tsx`) — NBA API Explorer: players, teams, standings, predictions
@@ -140,7 +138,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/pages/api/guestbook/pages.ts` — GET/POST: list and create guest book pages
 
 **Utility / misc**
-- `src/pages/api/events.ts` — POST: lightweight first-party analytics event ingest (rate-limited)
+- `src/pages/api/events.ts` — POST: lightweight first-party analytics event ingest (rate-limited). Stores, with each event, where the visitor came from (external referrer, query string dropped), city-level location from Vercel's `x-vercel-ip-*` headers, and device / browser / OS family (`src/lib/visitorContext.ts`). No IP address is stored. Schema lives in `src/lib/eventsSchema.ts`
 - `src/pages/api/db-health.ts` — GET: Postgres connection health check
 - `src/pages/api/search.js` — Filters `stage_data.json` by location/date range; studio/stage availability lookup
 - `src/pages/api/posts.js` — Posts API (unused/in-progress)
@@ -151,7 +149,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 There are two independent auth layers. Neither uses a third-party auth provider — both are env-var secrets, sufficient for a single-owner site.
 
 **1. Dashboard session (browser-facing).** Gates the private `/tracker` dashboard and the `/admin` routes.
-- `src/proxy.ts` runs on `matcher: ['/tracker', '/tracker/:path*', '/admin', '/admin/:path*']` (Next.js 16 renamed the `middleware.ts` convention to `proxy.ts`; there is no `src/middleware.ts` in this repo). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
+- `src/proxy.ts` runs on `matcher: ['/tracker', '/tracker/:path*', '/admin', '/admin/:path*']` plus the three unfinished pages listed under Private / admin (Next.js 16 renamed the `middleware.ts` convention to `proxy.ts`; there is no `src/middleware.ts` in this repo). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
 - `/login` (`src/pages/login.tsx`) POSTs the password to `src/pages/api/auth/login.ts`, which checks `ADMIN_PASSWORD` and, on success, sets the `tracker_session` HttpOnly cookie to `ADMIN_SESSION_TOKEN` (7-day Max-Age, `Secure` in production). Brute force is throttled to 5 attempts / 15 min per IP via `src/lib/rate-limit.ts`.
 - `src/pages/api/auth/logout.ts` clears the cookie.
 - Env vars: `ADMIN_PASSWORD` (what the user types), `ADMIN_SESSION_TOKEN` (the cookie value the middleware compares against).
@@ -334,6 +332,8 @@ Brooks is building toward financial independence through the site itself. Every 
 
 - **Read the Open Recommendations Ledger first** (see the section below). It is the routine's memory across sessions — it tells you what's already been recommended, what shipped, and what's blocked on Brooks. Choose work from open, agent-doable items before inventing something new.
 - Scan the repo with Glob and selective Read before doing anything. Be token-efficient — do not read every file blindly.
+- **Spend nothing until there is income** (Brooks, 2026-10-07). Anything with a fee is shelved until the site has an income stream: forming an LLC, paid API tiers, paid plans or tools. Do not recommend or build toward them; list them once under "Shelved until income" in the ledger. Free setup that enables income (a Stripe account, Payment Links) is allowed.
+- **Games fire the shared game events.** `trackGame()` / `useGameTracking()` in `src/lib/analytics.ts` and `src/hooks/useGameTracking.js` emit `game_start`, `game_end`, `puzzle_start`, `puzzle_solved`, `puzzle_failed` and `tutorial_stage_complete` with a `game` slug. A new game uses them rather than inventing event names; `src/lib/__tests__/gameTracking.test.ts` lists the instrumented surfaces.
 - **Read the analytics before choosing what to build.** First-party events now exist (`/api/events`, the `track()` helper). When picking work, query/inspect recent conversion data (which CTAs fire, which convert) and prioritize by evidence, not intuition. "Does this PR make money more likely?" is now partly measurable — measure it.
 - Produce **one substantial PR per session, OR a bundle of small pre-specified items** the ledger has already greenlit as "ready to ship." One complete working PR beats several shallow ones — but don't let a queue of cheap, ready revenue wins starve for weeks because of a strict one-PR rule. Quality bar is unchanged: everything shipped must be complete and working.
 - Write complete code — no TODOs, no placeholders, no stub functions.

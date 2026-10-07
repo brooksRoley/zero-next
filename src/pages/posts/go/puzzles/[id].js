@@ -5,6 +5,7 @@ import PuzzleBoard from 'src/components/go/PuzzleBoard'
 import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
 import { eloDelta, rankLabel } from 'src/lib/go/elo'
 import { PUZZLES, PUZZLE_BY_ID, difficultyColor } from 'src/lib/go/puzzles'
+import { trackGame } from 'src/lib/analytics'
 
 export async function getStaticPaths() {
   return {
@@ -27,6 +28,9 @@ export default function GoPuzzlePage({ puzzleId }) {
   useEffect(() => {
     loadedAtRef.current = Date.now()
     setLastResult(null)
+    if (PUZZLE_BY_ID[puzzleId]) {
+      trackGame('puzzle_start', 'go', { puzzle_id: puzzleId, rating: PUZZLE_BY_ID[puzzleId].rating })
+    }
   }, [puzzleId])
 
   const ordered = useMemo(() => PUZZLES.map(p => p.id), [])
@@ -44,6 +48,12 @@ export default function GoPuzzlePage({ puzzleId }) {
       solveTimeMs: didSolve ? Date.now() - loadedAtRef.current : null,
     })
     if (result) setLastResult({ ...result, solved: didSolve, usedHint })
+    trackGame(didSolve ? 'puzzle_solved' : 'puzzle_failed', 'go', {
+      puzzle_id: puzzle.id,
+      rating: puzzle.rating,
+      used_hint: !!usedHint,
+      solve_time_ms: didSolve ? Date.now() - loadedAtRef.current : null,
+    })
   }, [puzzle, recordAttempt])
 
   if (!puzzle) {
