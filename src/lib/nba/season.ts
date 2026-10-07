@@ -4,16 +4,22 @@
 
 export type SeasonType = "Regular Season" | "Playoffs";
 
-/** Returns the current NBA season string, e.g. "2025-26". */
-export function currentNbaSeason(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1; // 1-indexed
-  // Seasons begin in October — Oct–Dec belong to the new season year
+/**
+ * Returns the NBA season a given date falls in, e.g. "2025-26" for March 2026.
+ * Seasons begin in October — Oct–Dec belong to the new season year.
+ */
+export function nbaSeasonForDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // 1-indexed
   if (month >= 10) {
     return `${year}-${String(year + 1).slice(-2)}`;
   }
   return `${year - 1}-${String(year).slice(-2)}`;
+}
+
+/** Returns the current NBA season string, e.g. "2025-26". */
+export function currentNbaSeason(): string {
+  return nbaSeasonForDate(new Date());
 }
 
 /**

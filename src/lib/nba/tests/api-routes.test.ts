@@ -247,6 +247,30 @@ describe("GET /api/nba/games", () => {
     const callArgs = mockFetchStats.mock.calls[0][1];
     expect(callArgs.DateFrom).toBe(callArgs.DateTo);
   });
+
+  it("takes the season from the requested date, not from today", async () => {
+    // This suite went red on 2026-10-01 because the handler sent the current
+    // season for every date. Pin "today" in a later season to keep it honest.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 20));
+    try {
+      mockFetchStats.mockResolvedValue([]);
+      const { default: handler } = await import("src/pages/api/nba/games/index");
+
+      await handler(createMockReq({ date: "2026-03-15" }), createMockRes());
+      expect(mockFetchStats.mock.calls[0][1].Season).toBe("2025-26");
+
+      mockFetchStats.mockClear();
+      await handler(createMockReq({ date: "2024-12-25" }), createMockRes());
+      expect(mockFetchStats.mock.calls[0][1].Season).toBe("2024-25");
+
+      mockFetchStats.mockClear();
+      await handler(createMockReq(), createMockRes());
+      expect(mockFetchStats.mock.calls[0][1].Season).toBe("2026-27");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe("GET /api/nba/games/[id]", () => {
