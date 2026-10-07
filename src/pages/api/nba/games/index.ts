@@ -1,14 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchStats } from "src/lib/nba/client";
 import { cached } from "src/lib/nba/cache";
-import { currentNbaSeason, parseSeasonType } from "src/lib/nba/season";
+import { nbaSeasonForDate, parseSeasonType } from "src/lib/nba/season";
 
 function formatDate(d: Date): string {
   return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
 }
 
-async function fetchGames(dateFrom: string, dateTo: string, seasonType: string) {
-  const season = currentNbaSeason();
+async function fetchGames(dateFrom: string, dateTo: string, season: string, seasonType: string) {
   const rows = await fetchStats("leaguegamefinder", {
     DateFrom: dateFrom,
     DateTo: dateTo,
@@ -55,21 +54,26 @@ export default async function handler(
   try {
     let dateFrom: string;
     let dateTo: string;
+    // The season comes from the date being asked about, not from today — a
+    // past-season date queried under the current season returns no games.
+    let season: string;
 
     const dateStr = req.query.date as string;
     if (dateStr) {
       const d = new Date(dateStr);
       dateFrom = dateTo = formatDate(d);
+      season = nbaSeasonForDate(d);
     } else {
       const today = new Date();
       const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
       dateFrom = formatDate(weekAgo);
       dateTo = formatDate(today);
+      season = nbaSeasonForDate(today);
     }
 
     const seasonType = parseSeasonType(req.query.season_type);
     const cacheKey = `games_${dateFrom}_${dateTo}_${seasonType}`;
-    const data = await cached(cacheKey, () => fetchGames(dateFrom, dateTo, seasonType), 300);
+    const data = await cached(cacheKey, () => fetchGames(dateFrom, dateTo, season, seasonType), 300);
 
     res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=60");
     res.status(200).json({ data, _meta: { endpoint: "games" } });
