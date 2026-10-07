@@ -459,6 +459,31 @@ export default function Home() {
               </Reveal>
             </div>
 
+            {/* Playoff Moments */}
+            <div data-physics-item className="physics-field-item">
+              <Reveal delay={580}>
+                <TiltCard>
+                  <Link href={route('moments').href} className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#0b3d2e] via-[#071410] to-[#0f172a]">
+                      <div className="flex items-center gap-3 text-2xl opacity-70">
+                        <span>&#x1F3C0;</span><span>&#x23F1;&#xFE0F;</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                    </div>
+                    <div className="relative px-5 pb-5 -mt-8">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        Playoff Moments <ArrowIcon />
+                      </h3>
+                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        Famous NBA plays frozen one beat early — your legs against their closing speed. Click the spot history found.
+                      </p>
+                    </div>
+                    <div className="tilt-highlight" />
+                  </Link>
+                </TiltCard>
+              </Reveal>
+            </div>
+
             {/* The Zero Theater */}
             <div data-physics-item className="physics-field-item">
               <Reveal delay={600}>

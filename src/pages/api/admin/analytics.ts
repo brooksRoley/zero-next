@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { supabase } from "src/lib/supabase";
 import { isValidAdminKey } from "src/lib/adminAuth";
+import { computeCalibration, median } from "src/lib/pente/puzzleCalibration";
+import { STARTING_ELO } from "src/lib/pente/elo";
 
 // The /admin/analytics page is gated by src/proxy.ts via the
 // tracker_session cookie, so browser requests are checked against that same
@@ -27,6 +29,25 @@ const PRIORITY_EVENTS = [
 
 type EventTotalRow = { event_type: string; count: number; sessions: number };
 
+type LlmUsageRow = {
+  route: string;
+  provider: string | null;
+  model: string | null;
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+};
+
+type CalibrationRow = {
+  id: string;
+  rating: number;
+  timesServed: number;
+  timesSolved: number;
+  solveRate: number;
+  expectedSolveRate: number;
+  gap: number;
+};
+
 type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
   puzzleAttempts: { total: number; solved: number };
@@ -36,6 +57,7 @@ type SupabaseStats = {
     players: { count: number; avgElo: number | null };
     puzzleAttempts: { total: number; solved: number };
   };
+  puzzleCalibration: { referenceElo: number; worst: CalibrationRow[] };
 };
 
 // Read-only aggregate stats from the Supabase game database (Pente/Go live
@@ -90,6 +112,17 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     const mean = nums.reduce((sum, n) => sum + n, 0) / nums.length;
     return Math.round(mean * 10) / 10;
   };
+  // Full rows (not an aggregate) for a small set of columns — used by the
+  // puzzle-rating calibration report below, which needs per-row rating +
+  // attempt counts rather than a single averaged number.
+  const selectRows = async <T>(
+    table: string,
+    columns: string
+  ): Promise<T[]> => {
+    const { data, error } = await db.from(table).select(columns);
+    if (error) throw error;
+    return (data ?? []) as T[];
+  };
 
   const [
     puzzleCount,
@@ -105,6 +138,8 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     avgGoElo,
     goAttemptsTotal,
     goAttemptsSolved,
+    puzzleBankRows,
+    playerEloRows,
   ] = await Promise.all([
     safe(() => countAll("puzzle_bank"), 0),
     safe(() => avgColumn("puzzle_bank", "rating"), null),
@@ -122,7 +157,25 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
     safe(() => avgColumn("go_players", "go_elo"), null),
     safe(() => countAll("go_puzzle_attempts"), 0),
     safe(() => countEq("go_puzzle_attempts", "solved", true), 0),
+    // Per-puzzle rating + attempt counts, and per-player puzzle ELO — raw
+    // rows, not aggregates, since calibration needs to compare each puzzle
+    // individually against the field's median strength.
+    safe(
+      () =>
+        selectRows<{ id: string; rating: number; times_served: number; times_solved: number }>(
+          "puzzle_bank",
+          "id, rating, times_served, times_solved"
+        ),
+      []
+    ),
+    safe(() => selectRows<{ elo: number }>("players", "elo"), []),
   ]);
+
+  const referenceElo =
+    median(
+      playerEloRows.map((r) => Number(r.elo)).filter((n) => Number.isFinite(n))
+    ) ?? STARTING_ELO;
+  const worstCalibrated = computeCalibration(puzzleBankRows, referenceElo);
 
   return {
     puzzleBank: { count: puzzleCount, avgRating },
@@ -136,6 +189,7 @@ async function readSupabaseStats(): Promise<SupabaseStats | null> {
       players: { count: goPlayerCount, avgElo: avgGoElo },
       puzzleAttempts: { total: goAttemptsTotal, solved: goAttemptsSolved },
     },
+    puzzleCalibration: { referenceElo, worst: worstCalibrated },
   };
 }
 
@@ -160,7 +214,7 @@ export default async function handler(
   }
 
   try {
-    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage, funnelRows] = await Promise.all([
+    const [pageViews, leadCounts, eventTotalsRaw, eventsByPage, funnelRows, llmUsageRaw] = await Promise.all([
       sql`
         SELECT
           COALESCE(page, metadata->>'path', '(unknown)') AS path,
@@ -218,6 +272,24 @@ export default async function handler(
         FROM events
         WHERE created_at > NOW() - INTERVAL '30 days'
       `,
+      // Token usage for the site's two unmetered LLM routes (ai-gateway,
+      // generate-profile), logged by src/lib/ai-providers/usageLog.ts.
+      // Token counts only — no dollar conversion, since pricing varies per
+      // provider/model and both routes let the caller pick either.
+      sql`
+        SELECT
+          COALESCE(page, '(unknown)') AS route,
+          metadata->>'provider' AS provider,
+          metadata->>'model' AS model,
+          COUNT(*)::int AS calls,
+          COALESCE(SUM((metadata->>'inputTokens')::int), 0)::int AS input_tokens,
+          COALESCE(SUM((metadata->>'outputTokens')::int), 0)::int AS output_tokens
+        FROM events
+        WHERE event_type = 'llm_usage'
+          AND created_at > NOW() - INTERVAL '7 days'
+        GROUP BY 1, 2, 3
+        ORDER BY (input_tokens + output_tokens) DESC
+      `,
     ]);
 
     // Guarantee the monetization-signal events appear even at zero, then float
@@ -253,6 +325,16 @@ export default async function handler(
     // so it can't throw the request into the 503 catch below.
     const supabaseStats = await readSupabaseStats();
 
+    const llmUsage = llmUsageRaw as LlmUsageRow[];
+    const llmUsageTotals = llmUsage.reduce(
+      (acc, row) => ({
+        calls: acc.calls + row.calls,
+        inputTokens: acc.inputTokens + row.input_tokens,
+        outputTokens: acc.outputTokens + row.output_tokens,
+      }),
+      { calls: 0, inputTokens: 0, outputTokens: 0 }
+    );
+
     return res.status(200).json({
       pageViews,
       leads: leadCounts[0] ?? { total: 0, last_30_days: 0 },
@@ -261,6 +343,7 @@ export default async function handler(
       funnel,
       supabaseStats,
       priorityEvents: PRIORITY_EVENTS,
+      llmUsage: { rows: llmUsage, totals: llmUsageTotals, windowDays: 7 },
       _meta: { windowDays: 30 },
     });
   } catch (e: unknown) {

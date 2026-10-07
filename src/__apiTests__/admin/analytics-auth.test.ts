@@ -42,15 +42,16 @@ function createMockRes(): any {
   return res;
 }
 
-// Five queries fire in a fixed order: pageViews, leadCounts, eventTotalsRaw,
-// eventsByPage, funnelRows.
+// Six queries fire in a fixed order: pageViews, leadCounts, eventTotalsRaw,
+// eventsByPage, funnelRows, llmUsageRaw.
 function mockSqlDefaults() {
   mockSql
     .mockResolvedValueOnce([]) // pageViews
     .mockResolvedValueOnce([{ total: 0, last_30_days: 0 }]) // leadCounts
     .mockResolvedValueOnce([]) // eventTotalsRaw
     .mockResolvedValueOnce([]) // eventsByPage
-    .mockResolvedValueOnce([{}]); // funnelRows
+    .mockResolvedValueOnce([{}]) // funnelRows
+    .mockResolvedValueOnce([]); // llmUsageRaw
 }
 
 describe("api/admin/analytics auth", () => {

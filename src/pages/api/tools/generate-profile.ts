@@ -8,6 +8,7 @@ import { getProvider } from "src/lib/ai-providers/providers";
 import { resolveKey } from "src/lib/ai-providers/keys";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createRateLimiter } from "src/lib/rate-limit";
+import { logLlmUsage } from "src/lib/ai-providers/usageLog";
 
 const limiter = createRateLimiter(10, 60 * 60 * 1000); // 10 per hour
 
@@ -58,11 +59,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : createOpenAICompatible({ name: provider.id, baseURL: provider.baseUrl, apiKey });
 
   try {
-    const { text } = await generateText({
+    const { text, usage } = await generateText({
       model: client(model.providerModelId),
       prompt: buildProfilePrompt(cleanName.cleaned, sanitized.cleaned),
       maxOutputTokens: 1500,
       temperature: 0.9,
+    });
+
+    await logLlmUsage("generate-profile", provider.id, model.id, {
+      inputTokens: usage?.inputTokens,
+      outputTokens: usage?.outputTokens,
     });
 
     const profileCheck = sanitizeProfile(text);

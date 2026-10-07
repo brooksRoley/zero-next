@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { MIN_ATTEMPTS_FOR_CALIBRATION } from "src/lib/pente/puzzleCalibration";
 
 type PageViewRow = {
   path: string;
@@ -26,6 +27,16 @@ type FunnelStep = {
   sessions: number;
 };
 
+type CalibrationRow = {
+  id: string;
+  rating: number;
+  timesServed: number;
+  timesSolved: number;
+  solveRate: number;
+  expectedSolveRate: number;
+  gap: number;
+};
+
 type SupabaseStats = {
   puzzleBank: { count: number; avgRating: number | null };
   puzzleAttempts: { total: number; solved: number };
@@ -35,6 +46,22 @@ type SupabaseStats = {
     players: { count: number; avgElo: number | null };
     puzzleAttempts: { total: number; solved: number };
   };
+  puzzleCalibration?: { referenceElo: number; worst: CalibrationRow[] };
+};
+
+type LlmUsageRow = {
+  route: string;
+  provider: string | null;
+  model: string | null;
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+};
+
+type LlmUsage = {
+  rows: LlmUsageRow[];
+  totals: { calls: number; inputTokens: number; outputTokens: number };
+  windowDays: number;
 };
 
 type AnalyticsResponse = {
@@ -45,6 +72,7 @@ type AnalyticsResponse = {
   funnel?: FunnelStep[];
   supabaseStats?: SupabaseStats | null;
   priorityEvents?: string[];
+  llmUsage?: LlmUsage;
   _meta?: { windowDays?: number };
 };
 
@@ -312,6 +340,72 @@ export default function AdminAnalyticsPage() {
             </section>
           )}
 
+          {data && games?.puzzleCalibration && games.puzzleCalibration.worst.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-lg font-semibold mb-1">
+                Puzzle rating calibration
+              </h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Puzzles whose actual solve rate diverges most from what their{" "}
+                <span className="text-white">rating</span> predicts, given a
+                reference solver at{" "}
+                <span className="text-white">
+                  {games.puzzleCalibration.referenceElo.toLocaleString()} ELO
+                </span>{" "}
+                (the field&apos;s median puzzle rating). A large gap means the
+                puzzle is likely mis-rated, not that solvers are unusual —
+                puzzles below {MIN_ATTEMPTS_FOR_CALIBRATION} attempts are
+                excluded as too noisy to judge.
+                Visibility only; no rating is auto-adjusted.
+              </p>
+              <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                <table className="w-full text-sm">
+                  <thead className="bg-forest-900 text-forest-200 text-left">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Puzzle</th>
+                      <th className="px-4 py-3 font-medium text-right">Rating</th>
+                      <th className="px-4 py-3 font-medium text-right">Attempts</th>
+                      <th className="px-4 py-3 font-medium text-right">
+                        Actual solve rate
+                      </th>
+                      <th className="px-4 py-3 font-medium text-right">
+                        Expected
+                      </th>
+                      <th className="px-4 py-3 font-medium text-right">Gap</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-forest-800">
+                    {games.puzzleCalibration.worst.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="hover:bg-forest-900/40 transition-colors"
+                      >
+                        <td className="px-4 py-3 font-mono text-forest-400 text-xs">
+                          {row.id.slice(0, 8)}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium">
+                          {row.rating}
+                        </td>
+                        <td className="px-4 py-3 text-right text-forest-300">
+                          {row.timesSolved}/{row.timesServed}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {Math.round(row.solveRate * 100)}%
+                        </td>
+                        <td className="px-4 py-3 text-right text-forest-400">
+                          {Math.round(row.expectedSolveRate * 100)}%
+                        </td>
+                        <td className="px-4 py-3 text-right font-semibold text-candy-300">
+                          {Math.round(row.gap * 100)} pts
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
           {!loading && data && data.pageViews.length === 0 && !error && (
             <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-12 text-center text-forest-300">
               No page views recorded yet. Tracking starts once the site is
@@ -482,6 +576,105 @@ export default function AdminAnalyticsPage() {
                     </tbody>
                   </table>
                 </div>
+              )}
+            </section>
+          )}
+
+          {data?.llmUsage && (
+            <section className="mt-8">
+              <h2 className="text-lg font-semibold mb-1">
+                LLM usage ({data.llmUsage.windowDays}d)
+              </h2>
+              <p className="text-forest-400 text-sm mb-3">
+                Token volume on the site&apos;s two unmetered AI routes —
+                Chat Sandbox / Model Arena (<span className="font-mono">ai-gateway</span>)
+                and the Chat Sandbox character generator (
+                <span className="font-mono">generate-profile</span>). Token
+                counts only, not dollars — pricing varies per provider/model
+                and both routes let the caller pick either.
+              </p>
+
+              {data.llmUsage.rows.length === 0 ? (
+                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-8 text-center text-forest-300">
+                  No LLM usage logged in the last {data.llmUsage.windowDays}{" "}
+                  days yet.
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                        Calls
+                      </div>
+                      <div className="mt-2 text-3xl font-bold">
+                        {data.llmUsage.totals.calls.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                        Input tokens
+                      </div>
+                      <div className="mt-2 text-3xl font-bold">
+                        {data.llmUsage.totals.inputTokens.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                        Output tokens
+                      </div>
+                      <div className="mt-2 text-3xl font-bold">
+                        {data.llmUsage.totals.outputTokens.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                    <table className="w-full text-sm">
+                      <thead className="bg-forest-900 text-forest-200 text-left">
+                        <tr>
+                          <th className="px-4 py-3 font-medium">Route</th>
+                          <th className="px-4 py-3 font-medium">Provider</th>
+                          <th className="px-4 py-3 font-medium">Model</th>
+                          <th className="px-4 py-3 font-medium text-right">
+                            Calls
+                          </th>
+                          <th className="px-4 py-3 font-medium text-right">
+                            Input tok.
+                          </th>
+                          <th className="px-4 py-3 font-medium text-right">
+                            Output tok.
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-forest-800">
+                        {data.llmUsage.rows.map((row) => (
+                          <tr
+                            key={`${row.route}|${row.provider}|${row.model}`}
+                            className="hover:bg-forest-900/40 transition-colors"
+                          >
+                            <td className="px-4 py-3 font-mono text-forest-100">
+                              {row.route}
+                            </td>
+                            <td className="px-4 py-3 text-forest-300">
+                              {row.provider ?? "—"}
+                            </td>
+                            <td className="px-4 py-3 font-mono text-forest-400 text-xs">
+                              {row.model ?? "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-medium">
+                              {row.calls.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-right text-forest-300">
+                              {row.input_tokens.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-right text-forest-300">
+                              {row.output_tokens.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </section>
           )}

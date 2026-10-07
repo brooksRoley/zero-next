@@ -17,6 +17,39 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Needed so the provenance-guard step below can find a merge base
+          # between the PR head and origin/main. actions/checkout defaults to
+          # a shallow (depth=1) fetch of only the PR merge ref; combined with
+          # the guard's own depth=1 fetch of main, the two shared no common
+          # history and `git diff origin/main...HEAD` failed with "fatal: no
+          # merge base" (exit 128) on every PR since PR #49 introduced the
+          # guard. fetch-depth: 0 fetches full history so a merge base exists.
+          fetch-depth: 0
+
+      - name: Guard vendored Hardwood bundle provenance
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          # The public/hardwood/ bundle is a VENDORED build from the separate
+          # BballTactics repo. A stale bundle shipped once (PR #43) and had to be
+          # reverted same-day. Any PR that changes the bundle must also bump
+          # public/hardwood/SOURCE_COMMIT.txt so provenance never drifts.
+          git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+          CHANGED="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD")"
+          BUNDLE_CHANGED="$(echo "$CHANGED" | grep -E '^public/hardwood/' | grep -v -E '^public/hardwood/SOURCE_COMMIT\.txt$' || true)"
+          SOURCE_CHANGED="$(echo "$CHANGED" | grep -E '^public/hardwood/SOURCE_COMMIT\.txt$' || true)"
+          if [ -n "$BUNDLE_CHANGED" ] && [ -z "$SOURCE_CHANGED" ]; then
+            echo "::error::Hardwood bundle changed but public/hardwood/SOURCE_COMMIT.txt was NOT updated."
+            echo "The public/hardwood/ bundle is vendored from the separate BballTactics repo."
+            echo "Files changed under public/hardwood/ in this PR:"
+            echo "$BUNDLE_CHANGED" | sed 's/^/  - /'
+            echo ""
+            echo "FIX: edit public/hardwood/SOURCE_COMMIT.txt to record the BballTactics"
+            echo "source SHA (and date) this bundle was built from, then commit it in this PR."
+            exit 1
+          fi
+          echo "Hardwood bundle provenance guard passed."
 
       - uses: actions/setup-node@v4
         with:
