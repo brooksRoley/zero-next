@@ -17,6 +17,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Needed so the provenance-guard step below can find a merge base
+          # between the PR head and origin/main. actions/checkout defaults to
+          # a shallow (depth=1) fetch of only the PR merge ref; combined with
+          # the guard's own depth=1 fetch of main, the two shared no common
+          # history and `git diff origin/main...HEAD` failed with "fatal: no
+          # merge base" (exit 128) on every PR since PR #49 introduced the
+          # guard. fetch-depth: 0 fetches full history so a merge base exists.
+          fetch-depth: 0
 
       - name: Guard vendored Hardwood bundle provenance
         if: github.event_name == 'pull_request'
