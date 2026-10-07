@@ -3,6 +3,10 @@ import Head from 'next/head';
 import Link from 'next/link'
 import MarioButton from 'src/components/mario';
 import Reveal from 'src/components/Reveal';
+import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume';
+
+const CARD = 'w-full rounded-2xl bg-forest-900/85 backdrop-blur-md shadow-xl border border-forest-700/40 p-6 sm:p-8';
+const SECTION_TITLE = 'text-xs sm:text-sm uppercase tracking-widest text-candy-400 font-semibold mb-4';
 
 // Assembled client-side only (never in server-rendered HTML) so scrapers
 // harvesting plain-text addresses from the static page can't pick this up.
@@ -19,9 +23,9 @@ const Resume = () => {
     <div className="relative min-h-screen cover-photo">
       <Head>
         <title>Resume | Brooks Roley</title>
-        <meta name="description" content="Software Engineer with experience building games, tools, and web applications." />
+        <meta name="description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." />
         <meta property="og:title" content="Resume | Brooks Roley" key="og:title" />
-        <meta property="og:description" content="Software Engineer with experience building games, tools, and web applications." key="og:description" />
+        <meta property="og:description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." key="og:description" />
         <meta property="og:image" content="/covertitle.jpg" key="og:image" />
       </Head>
       <div className="absolute inset-0 bg-forest-950/50" />
@@ -32,6 +36,7 @@ const Resume = () => {
             <p className="text-xs sm:text-sm uppercase tracking-widest text-white mb-3">A brief history of me</p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Brooks Roley</h1>
             <p className="text-lg text-candy-400 font-medium mt-1">Software Engineer</p>
+            <p className="text-sm text-forest-100 mt-2">{LOCATION} · {AVAILABILITY}</p>
             <p className="text-sm text-forest-300 mt-3">
               {email ? (
                 <a href={`mailto:${email}`} className="hover:text-candy-300 transition-colors">
@@ -81,6 +86,57 @@ const Resume = () => {
             </Link>
           </div>
         </Reveal>
+
+        {/* The resume itself, as text: readable without downloading anything */}
+        <section aria-labelledby="resume-summary" className={CARD}>
+          <h2 id="resume-summary" className={SECTION_TITLE}>Summary</h2>
+          <p className="text-sm sm:text-base leading-relaxed text-forest-100">{SUMMARY}</p>
+        </section>
+
+        <section aria-labelledby="resume-experience" className={CARD}>
+          <h2 id="resume-experience" className={SECTION_TITLE}>Experience</h2>
+          <div className="flex flex-col gap-7">
+            {EXPERIENCE.map((r, i) => (
+              <React.Fragment key={r.org}>
+                <article>
+                  <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-white">
+                      {r.org} <span className="font-normal text-forest-200">— {r.role}</span>
+                    </h3>
+                    <p className="text-xs sm:text-sm text-forest-300 whitespace-nowrap">{r.dates}</p>
+                  </div>
+                  <ul className="mt-2 list-disc pl-5 space-y-1.5 text-sm leading-relaxed text-forest-100">
+                    {r.bullets.map((b) => (
+                      <li key={b}>{b}</li>
+                    ))}
+                  </ul>
+                </article>
+                {i === INTERLUDE.afterIndex && (
+                  <p className="text-sm italic text-forest-200">{INTERLUDE.text}</p>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="resume-skills" className={CARD}>
+          <h2 id="resume-skills" className={SECTION_TITLE}>Skills</h2>
+          <dl className="flex flex-col gap-3 text-sm">
+            {SKILLS.map((g) => (
+              <div key={g.label}>
+                <dt className="font-semibold text-white">{g.label}</dt>
+                <dd className="text-forest-100 leading-relaxed">{g.items.join(', ')}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section aria-labelledby="resume-education" className={CARD}>
+          <h2 id="resume-education" className={SECTION_TITLE}>Education</h2>
+          <p className="text-sm text-forest-100">
+            <span className="font-semibold text-white">{EDUCATION.school}</span> — {EDUCATION.degree}, {EDUCATION.year}
+          </p>
+        </section>
 
         {/* Mario easter egg */}
         <Reveal delay={300}>
