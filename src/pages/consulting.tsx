@@ -245,12 +245,12 @@ export default function Consulting() {
         <meta property="og:type" content="website" key="og:type" />
         <meta property="og:title" content="Brooks Roley — Full-Stack Engineer for Hire" key="og:title" />
         <meta property="og:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." key="og:description" />
-        <meta property="og:image" content="https://brooksroley.com/BRLogoTransparent.png" key="og:image" />
-        <meta property="og:url" content="https://brooksroley.com/consulting" key="og:url" />
+        <meta property="og:image" content="https://www.brooksroley.com/BRLogoTransparent.png" key="og:image" />
+        <meta property="og:url" content="https://www.brooksroley.com/consulting" key="og:url" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Brooks Roley — Full-Stack Engineer for Hire" />
         <meta name="twitter:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." />
-        <meta name="twitter:image" content="https://brooksroley.com/BRLogoTransparent.png" />
+        <meta name="twitter:image" content="https://www.brooksroley.com/BRLogoTransparent.png" />
       </Head>
 
       <div className="min-h-screen bg-forest-950 text-forest-100">

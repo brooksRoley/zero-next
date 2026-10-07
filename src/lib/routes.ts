@@ -15,8 +15,8 @@
  * - `label` is the canonical name. A surface that needs different wording
  *   overrides it locally (`{ ...route('nba'), label: 'League Lens' }`) rather
  *   than inventing a second href.
- * - Private, proxy-gated routes (`/tracker`, `/admin/*`, `/login`) are
- *   deliberately absent — they are never linked from public chrome, and
+ * - Private, proxy-gated routes (`/tracker`, `/admin/*`, `/login`, and the
+ *   unfinished pages listed in `src/proxy.ts`) are deliberately absent — they are never linked from public chrome, and
  *   listing them here would invite exactly that.
  */
 
@@ -36,9 +36,6 @@ const REGISTRY = {
   consulting: { href: '/consulting', label: 'Services' },
   intake: { href: '/intake', label: 'Contact' },
   funding: { href: '/funding', label: 'Support' },
-  zeroParadox: { href: '/zero-paradox', label: 'Zero Paradox' },
-  educationTracker: { href: '/education-tracker', label: 'Education Tracker' },
-  digitalProducts: { href: '/digital-products', label: 'Digital Products' },
 
   // ── NBA / sports tech ──
   basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform' },
@@ -95,7 +92,7 @@ export function route(key: RouteKey): RouteDef {
 }
 
 /** Canonical public origin, used to build the absolute URLs Open Graph requires. */
-export const SITE_ORIGIN = 'https://brooksroley.com'
+export const SITE_ORIGIN = 'https://www.brooksroley.com'
 
 /**
  * Absolute URL for a route — `og:url` and canonical tags must be absolute, and

@@ -68,7 +68,7 @@ export default async function handler(
           currency: "usd" as const,
           product_data: {
             name: `Consulting — ${service_type}`,
-            description: "Zero Paradox LLC consulting engagement deposit",
+            description: "Consulting engagement deposit — Brooks Roley",
           },
           unit_amount: amount_cents,
         },
