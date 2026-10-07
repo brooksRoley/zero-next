@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { useState } from 'react'
-import { track } from 'src/lib/analytics'
+import { track, trackGame } from 'src/lib/analytics'
 import {
   ARM_REACH,
   COURT_H,
@@ -141,6 +141,11 @@ export default function PlayoffMoments() {
     track('moment_attempt', {
       page: '/games/moments',
       metadata: { moment: moment.id, grade: r.grade, historicalMatch: r.historicalMatch },
+    })
+    // An A or B is a read the coach would accept; C and D are misses.
+    trackGame(r.grade === 'A' || r.grade === 'B' ? 'puzzle_solved' : 'puzzle_failed', 'moments', {
+      puzzle_id: moment.id,
+      grade: r.grade,
     })
   }
 

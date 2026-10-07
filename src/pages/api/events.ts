@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
+import { ensureEventsSchema } from "src/lib/eventsSchema";
+import { visitorContext } from "src/lib/visitorContext";
 
 const RATE_LIMIT_MAX = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
@@ -35,36 +37,6 @@ function isRateLimited(ip: string): boolean {
     });
   }
   return false;
-}
-
-// Create the tables once per cold start rather than on every request.
-let schemaReady = false;
-async function ensureSchema() {
-  if (schemaReady) return;
-  await sql`
-    CREATE TABLE IF NOT EXISTS events (
-      id SERIAL PRIMARY KEY,
-      session_id TEXT,
-      page TEXT,
-      event_type TEXT NOT NULL,
-      metadata JSONB,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `;
-  // Durable cross-session visitor id (localStorage-backed, unlike the per-tab
-  // session_id). Self-migrating for deployments whose events table predates it.
-  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS anon_id TEXT`;
-  // Deduped, queryable mailing list — kept separate from the noisy events log so
-  // captured emails are easy to export and each address only lands once.
-  await sql`
-    CREATE TABLE IF NOT EXISTS email_signups (
-      id SERIAL PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      source TEXT,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `;
-  schemaReady = true;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -139,22 +111,28 @@ export default async function handler(
     return res.status(429).json({ error: "Too many requests. Please try again later." });
   }
 
-  const { session_id, anon_id, page, event_type, metadata } = req.body || {};
+  const { session_id, anon_id, page, event_type, metadata, referrer } = req.body || {};
 
   if (typeof event_type !== "string" || event_type.trim().length === 0) {
     return res.status(400).json({ error: "event_type is required" });
   }
 
   try {
-    await ensureSchema();
+    await ensureEventsSchema();
+    const ctx = visitorContext(req.headers, referrer);
     await sql`
-      INSERT INTO events (session_id, anon_id, page, event_type, metadata)
+      INSERT INTO events (
+        session_id, anon_id, page, event_type, metadata,
+        referrer, country, region, city, device, browser, os
+      )
       VALUES (
         ${typeof session_id === "string" ? session_id : null},
         ${typeof anon_id === "string" ? anon_id.slice(0, 64) : null},
         ${typeof page === "string" ? page : null},
         ${event_type.trim().slice(0, 64)},
-        ${metadata && typeof metadata === "object" ? JSON.stringify(metadata) : null}
+        ${metadata && typeof metadata === "object" ? JSON.stringify(metadata) : null},
+        ${ctx.referrer}, ${ctx.country}, ${ctx.region}, ${ctx.city},
+        ${ctx.device}, ${ctx.browser}, ${ctx.os}
       )
     `;
 

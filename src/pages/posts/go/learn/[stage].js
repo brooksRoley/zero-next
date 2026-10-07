@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
+import { trackGame } from 'src/lib/analytics'
 import LessonShell from 'src/components/go/lessons/LessonShell'
 import StageVoid from 'src/components/go/lessons/StageVoid'
 import StageBreath from 'src/components/go/lessons/StageBreath'
@@ -11,7 +12,8 @@ import StageExpansion from 'src/components/go/lessons/StageExpansion'
 
 export async function getStaticPaths() {
   return {
-    paths: ['0', '1', '2', '3', '4', '5'].map(stage => ({ params: { stage } })),
+    // Only the stages that are built get a page; an unbuilt stage is a 404.
+    paths: Object.keys(STAGES).map(stage => ({ params: { stage } })),
     fallback: false,
   }
 }
@@ -91,7 +93,12 @@ export default function GoLessonPage({ stageParam }) {
       <Head>
         <title>Stage {stageNum}: {stage.title} | Learn Go</title>
       </Head>
-      <Component onAdvance={() => { router.push(next.href) }} />
+      <Component
+        onAdvance={() => {
+          trackGame('tutorial_stage_complete', 'go', { stage: stageNum })
+          router.push(next.href)
+        }}
+      />
     </LessonShell>
   )
 }

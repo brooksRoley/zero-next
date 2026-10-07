@@ -4,6 +4,8 @@ import { supabase } from "src/lib/supabase";
 import { isValidAdminKey } from "src/lib/adminAuth";
 import { computeCalibration, median } from "src/lib/pente/puzzleCalibration";
 import { STARTING_ELO } from "src/lib/pente/elo";
+import { ensureEventsSchema } from "src/lib/eventsSchema";
+import { readVisitorStats, type VisitorStats } from "src/lib/visitorStats";
 
 // The /admin/analytics page is gated by src/proxy.ts via the
 // tracker_session cookie, so browser requests are checked against that same
@@ -24,6 +26,9 @@ function isAuthorized(req: NextApiRequest): boolean {
 const PRIORITY_EVENTS = [
   "premium_interest",
   "lead_submit",
+  "funding_notify",
+  "digital_product_notify",
+  "resume_pdf_download",
   "daily_challenge_completed",
 ] as const;
 
@@ -325,6 +330,16 @@ export default async function handler(
     // so it can't throw the request into the 503 catch below.
     const supabaseStats = await readSupabaseStats();
 
+    // Visitor-level reads ("who stops by"). Self-guarded like the Supabase
+    // block: null if the schema migration or the reads fail outright.
+    let visitors: VisitorStats | null = null;
+    try {
+      await ensureEventsSchema();
+      visitors = await readVisitorStats(sql);
+    } catch {
+      visitors = null;
+    }
+
     const llmUsage = llmUsageRaw as LlmUsageRow[];
     const llmUsageTotals = llmUsage.reduce(
       (acc, row) => ({
@@ -342,6 +357,7 @@ export default async function handler(
       eventsByPage,
       funnel,
       supabaseStats,
+      visitors,
       priorityEvents: PRIORITY_EVENTS,
       llmUsage: { rows: llmUsage, totals: llmUsageTotals, windowDays: 7 },
       _meta: { windowDays: 30 },

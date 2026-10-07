@@ -4,6 +4,7 @@ import Link from 'next/link'
 import MarioButton from 'src/components/mario';
 import Reveal from 'src/components/Reveal';
 import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume';
+import { track } from 'src/lib/analytics'
 
 const CARD = 'w-full rounded-2xl bg-forest-900/85 backdrop-blur-md shadow-xl border border-forest-700/40 p-6 sm:p-8';
 const SECTION_TITLE = 'text-xs sm:text-sm uppercase tracking-widest text-candy-400 font-semibold mb-4';
@@ -55,6 +56,7 @@ const Resume = () => {
             <Link
               href="/Brooks_Roley.pdf"
               download
+              onClick={() => track('resume_pdf_download', { beacon: true })}
               className="group flex items-center justify-center gap-2 rounded-xl bg-forest-900/85 backdrop-blur-md shadow-md border border-forest-700/40 px-4 py-3 text-sm font-medium text-forest-100 hover:text-candy-300 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300"
             >
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
