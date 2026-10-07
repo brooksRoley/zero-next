@@ -36,7 +36,7 @@ export const EXPERIENCE: ResumeRole[] = [
     role: 'Software Engineer',
     dates: '2026 – Present',
     bullets: [
-      'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility failure blocks the merge.',
+      'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility score under 90 fails the check.',
       'Work daily with AI coding agents under tests and my own review. A scheduled agent opens pull requests on this site that I review before they merge.',
       'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
     ],
