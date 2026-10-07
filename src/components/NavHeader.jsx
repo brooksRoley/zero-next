@@ -16,7 +16,6 @@ const NAV_LINKS = [
       route('nba'),
       route('tradeMachine'),
       route('statGalaxy'),
-      route('digitalProducts'),
       route('guestbook'),
     ],
   },
@@ -36,7 +35,6 @@ const NAV_LINKS = [
   },
   route('consulting'),
   route('github'),
-  // route('zeroParadox') — commented out until LLC is set up
   route('intake'),
 ];
 

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { MIN_ATTEMPTS_FOR_CALIBRATION } from "src/lib/pente/puzzleCalibration";
+import VisitorSections from "src/components/admin/VisitorSections";
+import type { VisitorStats } from "src/lib/visitorStats";
 
 type PageViewRow = {
   path: string;
@@ -71,6 +73,7 @@ type AnalyticsResponse = {
   eventsByPage?: EventByPageRow[];
   funnel?: FunnelStep[];
   supabaseStats?: SupabaseStats | null;
+  visitors?: VisitorStats | null;
   priorityEvents?: string[];
   llmUsage?: LlmUsage;
   _meta?: { windowDays?: number };
@@ -133,7 +136,7 @@ export default function AdminAnalyticsPage() {
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold">Site Analytics</h1>
               <p className="text-forest-200 text-sm mt-1">
-                Page views and conversion events over the last {windowDays} days
+                Who stops by, what they look at, and what they do — last {windowDays} days
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -158,6 +161,8 @@ export default function AdminAnalyticsPage() {
               {error}
             </div>
           )}
+
+          {data && <VisitorSections stats={data.visitors} />}
 
           {data && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

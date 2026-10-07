@@ -9,6 +9,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import NavHeader from 'src/components/NavHeader'
 import { track } from 'src/lib/analytics'
+import { SITE_ORIGIN } from 'src/lib/routes'
 
 function trackPageView(url: string) {
   // Strip query/hash so routes aggregate cleanly (UTM params live on leads already).
@@ -49,6 +50,11 @@ export default function App({ Component, pageProps }: AppProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // A dynamic route prerendered without its params has asPath `/x/[id]`, which
+  // is not a real URL — emit no canonical until the router knows the path.
+  const canonicalPath = router.asPath.split('?')[0].split('#')[0]
+  const canonicalUrl = canonicalPath.includes('[') ? null : `${SITE_ORIGIN}${canonicalPath}`
+
   return (
     <>
       <Head>
@@ -63,7 +69,10 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:type" content="website" key="og:type" />
         <meta property="og:title" content="Brooks Roley | Software Engineer" key="og:title" />
         <meta property="og:description" content="Software Engineer building games, tools, and things for the web." key="og:description" />
-        <meta property="og:image" content="/cover.png" key="og:image" />
+        {/* Scrapers do not resolve relative URLs: og:image and og:url must be absolute. */}
+        <meta property="og:image" content={`${SITE_ORIGIN}/cover.png`} key="og:image" />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} key="og:url" />}
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} key="canonical" />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>

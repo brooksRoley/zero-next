@@ -8,11 +8,8 @@ export default function Document() {
         <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="theme-color" content="#081f15" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="/cover.png" />
         <meta property="og:site_name" content="Brooks Roley" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="/cover.png" />
+        <meta name="twitter:image" content="https://www.brooksroley.com/cover.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;500;700;900&family=Anton&display=swap" rel="stylesheet" />

@@ -69,7 +69,7 @@ export default function Home() {
               <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
                   Full-stack engineer — React, TypeScript, sports tech, games.
-                  <span className="text-[#DADBD9]/88"> Available for consulting.</span>
+                  <span className="text-[#DADBD9]/88"> Open to full-time roles; also available for consulting.</span>
                 </p>
                 <Link
                   href={route('consulting').href}

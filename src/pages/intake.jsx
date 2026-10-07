@@ -274,21 +274,18 @@ export default function Intake() {
             >
               Text Message
             </button>
-            <button
-              onClick={() => setActiveTab('voice')}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'voice'
-                  ? 'bg-forest-800 text-white'
-                  : 'text-forest-400 hover:text-forest-200'
-              }`}
-              disabled={!recorder.isSupported}
-              title={!recorder.isSupported ? 'Voice recording not supported in this browser' : ''}
-            >
-              Voice Note
-              {!recorder.isSupported && (
-                <span className="ml-1 text-forest-600 text-xs">(unavailable)</span>
-              )}
-            </button>
+            {recorder.isSupported && (
+              <button
+                onClick={() => setActiveTab('voice')}
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'voice'
+                    ? 'bg-forest-800 text-white'
+                    : 'text-forest-400 hover:text-forest-200'
+                }`}
+              >
+                Voice Note
+              </button>
+            )}
           </div>
         </Reveal>
 
