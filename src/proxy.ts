@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { safeEqual } from 'src/lib/safeEqual'
 
 export function proxy(request: NextRequest) {
   const session = request.cookies.get('tracker_session')?.value
   const secret = process.env.ADMIN_SESSION_TOKEN
 
-  if (!secret || session !== secret) {
+  if (!secret || !safeEqual(session, secret)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('from', request.nextUrl.pathname)

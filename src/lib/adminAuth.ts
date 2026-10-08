@@ -1,4 +1,5 @@
 import type { NextApiRequest } from "next";
+import { safeEqual } from "src/lib/safeEqual";
 
 // Shared admin/cron auth checks for NBA admin endpoints. Both require the
 // server-side secret to be a non-empty string — if ADMIN_KEY or CRON_SECRET
@@ -10,7 +11,7 @@ import type { NextApiRequest } from "next";
 // x-admin-key call: ingest, settle.
 export function isAuthorizedAdminRequest(req: NextApiRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
-  const isVercelCron = !!cronSecret && req.headers.authorization === `Bearer ${cronSecret}`;
+  const isVercelCron = !!cronSecret && safeEqual(req.headers.authorization, `Bearer ${cronSecret}`);
 
   return isVercelCron || isValidAdminKey(req);
 }
@@ -18,5 +19,5 @@ export function isAuthorizedAdminRequest(req: NextApiRequest): boolean {
 // For endpoints that accept only a manual x-admin-key call: simulate, setup.
 export function isValidAdminKey(req: NextApiRequest): boolean {
   const adminKey = process.env.ADMIN_KEY;
-  return !!adminKey && req.headers["x-admin-key"] === adminKey;
+  return !!adminKey && safeEqual(req.headers["x-admin-key"], adminKey);
 }
