@@ -36,6 +36,7 @@ export const EXPERIENCE: ResumeRole[] = [
     role: 'Software Engineer',
     dates: '2026 – Present',
     bullets: [
+      'Built and deployed a bilingual (English and Spanish) family intake system for Centerpointe for Children, a pediatric occupational therapy clinic. Answers are encrypted in the parent’s browser (RSA-OAEP and AES-256-GCM), so the form service and the inbox only ever hold ciphertext.',
       'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility score under 90 fails the check.',
       'Work daily with AI coding agents under tests and my own review. A scheduled agent opens pull requests on this site that I review before they merge.',
       'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
