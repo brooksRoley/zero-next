@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { supabase } from "src/lib/supabase";
 import { isValidAdminKey } from "src/lib/adminAuth";
+import { safeEqual } from "src/lib/safeEqual";
 import { computeCalibration, median } from "src/lib/pente/puzzleCalibration";
 import { STARTING_ELO } from "src/lib/pente/elo";
 import { ensureEventsSchema } from "src/lib/eventsSchema";
@@ -15,7 +16,7 @@ import { readVisitorStats, type VisitorStats } from "src/lib/visitorStats";
 // session, instead of estimating cost/engagement off rate-limit ceilings.
 function isAuthorized(req: NextApiRequest): boolean {
   const expected = process.env.ADMIN_SESSION_TOKEN;
-  const cookieOk = !!expected && req.cookies?.tracker_session === expected;
+  const cookieOk = safeEqual(req.cookies?.tracker_session, expected);
   return cookieOk || isValidAdminKey(req);
 }
 
