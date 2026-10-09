@@ -548,17 +548,18 @@ export default function Consulting() {
                   style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
                 />
                 {error && (
-                  <div className="bg-red-900/30 border border-red-700/50 text-red-300 px-4 py-3 rounded-lg text-sm">
+                  <div role="alert" className="bg-red-900/30 border border-red-700/50 text-red-300 px-4 py-3 rounded-lg text-sm">
                     {error}
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                    <label htmlFor="consulting-name" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                       Name *
                     </label>
                     <input
+                      id="consulting-name"
                       type="text"
                       required
                       value={form.name}
@@ -568,10 +569,11 @@ export default function Consulting() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                    <label htmlFor="consulting-email" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                       Email *
                     </label>
                     <input
+                      id="consulting-email"
                       type="email"
                       required
                       value={form.email}
@@ -584,10 +586,11 @@ export default function Consulting() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                    <label htmlFor="consulting-project_type" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                       Project Type
                     </label>
                     <select
+                      id="consulting-project_type"
                       value={form.project_type}
                       onChange={e => updateForm('project_type', e.target.value)}
                       className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
@@ -599,10 +602,11 @@ export default function Consulting() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                    <label htmlFor="consulting-budget_range" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                       Budget Range
                     </label>
                     <select
+                      id="consulting-budget_range"
                       value={form.budget_range}
                       onChange={e => updateForm('budget_range', e.target.value)}
                       className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
@@ -617,10 +621,11 @@ export default function Consulting() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                    <label htmlFor="consulting-company" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                       Company / Project
                     </label>
                     <input
+                      id="consulting-company"
                       type="text"
                       value={form.company}
                       onChange={e => updateForm('company', e.target.value)}
@@ -629,10 +634,11 @@ export default function Consulting() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                    <label htmlFor="consulting-timeline" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                       Timeline
                     </label>
                     <select
+                      id="consulting-timeline"
                       value={form.timeline}
                       onChange={e => updateForm('timeline', e.target.value)}
                       className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
@@ -646,10 +652,11 @@ export default function Consulting() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                  <label htmlFor="consulting-message" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
                     What&apos;s on your mind?
                   </label>
                   <textarea
+                    id="consulting-message"
                     required
                     value={form.message}
                     onChange={e => updateForm('message', e.target.value)}
