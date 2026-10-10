@@ -409,8 +409,8 @@ export function WaterText({
 
     measure()
 
-    if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
-      ;(document as any).fonts.ready.then(() => measure()).catch(() => {})
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      ;document.fonts.ready.then(() => measure()).catch(() => {})
     }
 
     const ro = new ResizeObserver(measure)
