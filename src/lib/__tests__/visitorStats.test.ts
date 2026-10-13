@@ -56,4 +56,12 @@ describe('readVisitorStats', () => {
     expect(stats.scorecard[2]).toEqual({ label: 'Resume views', thisWeek: 4, lastWeek: 1 })
     expect(stats.scorecard[5]).toEqual({ label: 'Email signups', thisWeek: 2, lastWeek: 1 })
   })
+
+  it('reports the game-to-lead funnel and degrades to empty when it fails', async () => {
+    const row = { game: 'pente', players: 4, clicked_consulting: 2, leads: 1 }
+    const ok = await readVisitorStats(fakeSql([['WITH players AS', [row]]]))
+    expect(ok.gameFunnel).toEqual([row])
+    const failed = await readVisitorStats(fakeSql([], ['WITH players AS']))
+    expect(failed.gameFunnel).toEqual([])
+  })
 })
