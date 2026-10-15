@@ -319,6 +319,17 @@ export default function VisitorSections({ stats }: { stats: VisitorStats | null 
           empty="No games recorded yet."
         />
       </Section>
+
+      <Section
+        title={`Game to lead (${windowDays}d)`}
+        blurb="Browsers that played a game, clicked “Work with me” from it, and later submitted a lead. Only Pente has the click so far."
+      >
+        <SimpleTable
+          head={["Game", "Players", "Clicked consulting", "Became a lead"]}
+          rows={stats.gameFunnel.map((g) => [g.game, g.players, g.clicked_consulting, g.leads])}
+          empty="No game players with a stored visitor id yet."
+        />
+      </Section>
     </>
   );
 }
