@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react'
+import { prefersReducedMotion } from 'src/lib/motion'
 
 export default function PhysicsField({
   children,
@@ -20,7 +21,8 @@ export default function PhysicsField({
 
   useEffect(() => {
     const container = ref.current
-    if (!container) return
+    // Reduced motion: no animation loop at all; the cards sit in the normal grid.
+    if (!container || prefersReducedMotion()) return
 
     let frame = 0
 
