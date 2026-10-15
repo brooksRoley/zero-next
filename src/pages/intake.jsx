@@ -248,10 +248,11 @@ export default function Intake() {
         {/* ── Name (optional) ── */}
         <Reveal>
           <div className="pt-10 pb-4">
-            <label className="block text-xs font-semibold uppercase tracking-widest text-forest-400 mb-2">
+            <label htmlFor="intake-name" className="block text-xs font-semibold uppercase tracking-widest text-forest-400 mb-2">
               Your name <span className="text-forest-600 normal-case font-normal">(optional)</span>
             </label>
             <input
+              id="intake-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -294,6 +295,7 @@ export default function Intake() {
           <Reveal delay={150}>
             <div className="space-y-3">
               <textarea
+                aria-label="Your message"
                 value={textMessage}
                 onChange={(e) => setTextMessage(e.target.value)}
                 placeholder="What's on your mind? Project idea, question, just saying hey — anything works."

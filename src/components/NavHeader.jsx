@@ -156,6 +156,8 @@ export default function NavHeader() {
           onClick={() => setMobileOpen((prev) => !prev)}
           className="md:hidden p-2 rounded-md text-forest-100 hover:bg-forest-800 transition-colors"
           aria-label="Toggle menu"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
         >
           {mobileOpen ? (
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -171,7 +173,7 @@ export default function NavHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-forest-700/40 bg-forest-900/95 backdrop-blur-md animate-slide-down overflow-hidden">
+        <div id="mobile-menu" className="md:hidden border-t border-forest-700/40 bg-forest-900/95 backdrop-blur-md animate-slide-down overflow-hidden">
           <ul className="px-4 py-3 space-y-1">
             {NAV_LINKS.map((item) =>
               item.children ? (
