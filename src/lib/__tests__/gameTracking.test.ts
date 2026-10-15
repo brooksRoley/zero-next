@@ -68,6 +68,8 @@ describe('every game surface is instrumented', () => {
     'src/pages/games/read-and-react.tsx',
     'src/pages/games/moments.tsx',
     'src/pages/games/tend.tsx',
+    'src/pages/games/tend/watershed.tsx',
+    'src/pages/games/tend/journal.tsx',
   ]
 
   it.each(SURFACES)('%s uses trackGame or useGameTracking', (file) => {

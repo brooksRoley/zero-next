@@ -27,6 +27,7 @@ export type PlantDef = {
   trait: string
   /** Base bed shape, normalized so its minimum x and y are 0. */
   shape: readonly Cell[]
+  /** A muted rim colour. Gold is reserved for the poppy, the garden's one bright accent. */
   color: string
   /** Unlocked the first time one of these beds blooms. */
   note: FieldNote
@@ -47,7 +48,7 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
     habit: 'Body: trained, jumped, lifted or moved hard',
     trait: 'Tall. Shades whatever grows directly below it.',
     shape: [[0, 0], [1, 0], [0, 1], [1, 1]],
-    color: '#5f8f5a',
+    color: '#5f7f4f',
     note: {
       body:
         'An evergreen oak that can live more than 250 years. It is a caterpillar host for 265 native butterfly and moth species, and more than 270 species rely on it for food and shelter. Full sun or part shade; once established it wants summer water no more than once a month.',
@@ -62,7 +63,7 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
     habit: 'Craft: deep work, or shipped something',
     trait: 'Climbs. Grows faster for every oak it touches.',
     shape: [[0, 0], [1, 0], [2, 0]],
-    color: '#4fa3a0',
+    color: '#5f8a80',
     note: {
       body:
         'A fast-growing native grape of streamsides and springs. Its purple fruit ripens in late summer and feeds birds; its big leaves turn orange and yellow in fall. It hosts 59 native butterfly and moth species.',
@@ -78,7 +79,7 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
     habit: 'Rest: slept seven hours or more',
     trait: 'Night bloomer. Touching beds recover from a season a day sooner.',
     shape: [[0, 0], [1, 0], [2, 0], [1, 1]],
-    color: '#9a8fd1',
+    color: '#8f8aa8',
     note: {
       body:
         'California’s own moonflower. Its white, sweet-smelling flowers open near full dark and wither a few hours after sunrise, and hawk moths such as the white-lined sphinx visit them at night. It needs little water once established.',
@@ -94,7 +95,7 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
     habit: 'Joy: did something purely for fun',
     trait: 'Sun lover. Only blooms with no oak directly above it.',
     shape: [[0, 0]],
-    color: '#e8913a',
+    color: '#c9a24a',
     note: {
       body:
         'The state flower. It loves full sun and poor, well-drained soil, and its petals may stay shut on cloudy days. It reseeds itself freely, and 101 native bee species visit it.',
@@ -109,7 +110,7 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
     habit: 'Green thumb: tended a real plant',
     trait: 'Holds moisture. Touching beds are safe from drought.',
     shape: [[1, 0], [2, 0], [0, 1], [1, 1]],
-    color: '#86b86b',
+    color: '#7a9a5f',
     note: {
       body:
         'An evergreen fern of shady hillsides and redwood forest. It wants part to deep shade and more water than most natives, and each frond lives a year and a half to two and a half years. Deer and rabbits leave it alone.',

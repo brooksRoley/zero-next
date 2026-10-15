@@ -8,6 +8,7 @@ export default function useGameSounds() {
   const playPlace = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
 
       // Noise burst for the "tap" texture
@@ -53,6 +54,7 @@ export default function useGameSounds() {
   const playCapture = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
 
       // Two pops staggered
@@ -100,6 +102,7 @@ export default function useGameSounds() {
   const playWin = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
       const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
 
@@ -140,6 +143,7 @@ export default function useGameSounds() {
   const playClimb = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
       // Ascending fifth: feels like stepping up
       const notes = [392, 523, 659]; // G4, C5, E5
@@ -167,6 +171,7 @@ export default function useGameSounds() {
   const playStumble = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
 
       const osc = ctx.createOscillator();
@@ -188,6 +193,7 @@ export default function useGameSounds() {
   const playStamp = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
 
       // Deep sine thud
@@ -232,6 +238,7 @@ export default function useGameSounds() {
   const playSummit = useCallback(() => {
     try {
       const ctx = getCtx();
+      if (!ctx) return; // muted, or no Web Audio
       const t = ctx.currentTime;
       const notes = [523, 659, 784, 1047, 1319]; // C5 E5 G5 C6 E6
 

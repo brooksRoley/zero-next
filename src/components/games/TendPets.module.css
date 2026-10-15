@@ -26,6 +26,51 @@
   transform-origin: 0% 100%;
 }
 
+.wagFast {
+  animation: wag 0.14s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+}
+
+/* One small hop: turned toward something new, or patted. */
+.hop {
+  animation: hop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  20% {
+    transform: translateY(0) scale(1.06, 0.92);
+  }
+  55% {
+    transform: translateY(-7px) scale(0.96, 1.05);
+  }
+}
+
+/* A sleeping pet's "z", drifting up and fading. */
+.snooze {
+  animation: snooze 3s ease-out infinite;
+}
+
+@keyframes snooze {
+  from {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(4px, -8px);
+    opacity: 0;
+  }
+}
+
 @keyframes bob {
   0%,
   100% {
@@ -72,7 +117,10 @@
   .bob,
   .eyes,
   .tail,
-  .wag {
+  .wag,
+  .wagFast,
+  .hop,
+  .snooze {
     animation: none;
   }
 }

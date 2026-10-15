@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import useGameSounds from 'src/hooks/useGameSounds'
+import { buzz } from 'src/lib/ui/haptics'
 import { HAPTIC } from 'src/lib/ui/tactile'
 
 /**
@@ -20,10 +21,7 @@ import { HAPTIC } from 'src/lib/ui/tactile'
 export default function useTactileFeedback() {
   const sounds = useGameSounds()
 
-  const haptic = useCallback((pattern) => {
-    if (typeof navigator === 'undefined' || !navigator.vibrate) return
-    try { navigator.vibrate(pattern) } catch { /* unsupported */ }
-  }, [])
+  const haptic = useCallback((pattern) => buzz(pattern), [])
 
   const onPlace = useCallback(() => {
     sounds.playPlace()

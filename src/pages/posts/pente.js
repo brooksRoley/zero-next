@@ -9,6 +9,7 @@ import GameLobby from 'src/components/GameLobby';
 import MultiplayerStatus from 'src/components/MultiplayerStatus';
 import confetti from 'canvas-confetti';
 import useGameSounds from 'src/hooks/useGameSounds';
+import SoundToggle from 'src/components/SoundToggle';
 import usePlayerProfile from 'src/hooks/usePlayerProfile';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
@@ -677,6 +678,7 @@ const GameBoard = () => {
                 New
               </button>
             )}
+            <SoundToggle className={actionBtnClass()} />
             <button
               className={actionBtnClass(showCustomizer)}
               onClick={() => setShowCustomizer(s => !s)}
