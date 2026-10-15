@@ -23,7 +23,7 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | # | File | Adds | Applied |
 |---|------|------|---------|
 | baseline | _(pre-dates tracked migrations)_ | `players`, `games` tables | ✅ live |
-| 0001 | `0001_matchmaking_queue.sql` | `matchmaking_queue` table + `claim_match()` RPC + realtime | ❌ **not in the live DB** (found 2026-10-15; was marked live) |
+| 0001 | `0001_matchmaking_queue.sql` | `matchmaking_queue` table + `claim_match()` RPC + realtime + RLS | ✅ 2026-10-15 (was marked live, but the table was missing) |
 | 0002 | `0002_go_players.sql` | `go_players` table + indexes + RLS | ✅ 2026-10-15 (was marked live, but the table was missing: `/api/go/player` returned 500) |
 | 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ✅ 2026-07-14 |
 | 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ✅ 2026-07-14 |
@@ -70,4 +70,11 @@ Verified the same day: live `GET /api/go/player` went from 500 (`Could not find
 the table 'public.go_players'`) to 404 for an unknown id, a test POST created a
 row (then deleted), and the Supabase security advisor reported no issues. The
 audit that found this also showed `matchmaking_queue` (0001) missing from the
-live DB despite being marked live; it has not been applied.
+live DB despite being marked live. It was applied the same day (migrations
+`matchmaking_queue` and `claim_match_security_invoker`), with RLS, a guarded
+realtime step, and `claim_match` switched to `security invoker` with a pinned
+`search_path` (the security advisor flagged the definer version as callable by
+anon). Verified with two test players through the public REST API: queue insert
+201, claim returned a game id (a second claim on the same row returned null),
+the game had a 19×19 board in `in_progress`, cancel returned 204; all test rows
+deleted, and the advisor reported no issues.
