@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createRateLimiter } from 'src/lib/rate-limit'
+import { safeEqual } from 'src/lib/safeEqual'
 
 // Admin login is a high-value brute-force target: throttle password guesses
 // to 5 attempts per 15 minutes per IP so ADMIN_PASSWORD can't be enumerated.
@@ -14,7 +15,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const { password } = req.body
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
+  if (!safeEqual(password, process.env.ADMIN_PASSWORD)) {
     return res.status(401).json({ error: 'Invalid password' })
   }
 
