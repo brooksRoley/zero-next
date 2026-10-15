@@ -61,6 +61,9 @@ const REGISTRY = {
   readAndReact: { href: '/games/read-and-react', label: 'Read & React' },
   hardwood: { href: '/games/hardwood', label: 'Hardwood Autochess' },
   moments: { href: '/games/moments', label: 'Playoff Moments' },
+  tend: { href: '/games/tend', label: 'Tend' },
+  tendWatershed: { href: '/games/tend/watershed', label: 'Tend — The Watershed' },
+  tendJournal: { href: '/games/tend/journal', label: 'Tend — The Journal' },
   nanuPikaTd: { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
 
   // ── Misc / experiments ──
