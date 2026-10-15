@@ -24,6 +24,17 @@ export const LOCATION = 'Orange County, CA'
 
 export const AVAILABILITY = 'Open to full-time roles — remote, or hybrid in Orange County.'
 
+// The home hero's one-paragraph pitch. The hero, its loading fallback and the
+// site-wide meta description all read from here so they cannot drift apart.
+export const HERO_SUMMARY =
+  'Full-stack software engineer with a front-end lean. I build fast, accessible interfaces ' +
+  'in React, Vue and TypeScript and the Python and Node services behind them.'
+
+// Search results and link previews. Kept under ~160 characters so it is not cut off.
+export const SITE_DESCRIPTION =
+  'Brooks Roley — full-stack software engineer with a front-end lean: React, TypeScript, Node and Python. ' +
+  'Open to full-time roles.'
+
 // One line for the year between roles, placed after the entry at this index.
 export const INTERLUDE = {
   afterIndex: 0,

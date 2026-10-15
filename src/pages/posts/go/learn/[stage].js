@@ -91,7 +91,7 @@ export default function GoLessonPage({ stageParam }) {
       isComplete={!!profile.lessonProgress[String(stageNum)]?.completed}
     >
       <Head>
-        <title>Stage {stageNum}: {stage.title} | Learn Go</title>
+        <title>{`Stage ${stageNum}: ${stage.title} — Learn Go | Brooks Roley`}</title>
       </Head>
       <Component
         onAdvance={() => {

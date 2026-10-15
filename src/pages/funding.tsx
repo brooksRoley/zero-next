@@ -103,7 +103,7 @@ export default function Funding() {
   return (
     <main className="min-h-screen bg-forest-950 flex items-center justify-center px-4 py-16 font-sans">
       <Head>
-        <title>Support Brooks Roley</title>
+        <title>Support | Brooks Roley</title>
         <meta name="description" content="Support Brooks Roley — tip by card if you enjoyed the games or tools." />
       </Head>
 

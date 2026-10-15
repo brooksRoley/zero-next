@@ -92,7 +92,7 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
 
   it('mentions consulting only after full-time roles on the landing page', () => {
     const home = read('src/pages/index.tsx')
-    const fullTime = home.indexOf('full-time')
+    const fullTime = home.indexOf('{AVAILABILITY}')
     const consulting = home.search(/available for consulting/i)
     expect(fullTime).toBeGreaterThan(-1)
     expect(consulting).toBeGreaterThan(fullTime)
