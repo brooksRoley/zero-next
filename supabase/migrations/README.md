@@ -23,17 +23,20 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | # | File | Adds | Applied |
 |---|------|------|---------|
 | baseline | _(pre-dates tracked migrations)_ | `players`, `games` tables | ✅ live |
-| 0001 | `0001_matchmaking_queue.sql` | `matchmaking_queue` table + `claim_match()` RPC + realtime | ✅ live |
-| 0002 | `0002_go_players.sql` | `go_players` table + indexes | ✅ live |
+| 0001 | `0001_matchmaking_queue.sql` | `matchmaking_queue` table + `claim_match()` RPC + realtime | ❌ **not in the live DB** (found 2026-10-15; was marked live) |
+| 0002 | `0002_go_players.sql` | `go_players` table + indexes + RLS | ✅ 2026-10-15 (was marked live, but the table was missing: `/api/go/player` returned 500) |
 | 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ✅ 2026-07-14 |
 | 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ✅ 2026-07-14 |
 | 0005 | `0005_players_game_elo.sql` | `players.game_elo` + `game_peak_elo` (puzzle/game rating split) | ✅ 2026-07-14 |
 | 0006 | `0006_puzzle_attempts.sql` | `puzzle_attempts` table + indexes (Pente) | ⏳ pending — **verify columns first** |
-| 0007 | `0007_go_puzzle_attempts.sql` | `go_puzzle_attempts` table + indexes (Go) | ⏳ pending — **verify columns first** |
+| 0007 | `0007_go_puzzle_attempts.sql` | `go_puzzle_attempts` table + indexes + RLS (Go) | ✅ 2026-10-15 (the table did not exist, so there was nothing to diff) |
 
-### Before applying 0006 / 0007
+### Before applying 0006
 
-Both tables already exist in the live database — they have been written to by
+Update 2026-10-15: `go_puzzle_attempts` turned out **not** to exist live, so 0007
+was applied as written (with RLS). The rest of this note now applies to 0006 only.
+
+Both tables were believed to exist in the live database — they have been written to by
 `/api/pente/puzzle-attempts` and `/api/go/puzzle-attempts` since well before this
 repo tracked migrations. These two files exist to close that gap: the schema was
 undocumented in version control, so nobody could tell what shape the live tables
@@ -59,3 +62,12 @@ editor). Verified same day: the three new `players` columns exist, `game_results
 + its index exist, all 16 existing players had `game_elo`/`game_peak_elo` seeded
 from their blended rating, and the live `GET /api/pente/daily` flipped from
 `{ supported: false }` to `{ "daily": {}, "supported": true }` with no code deploy.
+
+**2026-10-15:** 0002 and 0007 were applied together via the Supabase MCP
+`apply_migration` tool (migration `go_players_and_puzzle_attempts`), each with RLS
+policies mirroring their Pente counterparts, since the API uses the anon key.
+Verified the same day: live `GET /api/go/player` went from 500 (`Could not find
+the table 'public.go_players'`) to 404 for an unknown id, a test POST created a
+row (then deleted), and the Supabase security advisor reported no issues. The
+audit that found this also showed `matchmaking_queue` (0001) missing from the
+live DB despite being marked live; it has not been applied.
