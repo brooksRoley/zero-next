@@ -677,7 +677,7 @@ export default function TradeMachinePage() {
   return (
     <div className="min-h-screen bg-[#0a0e16] text-slate-200">
       <Head>
-        <title>NBA Salary Cap & Trade Machine — {CAP_SEASON_LABEL}</title>
+        <title>{`NBA Salary Cap & Trade Machine — ${CAP_SEASON_LABEL} | Brooks Roley`}</title>
         <meta
           name="description"
           content="Every NBA team's payroll against the cap, tax, and aprons — plus a CBA-rules trade machine, the draft-pick legalese, and where the cap is headed."
