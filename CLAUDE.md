@@ -65,7 +65,6 @@ The Pages Router has grown well past the original handful of routes; below is th
 **Misc / experiments**
 - `/posts/guestbook` (`src/pages/posts/guestbook.tsx`) — Collaborative guest book: rubric-based ad-lib story prompt builder with typography picker, writes to Neon Postgres
 - `/posts/luminous-flow` (`src/pages/posts/luminous-flow.jsx`) — Interactive generative/physics visual piece
-- `/posts/first-post` (`src/pages/posts/first-post.js`), `/posts/post-form` (`src/pages/posts/post-form.jsx`) — Early blog scaffolding (in-progress)
 
 ### Database (Neon Postgres)
 - Connection: `src/lib/db.ts` exports `sql` via `@neondatabase/serverless`
@@ -139,10 +138,8 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 **Utility / misc**
 - `src/pages/api/events.ts` — POST: lightweight first-party analytics event ingest (rate-limited). Stores, with each event, where the visitor came from (external referrer, query string dropped), city-level location from Vercel's `x-vercel-ip-*` headers, and device / browser / OS family (`src/lib/visitorContext.ts`). No IP address is stored. Schema lives in `src/lib/eventsSchema.ts`
-- `src/pages/api/db-health.ts` — GET: Postgres connection health check
-- `src/pages/api/search.js` — Filters `stage_data.json` by location/date range; studio/stage availability lookup
+- `src/pages/api/db-health.ts` — GET: Postgres health check. Public callers get only `{status}` (503 on failure); time, version and error detail require `x-admin-key`
 - `src/pages/api/posts.js` — Posts API (unused/in-progress)
-- `src/pages/api/hello.ts` — Default Next.js example route
 
 ### Authentication
 

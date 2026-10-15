@@ -374,7 +374,7 @@ export default function RigReport() {
   return (
     <main className="min-h-screen bg-forest-950 font-sans text-[#DADBD9]">
       <Head>
-        <title>The Rig Report | Entertainment Integrity Bureau</title>
+        <title>The Rig Report | Brooks Roley</title>
         <meta
           name="description"
           content="A satirical NBA 'rigging' inspector that teaches real sports analytics: implied probability, the vig, line movement, and why upsets are supposed to happen."

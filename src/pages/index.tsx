@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Reveal from 'src/components/Reveal'
 import TiltCard from 'src/components/TiltCard'
+import { AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
 import { route } from 'src/lib/routes'
 
 const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
@@ -22,8 +23,8 @@ const PhysicsHero = dynamic(() => import('src/components/PhysicsHero'), {
         <div className="max-w-2xl md:flex-[1.05]">
           <h1 className="text-[clamp(3.35rem,9vw,6.8rem)] font-extrabold leading-none text-[#DADBD9]">Brooks Roley</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-[#DADBD9]/80 sm:text-lg sm:leading-8">
-            Software engineer building games, tools, and responsive web systems with
-            a bias toward fast feedback, tactile motion, and layered interfaces.
+            {HERO_SUMMARY}{' '}
+            <span className="font-medium text-[#C5E7EA]">{AVAILABILITY}</span>
           </p>
         </div>
       </div>
@@ -68,8 +69,8 @@ export default function Home() {
             <Reveal>
               <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
-                  Full-stack engineer — React, TypeScript, sports tech, games.
-                  <span className="text-[#DADBD9]/88"> Open to full-time roles; also available for consulting.</span>
+                  Selected work: web products, sports data tools and games.
+                  <span className="text-[#DADBD9]/88"> Also available for consulting.</span>
                 </p>
                 <Link
                   href={route('consulting').href}
