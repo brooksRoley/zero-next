@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect, ReactNode } from 'react'
+import { prefersReducedMotion } from 'src/lib/motion'
 
 interface TiltCardProps {
   children: ReactNode
@@ -52,7 +53,8 @@ export default function TiltCard({ children, className = '' }: TiltCardProps) {
 
   const handleMouseMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const el = ref.current
-    if (!el) return
+    // Reduced motion: the card stays flat and still; the link works the same.
+    if (!el || prefersReducedMotion()) return
     const rect = el.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width
     const y = (e.clientY - rect.top) / rect.height
