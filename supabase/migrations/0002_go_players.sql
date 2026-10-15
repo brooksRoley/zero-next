@@ -21,3 +21,14 @@ create index if not exists idx_go_players_last_seen
 
 create index if not exists idx_go_players_go_elo
   on go_players (go_elo desc);
+
+-- Row-level security, mirroring `players`: the API uses the anon key, so
+-- reads, inserts and updates need explicit policies. Added when this file was
+-- first actually applied (2026-10-15); idempotent via drop-if-exists.
+alter table go_players enable row level security;
+drop policy if exists "Go players are publicly readable" on go_players;
+create policy "Go players are publicly readable" on go_players for select using (true);
+drop policy if exists "Go players can insert their own row" on go_players;
+create policy "Go players can insert their own row" on go_players for insert with check (true);
+drop policy if exists "Go players can update their own row" on go_players;
+create policy "Go players can update their own row" on go_players for update using (true) with check (true);
