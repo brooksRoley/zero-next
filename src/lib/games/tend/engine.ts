@@ -84,10 +84,17 @@ export function occupied(state: GardenState): Set<string> {
 }
 
 export function canPlace(state: GardenState, cells: readonly Cell[]): boolean {
-  const taken = occupied(state)
-  return cells.every(
-    ([x, y]) => x >= 0 && y >= 0 && x < state.size && y < state.size && !taken.has(cellKey([x, y])),
-  )
+  return misfit(state, cells) === null
+}
+
+export type Misfit = { reason: 'edge' } | { reason: 'overlap'; bed: Bed }
+
+/** Why a set of cells can't be planted, or null when it fits. The edge is reported first. */
+export function misfit(state: GardenState, cells: readonly Cell[]): Misfit | null {
+  if (cells.some(([x, y]) => x < 0 || y < 0 || x >= state.size || y >= state.size)) return { reason: 'edge' }
+  const wanted = new Set(cells.map(cellKey))
+  const bed = state.beds.find((b) => b.cells.some((c) => wanted.has(cellKey(c))))
+  return bed ? { reason: 'overlap', bed } : null
 }
 
 /**
@@ -225,4 +232,60 @@ export function unlockNotes(state: GardenState, today: number): GardenState {
     .map((bed) => bed.kind)
   if (!fresh.length) return state
   return { ...state, notes: [...have, ...new Set(fresh)] }
+}
+
+// ── Previews ────────────────────────────────────────────────────────────────
+
+export type PlacementEffect = {
+  /** Neighbours this bed would help: ferns and datura protect, oaks speed up vines. */
+  helps: Bed[]
+  /** Poppies an oak here would shade out of bloom. */
+  shades: Bed[]
+  /** What happens to the new bed itself: a vine beside an oak grows faster, a poppy under one won't bloom. */
+  self: 'helped' | 'shaded' | null
+}
+
+/** What rooting `kind` on `cells` would do, so the player sees the effect before committing. */
+export function placementEffect(state: GardenState, kind: PlantKind, cells: readonly Cell[]): PlacementEffect {
+  const bed: Bed = { id: '__preview', kind, cells: [...cells], plantedDay: 0 }
+  const beds = [...state.beds, bed]
+  const near = touching(beds, bed)
+  // Only beds the drought rules would treat differently: a fern saves beds no fern already holds; a datura's
+  // shorter sleep doesn't stack, and doesn't matter to a bed a fern keeps awake.
+  const fernSafe = (b: Bed) => b.kind === 'fern' || touching(state.beds, b).some((n) => n.kind === 'fern')
+  const calmed = (b: Bed) => touching(state.beds, b).some((n) => n.kind === 'moonflower')
+  const helps =
+    kind === 'fern'
+      ? near.filter((b) => !fernSafe(b))
+      : kind === 'moonflower'
+        ? near.filter((b) => !fernSafe(b) && !calmed(b))
+        : kind === 'oak'
+          ? near.filter((b) => b.kind === 'vine')
+          : []
+  const shades =
+    kind === 'oak'
+      ? state.beds.filter((b) => b.kind === 'sunflower' && !skyBlocked(state.beds, b) && skyBlocked(beds, b))
+      : []
+  const self =
+    kind === 'vine' && near.some((b) => b.kind === 'oak')
+      ? 'helped'
+      : kind === 'sunflower' && skyBlocked(beds, bed)
+        ? 'shaded'
+        : null
+  return { helps, shades, self }
+}
+
+/** Beds that reached a new stage between two states (for example across a check-in), in planting order. */
+export function grewBetween(before: GardenState, after: GardenState, today: number): { grew: string[]; bloomed: string[] } {
+  const grew: string[] = []
+  const bloomed: string[] = []
+  for (const bed of after.beds) {
+    const old = before.beds.find((b) => b.id === bed.id)
+    if (!old || isDormant(after, bed.id, today)) continue
+    const was = stageOf(before, old, today)
+    const now = stageOf(after, bed, today)
+    if (now > was) grew.push(bed.id)
+    if (now === 3 && was < 3) bloomed.push(bed.id)
+  }
+  return { grew, bloomed }
 }

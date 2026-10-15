@@ -1,13 +1,19 @@
 import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TendBoard from 'src/components/games/TendBoard'
+import { PlantIcon } from 'src/components/games/TendPlants'
+import TendNav, { SampleBanner } from 'src/components/games/TendNav'
 import { trackGame } from 'src/lib/analytics'
 import {
   bloomCount,
   checkIn,
   compostSeed,
+  grewBetween,
   forecast,
   hasCheckedIn,
+  isDormant,
   newGarden,
   placeSeed,
   resolveSeasons,
@@ -17,10 +23,16 @@ import {
 import { almanac, COMPOST_NOTES, SOURCES } from 'src/lib/games/tend/knowledge'
 import { PETS } from 'src/lib/games/tend/pets'
 import { KIND_FOR_LANE, LANES, orientations, PLANTS, type Cell, type Lane, type PlantKind } from 'src/lib/games/tend/plants'
+import { currentPhase, PHASE_LABEL, type Phase } from 'src/lib/games/tend/daylight'
+import { browserStorage as storage } from 'src/lib/games/tend/progress'
+import { sampleGarden } from 'src/lib/games/tend/sample'
+import { tendSounds } from 'src/lib/games/tend/sounds'
 import { loadGarden, saveGarden } from 'src/lib/games/tend/storage'
 import { dayIndex } from 'src/lib/games/tend/time'
 import { TUNING } from 'src/lib/games/tend/tuning'
-import { absoluteUrl } from 'src/lib/routes'
+import { absoluteUrl, route } from 'src/lib/routes'
+import { buzz } from 'src/lib/ui/haptics'
+import { HAPTIC } from 'src/lib/ui/tactile'
 
 const GAME = 'tend'
 
@@ -37,14 +49,6 @@ function currentDay(): number {
   return dayIndex(new Date()) + offset
 }
 
-function storage(): Storage | null {
-  try {
-    return typeof window === 'undefined' ? null : window.localStorage
-  } catch {
-    return null
-  }
-}
-
 /** Report seasons that resolved between two states (including ones that ran while the player was away). */
 function trackNewSeasons(before: GardenState, after: GardenState) {
   for (const season of after.seasons.slice(before.seasons.length)) {
@@ -52,14 +56,8 @@ function trackNewSeasons(before: GardenState, after: GardenState) {
   }
 }
 
-function Swatch({ kind, size = 14 }: { kind: PlantKind; size?: number }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-block shrink-0 rounded-[4px]"
-      style={{ width: size, height: size, background: PLANTS[kind].color }}
-    />
-  )
+function Swatch({ kind, size = 18 }: { kind: PlantKind; size?: number }) {
+  return <PlantIcon kind={kind} size={size} />
 }
 
 function ShapePreview({ shape, kind }: { shape: Cell[]; kind: PlantKind }) {
@@ -91,6 +89,9 @@ function NoteBody({ kind }: { kind: PlantKind }) {
 }
 
 export default function TendPage() {
+  const router = useRouter()
+  const sample = router.isReady && router.query.sample === '1'
+  const sampleRef = useRef(false)
   const [garden, setGarden] = useState<GardenState | null>(null)
   const [today, setToday] = useState<number | null>(null)
   const [chosen, setChosen] = useState<Lane[]>([])
@@ -100,23 +101,49 @@ export default function TendPage() {
   const [newNote, setNewNote] = useState<PlantKind | null>(null)
   const [compostTip, setCompostTip] = useState<number | null>(null)
   const [month, setMonth] = useState<number | null>(null)
+  const [fresh, setFresh] = useState<string | null>(null)
+  const [growth, setGrowth] = useState<{ grew: string[]; bloomed: string[]; n: number } | null>(null)
+  const [phase, setPhase] = useState<Phase>('day')
+  const [attention, setAttention] = useState<{ cell: Cell; n: number } | null>(null)
+  // Sound waits for the player's first action; a bloom found on page load stays quiet.
+  const actedRef = useRef(false)
   const gardenRef = useRef<GardenState | null>(null)
   gardenRef.current = garden
 
   // Load (or start) the garden, and run any seasons that arrived while away.
+  // `?sample=1` shows a read-only sample garden instead and leaves storage alone.
   useEffect(() => {
+    if (!router.isReady) return
     const day = currentDay()
+    sampleRef.current = sample
+    setChosen([])
+    setSelectedSeed(null)
+    setNewNote(null)
+    setCompostTip(null)
+    // Bed ids repeat between gardens, so one-shot effects must not carry across a switch.
+    setFresh(null)
+    setGrowth(null)
+    setAttention(null)
+    setMonth(new Date().getMonth())
+    if (sample) {
+      setGarden(sampleGarden(day))
+      setToday(day)
+      return
+    }
     const loaded = loadGarden(storage()) ?? newGarden(day)
     const resolved = resolveSeasons(loaded, day)
     trackNewSeasons(loaded, resolved)
     setGarden(resolved)
     setToday(day)
-    setMonth(new Date().getMonth())
-  }, [])
+  }, [router.isReady, sample])
 
   // A tab left open overnight rolls into the new day and its season.
   useEffect(() => {
+    setPhase(currentPhase())
     const tick = () => {
+      setPhase(currentPhase())
+      // The sample is frozen on its fortieth day; only the light changes.
+      if (sampleRef.current) return
       const day = currentDay()
       setToday((prev) => (prev === day ? prev : day))
       const g = gardenRef.current
@@ -136,7 +163,8 @@ export default function TendPage() {
   }, [])
 
   useEffect(() => {
-    if (garden) saveGarden(storage(), garden)
+    // The sample garden is never written: it would overwrite a real one.
+    if (garden) saveGarden(sampleRef.current ? null : storage(), garden)
   }, [garden])
 
   // A plant's field note unlocks the first time one of its beds blooms.
@@ -144,7 +172,10 @@ export default function TendPage() {
     if (!garden || today === null) return
     const next = unlockNotes(garden, today)
     if (next === garden) return
-    setNewNote(next.notes?.at(-1) ?? null)
+    if (!sampleRef.current) {
+      setNewNote(next.notes?.at(-1) ?? null)
+      if (actedRef.current) tendSounds.bloom()
+    }
     setGarden(next)
   }, [garden, today])
 
@@ -155,6 +186,11 @@ export default function TendPage() {
   const submitCheckIn = useCallback(() => {
     if (!garden || today === null) return
     const next = checkIn(garden, today, chosen)
+    actedRef.current = true
+    tendSounds.checkIn(next.seeds.length - garden.seeds.length)
+    buzz(HAPTIC.tap)
+    setFresh(null)
+    setGrowth((prev) => ({ ...grewBetween(garden, next, today), n: (prev?.n ?? 0) + 1 }))
     setGarden(next)
     setChosen([])
     setSelectedSeed(null)
@@ -167,6 +203,13 @@ export default function TendPage() {
       if (!garden || today === null || !seed || !shape) return
       const next = placeSeed(garden, seed.id, shape, anchor, today)
       if (next === garden) return
+      actedRef.current = true
+      tendSounds.place(seed.kind)
+      buzz(HAPTIC.place)
+      const bed = next.beds.at(-1)
+      setFresh(bed?.id ?? null)
+      if (bed) setAttention((prev) => ({ cell: bed.cells[0], n: (prev?.n ?? 0) + 1 }))
+      setGrowth(null)
       setGarden(next)
       setSelectedSeed(null)
       setTurn(0)
@@ -174,8 +217,19 @@ export default function TendPage() {
     [garden, today, seed, shape],
   )
 
+  const refuse = useCallback(() => {
+    tendSounds.refuse()
+    buzz(HAPTIC.wrong)
+  }, [])
+
+  const rotate = useCallback(() => {
+    tendSounds.rotate()
+    setTurn((t) => t + 1)
+  }, [])
+
   const compost = useCallback(() => {
     if (!garden || !seed) return
+    tendSounds.compost()
     setGarden(compostSeed(garden, seed.id))
     setSelectedSeed(null)
     setTurn(0)
@@ -194,9 +248,13 @@ export default function TendPage() {
   }, [confirmReset])
 
   const checkedIn = garden && today !== null ? hasCheckedIn(garden, today) : false
+  const firstVisit = !sample && garden !== null && garden.beds.length === 0 && Object.keys(garden.checkins).length === 0
   const coming = garden && today !== null ? forecast(garden, today) : null
   const lastSeason = garden?.seasons.at(-1)
   const recentSeason = lastSeason && today !== null && today - lastSeason.day < 3 ? lastSeason : null
+  // A drought day, or any bed still sleeping one off, and the open soil looks dry.
+  const parched =
+    !!garden && today !== null && (lastSeason?.day === today || garden.beds.some((b) => isDormant(garden, b.id, today)))
 
   return (
     <main className="min-h-screen bg-forest-950 font-sans text-forest-100">
@@ -216,6 +274,8 @@ export default function TendPage() {
       </Head>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
+        <TendNav current="garden" sample={sample} />
+        {sample && <SampleBanner page="garden" />}
         <header className="mb-8 max-w-2xl">
           <p className="mb-2 font-mono text-xs uppercase tracking-widest text-forest-400">A daily garden</p>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Tend</h1>
@@ -223,6 +283,18 @@ export default function TendPage() {
             Check in once a day. Every habit you kept becomes a seed. Fit the seeds onto the grid, mind the
             neighbours, and plant for the weather.
           </p>
+          {!sample && (
+            <Link
+              href={{ pathname: route('tend').href, query: { sample: '1' } }}
+              className={
+                firstVisit
+                  ? 'mt-4 inline-block rounded-lg border border-forest-400 px-4 py-2 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300'
+                  : 'mt-3 inline-block text-sm text-forest-300 underline underline-offset-2 hover:text-white'
+              }
+            >
+              {firstVisit ? 'Peek at a sample garden on day 40 →' : 'Peek at a sample garden'}
+            </Link>
+          )}
         </header>
 
         {!garden || today === null ? (
@@ -233,13 +305,20 @@ export default function TendPage() {
               <TendBoard
                 garden={garden}
                 today={today}
-                placing={seed && shape ? { kind: seed.kind, shape } : null}
+                placing={!sample && seed && shape ? { kind: seed.kind, shape } : null}
                 onPlace={place}
-                onRotate={() => setTurn((t) => t + 1)}
+                onRotate={rotate}
                 onCancel={() => setSelectedSeed(null)}
+                onRefuse={refuse}
+                fresh={fresh}
+                growth={growth}
+                attention={attention}
+                phase={phase}
+                parched={parched}
               />
               <p className="mt-3 font-mono text-xs text-forest-400">
-                Day {today - garden.startDay + 1} · {garden.beds.length} beds · {bloomCount(garden, today)} in bloom
+                Day {today - garden.startDay + 1} · {garden.beds.length} beds · {bloomCount(garden, today)} in bloom ·{' '}
+                {PHASE_LABEL[phase]}
               </p>
               {month !== null && (
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-forest-300">
@@ -306,7 +385,16 @@ export default function TendPage() {
                 </section>
               )}
 
-              {!checkedIn ? (
+              {sample ? (
+                <section>
+                  <h2 className="text-lg font-semibold">Forty days in</h2>
+                  <p className="mt-1 text-sm text-forest-400">
+                    This gardener checked in on {Object.keys(garden.checkins).length} of {today - garden.startDay + 1} days
+                    and weathered {garden.seasons.length} droughts, with ferns keeping most beds awake. Every field note
+                    below is collected, and every watershed tier is open.
+                  </p>
+                </section>
+              ) : !checkedIn ? (
                 <section>
                   <h2 className="text-lg font-semibold">Today</h2>
                   <p className="mt-1 text-sm text-forest-400">Which did you do? An honest empty day still tends the garden.</p>
@@ -371,7 +459,7 @@ export default function TendPage() {
                     <div className="mt-3 flex gap-2">
                       <button
                         type="button"
-                        onClick={() => setTurn((t) => t + 1)}
+                        onClick={rotate}
                         disabled={shapes.length < 2}
                         className="rounded-md border border-forest-700 px-3 py-1.5 text-xs font-medium hover:bg-forest-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
                       >
@@ -402,18 +490,16 @@ export default function TendPage() {
 
               <details className="rounded-xl border border-forest-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">
-                  Field guide ({garden.notes?.length ?? 0} of {Object.keys(PLANTS).length})
+                  Field guide ({garden.notes?.length ?? 0} of {Object.keys(PLANTS).length} collected)
                 </summary>
+                <p className="mt-2 text-xs text-forest-400">Every note is open to read. A plant&apos;s first bloom adds it to your collection.</p>
                 <ul className="mt-3 space-y-4">
                   {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
                     <li key={kind}>
-                      {garden.notes?.includes(kind) ? (
-                        <NoteBody kind={kind} />
-                      ) : (
-                        <p className="flex items-center gap-2 text-forest-500">
-                          <Swatch kind={kind} /> Grow a {PLANTS[kind].name.toLowerCase()} to full bloom to read its note.
-                        </p>
-                      )}
+                      <p className="font-mono text-[11px] uppercase tracking-widest text-forest-500">
+                        {garden.notes?.includes(kind) ? 'Collected' : 'Not yet bloomed'}
+                      </p>
+                      <NoteBody kind={kind} />
                     </li>
                   ))}
                 </ul>
@@ -445,14 +531,16 @@ export default function TendPage() {
                   {PETS.map((pet) => pet.habit).join(' ')}
                 </p>
                 <p className="mt-3 text-forest-400">Your habits are saved in this browser only.</p>
-                <button
-                  type="button"
-                  onClick={reset}
-                  onBlur={() => setConfirmReset(false)}
-                  className="mt-3 text-xs text-forest-500 underline-offset-2 hover:text-forest-300 hover:underline"
-                >
-                  {confirmReset ? 'Click again to erase this garden' : 'Start over'}
-                </button>
+                {!sample && (
+                  <button
+                    type="button"
+                    onClick={reset}
+                    onBlur={() => setConfirmReset(false)}
+                    className="mt-3 text-xs text-forest-500 underline-offset-2 hover:text-forest-300 hover:underline"
+                  >
+                    {confirmReset ? 'Click again to erase this garden' : 'Start over'}
+                  </button>
+                )}
               </details>
             </aside>
           </div>

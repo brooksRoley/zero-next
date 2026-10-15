@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import confetti from 'canvas-confetti'
 import useGameSounds from 'src/hooks/useGameSounds'
+import SoundToggle from 'src/components/SoundToggle'
 import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
 import useCoach from 'src/hooks/useCoach'
 import useGameTracking from 'src/hooks/useGameTracking'
@@ -445,6 +446,7 @@ export default function GoPage() {
               Puzzles
             </Link>
           </div>
+          <SoundToggle className="ml-auto rounded-md p-1.5 text-forest-400 hover:bg-forest-800/40 hover:text-candy-300" />
         </div>
       </nav>
 
