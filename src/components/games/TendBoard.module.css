@@ -1,0 +1,139 @@
+/* A freshly rooted bed lands: a quick grow with a slight overshoot (EASING.overshoot in src/lib/ui/tactile.js). */
+.planted {
+  animation: plant 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-box: fill-box;
+  transform-origin: 50% 60%;
+}
+
+/* A small puff of soil kicked up around it. */
+.puff {
+  animation: puff 420ms ease-out both;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+/* After a check-in, beds that grew a stage pop, one after another. */
+.grew {
+  animation: grew 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* A first bloom bursts into petals. */
+.petal {
+  animation: puff 700ms ease-out both;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+/* While a seed hovers, the neighbours it would help or shade breathe softly. */
+.ring {
+  animation: ring 1.6s ease-in-out infinite alternate;
+}
+
+/* Night: the datura's soft glow breathes, and fireflies drift and blink. */
+.glow {
+  animation: ring 2.4s ease-in-out infinite alternate;
+}
+
+.firefly {
+  animation: firefly 5.5s ease-in-out infinite;
+}
+
+@keyframes firefly {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.15;
+  }
+  30% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(14px, -10px);
+    opacity: 0.3;
+  }
+  75% {
+    transform: translate(-6px, -18px);
+    opacity: 0.95;
+  }
+}
+
+/* A spot that doesn't fit shakes its preview, gently, instead of doing nothing. */
+.refused {
+  animation: refuse 260ms ease-in-out;
+}
+
+@keyframes plant {
+  from {
+    transform: scale(0.55);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes grew {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.12, 1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ring {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+
+@keyframes puff {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.85;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0.4);
+    opacity: 0;
+  }
+}
+
+@keyframes refuse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planted,
+  .grew,
+  .refused,
+  .ring,
+  .glow,
+  .firefly {
+    animation: none;
+  }
+  .puff,
+  .petal {
+    display: none;
+  }
+}

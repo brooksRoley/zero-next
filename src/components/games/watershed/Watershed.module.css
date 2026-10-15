@@ -1,0 +1,88 @@
+.bob {
+  animation: bob 2.8s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.sway {
+  animation: sway 3.4s ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.spin {
+  animation: spin 24s linear infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.glow {
+  animation: glow 2.2s ease-in-out infinite alternate;
+}
+.fall {
+  animation: fall 9s linear infinite;
+}
+.rise {
+  animation: rise 4.5s ease-in infinite;
+}
+/* Sun rays under the waves drift slowly side to side. */
+.rays {
+  animation: rays 9s ease-in-out infinite alternate;
+}
+/* Bioluminescent sparks in the dark tiers blink on and off out of step. */
+.spark {
+  animation: glow 2.6s ease-in-out infinite alternate;
+}
+
+.wave {
+  animation: wave 6s ease-in-out infinite alternate;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes sway {
+  from { transform: rotate(-4deg); }
+  to { transform: rotate(5deg); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes glow {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+@keyframes fall {
+  from { transform: translateY(-10px); opacity: 0; }
+  10% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  to { transform: translateY(86px); opacity: 0; }
+}
+@keyframes rise {
+  from { transform: translateY(0); opacity: 0; }
+  15% { opacity: 0.9; }
+  to { transform: translateY(-70px); opacity: 0; }
+}
+@keyframes rays {
+  from { transform: translateX(-10px); }
+  to { transform: translateX(10px); }
+}
+@keyframes wave {
+  from { transform: translateX(-12px); }
+  to { transform: translateX(12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bob, .sway, .spin, .glow, .fall, .rise, /* Sun rays under the waves drift slowly side to side. */
+.rays {
+  animation: rays 9s ease-in-out infinite alternate;
+}
+/* Bioluminescent sparks in the dark tiers blink on and off out of step. */
+.spark {
+  animation: glow 2.6s ease-in-out infinite alternate;
+}
+
+.wave {
+    animation: none;
+  }
+}
