@@ -9,6 +9,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import NavHeader from 'src/components/NavHeader'
 import { track } from 'src/lib/analytics'
+import { SITE_DESCRIPTION } from 'src/lib/resume'
 import { SITE_ORIGIN } from 'src/lib/routes'
 
 function trackPageView(url: string) {
@@ -59,7 +60,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <title>Brooks Roley | Software Engineer</title>
-        <meta name="description" content="Brooks Roley — Software Engineer building games, tools, and things for the web." />
+        <meta name="description" content={SITE_DESCRIPTION} />
         {/*
           Site-wide Open Graph defaults. The `key` is load-bearing: next/head
           de-duplicates by `key`, NOT by `property`, so without it a page that
@@ -68,7 +69,7 @@ export default function App({ Component, pageProps }: AppProps) {
         */}
         <meta property="og:type" content="website" key="og:type" />
         <meta property="og:title" content="Brooks Roley | Software Engineer" key="og:title" />
-        <meta property="og:description" content="Software Engineer building games, tools, and things for the web." key="og:description" />
+        <meta property="og:description" content={SITE_DESCRIPTION} key="og:description" />
         {/* Scrapers do not resolve relative URLs: og:image and og:url must be absolute. */}
         <meta property="og:image" content={`${SITE_ORIGIN}/cover.png`} key="og:image" />
         {canonicalUrl && <meta property="og:url" content={canonicalUrl} key="og:url" />}

@@ -217,7 +217,7 @@ export default function Intake() {
   return (
     <main className="min-h-screen bg-forest-950 text-white">
       <Head>
-        <title>Contact &mdash; Brooks Roley</title>
+        <title>Contact | Brooks Roley</title>
         <meta name="description" content="Leave Brooks a message — text or voice. Or book a call." />
         <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet" />
       </Head>

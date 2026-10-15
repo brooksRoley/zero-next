@@ -69,7 +69,7 @@ export default function GoPuzzlePage({ puzzleId }) {
   return (
     <div className="min-h-screen bg-forest-950 text-white">
       <Head>
-        <title>{puzzle.title} | Go Puzzles</title>
+        <title>{`${puzzle.title} — Go Puzzles | Brooks Roley`}</title>
       </Head>
 
       <nav className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">

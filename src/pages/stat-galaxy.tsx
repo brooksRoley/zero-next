@@ -306,7 +306,7 @@ export default function StatGalaxy() {
   return (
     <main className="h-screen bg-[#0a0c10] text-white font-sans flex flex-col">
       <Head>
-        <title>Stat Galaxy | NBA Physics Explorer</title>
+        <title>Stat Galaxy — NBA Physics Explorer | Brooks Roley</title>
       </Head>
 
       <header className="flex items-center justify-between px-6 py-4 border-b border-[#252a36] bg-[#12151c] z-10">
