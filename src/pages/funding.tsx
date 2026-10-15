@@ -83,7 +83,7 @@ function TipWhenLiveCapture() {
         <button
           onClick={handleSubmit}
           disabled={!valid || status === 'submitting'}
-          className="px-5 py-2.5 rounded-lg bg-[#635BFF] hover:bg-[#4F46E5] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-lg bg-[#635BFF] hover:bg-[#4F46E5] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#635BFF] focus-visible:ring-offset-2 focus-visible:ring-offset-forest-900"
         >
           {status === 'submitting' ? 'Saving…' : 'Notify me'}
         </button>
