@@ -96,6 +96,8 @@ function timeAgo(dateStr) {
   return `${days}d ago`
 }
 
+const SEND_FAILED = 'Your message did not send. Please try again, or book a call below.'
+
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function Intake() {
   const { visitorId, visitorName, setVisitorName } = useVisitorId()
@@ -107,6 +109,7 @@ export default function Intake() {
   const [textMessage, setTextMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState(null) // { kind: 'ok' | 'error', text }
   const [messages, setMessages] = useState([])
   const [activeTab, setActiveTab] = useState('text') // 'text' | 'voice'
 
@@ -139,6 +142,7 @@ export default function Intake() {
   const sendText = async () => {
     if (!textMessage.trim() || !visitorId) return
     setSending(true)
+    setStatus(null)
 
     if (name && name !== visitorName) setVisitorName(name)
 
@@ -156,8 +160,13 @@ export default function Intake() {
       if (res.ok) {
         setTextMessage('')
         setSent((p) => !p)
+        setStatus({ kind: 'ok', text: 'Message sent. I will get back to you.' })
+      } else {
+        setStatus({ kind: 'error', text: SEND_FAILED })
       }
-    } catch {}
+    } catch {
+      setStatus({ kind: 'error', text: SEND_FAILED })
+    }
     setSending(false)
   }
 
@@ -165,6 +174,7 @@ export default function Intake() {
   const sendVoice = async () => {
     if (!recorder.audioBlob || !visitorId) return
     setSending(true)
+    setStatus(null)
 
     if (name && name !== visitorName) setVisitorName(name)
 
@@ -207,8 +217,13 @@ export default function Intake() {
       })
       if (res.ok) {
         setSent((p) => !p)
+        setStatus({ kind: 'ok', text: 'Voice note sent. I will get back to you.' })
+      } else {
+        setStatus({ kind: 'error', text: SEND_FAILED })
       }
-    } catch {}
+    } catch {
+      setStatus({ kind: 'error', text: SEND_FAILED })
+    }
     setSending(false)
   }
 
@@ -257,17 +272,18 @@ export default function Intake() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="How should I address you?"
-              className="w-full px-4 py-2.5 rounded-lg bg-forest-900/80 border border-forest-700/40 text-white placeholder-forest-600 text-sm focus:outline-none focus:border-candy-500/50 transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg bg-forest-900/80 border border-forest-700/40 text-white placeholder-forest-600 text-sm focus:outline-none focus:border-candy-500/50 focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950 transition-colors"
             />
           </div>
         </Reveal>
 
         {/* ── Tab Switcher ── */}
         <Reveal delay={100}>
-          <div className="flex gap-1 mb-6 bg-forest-900/60 rounded-lg p-1 border border-forest-700/30">
+          <div role="group" aria-label="Message type" className="flex gap-1 mb-6 bg-forest-900/60 rounded-lg p-1 border border-forest-700/30">
             <button
               onClick={() => setActiveTab('text')}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+              aria-pressed={activeTab === 'text'}
+              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950 ${
                 activeTab === 'text'
                   ? 'bg-forest-800 text-white'
                   : 'text-forest-400 hover:text-forest-200'
@@ -278,7 +294,8 @@ export default function Intake() {
             {recorder.isSupported && (
               <button
                 onClick={() => setActiveTab('voice')}
-                className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                aria-pressed={activeTab === 'voice'}
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950 ${
                   activeTab === 'voice'
                     ? 'bg-forest-800 text-white'
                     : 'text-forest-400 hover:text-forest-200'
@@ -301,7 +318,7 @@ export default function Intake() {
                 placeholder="What's on your mind? Project idea, question, just saying hey — anything works."
                 rows={5}
                 disabled={noDb}
-                className="w-full px-4 py-3 rounded-lg bg-forest-900/80 border border-forest-700/40 text-white placeholder-forest-600 text-sm resize-none focus:outline-none focus:border-candy-500/50 transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-lg bg-forest-900/80 border border-forest-700/40 text-white placeholder-forest-600 text-sm resize-none focus:outline-none focus:border-candy-500/50 focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950 transition-colors disabled:opacity-50"
               />
               <div className="flex justify-between items-center">
                 <span className="text-xs text-forest-600">
@@ -310,7 +327,7 @@ export default function Intake() {
                 <button
                   onClick={sendText}
                   disabled={!textMessage.trim() || sending || noDb}
-                  className="px-5 py-2 rounded-lg bg-candy-500 hover:bg-candy-600 disabled:opacity-40 disabled:hover:bg-candy-500 text-white text-sm font-semibold transition-colors"
+                  className="px-5 py-2 rounded-lg bg-candy-500 hover:bg-candy-600 disabled:opacity-40 disabled:hover:bg-candy-500 text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                 >
                   {sending ? 'Sending...' : 'Send'}
                 </button>
@@ -334,7 +351,7 @@ export default function Intake() {
                     <button
                       onClick={handleStartRecording}
                       disabled={noDb}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-candy-500 hover:bg-candy-600 disabled:opacity-40 text-white text-sm font-semibold transition-colors"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-candy-500 hover:bg-candy-600 disabled:opacity-40 text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
@@ -352,7 +369,7 @@ export default function Intake() {
                       </div>
                       <button
                         onClick={handleStopRecording}
-                        className="px-5 py-2.5 rounded-lg bg-forest-700 hover:bg-forest-600 text-white text-sm font-semibold transition-colors"
+                        className="px-5 py-2.5 rounded-lg bg-forest-700 hover:bg-forest-600 text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                       >
                         Stop
                       </button>
@@ -364,7 +381,7 @@ export default function Intake() {
                       <audio src={recorder.audioUrl} controls className="h-10" />
                       <button
                         onClick={handleStartRecording}
-                        className="px-4 py-2 rounded-lg border border-forest-700/60 text-forest-300 hover:text-white text-sm transition-colors"
+                        className="px-4 py-2 rounded-lg border border-forest-700/60 text-forest-300 hover:text-white text-sm transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                       >
                         Re-record
                       </button>
@@ -373,7 +390,7 @@ export default function Intake() {
                 </div>
 
                 {recorder.error && (
-                  <p className="text-sm text-candy-400">{recorder.error}</p>
+                  <p role="alert" className="text-sm text-candy-400">{recorder.error}</p>
                 )}
               </div>
 
@@ -395,7 +412,7 @@ export default function Intake() {
                   <button
                     onClick={sendVoice}
                     disabled={sending || noDb}
-                    className="px-5 py-2 rounded-lg bg-candy-500 hover:bg-candy-600 disabled:opacity-40 text-white text-sm font-semibold transition-colors"
+                    className="px-5 py-2 rounded-lg bg-candy-500 hover:bg-candy-600 disabled:opacity-40 text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                   >
                     {sending ? 'Sending...' : 'Send Voice Note'}
                   </button>
@@ -405,6 +422,14 @@ export default function Intake() {
           </Reveal>
         )}
 
+        <div role="status" aria-live="polite" className="mt-4">
+          {status && (
+            <p className={`text-sm ${status.kind === 'error' ? 'text-candy-400' : 'text-forest-200'}`}>
+              {status.text}
+            </p>
+          )}
+        </div>
+
         {/* ── Book a Call ── */}
         <Reveal delay={200}>
           <div className="mt-10 py-8 text-center border-t border-forest-800/60">
@@ -413,7 +438,7 @@ export default function Intake() {
             </p>
             <button
               onClick={openCalendly}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-forest-600 hover:border-forest-500 text-forest-200 hover:text-white font-medium text-sm transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-forest-600 hover:border-forest-500 text-forest-200 hover:text-white font-medium text-sm transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -475,7 +500,7 @@ export default function Intake() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={openCalendly}
-                  className="px-5 py-2 rounded-lg bg-candy-500 hover:bg-candy-600 text-white text-sm font-semibold transition-colors"
+                  className="px-5 py-2 rounded-lg bg-candy-500 hover:bg-candy-600 text-white text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
                 >
                   Book a Call
                 </button>
