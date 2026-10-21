@@ -14,28 +14,36 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-zero-next commit that restored/vendored this bundle:
-  e99e60e  revert(hardwood): restore July-monolith bundle (undo #43 regression)
-           Tue Sep 8 2026 — reverts PR #43, restoring the bundle originally
-           vendored in commit aeb7fce ("feat(hardwood): serve the game
-           same-origin at /hardwood", 2026-07-10).
+Rebuilt 2026-10-20 (zero-next branch feat/play-journal).
 
-Build identity:
-  This is the "July monolith" build of BballTactics.
+BballTactics source:
+  branch fix/hardwood-embed-fit, based on b75f7f0 (= f7b01e3 + a package.json
+  script only), with a 3-file client change NOT YET COMMITTED in BballTactics:
+    - client/components/TutorialPhase1.vue: tutorial sized to the app column
+      (width 100%, height clamp(520px, 78vh, 760px)) instead of 100vw/100vh,
+      which overflowed the 900px column and clipped the Draft Capital bar.
+    - client/App.vue, index.html: title "B-Ball Tactics" -> "Hardwood Autochess",
+      matching the site and the Theater.
+  When that change is committed in BballTactics, replace this block with its SHA.
 
-BballTactics source SHA (recorded provenance, per zero-next project memory):
-  f7b01e3  "Push to actions and github pages" (2026-07-10) — the BballTactics
-           origin/main monolith rewrite that the deployed /hardwood bundle was
-           built from.
+Build: VITE_API_BASE='' vite build --base=/hardwood/ --outDir <scratch dir>
+Copied: index.html, assets/index-BSWQi1kl.js, assets/index-u1kvMI1u.css.
+Not copied: engine.js, engine.wasm, engine_roster.json — byte-identical to the
+fresh build (cmp), so left as they were.
 
-  NOTE: f7b01e3 is the provenance RECORDED IN PROJECT MEMORY, not a SHA verified
-  against the BballTactics repo during the creation of this file. If you cannot
-  confirm this exact upstream build SHA against BballTactics origin/main, treat
-  it as:
-      BballTactics source SHA: UNKNOWN — record on next rebuild
+PROVENANCE VERIFIED 2026-10-20
+  Before changing anything, BballTactics b75f7f0 was built unmodified with the
+  command above. Every file matched the then-deployed bundle byte for byte
+  (index-CpvGEpOe.js, index-P7yAxl1j.css, index.html, engine.js, engine.wasm,
+  engine_roster.json). So the "July monolith" bundle restored by e99e60e WAS
+  built from f7b01e3's client source; the earlier "UNKNOWN" caveat is resolved.
 
 HOW TO REBUILD / RE-SYNC (and what to update here)
 --------------------------------------------------
+DO NOT run BballTactics' `npm run build:hardwood` as written: it builds straight
+into ../zero-next/public/hardwood with --emptyOutDir, which deletes this file.
+Build into a scratch directory and copy what changed.
+
 In BballTactics: git fetch, then build from CURRENT origin/main (the canonical
 build is the July monolith line, not the older May base):
 

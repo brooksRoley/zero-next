@@ -700,12 +700,12 @@ const GameBoard = () => {
         {/* Adaptive bot ELO display (bot modes only) */}
         {botEnabled && !gameOver && (
           <div className="flex items-center gap-2 px-3 pb-1.5">
-            <span className="text-[10px] text-forest-500 uppercase tracking-wider">Adaptive Bot</span>
-            <span className="text-[10px] text-forest-400 font-mono">
+            <span className="text-[10px] text-forest-400 uppercase tracking-wider">Adaptive Bot</span>
+            <span className="text-[10px] text-forest-300 font-mono">
               ~{botEffectiveElo ?? getAdaptiveBotConfig(gameElo, gamesPlayed).effectiveElo} ELO
             </span>
             {gamesPlayed < 5 && (
-              <span className="text-[10px] text-candy-pink/60 italic">
+              <span className="text-[10px] text-candy-300 italic">
                 calibrating ({5 - gamesPlayed} games left)
               </span>
             )}
@@ -801,7 +801,9 @@ const GameBoard = () => {
       {/* ══════════════════════════════════════════════════════════════
           BOARD / CONTENT AREA
       ══════════════════════════════════════════════════════════════ */}
-      <main className="flex-1 min-h-0 flex items-center justify-center overflow-hidden p-2 sm:p-3">
+      {/* Top-aligned on phones: centred, a 19×19 board that is as wide as the
+          screen floated mid-height and left a dead band under the controls. */}
+      <main className="flex-1 min-h-0 flex items-start md:items-center justify-center overflow-hidden p-2 sm:p-3">
 
         {/* Lobby */}
         {showLobby && (

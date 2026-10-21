@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import useGameTracking from "src/hooks/useGameTracking";
+import { prefersReducedMotion } from "src/lib/motion";
 import {
   FOREST, ROAD, OBSTACLE, TIERS, upgradeCost, towerDmg, waveSize, lerpPath, sRng,
   generateMap, createGame, placeTower as placeTowerOn, upgradeTower as upgradeTowerOn,
@@ -15,6 +16,18 @@ import {
 
 // Canvas pixels per tile before the board is scaled to fit the screen.
 const CELL=48;
+// House style (docs/ART_DIRECTION.md): the house dark, the site's type, and one
+// accent — void, for "the siege". Tower hues, gold and stars are game data, not decoration.
+const HOUSE={
+  dark:"#04120c",                 // forest-950
+  ground:"radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.14), transparent 60%), #04120c",
+  ink:"#edf7f0",                  // forest-50
+  body:"#a3d9b1",                 // forest-200
+  muted:"#6abf82",                // forest-300
+  accent:"#a78bfa",               // void-400: highlights, the current level
+  action:"#7c3aed",               // void-600: filled buttons (white text passes AA)
+  font:"Inter, system-ui, -apple-system, sans-serif",
+};
 // Phones held upright play the tall version of every map (same road, transposed).
 const isPortraitPhone=()=>typeof window!=="undefined"&&window.matchMedia("(orientation: portrait) and (max-width: 700px)").matches;
 const getStorage=()=>{try{return window.localStorage;}catch{return null;}};
@@ -74,7 +87,40 @@ const TIER_VIS={
 };
 
 // ─── Sprite Drawing (reference-inspired chibi cat wizards) ───────────────────
-function drawCat(ctx,x,y,size,state,time,hue,tierId,level){
+// ── Upgrade aura: a stronger cat looks stronger ──
+// Level 2 draws a rune ring in the tower's colour, level 3 adds orbiting sparks,
+// level 4+ a halo. `sinceUpgrade` (ms) plays a short expanding flash. With
+// reduced motion the sparks hold still and the flash does not expand.
+const UPGRADE_FLASH_MS=450;
+function drawUpgradeAura(ctx,s,color,level,time,sinceUpgrade,reduced){
+  if(level>=4){
+    const halo=ctx.createRadialGradient(0,-s*0.05,s*0.05,0,-s*0.05,s*0.55);
+    halo.addColorStop(0,`${color}55`);halo.addColorStop(1,`${color}00`);
+    ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,-s*0.05,s*0.55,0,Math.PI*2);ctx.fill();
+  }
+  if(level>=2){
+    ctx.fillStyle=`${color}22`;
+    ctx.beginPath();ctx.ellipse(0,s*0.4,s*0.46,s*0.13,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=color;ctx.lineWidth=Math.max(2,s*0.06);
+    ctx.beginPath();ctx.ellipse(0,s*0.4,s*0.46,s*0.13,0,0,Math.PI*2);ctx.stroke();
+  }
+  if(level>=3){
+    const sparks=Math.min(level,6),turn=reduced?0:time*0.0015;
+    for(let i=0;i<sparks;i++){
+      const a=turn+(i/sparks)*Math.PI*2;
+      const px=Math.cos(a)*s*0.46,py=s*0.4+Math.sin(a)*s*0.13;
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(px,py,Math.max(2,s*0.075),0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(px,py,Math.max(1.2,s*0.045),0,Math.PI*2);ctx.fill();
+    }
+  }
+  if(sinceUpgrade>=0&&sinceUpgrade<UPGRADE_FLASH_MS){
+    const t=sinceUpgrade/UPGRADE_FLASH_MS,r=reduced?s*0.42:s*(0.3+0.45*t);
+    ctx.strokeStyle=color;ctx.globalAlpha=1-t;ctx.lineWidth=Math.max(2,s*0.05);
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
+  }
+}
+
+function drawCat(ctx,x,y,size,state,time,hue,tierId,level,sinceUpgrade=-1,reduced=false){
   const s=size,atk=state==="attack";
   const v=TIER_VIS[tierId]||TIER_VIS.apprentice;
   const bounce=Math.sin(time*0.003)*2;
@@ -89,6 +135,8 @@ function drawCat(ctx,x,y,size,state,time,hue,tierId,level){
   // ── Shadow ──
   ctx.fillStyle="rgba(0,0,0,0.12)";
   ctx.beginPath();ctx.ellipse(0,s*0.38,s*0.28,s*0.06,0,0,Math.PI*2);ctx.fill();
+  const tierColor=(TIERS.find(t=>t.id===tierId)||TIERS[0]).color;
+  drawUpgradeAura(ctx,s,tierColor,level,time,sinceUpgrade,reduced);
 
   // ── Body (round bean shape like references) ──
   // Outline first
@@ -253,12 +301,15 @@ function drawCat(ctx,x,y,size,state,time,hue,tierId,level){
   }
   ctx.restore();
 
-  // ── Level Badge ──
+  // ── Level badge: gold pips (a number past five) on a dark chip ──
   if(level>1){
-    ctx.fillStyle="rgba(0,0,0,0.6)";ctx.beginPath();ctx.arc(-s*0.28,s*0.3,s*0.1,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle="rgba(255,215,0,0.6)";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-s*0.28,s*0.3,s*0.1,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle="#ffd700";ctx.font=`bold ${s*0.11}px sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText(level,-s*0.28,s*0.31);
+    const pips=level<=5?level:0,gap=s*0.13,h=s*0.22;
+    const w=pips?gap*pips+s*0.06:s*0.42,bx=0,by=-s*0.62;
+    ctx.fillStyle="rgba(4,18,12,0.9)";ctx.strokeStyle="#ffd700";ctx.lineWidth=Math.max(1.2,s*0.03);
+    ctx.beginPath();ctx.roundRect(bx-w/2,by-h/2,w,h,h/2);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ffd700";
+    if(pips){for(let i=0;i<pips;i++){ctx.beginPath();ctx.arc(bx-w/2+s*0.03+gap*(i+0.5),by,s*0.045,0,Math.PI*2);ctx.fill();}}
+    else{ctx.font=`bold ${s*0.16}px Inter, system-ui, sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(`Lv ${level}`,bx,by+s*0.01);}
   }
 
   ctx.restore();
@@ -345,6 +396,8 @@ export default function NanuPikaAdventures(){
   const [activeTierTip,setActiveTierTip]=useState(null);
   const [gameSpeed,setGameSpeed]=useState(1);
   const gameSpeedRef=useRef(1);
+  const reducedRef=useRef(false);
+  useEffect(()=>{reducedRef.current=prefersReducedMotion();},[]);
   useEffect(()=>{gameSpeedRef.current=gameSpeed;},[gameSpeed]);
   const waveSnapshotRef=useRef(null);
   // Waves started this game: the "move" count for game tracking. A game starts on
@@ -419,7 +472,7 @@ export default function NanuPikaAdventures(){
 
   const placeTower=useCallback((row,col)=>{const g=gameRef.current;if(!g)return false;if(!placeTowerOn(g,row,col,selectedTier))return false;setUi(s=>({...s,gold:g.gold,towerCount:g.towers.length}));return true;},[selectedTier]);
 
-  const upgradeTower=useCallback((row,col)=>{const g=gameRef.current;if(!g)return;const t=g.towers.find(t=>t.row===row&&t.col===col);if(!t||!upgradeTowerOn(g,t))return;setSelTower({row,col,level:t.level,tierId:t.tierId,tierIdx:t.tierIdx});setUi(s=>({...s,gold:g.gold}));},[]);
+  const upgradeTower=useCallback((row,col)=>{const g=gameRef.current;if(!g)return;const t=g.towers.find(t=>t.row===row&&t.col===col);if(!t||!upgradeTowerOn(g,t))return;t.upgradedAt=performance.now();setSelTower({row,col,level:t.level,tierId:t.tierId,tierIdx:t.tierIdx});setUi(s=>({...s,gold:g.gold}));},[]);
 
   const sellTower=useCallback((row,col)=>{const g=gameRef.current;if(!g||g.phase==="wave")return;const idx=g.towers.findIndex(t=>t.row===row&&t.col===col);if(idx===-1)return;g.gold+=sellValue(g.towers[idx]);g.towers.splice(idx,1);setSelTower(null);setUi(s=>({...s,gold:g.gold,towerCount:g.towers.length}));},[]);
 
@@ -508,11 +561,11 @@ export default function NanuPikaAdventures(){
       // Ants
       for(const ant of g.ants){if(ant.dead)continue;const pos=lerpPath(g.path,ant.t);if(ant.slow>0){ctx.fillStyle="rgba(100,200,255,0.12)";ctx.beginPath();ctx.arc(pos.col*C+C/2,pos.row*C+C/2,12,0,Math.PI*2);ctx.fill();}drawAnt(ctx,pos.col*C+C/2,pos.row*C+C/2,C*0.5,ant.hp,ant.maxHp,now,ant.variant);}
       // Towers
-      for(const t of g.towers)drawCat(ctx,t.col*C+C/2,t.row*C+C/2+2,C*0.7,t.state==="attack"?"attack":"idle",now,t.hue,t.tierId,t.level);
+      for(const t of g.towers)drawCat(ctx,t.col*C+C/2,t.row*C+C/2+2,C*0.7,t.state==="attack"?"attack":"idle",now,t.hue,t.tierId,t.level,t.upgradedAt?now-t.upgradedAt:-1,reducedRef.current);
       // Particles
       for(const p of g.particles){const a=p.life/p.maxLife;ctx.fillStyle=p.type==="death"?`hsla(${p.hue},90%,55%,${a})`:`hsla(${p.hue},100%,70%,${a})`;ctx.beginPath();ctx.arc(p.x,p.y,p.size*a,0,Math.PI*2);ctx.fill();}
       // End overlays
-      if(g.phase==="gameover"||g.phase==="victory"){ctx.fillStyle="rgba(10,5,20,0.7)";ctx.fillRect(0,0,cw,ch);ctx.textAlign="center";ctx.textBaseline="middle";const fs=Math.min(48,C*1.2);ctx.fillStyle=g.phase==="victory"?"#ffd700":"#ff6b6b";ctx.font=`bold ${fs}px 'Trebuchet MS',sans-serif`;ctx.fillText(g.phase==="victory"?"Victory!":"Game Over!",cw/2,ch/2-fs*0.6);ctx.fillStyle="#e0d0b0";ctx.font=`${fs*0.45}px 'Trebuchet MS',sans-serif`;ctx.fillText(`Score: ${g.score}  ·  Wave ${g.wave}/${g.maxWaves}`,cw/2,ch/2+fs*0.2);}
+      if(g.phase==="gameover"||g.phase==="victory"){ctx.fillStyle="rgba(10,5,20,0.7)";ctx.fillRect(0,0,cw,ch);ctx.textAlign="center";ctx.textBaseline="middle";const fs=Math.min(48,C*1.2);ctx.fillStyle=g.phase==="victory"?"#ffd700":"#ff6b6b";ctx.font=`bold ${fs}px Inter, system-ui, sans-serif`;ctx.fillText(g.phase==="victory"?"Victory!":"Game Over!",cw/2,ch/2-fs*0.6);ctx.fillStyle="#e0d0b0";ctx.font=`${fs*0.45}px Inter, system-ui, sans-serif`;ctx.fillText(`Score: ${g.score}  ·  Wave ${g.wave}/${g.maxWaves}`,cw/2,ch/2+fs*0.2);}
       frameRef.current=requestAnimationFrame(tick);
     }
     frameRef.current=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frameRef.current);
@@ -532,13 +585,13 @@ export default function NanuPikaAdventures(){
   const allCleared=nextIdx>=LEVELS.length;
   const starLine=(n)=>"★".repeat(n)+"☆".repeat(3-n);
   if(!started)return(
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",background:"linear-gradient(160deg,#0d1117,#161b22,#1a2332)",minHeight:"100vh",fontFamily:"'Trebuchet MS',sans-serif",color:"#c9d1d9",padding:"28px 16px 40px",gap:"14px"}}>
-      <h1 style={{fontSize:"28px",fontWeight:800,textAlign:"center",background:"linear-gradient(90deg,#ff7eb3,#ff9a56,#ffd700,#56ffa4)",backgroundSize:"200%",animation:"shimmer 4s ease-in-out infinite",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Nanu &amp; Pika Adventures</h1>
-      <p style={{color:"#999",fontSize:"14px",maxWidth:"420px",textAlign:"center",lineHeight:1.5}}>Hold the forest road against the ants. Each level is a longer, tougher siege than the last.</p>
-      <div style={{fontSize:"12px",color:"#8b949e",letterSpacing:"0.04em"}}>
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",background:HOUSE.ground,minHeight:"100vh",fontFamily:HOUSE.font,color:HOUSE.body,padding:"28px 16px 40px",gap:"14px"}}>
+      <h1 style={{fontSize:"30px",fontWeight:800,letterSpacing:"-0.02em",textAlign:"center",color:HOUSE.ink}}>Nanu &amp; Pika <span style={{color:HOUSE.accent}}>Adventures</span></h1>
+      <p style={{color:HOUSE.body,fontSize:"14px",maxWidth:"420px",textAlign:"center",lineHeight:1.5}}>Hold the forest road against the ants. Each level is a longer, tougher siege than the last.</p>
+      <div style={{fontSize:"11px",color:HOUSE.muted,letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"ui-monospace, SFMono-Regular, Menlo, monospace"}}>
         {allCleared?"Every level cleared":`Level ${nextIdx+1} of ${LEVELS.length}`} · <span style={{color:"#ffd700"}}>{totalStars(progress)} / {LEVELS.length*3} ★</span>
       </div>
-      <button onClick={()=>playLevel(allCleared?LEVELS.length-1:nextIdx)} style={{...btn,padding:"12px 32px",fontSize:"16px",background:"linear-gradient(135deg,#43e97b,#38f9d7)",color:"#0d1117",boxShadow:"0 2px 20px rgba(67,233,123,0.3)"}}>
+      <button onClick={()=>playLevel(allCleared?LEVELS.length-1:nextIdx)} style={{...btn,padding:"12px 32px",fontSize:"16px",background:HOUSE.action,color:"#fff",boxShadow:"0 4px 24px rgba(124,58,237,0.35)"}}>
         {allCleared?`Replay ${LEVELS[LEVELS.length-1].name}`:`${nextIdx===0?"Start":"Continue"}: ${LEVELS[nextIdx].name}`}
       </button>
       <ol style={{listStyle:"none",padding:0,margin:"8px 0 0",display:"flex",flexDirection:"column",gap:"6px",width:"100%",maxWidth:"420px"}} aria-label="Campaign progress">
@@ -552,14 +605,14 @@ export default function NanuPikaAdventures(){
                 onClick={()=>open&&playLevel(i)}
                 disabled={!open}
                 aria-label={`Level ${i+1}, ${lv.name}${rec?`, cleared with ${rec.stars} of 3 stars`:open?", next up":", locked"}`}
-                style={{width:"100%",display:"flex",alignItems:"center",gap:"12px",padding:"10px 12px",textAlign:"left",borderRadius:"10px",cursor:open?"pointer":"not-allowed",color:"#c9d1d9",
-                  background:current?"rgba(100,255,150,0.10)":"rgba(255,255,255,0.03)",
-                  border:current?"2px solid rgba(100,255,150,0.45)":"2px solid transparent",opacity:open?1:0.45}}>
+                style={{width:"100%",display:"flex",alignItems:"center",gap:"12px",padding:"10px 12px",textAlign:"left",borderRadius:"10px",cursor:open?"pointer":"not-allowed",color:HOUSE.ink,
+                  background:current?"rgba(167,139,250,0.10)":"rgba(255,255,255,0.03)",
+                  border:current?`2px solid ${HOUSE.accent}88`:"2px solid transparent",opacity:open?1:0.45}}>
                 <span style={{flexShrink:0,width:"28px",height:"28px",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"13px",fontWeight:800,
-                  background:rec?"#56ffa4":current?"rgba(100,255,150,0.2)":"rgba(255,255,255,0.08)",color:rec?"#0d1117":"#c9d1d9"}}>{rec?"✓":i+1}</span>
+                  background:rec?HOUSE.accent:current?"rgba(167,139,250,0.2)":"rgba(255,255,255,0.08)",color:rec?HOUSE.dark:HOUSE.ink}}>{rec?"✓":i+1}</span>
                 <span style={{flex:1,minWidth:0}}>
-                  <span style={{display:"block",fontSize:"14px",fontWeight:700,color:current?"#56ffa4":"#ddd"}}>{lv.name}</span>
-                  <span style={{display:"block",fontSize:"11px",color:"#8b949e",marginTop:"2px"}}>{open?lv.blurb:"Clear the level before to unlock."}</span>
+                  <span style={{display:"block",fontSize:"14px",fontWeight:700,color:current?HOUSE.accent:HOUSE.ink}}>{lv.name}</span>
+                  <span style={{display:"block",fontSize:"11px",color:HOUSE.muted,marginTop:"2px"}}>{open?lv.blurb:"Clear the level before to unlock."}</span>
                 </span>
                 <span style={{flexShrink:0,fontSize:"12px",color:rec?"#ffd700":"#555",letterSpacing:"1px"}} aria-hidden="true">{rec?starLine(rec.stars):open?`${lv.waves} waves`:"🔒"}</span>
               </button>
@@ -567,7 +620,6 @@ export default function NanuPikaAdventures(){
           );
         })}
       </ol>
-      <style>{`@keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}`}</style>
     </div>
   );
 
@@ -586,7 +638,7 @@ export default function NanuPikaAdventures(){
   const speedColor=gameSpeed===1?"#aaa":gameSpeed===2?"#ffd66e":"#ff8c5a";
   const canRetry=!!waveSnapshotRef.current;
   return(
-    <div ref={containerRef} onClick={()=>setActiveTooltip(null)} style={{display:"flex",flexDirection:"column",height:"100dvh",overflow:"hidden",background:"linear-gradient(160deg,#0d1117,#161b22,#1a2332)",fontFamily:"'Trebuchet MS',sans-serif",color:"#c9d1d9",userSelect:"none",touchAction:"manipulation"}}>
+    <div ref={containerRef} onClick={()=>setActiveTooltip(null)} style={{display:"flex",flexDirection:"column",height:"100dvh",overflow:"hidden",background:HOUSE.ground,fontFamily:HOUSE.font,color:HOUSE.body,userSelect:"none",touchAction:"manipulation"}}>
 
       {/* ── Canvas area (fills remaining space) ── */}
       <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",minHeight:0}}>
@@ -643,7 +695,7 @@ export default function NanuPikaAdventures(){
                   onClick={()=>upgradeTower(selTower.row,selTower.col)}
                   disabled={ui.gold<upCost}
                   title={ui.gold>=upCost?`Upgrade ${selTI.name} to Lv.${selTD.level+1} for ${upCost}g`:`Need ${upCost}g to upgrade (you have ${ui.gold}g)`}
-                  style={{...btn,padding:"2px 8px",fontSize:"9px",background:ui.gold>=upCost?"linear-gradient(135deg,#43e97b,#38f9d7)":"#333",color:ui.gold>=upCost?"#0d1117":"#555"}}
+                  style={{...btn,padding:"2px 8px",fontSize:"9px",background:ui.gold>=upCost?HOUSE.action:"#1b4332",color:ui.gold>=upCost?"#fff":HOUSE.muted}}
                 >Upgrade · {upCost}g</button>
                 <button
                   onClick={()=>sellTower(selTower.row,selTower.col)}
@@ -716,7 +768,7 @@ export default function NanuPikaAdventures(){
             <button
               onClick={startWave}
               title={`Begin Wave ${ui.wave}. ${waveSize(ui.wave)} ants will spawn. Once it starts, you can't place towers until the wave ends.`}
-              style={{...btn,background:"linear-gradient(135deg,#43e97b,#38f9d7)",color:"#0d1117",padding:"7px 18px"}}
+              style={{...btn,background:HOUSE.action,color:"#fff",padding:"7px 18px"}}
             >Start Wave {ui.wave}</button>
             <button
               onClick={cycleSpeed}
@@ -757,7 +809,7 @@ export default function NanuPikaAdventures(){
             {ui.phase==="gameover"&&<button
               onClick={retryWave}
               title={`Restart Wave ${ui.wave} from the start of this wave. Restores your towers, gold, lives and score to what they were when this wave began.`}
-              style={{...btn,background:"linear-gradient(135deg,#f7971e,#ffd200)",color:"#0d1117",padding:"7px 18px"}}
+              style={{...btn,background:HOUSE.action,color:"#fff",padding:"7px 18px"}}
             >Retry Wave {ui.wave}</button>}
             {ui.phase==="victory"&&(
               <div style={{padding:"5px 12px",fontSize:"13px",color:"#ffd700",letterSpacing:"2px"}} aria-label={`${ui.stars} of 3 stars`}>{starLine(ui.stars)}</div>
@@ -765,12 +817,12 @@ export default function NanuPikaAdventures(){
             {ui.phase==="victory"&&levelIdx<LEVELS.length-1&&<button
               onClick={()=>initGame(levelIdx+1)}
               title={`Go on to Level ${levelIdx+2}: ${LEVELS[levelIdx+1].name}.`}
-              style={{...btn,background:"linear-gradient(135deg,#43e97b,#38f9d7)",color:"#0d1117",padding:"7px 18px"}}
+              style={{...btn,background:HOUSE.action,color:"#fff",padding:"7px 18px"}}
             >Next: {LEVELS[levelIdx+1].name} →</button>}
             <button
               onClick={()=>initGame(levelIdx)}
               title={ui.phase==="victory"?"Play this level again for more stars.":"Start this level again from Wave 1."}
-              style={{...btn,background:ui.phase==="victory"?"rgba(255,255,255,0.08)":"linear-gradient(135deg,#f093fb,#f5576c)",color:ui.phase==="victory"?"#ddd":"#fff",padding:"7px 18px"}}
+              style={{...btn,background:"rgba(255,255,255,0.08)",color:HOUSE.ink,padding:"7px 18px"}}
             >{ui.phase==="victory"?"Replay":"Restart Level"}</button>
             <button
               onClick={()=>setStarted(false)}
@@ -789,7 +841,7 @@ export default function NanuPikaAdventures(){
         </div>
       </div>
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}@keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
     </div>
   );
 }

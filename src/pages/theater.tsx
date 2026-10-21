@@ -1,7 +1,12 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { track } from 'src/lib/analytics'
 import { route } from 'src/lib/routes'
+import { loadJournal, saveJournal, touch } from 'src/lib/playJournal'
+import { readSnapshot } from 'src/lib/returningSnapshot'
+import { welcomeBack, type Billing, type Welcome } from 'src/lib/welcomeBack'
+import { loadRecent, pickLine, remember, saveRecent } from 'src/lib/narrator'
 
 /**
  * The Zero Theater — the games staged as productions.
@@ -154,7 +159,96 @@ const REPERTORY: Act[] = [
   },
 ]
 
-function Playbill({ production, act }: { production: Production; act: string }) {
+const BILLINGS: Billing[] = REPERTORY.flatMap((act) =>
+  act.productions.map(({ id, title, logline, href }) => ({ id, title, logline, href })),
+)
+
+function browserStorage(): Storage | null {
+  try {
+    return typeof window === 'undefined' ? null : window.localStorage
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The returning player's welcome, read after mount from this browser only.
+ * Null on a first visit (or before mount), so the server render and a cold
+ * visit show the Theater unchanged. Opening the Theater counts as a visit:
+ * the journal's clock is moved forward after the welcome has been worked out.
+ */
+type Greeting = Welcome & { line: { id: string; text: string } | null }
+
+function useWelcome(): Greeting | null {
+  const [welcome, setWelcome] = useState<Greeting | null>(null)
+  useEffect(() => {
+    const storage = browserStorage()
+    if (!storage) return
+    const now = new Date()
+    const snapshot = readSnapshot(storage, now)
+    const result = welcomeBack(snapshot, BILLINGS)
+    // The narrator only speaks to someone with history, like the welcome itself.
+    let line: Greeting['line'] = null
+    if (result) {
+      const recent = loadRecent(storage)
+      line = pickLine({ ...snapshot, daysAway: result.daysAway }, recent)
+      saveRecent(storage, remember(recent, line.id))
+    }
+    setWelcome(result && { ...result, line })
+    const journal = loadJournal(storage)
+    if (journal) saveJournal(storage, touch(journal, now))
+    if (result) {
+      track('theater_welcome', {
+        page: '/theater',
+        metadata: { days_away: result.daysAway, notes: result.notes.map((n) => n.kind).join(','), line: line?.id ?? null },
+      })
+    }
+  }, [])
+  return welcome
+}
+
+function WelcomeBack({ welcome }: { welcome: Greeting }) {
+  return (
+    <section
+      aria-label="Welcome back"
+      className="mx-auto mb-12 max-w-3xl rounded-xl border border-candy-400/25 bg-forest-900/50 p-5 sm:p-6"
+    >
+      <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-candy-400/90">
+        Your seat is saved
+      </p>
+      <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl">{welcome.greeting}</h2>
+      {welcome.line && (
+        <p className="mt-2 border-l-2 border-candy-400/40 pl-3 text-sm italic leading-relaxed text-forest-300">
+          <span className="sr-only">From the house: </span>
+          {welcome.line.text}
+        </p>
+      )}
+      {welcome.notes.length > 0 && (
+        <ul className="mt-4 space-y-3">
+          {welcome.notes.map((note) => (
+            <li key={`${note.kind}-${note.href}`} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+              <p className="text-sm leading-relaxed text-forest-200">{note.text}</p>
+              <Link
+                href={note.href}
+                onClick={() =>
+                  track('cta_click', {
+                    page: '/theater',
+                    metadata: { location: 'theater_welcome', kind: note.kind, target: note.href },
+                  })
+                }
+                className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-candy-400 transition-colors hover:text-candy-300"
+              >
+                {note.cta} →
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+function Playbill({ production, act, progress }: { production: Production; act: string; progress?: string }) {
   return (
     <Link
       href={production.href}
@@ -187,14 +281,21 @@ function Playbill({ production, act }: { production: Production; act: string }) 
       <p className="mt-3 border-l-2 border-forest-800 pl-3 text-xs italic leading-relaxed text-forest-400">
         {production.note}
       </p>
-      <span className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-forest-500 transition-colors group-hover:text-forest-300">
-        Take your seat
+      {progress && (
+        <p className="mt-4 font-mono text-xs text-forest-200">
+          <span className="sr-only">Your progress: </span>
+          {progress}
+        </p>
+      )}
+      <span className={`${progress ? 'mt-2' : 'mt-4'} font-mono text-[11px] uppercase tracking-[0.18em] text-forest-500 transition-colors group-hover:text-forest-300`}>
+        {progress ? 'Back to your seat' : 'Take your seat'}
       </span>
     </Link>
   )
 }
 
 export default function Theater() {
+  const welcome = useWelcome()
   return (
     <main className="min-h-screen bg-forest-950 text-white font-sans">
       <Head>
@@ -222,6 +323,8 @@ export default function Theater() {
           </p>
         </header>
 
+        {welcome && <WelcomeBack welcome={welcome} />}
+
         {/* ── Acts ── */}
         <div className="space-y-12">
           {REPERTORY.map((act) => (
@@ -235,7 +338,7 @@ export default function Theater() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {act.productions.map((p) => (
-                  <Playbill key={p.id} production={p} act={act.numeral} />
+                  <Playbill key={p.id} production={p} act={act.numeral} progress={welcome?.progress[p.id]} />
                 ))}
               </div>
             </section>

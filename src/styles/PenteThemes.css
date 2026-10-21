@@ -331,3 +331,59 @@
     animation: none !important;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   THE LATTICE — stones sit on intersections, like a real board
+   ══════════════════════════════════════════════════════════════════
+   The board used to be graph paper: every cell had its own border, so lines
+   doubled and stones sat inside squares. Each empty cell now draws one
+   horizontal and one vertical line through its centre (backgrounds, so the
+   ::before ripple and ::after ghost-stone pseudo-elements stay free). A stone
+   replaces its cell's background, so lines stop at the stone's edge. Edge
+   cells trim the half-line that would overhang the board, and five star
+   points mark the centre and the corners. Scoped away from the Go board,
+   which shares .game-board and draws its own grid (GoBoard.css). */
+.game-board { --pente-line: rgba(90, 60, 20, 0.55); }
+.game-board[data-theme='walnut'] { --pente-line: rgba(255, 226, 183, 0.4); }
+.game-board[data-theme='nebula'] { --pente-line: rgba(196, 181, 253, 0.42); }
+.game-board[data-theme='holo'] { --pente-line: rgba(103, 232, 249, 0.45); }
+.game-board[data-theme='zen'] { --pente-line: rgba(70, 55, 35, 0.5); }
+
+.game-board:not(.go-board) > div > .board-cell {
+  --h-size: 100% 1px;
+  --h-pos: center;
+  --v-size: 1px 100%;
+  --v-pos: center;
+  border-color: transparent;
+}
+.game-board:not(.go-board) > div > .board-cell:not(.black):not(.white):not(.red):not(.blue) {
+  background-image: linear-gradient(var(--pente-line), var(--pente-line)), linear-gradient(var(--pente-line), var(--pente-line));
+  background-size: var(--h-size), var(--v-size);
+  background-position: var(--h-pos), var(--v-pos);
+  background-repeat: no-repeat;
+  /* Cells keep a 1px transparent border for layout; measure the lines from the
+     border box so they meet their neighbours instead of stopping 1px short. */
+  background-origin: border-box;
+}
+.game-board:not(.go-board) > div:first-child > .board-cell { --v-size: 1px 50%; --v-pos: center bottom; }
+.game-board:not(.go-board) > div:last-child > .board-cell { --v-size: 1px 50%; --v-pos: center top; }
+.game-board:not(.go-board) > div > .board-cell:first-child { --h-size: 50% 1px; --h-pos: right center; }
+.game-board:not(.go-board) > div > .board-cell:last-child { --h-size: 50% 1px; --h-pos: left center; }
+
+/* The old corner intersection dot belongs to the graph-paper model. */
+.game-board:not(.go-board) > div > .board-cell:not(.ripple)::before { display: none; }
+
+/* Star points: centre and the four 4-4 points of a 19×19 board. */
+.game-board:not(.go-board) > div:nth-child(4) > .board-cell:is(:nth-child(4), :nth-child(16)):not(.black):not(.white):not(.red):not(.blue):not(.ripple)::before,
+.game-board:not(.go-board) > div:nth-child(16) > .board-cell:is(:nth-child(4), :nth-child(16)):not(.black):not(.white):not(.red):not(.blue):not(.ripple)::before,
+.game-board:not(.go-board) > div:nth-child(10) > .board-cell:nth-child(10):not(.black):not(.white):not(.red):not(.blue):not(.ripple)::before {
+  display: block;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--pente-line);
+  opacity: 1;
+}

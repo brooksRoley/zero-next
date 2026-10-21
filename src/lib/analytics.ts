@@ -7,6 +7,7 @@
  * Page views are fired globally from _app.tsx — do NOT call track('page_view')
  * from individual pages or you'll double-count every view.
  */
+import { noteGameEvent } from 'src/lib/playJournal'
 
 const SESSION_ID_KEY = 'br_session_id'
 const ANON_ID_KEY = 'br_anon_id'
@@ -135,6 +136,9 @@ export function trackGame(
   metadata: Record<string, unknown> = {},
 ): void {
   track(event, { metadata: { ...metadata, game } })
+  // The same event feeds this browser's play journal (src/lib/playJournal.ts),
+  // which cross-game features like the Theater's welcome back read.
+  noteGameEvent(event, game, metadata)
 }
 
 type GameTrackerState = { moveCount: number; finished: boolean }
