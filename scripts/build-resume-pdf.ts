@@ -12,7 +12,7 @@ import { execFileSync } from 'child_process'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
-import { EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from '../src/lib/resume'
+import { EDUCATION, EXPERIENCE, INTERLUDES, LOCATION, SKILLS, SUMMARY } from '../src/lib/resume'
 
 // The email appears on the PDF only, never in the page's HTML. Kept in pieces
 // so a plain-text scrape of this repository doesn't lift it whole. No phone
@@ -28,7 +28,9 @@ const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 const roles = EXPERIENCE.map((r, i) => {
-  const interlude = i === INTERLUDE.afterIndex ? `<p class="interlude">${esc(INTERLUDE.text)}</p>` : ''
+  const interlude = INTERLUDES.filter((g) => g.afterIndex === i)
+    .map((g) => `<p class="interlude">${esc(g.text)}</p>`)
+    .join('')
   return `<section class="role">
     <div class="role-head"><h3>${esc(r.org)} <span>— ${esc(r.role)}</span></h3><p class="dates">${esc(r.dates)}</p></div>
     <ul>${r.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>

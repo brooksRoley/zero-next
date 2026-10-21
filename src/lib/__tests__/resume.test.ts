@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'fs'
 import path from 'path'
-import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume'
+import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDES, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume'
 
 // Everything a visitor reads on /resume, as one string.
 const ALL_TEXT = [
-  SUMMARY, LOCATION, AVAILABILITY, INTERLUDE.text,
+  SUMMARY, LOCATION, AVAILABILITY, ...INTERLUDES.map((g) => g.text),
   ...EXPERIENCE.flatMap((r) => [r.org, r.role, r.dates, ...r.bullets]),
   ...SKILLS.flatMap((g) => [g.label, ...g.items]),
   EDUCATION.school, EDUCATION.degree, EDUCATION.year,
@@ -47,9 +47,17 @@ describe('resume data', () => {
     }
   })
 
-  it('places the interlude between two real entries', () => {
-    expect(INTERLUDE.afterIndex).toBeGreaterThanOrEqual(0)
-    expect(INTERLUDE.afterIndex).toBeLessThan(EXPERIENCE.length - 1)
+  it('places every interlude between two real entries', () => {
+    for (const g of INTERLUDES) {
+      expect(g.afterIndex, g.text).toBeGreaterThanOrEqual(0)
+      expect(g.afterIndex, g.text).toBeLessThan(EXPERIENCE.length - 1)
+    }
+  })
+
+  // Grove ended with a 2022 layoff; the resume said 2023 for over a year.
+  it('dates Grove to 2022 and explains every break after it', () => {
+    expect(EXPERIENCE.find((r) => r.org.startsWith('Grove'))?.dates).toBe('2019 – 2022')
+    expect(INTERLUDES.map((g) => g.text.slice(0, 4))).toEqual(['2025', '2022'])
   })
 
   // The repository and the PDF are public; the PDF carries an email and links only.
