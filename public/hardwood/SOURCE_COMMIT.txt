@@ -14,22 +14,21 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-Rebuilt 2026-10-20 (zero-next branch feat/play-journal).
+Rebuilt 2026-10-21 (zero-next branch games/hardwood-sim-overhaul).
 
-BballTactics source:
-  branch fix/hardwood-embed-fit, based on b75f7f0 (= f7b01e3 + a package.json
-  script only), with a 3-file client change NOT YET COMMITTED in BballTactics:
-    - client/components/TutorialPhase1.vue: tutorial sized to the app column
-      (width 100%, height clamp(520px, 78vh, 760px)) instead of 100vw/100vh,
-      which overflowed the 900px column and clipped the Draft Capital bar.
-    - client/App.vue, index.html: title "B-Ball Tactics" -> "Hardwood Autochess",
-      matching the site and the Theater.
-  When that change is committed in BballTactics, replace this block with its SHA.
+BballTactics source: 7e6fbd5a270bc95943fe6820eb61c3391ba7a139 (main, clean
+tree: "Merge pull request #1 from brooksRoley/launcher/m0"). Includes the
+Oct 20 sim overhaul (rounds that score, OT), the Pixi court renderer, the
+Tip Off fix with the WASM engine loaded, bench heroes in real games, and the
+tutorial coach card no longer covering the scoreboard.
 
-Build: VITE_API_BASE='' vite build --base=/hardwood/ --outDir <scratch dir>
-Copied: index.html, assets/index-BSWQi1kl.js, assets/index-u1kvMI1u.css.
-Not copied: engine.js, engine.wasm, engine_roster.json — byte-identical to the
-fresh build (cmp), so left as they were.
+Build: VITE_API_BASE='' npx vite build --base=/hardwood/ --outDir <scratch dir>
+Copied: index.html, engine.js, engine.wasm, engine_roster.json and all ten
+files in assets/ (the client is now code-split; Pixi renderers load as
+chunks). Removed the previous monolith assets/index-BSWQi1kl.js and
+assets/index-u1kvMI1u.css. Every copied file verified with cmp against the
+build. The engine changed this time (216,078 -> 230,301 bytes): the deployed
+engine predated the sim overhaul.
 
 PROVENANCE VERIFIED 2026-10-20
   Before changing anything, BballTactics b75f7f0 was built unmodified with the
@@ -40,9 +39,9 @@ PROVENANCE VERIFIED 2026-10-20
 
 HOW TO REBUILD / RE-SYNC (and what to update here)
 --------------------------------------------------
-DO NOT run BballTactics' `npm run build:hardwood` as written: it builds straight
-into ../zero-next/public/hardwood with --emptyOutDir, which deletes this file.
-Build into a scratch directory and copy what changed.
+BballTactics' `npm run build:hardwood` now builds into its own dist-hardwood/
+(changed 2026-10-20), so it no longer deletes this file. Still build outside
+zero-next and copy what changed.
 
 In BballTactics: git fetch, then build from CURRENT origin/main (the canonical
 build is the July monolith line, not the older May base):
