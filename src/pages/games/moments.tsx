@@ -46,15 +46,19 @@ function threeArcPoints(): string {
   return pts.join(' ')
 }
 
-const LINE = '#2b3f37'
+// Court lines: bright enough to read the floor at a glance on the dark stage.
+const LINE = '#4a6b5d'
 const ARC_POINTS = threeArcPoints()
 
 function Court({
   children,
   onPick,
+  spotlight,
 }: {
   children: React.ReactNode
   onPick?: (p: Vec) => void
+  /** Where the stage light falls: the frozen protagonist (the house's one accent). */
+  spotlight?: Vec
 }) {
   return (
     <svg
@@ -71,14 +75,38 @@ function Court({
       }}
       style={{ background: '#071410', cursor: onPick ? 'crosshair' : 'default' }}
     >
+      <defs>
+        {/* Dark hardwood: 2-foot planks, two tones, barely there — a floor, not a texture demo. */}
+        <pattern id="mo-planks" width={4 * S} height={COURT_H * S} patternUnits="userSpaceOnUse">
+          <rect width={2 * S} height={COURT_H * S} fill="#0a1a13" />
+          <rect x={2 * S} width={2 * S} height={COURT_H * S} fill="#0c1e16" />
+          <line x1={0} y1={0} x2={0} y2={COURT_H * S} stroke="#050e0a" strokeWidth={1} />
+        </pattern>
+        <radialGradient id="mo-light" r="0.5">
+          <stop offset="0%" stopColor={GOLD} stopOpacity={0.22} />
+          <stop offset="60%" stopColor={GOLD} stopOpacity={0.05} />
+          <stop offset="100%" stopColor={GOLD} stopOpacity={0} />
+        </radialGradient>
+        <filter id="mo-shadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.6" />
+        </filter>
+      </defs>
+      <rect width={COURT_W * S} height={COURT_H * S} fill="url(#mo-planks)" />
+      {spotlight && (
+        <circle cx={px(spotlight.x)} cy={py(spotlight.y)} r={16 * S} fill="url(#mo-light)" pointerEvents="none" />
+      )}
       {/* boundary + half-court line */}
       <rect x={1} y={1} width={COURT_W * S - 2} height={COURT_H * S - 2} fill="none" stroke={LINE} strokeWidth={2} />
       {/* paint */}
-      <rect x={px(17)} y={py(19)} width={px(16)} height={19 * S} fill="none" stroke={LINE} strokeWidth={2} />
+      <rect x={px(17)} y={py(19)} width={px(16)} height={19 * S} fill="#0f2a1f" fillOpacity={0.7} stroke={LINE} strokeWidth={2} />
       <circle cx={px(25)} cy={py(19)} r={6 * S} fill="none" stroke={LINE} strokeWidth={2} />
       {/* backboard + rim */}
-      <line x1={px(22)} y1={py(4)} x2={px(28)} y2={py(4)} stroke="#4b5f57" strokeWidth={3} />
-      <circle cx={px(HOOP.x)} cy={py(HOOP.y)} r={0.75 * S} fill="none" stroke="#8a6d2f" strokeWidth={2.5} />
+      <line x1={px(22)} y1={py(4)} x2={px(28)} y2={py(4)} stroke="#c8d6cf" strokeWidth={3} strokeLinecap="round" />
+      <path
+        d={`M ${px(HOOP.x - 0.75)} ${py(HOOP.y)} l ${0.25 * S} ${0.9 * S} h ${S} l ${0.25 * S} ${-0.9 * S}`}
+        fill="none" stroke="#c8d6cf" strokeOpacity={0.35} strokeWidth={1}
+      />
+      <circle cx={px(HOOP.x)} cy={py(HOOP.y)} r={0.75 * S} fill="none" stroke="#e8792b" strokeWidth={3} />
       {/* three-point line */}
       <line x1={px(2.92)} y1={py(0)} x2={px(2.92)} y2={py(CORNER_BREAK_Y)} stroke={LINE} strokeWidth={2} />
       <line x1={px(47.08)} y1={py(0)} x2={px(47.08)} y2={py(CORNER_BREAK_Y)} stroke={LINE} strokeWidth={2} />
@@ -93,11 +121,14 @@ function ActorDot({
   name,
   fill,
   dim,
+  star,
 }: {
   pos: Vec
   name: string
   fill: string
   dim?: boolean
+  /** The protagonist: a soft halo that breathes (stills under reduced motion). */
+  star?: boolean
 }) {
   const initials = name
     .split(' ')
@@ -105,16 +136,28 @@ function ActorDot({
     .slice(0, 2)
     .join('')
   return (
-    <g opacity={dim ? 0.55 : 1}>
-      <circle cx={px(pos.x)} cy={py(pos.y)} r={11} fill={fill} />
+    <g opacity={dim ? 0.7 : 1}>
+      {star && (
+        <circle
+          cx={px(pos.x)}
+          cy={py(pos.y)}
+          r={21}
+          fill="none"
+          stroke={fill}
+          strokeWidth={2}
+          className="motion-safe:animate-pulse"
+          opacity={0.5}
+        />
+      )}
+      <circle cx={px(pos.x)} cy={py(pos.y)} r={14} fill={fill} stroke="#04120c" strokeWidth={2} filter="url(#mo-shadow)" />
       <text
         x={px(pos.x)}
         y={py(pos.y) + 4}
         textAnchor="middle"
-        fontSize={10}
-        fontFamily="monospace"
+        fontSize={11}
+        fontFamily="Inter, system-ui, sans-serif"
         fill="#04120c"
-        fontWeight={700}
+        fontWeight={800}
       >
         {initials}
       </text>
@@ -216,7 +259,7 @@ export default function PlayoffMoments() {
         {!finished && (
           <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
             <div>
-              <Court onPick={aiming ? setChosen : undefined}>
+              <Court onPick={aiming ? setChosen : undefined} spotlight={moment.protagonist.pos}>
                 {/* reveal: defender reach disks + protagonist reach */}
                 {result && (
                   <g>
@@ -254,7 +297,7 @@ export default function PlayoffMoments() {
                 {moment.defenders.map((d) => (
                   <ActorDot key={d.name} pos={d.pos} name={d.name} fill="#94a3b8" />
                 ))}
-                <ActorDot pos={moment.protagonist.pos} name={moment.protagonist.name} fill={GOLD} />
+                <ActorDot pos={moment.protagonist.pos} name={moment.protagonist.name} fill={GOLD} star />
 
                 {/* reveal: best spot / deny target and history */}
                 {result && (

@@ -7,11 +7,23 @@ import ReadReactBoard, {
 import { LEVELS, evMatrix } from "src/lib/games/readreact/levels";
 import { solveZeroSum } from "src/lib/games/readreact/matrixGame";
 import { track, trackGame } from "src/lib/analytics";
+import {
+  clearScouting, emptyScouting, headlineRead, loadScouting, priorCounts, recordSeries, saveScouting,
+  type Scouting,
+} from "src/lib/games/readreact/scouting";
 import { absoluteUrl } from 'src/lib/routes'
 
 const GOLD = "#FDB927";
 const PROGRESS_KEY = "readreact_progress"; // finished level ids (unlocks next)
 const BEATEN_KEY = "readreact_beaten"; // ids where you beat par (star)
+
+function browserStorage(): Storage | null {
+  try {
+    return typeof window === "undefined" ? null : window.localStorage;
+  } catch {
+    return null;
+  }
+}
 
 function loadIds(key: string): string[] {
   if (typeof window === "undefined") return [];
@@ -29,13 +41,23 @@ export default function ReadAndReact() {
   const [beaten, setBeaten] = useState<string[]>([]);
   const [result, setResult] = useState<SeriesResult | null>(null);
   const [boardKey, setBoardKey] = useState(0);
+  // The scouting report as it stands now, and as it stood when this series
+  // began: the defense plays the series on the file it walked in with.
+  const [scouting, setScouting] = useState<Scouting>(emptyScouting);
+  const [fileAtTipoff, setFileAtTipoff] = useState<Scouting>(emptyScouting);
 
   useEffect(() => {
     setCompleted(loadIds(PROGRESS_KEY));
     setBeaten(loadIds(BEATEN_KEY));
+    const file = loadScouting(browserStorage());
+    setScouting(file);
+    setFileAtTipoff(file);
   }, []);
 
   const level = LEVELS[index];
+  const prior = useMemo(() => priorCounts(fileAtTipoff, level), [fileAtTipoff, level]);
+  const readOnYou = headlineRead(fileAtTipoff, level);
+  const learned = result ? headlineRead(scouting, level) : null;
   const reveal = useMemo(
     () => (result ? solveZeroSum(evMatrix(level)) : null),
     [result, level]
@@ -75,20 +97,42 @@ export default function ReadAndReact() {
         level: level.id,
         result: r.points >= r.benchmark ? "win" : "loss",
       });
+      setScouting((prev) => {
+        const next = recordSeries(prev, level, r.playCounts);
+        saveScouting(browserStorage(), next);
+        return next;
+      });
     },
-    [level.id]
+    [level]
   );
+
+  const handleStart = useCallback(() => {
+    trackGame("game_start", "read-and-react", {
+      level: level.id,
+      scouted: prior.some((c) => c > 0),
+    });
+  }, [level.id, prior]);
+
+  const wipeFile = useCallback(() => {
+    clearScouting(browserStorage());
+    setScouting(emptyScouting());
+    setFileAtTipoff(emptyScouting());
+    setResult(null);
+    setBoardKey((k) => k + 1);
+  }, []);
 
   const goTo = useCallback((i: number) => {
     setIndex(i);
     setResult(null);
+    setFileAtTipoff(scouting);
     setBoardKey((k) => k + 1);
-  }, []);
+  }, [scouting]);
 
   const retry = useCallback(() => {
     setResult(null);
+    setFileAtTipoff(scouting);
     setBoardKey((k) => k + 1);
-  }, []);
+  }, [scouting]);
 
   const isUnlocked = (i: number) =>
     i === 0 || completed.includes(LEVELS[i - 1].id);
@@ -166,9 +210,38 @@ export default function ReadAndReact() {
           <p className="text-sm text-forest-400">Concept: {level.concept}</p>
         </div>
 
+        {/* Scouting report: what the defense remembers from earlier visits */}
+        {readOnYou && (
+          <aside
+            aria-label="Scouting report"
+            className="mb-4 rounded-xl border border-forest-700 bg-forest-900/50 p-4"
+          >
+            <p className="mb-1 font-mono text-xs uppercase tracking-widest text-forest-400">
+              Scouting report on you
+            </p>
+            <p className="text-sm leading-relaxed text-forest-200">
+              Their file covers {readOnYou.series} series of yours: you
+              call <strong className="text-white">{readOnYou.label}</strong>{" "}
+              <span className="font-mono" style={{ color: GOLD }}>
+                {Math.round(readOnYou.share * 100)}%
+              </span>{" "}
+              of the time. Expect the defense to sit on it from the first possession.
+            </p>
+            <button
+              type="button"
+              onClick={wipeFile}
+              className="mt-2 text-xs text-forest-400 underline-offset-2 hover:text-forest-200 hover:underline"
+            >
+              Wipe the file and start fresh
+            </button>
+          </aside>
+        )}
+
         <ReadReactBoard
           key={boardKey}
           level={level}
+          prior={prior}
+          onStart={handleStart}
           onComplete={handleComplete}
         />
 
@@ -207,6 +280,22 @@ export default function ReadAndReact() {
             <p className="mb-4 text-sm leading-relaxed text-forest-300">
               {level.teaching}
             </p>
+
+            {learned && (
+              <p className="mb-4 rounded-lg border border-forest-800 bg-forest-950/40 p-3 text-sm leading-relaxed text-forest-300">
+                <span className="font-mono text-xs uppercase tracking-widest text-forest-400">
+                  What their scouts wrote down ·{" "}
+                </span>
+                You call {learned.label} {Math.round(learned.share * 100)}% of the time
+                {(() => {
+                  const i = level.plays.findIndex((p) => p.id === learned.playId);
+                  const mix = reveal.rowMix[i] ?? 0;
+                  return learned.share > mix + 0.1
+                    ? ` — the unbeatable mix calls it ${Math.round(mix * 100)}%. They'll be waiting for it next time.`
+                    : ". That's close to the unbeatable mix, so there's not much for them to sit on.";
+                })()}
+              </p>
+            )}
 
             <div className="flex flex-wrap gap-3">
               <button

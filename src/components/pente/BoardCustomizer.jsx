@@ -53,7 +53,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`aspect-square rounded-lg transition-all duration-150 ${
                 active
-                  ? 'ring-2 ring-candy-pink ring-offset-2 ring-offset-forest-950 scale-105'
+                  ? 'ring-2 ring-candy-400 ring-offset-2 ring-offset-forest-950 scale-105'
                   : 'ring-1 ring-forest-700/60 hover:ring-forest-500 hover:scale-105'
               }`}
               style={{ background: theme.swatch }}
@@ -79,7 +79,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`flex-1 flex flex-col items-center gap-1 rounded-lg px-1 py-2 border transition-colors ${
                 active
-                  ? 'bg-forest-800/80 border-candy-pink/60 text-white'
+                  ? 'bg-forest-800/80 border-candy-400/60 text-white'
                   : 'bg-forest-900/60 border-forest-700/40 text-forest-400 hover:text-forest-200 hover:border-forest-500'
               }`}
             >
@@ -106,7 +106,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`flex-1 rounded-lg px-2 py-2 text-[11px] border transition-colors ${
                 active
-                  ? 'bg-forest-800/80 border-candy-pink/60 text-white'
+                  ? 'bg-forest-800/80 border-candy-400/60 text-white'
                   : 'bg-forest-900/60 border-forest-700/40 text-forest-400 hover:text-forest-200 hover:border-forest-500'
               }`}
             >

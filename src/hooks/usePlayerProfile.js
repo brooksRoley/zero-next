@@ -30,7 +30,12 @@ const defaultProfile = {
   eloHistory: [],
   solvedPuzzles: [],
   attemptedPuzzles: {},
+  // Re-solves of already-solved puzzles, which the rating history skips (they
+  // move no rating). Local only; src/lib/review.ts reads it to advance reviews.
+  reviewLog: [],
 }
+
+const REVIEW_LOG_CAP = 200
 
 function profileFromLocal() {
   if (typeof window === 'undefined') return defaultProfile
@@ -62,6 +67,7 @@ function profileFromLocal() {
     eloHistory: progress.eloHistory ?? [],
     solvedPuzzles: progress.solved ?? [],
     attemptedPuzzles: progress.attempted ?? {},
+    reviewLog: Array.isArray(progress.reviewLog) ? progress.reviewLog : [],
   }
 }
 
@@ -82,6 +88,7 @@ function profileToLocal(profile) {
     eloHistory: profile.eloHistory,
     gamesPlayed: profile.gamesPlayed,
     gamesWon: profile.gamesWon,
+    reviewLog: profile.reviewLog,
   }
   localStorage.setItem(LOCAL_KEY, JSON.stringify(compat))
 }
@@ -182,6 +189,8 @@ function mergeProfiles(local, remote) {
     ? local.eloHistory : remote.eloHistory
   // Prefer local name if remote is empty
   if (!merged.name && local.name) merged.name = local.name
+  // The review log never syncs, so the local copy is the only copy.
+  merged.reviewLog = local.reviewLog ?? []
   return merged
 }
 
@@ -258,8 +267,14 @@ export default function usePlayerProfile() {
 
     setProfile(prev => {
       if (prev.solvedPuzzles.includes(puzzleId)) {
+        // No rating for a re-solve, but a review needs to know it happened.
         result = { delta: 0, newElo: prev.elo, zone: getZone(prev.elo) }
-        return prev
+        const updated = {
+          ...prev,
+          reviewLog: [...(prev.reviewLog ?? []), { timestamp: Date.now(), puzzleId, event: 'solve' }].slice(-REVIEW_LOG_CAP),
+        }
+        persist(updated)
+        return updated
       }
 
       const today = new Date().toISOString().slice(0, 10)

@@ -1,14 +1,35 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import PuzzleCatalog from 'src/components/go/PuzzleCatalog'
 import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'
 import { rankLabel } from 'src/lib/go/elo'
+import { PUZZLE_BY_ID } from 'src/lib/go/puzzles'
+import { dueForReview, goAttempts, nextDue } from 'src/lib/review'
+import ReviewLane from 'src/components/ReviewLane'
 
 export default function GoPuzzlesIndex() {
   const { ready, goElo, peakElo, attempts } = useGoPlayerProfile()
   const totalAttempts = attempts.length
   const solvedCount = attempts.filter(a => a.solved).length
+
+  // "Now" is read after mount so the server render never guesses the client's clock.
+  const [now, setNow] = useState(null)
+  useEffect(() => { setNow(Date.now()) }, [])
+  const review = useMemo(() => {
+    if (!now) return { items: [], next: null }
+    const history = goAttempts(attempts).filter(a => PUZZLE_BY_ID[a.puzzleId])
+    const items = dueForReview(history, now).map(item => {
+      const p = PUZZLE_BY_ID[item.puzzleId]
+      return {
+        id: item.puzzleId,
+        title: p.title,
+        detail: `missed ${item.lapses}× · rating ${p.rating}`,
+        href: `/posts/go/puzzles/${item.puzzleId}`,
+      }
+    })
+    return { items, next: nextDue(history) }
+  }, [attempts, now])
 
   return (
     <div className="min-h-screen bg-forest-950 text-white">
@@ -64,6 +85,8 @@ export default function GoPuzzlesIndex() {
             </div>
           </div>
         )}
+
+        {ready && now && <ReviewLane items={review.items} nextDueAt={review.next} now={now} />}
 
         <PuzzleCatalog />
       </div>

@@ -58,9 +58,6 @@ export default function HardwoodAutochess() {
             >
               Open full screen ↗
             </a>
-            <span className="text-xs text-forest-500">
-              If the embed below doesn&apos;t load, the full-screen link always works.
-            </span>
           </div>
         </header>
 

@@ -9,11 +9,20 @@ export interface SeriesResult {
   points: number;
   benchmark: number;
   possessions: number;
+  /** How many times each of the level's plays was called this series. */
+  playCounts: number[];
 }
 
 interface Props {
   level: RRLevel;
   onComplete: (r: SeriesResult) => void;
+  /**
+   * Pseudo-counts from the scouting report (scouting.ts): what the defense
+   * already believes about you before the first possession. Zeros = no file.
+   */
+  prior?: number[];
+  /** Fires once, on the series' first play call. */
+  onStart?: () => void;
 }
 
 interface LogEntry {
@@ -24,7 +33,7 @@ interface LogEntry {
   ev: number;
 }
 
-export default function ReadReactBoard({ level, onComplete }: Props) {
+export default function ReadReactBoard({ level, onComplete, prior, onStart }: Props) {
   const A = useMemo(() => evMatrix(level), [level]);
   const benchmark = useMemo(
     () => solveZeroSum(A).value * level.possessions,
@@ -39,11 +48,18 @@ export default function ReadReactBoard({ level, onComplete }: Props) {
   const [last, setLast] = useState<LogEntry | null>(null);
   const [done, setDone] = useState(false);
 
+  // What the defense keys on: this series' calls plus what its scouts already knew.
+  const believed = useCallback(
+    (counts: number[]) => counts.map((c, i) => c + (prior?.[i] ?? 0)),
+    [prior]
+  );
+
   const callPlay = useCallback(
     (i: number) => {
       if (done) return;
+      if (possession === 0) onStart?.();
       // Defense reacts to the tendencies revealed BEFORE this possession.
-      const j = chooseScheme(A, playCounts);
+      const j = chooseScheme(A, believed(playCounts));
       const make = level.makeGrid[i][j];
       const made = Math.random() < make;
       const scored = made ? level.plays[i].pts : 0;
@@ -70,14 +86,15 @@ export default function ReadReactBoard({ level, onComplete }: Props) {
           points: nextPoints,
           benchmark,
           possessions: level.possessions,
+          playCounts: nextCounts,
         });
       }
     },
-    [A, benchmark, done, level, onComplete, playCounts, points, possession]
+    [A, believed, benchmark, done, level, onComplete, onStart, playCounts, points, possession]
   );
 
   // Which scheme is the defense currently leaning toward (given history so far)?
-  const currentScheme = done ? -1 : chooseScheme(A, playCounts);
+  const currentScheme = done ? -1 : chooseScheme(A, believed(playCounts));
 
   return (
     <div className="rounded-xl border border-forest-700 bg-forest-900/60 p-4 sm:p-6">
