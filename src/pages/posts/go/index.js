@@ -428,7 +428,7 @@ export default function GoPage() {
           >
             &larr;
           </Link>
-          <span className="text-xs font-semibold text-white tracking-wide mr-3">Go</span>
+          <h1 className="text-xs font-semibold text-white tracking-wide mr-3">Go</h1>
           <div className="flex gap-0.5">
             <span className="text-xs px-3 py-1.5 rounded-md bg-candy-500/15 text-candy-300 ring-1 ring-candy-400/30">
               Play

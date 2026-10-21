@@ -28,35 +28,31 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | 0003 | `0003_players_daily_challenge.sql` | `players.daily_challenge` JSONB column | ✅ 2026-07-14 |
 | 0004 | `0004_game_results.sql` | `game_results` table (per-game ELO history) | ✅ 2026-07-14 |
 | 0005 | `0005_players_game_elo.sql` | `players.game_elo` + `game_peak_elo` (puzzle/game rating split) | ✅ 2026-07-14 |
-| 0006 | `0006_puzzle_attempts.sql` | `puzzle_attempts` table + indexes (Pente) | ⏳ pending — **verify columns first** |
+| 0006 | `0006_puzzle_attempts.sql` | `puzzle_attempts` table + indexes + RLS (Pente) | ✅ live (pre-dates tracking; file reconciled to the live schema 2026-10-20) |
 | 0007 | `0007_go_puzzle_attempts.sql` | `go_puzzle_attempts` table + indexes + RLS (Go) | ✅ 2026-10-15 (the table did not exist, so there was nothing to diff) |
+| 0008 | `0008_puzzle_bank.sql` | `puzzle_bank` table + indexes + RLS (Pente) | ✅ live (pre-dates tracking; file copied from the live schema 2026-10-20) |
 
-### Before applying 0006
+### 0006 and 0008: documented, not applied
 
-Update 2026-10-15: `go_puzzle_attempts` turned out **not** to exist live, so 0007
-was applied as written (with RLS). The rest of this note now applies to 0006 only.
+Both tables were created by hand before this repo tracked migrations. On
+2026-10-20 their columns, constraints, indexes and policies were read from the
+live database (`information_schema.columns`, `pg_constraint`, `pg_indexes`,
+`pg_policies`) and the files rewritten to match. The previous 0006 had been
+inferred from the API handler and was wrong in four places: `id` is a `bigint`
+identity (not a uuid), `attempts` is `smallint`, the indexes have different
+names (and two it declared do not exist), and it had no RLS policies. Applying
+it would have been a no-op on the table but would have created two stray
+indexes. Running either file now changes nothing.
 
-Both tables were believed to exist in the live database — they have been written to by
-`/api/pente/puzzle-attempts` and `/api/go/puzzle-attempts` since well before this
-repo tracked migrations. These two files exist to close that gap: the schema was
-undocumented in version control, so nobody could tell what shape the live tables
-were without opening the dashboard.
+**Open issue (0008):** the policy `anon can update puzzle_bank stats` is
+`for update using (true) with check (true)`, so anyone holding the public anon
+key can rewrite any column of any bank puzzle (board, solutions), not just the
+stats. Fixing it means moving the stats update in `/api/pente/puzzle-attempts`
+behind a column-restricted `security definer` function or the service-role key,
+then narrowing the policy. Not done here because it changes production
+permissions and needs its own review.
 
-The column lists were **inferred from the API handlers that write them**, not read
-off the live schema (the session that wrote them had no Supabase schema access).
-So before running either file:
-
-1. Diff it against the live table (`select column_name, data_type, is_nullable from
-   information_schema.columns where table_name = 'puzzle_attempts';`).
-2. Reconcile any difference **in the file**, so the tracked schema matches reality.
-3. Then run it — `create table if not exists` makes it a no-op on the existing
-   table, so applying it will *not* repair a column that is already wrong. That is
-   the point: these files document, they do not migrate.
-
-Related known gap: `puzzle_bank` (written by `/api/pente/puzzle-bank`) is also
-live-but-untracked and still has no file here.
-
-All three were applied 2026-07-14 via the Supabase MCP `apply_migration` tool (so
+0003, 0004 and 0005 were applied 2026-07-14 via the Supabase MCP `apply_migration` tool (so
 they also appear in the project's tracked migration history, not just the SQL
 editor). Verified same day: the three new `players` columns exist, `game_results`
 + its index exist, all 16 existing players had `game_elo`/`game_peak_elo` seeded
