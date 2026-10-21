@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link'
 import MarioButton from 'src/components/mario';
 import Reveal from 'src/components/Reveal';
-import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume';
+import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDES, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume';
 import { track } from 'src/lib/analytics'
 
 const CARD = 'w-full rounded-2xl bg-forest-900/85 backdrop-blur-md shadow-xl border border-forest-700/40 p-6 sm:p-8';
@@ -113,9 +113,9 @@ const Resume = () => {
                     ))}
                   </ul>
                 </article>
-                {i === INTERLUDE.afterIndex && (
-                  <p className="text-sm italic text-forest-200">{INTERLUDE.text}</p>
-                )}
+                {INTERLUDES.filter((g) => g.afterIndex === i).map((g) => (
+                  <p key={g.text} className="text-sm italic text-forest-200">{g.text}</p>
+                ))}
               </React.Fragment>
             ))}
           </div>
