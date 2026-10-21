@@ -35,11 +35,18 @@ export const SITE_DESCRIPTION =
   'Brooks Roley — full-stack software engineer with a front-end lean: React, TypeScript, Node and Python. ' +
   'Open to full-time roles.'
 
-// One line for the year between roles, placed after the entry at this index.
-export const INTERLUDE = {
-  afterIndex: 0,
-  text: '2025 — Family leave: settled a parent’s estate and relocated to Orange County.',
-}
+// One line per break between roles, each placed after the entry at its index.
+// Facts only, as Brooks stated them; the fuller story is for the interview.
+export const INTERLUDES = [
+  {
+    afterIndex: 0,
+    text: '2025 — Family leave after my father’s death: settled his estate and moved to Orange County.',
+  },
+  {
+    afterIndex: 1,
+    text: '2022 – 2024 — Career break: family caregiving during my father’s illness.',
+  },
+]
 
 export const EXPERIENCE: ResumeRole[] = [
   {
@@ -64,7 +71,7 @@ export const EXPERIENCE: ResumeRole[] = [
   {
     org: 'Grove Collaborative',
     role: 'Software Engineer II',
-    dates: '2019 – 2023',
+    dates: '2019 – 2022',
     bullets: [
       'Full-stack engineer on a Django and Vue e-commerce platform, and Scrum Lead across teams focused on discovery, personalization and engagement.',
       'Led development of a homepage personalization service on AWS SageMaker that responded in 150ms through caching and async workflows, with a custom admin UI.',
