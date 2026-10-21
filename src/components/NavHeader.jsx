@@ -15,6 +15,8 @@ const NAV_LINKS = [
       route('basketballPlatform'),
       route('nba'),
       route('tradeMachine'),
+      route('modelArena'),
+      route('chat'),
       route('guestbook'),
     ],
   },
@@ -32,7 +34,6 @@ const NAV_LINKS = [
       route('nanuPikaTd'),
     ],
   },
-  route('consulting'),
   route('github'),
   route('intake'),
 ];

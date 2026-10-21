@@ -67,19 +67,9 @@ export default function Home() {
           <>
             <SectionHeading number="01" label="Featured" />
             <Reveal>
-              <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
-                  Selected work: web products, sports data tools and games.
-                  <span className="text-[#DADBD9]/88"> Also available for consulting.</span>
-                </p>
-                <Link
-                  href={route('consulting').href}
-                  className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[#B27236] bg-[#B27236]/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#B27236]/20 transition-colors hover:bg-[#B27236]/85 sm:self-auto"
-                >
-                  <span>Work with me</span>
-                  <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">&rarr;</span>
-                </Link>
-              </div>
+              <p className="mb-6 sm:mb-8 max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
+                Selected work: a full-stack sports data platform, AI tools, and the games I build to sharpen the front end.
+              </p>
             </Reveal>
             <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
               <div data-physics-item className="physics-field-item">
@@ -107,17 +97,17 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={200}>
                   <TiltCard>
-                    <Link href={route('pente').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden">
-                        <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-hover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
+                    <Link href={route('basketballPlatform').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
+                        <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-70 card-img-hover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Pente <ArrowIcon />
+                          Basketball Data Platform <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#DADBD9]/68">
-                          Classic strategy board game. Two players, captures, five-in-a-row.
+                          Full-stack NBA system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -129,20 +119,19 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={300}>
                   <TiltCard>
-                    <Link href={route('go').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#B9968D]">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
-                          <span className="w-5 h-5 rounded-full bg-[#f5f5f5] shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                    <Link href={route('modelArena').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
+                        <div className="flex items-center gap-3 text-2xl opacity-60">
+                          <span>&#x2694;&#xFE0F;</span><span>&#x1F916;</span><span>&#x1F3C6;</span>
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Go <ArrowIcon />
+                          Model Arena <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#DADBD9]/68">
-                          Learn the ancient territory game. 9×9, 13×13, or 19×19. Chinese rules.
+                          Compare AI models side by side. Blind battles, speed stats, leaderboard.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -178,19 +167,17 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={500}>
                   <TiltCard>
-                    <Link href={route('modelArena').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
-                        <div className="flex items-center gap-3 text-2xl opacity-60">
-                          <span>&#x2694;&#xFE0F;</span><span>&#x1F916;</span><span>&#x1F3C6;</span>
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                    <Link href={route('pente').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden">
+                        <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-hover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Model Arena <ArrowIcon />
+                          Pente <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#DADBD9]/68">
-                          Compare AI models side by side. Blind battles, speed stats, leaderboard.
+                          Classic strategy board game. Two players, captures, five-in-a-row.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -202,45 +189,20 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={600}>
                   <TiltCard>
-                    <Link href={route('basketballPlatform').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
-                        <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-70 card-img-hover" />
+                    <Link href={route('go').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#B9968D]">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
+                          <span className="w-5 h-5 rounded-full bg-[#f5f5f5] shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                        </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Basketball Data Platform <ArrowIcon />
+                          Go <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#DADBD9]/68">
-                          Full-stack NBA system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS.
-                        </p>
-                      </div>
-                      <div className="tilt-highlight" />
-                    </Link>
-                  </TiltCard>
-                </Reveal>
-              </div>
-
-              <div data-physics-item className="physics-field-item">
-                <Reveal delay={700}>
-                  <TiltCard>
-                    <Link
-                      href={route('consulting').href}
-                      className="group relative overflow-hidden rounded-xl border border-candy-500/40 bg-[#415557]/18 text-[#DADBD9] card-hover-border backdrop-blur-sm ring-1 ring-candy-500/15"
-                    >
-                      <span className="absolute right-3 top-3 z-10 rounded-full bg-candy-600 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
-                        Hire me
-                      </span>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-forest-800/40">
-                        <Image src="/BRLogoTransparent.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-transparent" />
-                      </div>
-                      <div className="relative px-5 pb-5 -mt-8">
-                        <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Consulting <ArrowIcon />
-                        </h3>
-                        <p className="text-sm text-sky-100/70 mt-1">
-                          Strategy sessions, dev sprints, and fractional CTO engagements.
+                          Learn the ancient territory game. 9×9, 13×13, or 19×19. Chinese rules.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -572,8 +534,8 @@ export default function Home() {
         <footer className="border-t border-[#C5E7EA]/10 py-6">
           <div className="flex items-center justify-between text-xs text-[#DADBD9]/46">
             <span>&copy; {new Date().getFullYear()} Brooks Roley</span>
-            <Link href={route('funding').href} className="transition-colors hover:text-[#C5E7EA]">
-              support my work
+            <Link href={route('consulting').href} className="transition-colors hover:text-[#C5E7EA]">
+              Also available for consulting
             </Link>
           </div>
         </footer>

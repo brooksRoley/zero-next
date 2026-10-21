@@ -97,6 +97,23 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(fullTime).toBeGreaterThan(-1)
     expect(consulting).toBeGreaterThan(fullTime)
   })
+
+  it('keeps consulting out of the hero, the featured grid and the top nav', () => {
+    const hero = read('src/components/PhysicsHero.tsx')
+    expect(hero).not.toMatch(/games and tools/i)
+    expect(hero).not.toContain("'/consulting'")
+    const home = read('src/pages/index.tsx')
+    const featured = home.slice(home.indexOf('label="Featured"'), home.indexOf('label="Projects"'))
+    expect(featured).not.toContain("route('consulting')")
+    expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
+  })
+
+  it('leads the featured grid with the resume, then work, then games', () => {
+    const home = read('src/pages/index.tsx')
+    const at = (key: string) => home.indexOf(`route('${key}')`)
+    expect(at('resume')).toBeLessThan(at('basketballPlatform'))
+    expect(at('basketballPlatform')).toBeLessThan(at('pente'))
+  })
 })
 
 describe('hiring readiness — check 6: crawl files and absolute share tags', () => {

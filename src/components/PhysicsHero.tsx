@@ -46,40 +46,40 @@ type TokenState = TokenSpec & {
 
 const TOKEN_SPECS: TokenSpec[] = [
   {
+    label: 'Resume',
+    href: '/resume',
+    tone: 'copper',
+    w: 128,
+    h: 52,
+    desktop: [0.24, 0.2],
+    mobile: [0.24, 0.16],
+  },
+  {
+    label: 'Basketball Data',
+    href: '/basketball-platform',
+    tone: 'aqua',
+    w: 176,
+    h: 50,
+    desktop: [0.68, 0.22],
+    mobile: [0.7, 0.3],
+  },
+  {
+    label: 'Model Arena',
+    href: '/tools/model-arena',
+    tone: 'stone',
+    w: 152,
+    h: 50,
+    desktop: [0.52, 0.5],
+    mobile: [0.42, 0.52],
+  },
+  {
     label: 'Pente',
     href: '/posts/pente',
-    tone: 'aqua',
-    w: 120,
-    h: 50,
-    desktop: [0.22, 0.2],
-    mobile: [0.22, 0.16],
-  },
-  {
-    label: 'Canvas Motion',
-    href: '/posts/luminous-flow',
-    tone: 'stone',
-    w: 168,
-    h: 50,
-    desktop: [0.7, 0.22],
-    mobile: [0.72, 0.22],
-  },
-  {
-    label: 'Tower Defense',
-    href: '/posts/nanu-pika-td',
-    tone: 'copper',
-    w: 160,
-    h: 52,
-    desktop: [0.55, 0.5],
-    mobile: [0.5, 0.5],
-  },
-  {
-    label: 'Go',
-    href: '/posts/go',
     tone: 'slate',
-    w: 96,
+    w: 112,
     h: 50,
-    desktop: [0.3, 0.74],
-    mobile: [0.2, 0.76],
+    desktop: [0.28, 0.76],
+    mobile: [0.22, 0.78],
   },
   {
     label: 'Featured Work',
@@ -87,8 +87,8 @@ const TOKEN_SPECS: TokenSpec[] = [
     tone: 'aqua',
     w: 158,
     h: 50,
-    desktop: [0.78, 0.76],
-    mobile: [0.78, 0.74],
+    desktop: [0.76, 0.76],
+    mobile: [0.74, 0.76],
   },
 ]
 
@@ -400,7 +400,7 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
             <span className="h-2 w-2 rounded-full bg-[#B27236]" aria-hidden="true" />
             <span>Orange County, CA</span>
             <span className="text-[#DADBD9]/28">/</span>
-            <span>games and tools</span>
+            <span>Software engineer</span>
           </div>
 
           <div className="mb-4">
@@ -430,20 +430,27 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#featured"
-              className="inline-flex items-center gap-2 rounded-full border border-[#C5E7EA]/22 bg-[#C5E7EA]/10 px-4 py-2 text-sm font-medium text-[#DADBD9] transition-colors hover:border-[#C5E7EA]/38 hover:bg-[#C5E7EA]/16"
-            >
-              <span>Explore work</span>
-              <span aria-hidden="true">&rarr;</span>
-            </a>
             <Link
               href="/resume"
-              className="inline-flex items-center gap-2 rounded-full border border-[#B9968D]/24 bg-[#B27236]/10 px-4 py-2 text-sm font-medium text-[#DADBD9] transition-colors hover:border-[#B9968D]/40 hover:bg-[#B27236]/16"
+              className="inline-flex items-center gap-2 rounded-full border border-[#B9968D]/40 bg-[#B27236]/70 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#B27236]/85"
             >
               <span>Resume</span>
               <span aria-hidden="true">&rarr;</span>
             </Link>
+            <Link
+              href="/intake"
+              className="inline-flex items-center gap-2 rounded-full border border-[#C5E7EA]/22 bg-[#C5E7EA]/10 px-4 py-2 text-sm font-medium text-[#DADBD9] transition-colors hover:border-[#C5E7EA]/38 hover:bg-[#C5E7EA]/16"
+            >
+              <span>Contact</span>
+              <span aria-hidden="true">&rarr;</span>
+            </Link>
+            <a
+              href="#featured"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#DADBD9]/78 transition-colors hover:text-[#DADBD9]"
+            >
+              <span>Explore work</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
           </div>
 
           <a
