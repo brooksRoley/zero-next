@@ -632,7 +632,7 @@ const GameBoard = () => {
       </div>
 
       <div className="relative z-10 flex flex-col flex-1 min-h-0">
-      <PenteTopNav active="game" />
+      <PenteTopNav active="game" heading tagline="Five in a row, or capture five pairs, wins." />
 
       <BoardCustomizer
         open={showCustomizer}

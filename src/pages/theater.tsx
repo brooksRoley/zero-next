@@ -142,15 +142,6 @@ const REPERTORY: Act[] = [
     name: 'Visual pieces',
     productions: [
       {
-        id: 'stat_galaxy',
-        title: 'Stat Galaxy',
-        metaphor: 'the observatory',
-        logline: 'A season of NBA stats hung in space, drifting under physics.',
-        note: 'Not a game — a place to stand and look. Numbers become bodies with mass; league hierarchy becomes orbit.',
-        href: route('statGalaxy').href,
-        accent: '#8b5cf6',
-      },
-      {
         id: 'luminous_flow',
         title: 'Luminous Flow',
         metaphor: 'water',

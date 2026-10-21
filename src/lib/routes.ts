@@ -40,7 +40,6 @@ const REGISTRY = {
   // ── NBA / sports tech ──
   basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform' },
   nba: { href: '/nba', label: 'NBA Explorer — League Lens' },
-  statGalaxy: { href: '/stat-galaxy', label: 'Stat Galaxy' },
   tradeMachine: { href: '/tools/trade-machine', label: 'Trade Machine' },
   rigReport: { href: '/tools/rig-report', label: 'The Rig Report' },
   nbaAccuracy: { href: '/tools/nba-accuracy', label: 'Prediction Accuracy' },

@@ -58,7 +58,7 @@ describe('hiring readiness — check 3: no placeholders on public pages', () => 
     expect(filesMatching(pattern)).toEqual([])
   })
 
-  it.each(['/zero-paradox', '/education-tracker', '/digital-products'])(
+  it.each(['/zero-paradox', '/education-tracker', '/digital-products', '/stat-galaxy'])(
     'keeps the unfinished page %s behind the proxy',
     (routePath) => {
       expect(isGated(routePath)).toBe(true)

@@ -37,11 +37,11 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/proxy.ts`
 - `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads (also gated by `src/proxy.ts`)
 - `/admin/analytics` (`src/pages/admin/analytics.tsx`) — Admin analytics dashboard over first-party `/api/events` data (also gated by `src/proxy.ts`). Leads with "who stops by": weekly scorecard, visitors, resume views and PDF downloads, recent visits, referrers, locations, devices and games played (`src/lib/visitorStats.ts`, `src/components/admin/VisitorSections.tsx`)
-- `/zero-paradox`, `/education-tracker`, `/digital-products` — unfinished pages, gated by `src/proxy.ts` since 2026-10-07 and unlinked from public chrome (an entity that does not exist, a personal tracker that reads 0% to visitors, a storefront for an unwritten PDF). To publish one: finish it, remove its `matcher` entry, and add it back to `src/lib/routes.ts`. `src/lib/__tests__/hiringReadiness.test.ts` guards this
+- `/zero-paradox`, `/education-tracker`, `/digital-products` — unfinished pages, gated by `src/proxy.ts` since 2026-10-07 (`/stat-galaxy` joined them 2026-10-20: its public heading read "Prototype") and unlinked from public chrome (an entity that does not exist, a personal tracker that reads 0% to visitors, a storefront for an unwritten PDF). To publish one: finish it, remove its `matcher` entry, and add it back to `src/lib/routes.ts`. `src/lib/__tests__/hiringReadiness.test.ts` guards this
 
 **NBA / sports tech**
 - `/nba` (`src/pages/nba.tsx`) — NBA API Explorer: players, teams, standings, predictions
-- `/stat-galaxy` (`src/pages/stat-galaxy.tsx`) — "Stat Galaxy" NBA physics-based stat visualizer
+- `/stat-galaxy` (`src/pages/stat-galaxy.tsx`) — "Stat Galaxy" NBA physics-based stat visualizer. Gated (see Private / admin) until it is finished
 - `/tools/nba-accuracy` (`src/pages/tools/nba-accuracy.tsx`) — Prediction-accuracy dashboard (ATS cover rate, model vs Vegas, break-even line)
 - `/tools/trade-machine` (`src/pages/tools/trade-machine.tsx`) — NBA Salary Cap & Trade Machine: every team's payroll vs cap/tax/aprons + a CBA-rules trade builder
 - `/tools/rig-report` (`src/pages/tools/rig-report.tsx`) — "The Rig Report": satirical NBA "rigging" inspector that teaches real sports analytics (implied probability, the vig, line movement)
@@ -55,7 +55,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/posts/pente` (`src/pages/posts/pente.js`) — Pente game with multi-player modes (1v1, vs Bot, vs 3 Bots FFA, 2v2 Bots), minimax AI engine via Web Worker, ELO tracking, touch UX
 - `/posts/pente-puzzles` (`src/pages/posts/pente-puzzles.js`) — Puzzle trainer: curated catalog + Endless mode with runtime puzzle generation, canvas physics transitions, ELO-adaptive difficulty, mountain-climbing progress metaphor
 - `/posts/go` (`src/pages/posts/go/`) — Go game: `index.js` (play), `learn.js` + `learn/[stage].js` (tutorial stages), `puzzles/index.js` + `puzzles/[id].js` (puzzle trainer)
-- `/posts/nanu-pika-td` (`src/pages/posts/nanu-pika-td.jsx`) — Nanu & Pika tower-defense game (pathfinding, wave logic, upgrades)
+- `/posts/nanu-pika-td` (`src/pages/posts/nanu-pika-td.jsx`) — Nanu & Pika tower defense: an 8-level campaign played in order with stars and local progress (`src/lib/games/nanupika/campaign.ts`). Rules live in `engine.ts` (maps, fixed-timestep combat); the component only draws. Phones held upright get each map transposed to a tall board. `bot.ts` measures each level's headroom and `__tests__/campaign.test.ts` fails if the difficulty ladder stops rising
 - `/games/pass-and-cut` (`src/pages/games/pass-and-cut.tsx`) — Pass & Cut: a basketball puzzle that *is* the Shannon switching game — secure pass lanes to connect inbounder→rim; teaches graph connectivity + min-cut
 - `/games/read-and-react` (`src/pages/games/read-and-react.tsx`) — Read & React: basketball game-theory puzzle; find the mixed strategy that beats an adaptive defense (exact minimax solver sets par)
 - `/games/hardwood` (`src/pages/games/hardwood.tsx`) — Hardwood Autochess: NBA auto-battler — draft a squad on a 5×5 court, pick schemes, fight ghost boards over 10 rounds
@@ -146,7 +146,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 There are two independent auth layers. Neither uses a third-party auth provider — both are env-var secrets, sufficient for a single-owner site.
 
 **1. Dashboard session (browser-facing).** Gates the private `/tracker` dashboard and the `/admin` routes.
-- `src/proxy.ts` runs on `matcher: ['/tracker', '/tracker/:path*', '/admin', '/admin/:path*']` plus the three unfinished pages listed under Private / admin (Next.js 16 renamed the `middleware.ts` convention to `proxy.ts`; there is no `src/middleware.ts` in this repo). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
+- `src/proxy.ts` runs on `matcher: ['/tracker', '/tracker/:path*', '/admin', '/admin/:path*']` plus the unfinished pages listed under Private / admin (Next.js 16 renamed the `middleware.ts` convention to `proxy.ts`; there is no `src/middleware.ts` in this repo). It reads the `tracker_session` cookie and redirects to `/login?from=...` unless the cookie equals `ADMIN_SESSION_TOKEN`.
 - `/login` (`src/pages/login.tsx`) POSTs the password to `src/pages/api/auth/login.ts`, which checks `ADMIN_PASSWORD` and, on success, sets the `tracker_session` HttpOnly cookie to `ADMIN_SESSION_TOKEN` (7-day Max-Age, `Secure` in production). Brute force is throttled to 5 attempts / 15 min per IP via `src/lib/rate-limit.ts`.
 - `src/pages/api/auth/logout.ts` clears the cookie.
 - Env vars: `ADMIN_PASSWORD` (what the user types), `ADMIN_SESSION_TOKEN` (the cookie value the middleware compares against).

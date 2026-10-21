@@ -103,7 +103,7 @@ daylight.
 | Go Puzzles | `/posts/go/puzzles` | II — Trials | the climb, quieter | forest light |
 | Nanu & Pika TD | `/posts/nanu-pika-td` | II — Trials | the siege | void |
 | Hardwood Autochess | `/games/hardwood` | III — Seasons | court = stage | Lakers gold |
-| Stat Galaxy | `/stat-galaxy` | Intermission | the observatory | void |
+| Stat Galaxy | `/stat-galaxy` (gated until finished) | Intermission | the observatory | void |
 | Luminous Flow | `/posts/luminous-flow` | Intermission | water | candy |
 
 New pieces join the repertory by appearing on `/theater` in the same PR that

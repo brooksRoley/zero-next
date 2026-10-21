@@ -1,18 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { STARTING_ELO, MIN_ELO, MAX_ELO, calculateEloChange, calculatePuzzleEloChange, getZone } from 'src/lib/pente/elo'
-import { track } from 'src/lib/analytics'
+import { getPlayerId } from 'src/lib/playerId'
 
 /**
  * Unified player profile hook.
  * Supabase-first with localStorage as offline cache.
  *
- * Replaces usePlayerId + usePuzzleProgress.
+ * Replaced the old usePlayerId + usePuzzleProgress hooks.
  * On mount: reads localStorage for instant UI, then syncs from/to Supabase.
  * On updates: writes to both localStorage and Supabase.
  */
 
 const LOCAL_KEY = 'pente_puzzle_progress'
-const ID_KEY = 'pente_player_id'
 const NAME_KEY = 'pente_player_name'
 
 const defaultProfile = {
@@ -35,15 +34,8 @@ const defaultProfile = {
 
 function profileFromLocal() {
   if (typeof window === 'undefined') return defaultProfile
-  const existingId = localStorage.getItem(ID_KEY)
-  const id = existingId || crypto.randomUUID()
-  localStorage.setItem(ID_KEY, id)
-  if (!existingId) {
-    // Brand-new player identity — record the join between the durable
-    // anonymous analytics id (events.anon_id, added by track()) and the new
-    // players.id, so game activity can be tied back to the same visitor.
-    track('identity_link', { metadata: { kind: 'player', player_id: id } })
-  }
+  // Shared with every other game; getPlayerId records the identity_link event.
+  const id = getPlayerId()
   const name = localStorage.getItem(NAME_KEY) || ''
 
   const stored = localStorage.getItem(LOCAL_KEY)
@@ -75,7 +67,6 @@ function profileFromLocal() {
 
 function profileToLocal(profile) {
   if (typeof window === 'undefined') return
-  localStorage.setItem(ID_KEY, profile.id)
   if (profile.name) localStorage.setItem(NAME_KEY, profile.name)
   // Mirror the legacy localStorage shape so the offline cache stays readable.
   const compat = {

@@ -6,6 +6,8 @@ import { useRouter } from 'next/router'
  * Persistent top-nav for the Pente surfaces — Hub / Game / Puzzles — so every
  * destination is one click away from any other. `active` forces a tab to read
  * as current when the route alone can't tell (e.g. puzzle Endless vs Catalog).
+ * `heading` makes the Pente label the page's <h1>, for pages with no other
+ * heading; `tagline` adds a one-line goal beside the tabs on wider screens.
  */
 const TABS = [
   { key: 'hub', label: 'Hub', href: '/pente' },
@@ -13,7 +15,8 @@ const TABS = [
   { key: 'catalog', label: 'Puzzles', href: '/posts/pente-puzzles' },
 ]
 
-export default function PenteTopNav({ active }) {
+export default function PenteTopNav({ active, heading = false, tagline = null }) {
+  const Label = heading ? 'h1' : 'span'
   const router = useRouter()
   const path = router.pathname
   const queryMode = router.query?.mode
@@ -38,7 +41,7 @@ export default function PenteTopNav({ active }) {
         >
           &larr;
         </Link>
-        <span className="text-xs font-semibold text-white tracking-wide mr-3">Pente</span>
+        <Label className="text-xs font-semibold text-white tracking-wide mr-3">Pente</Label>
         <div
           className="flex gap-0.5 overflow-x-auto"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -60,6 +63,9 @@ export default function PenteTopNav({ active }) {
             )
           })}
         </div>
+        {tagline && (
+          <p className="ml-auto pl-3 hidden md:block text-[11px] text-forest-400 truncate">{tagline}</p>
+        )}
       </div>
     </nav>
   )

@@ -362,10 +362,14 @@ export default function LuminousFlow() {
         />
         {/* Overlay UI */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 sm:p-10">
-          <div className="flex justify-between items-start">
-            <Link href="/" className="pointer-events-auto text-white/30 hover:text-white/70 transition-colors text-sm font-mono tracking-wider">
+          <div className="flex justify-between items-start gap-3">
+            <Link href="/" className="pointer-events-auto shrink-0 whitespace-nowrap rounded-md bg-black/50 backdrop-blur-sm px-3 py-1.5 text-white/60 hover:text-white transition-colors text-sm font-mono tracking-wider">
               &larr; back
             </Link>
+            <div className="text-right font-mono tracking-wider rounded-md bg-black/50 backdrop-blur-sm px-3 py-1.5">
+              <h1 className="text-sm text-white/80">Luminous Flow</h1>
+              <p className="text-xs text-white/50 whitespace-nowrap">curl noise · light · particles</p>
+            </div>
           </div>
           <div className="flex justify-end">
             <SupportCta

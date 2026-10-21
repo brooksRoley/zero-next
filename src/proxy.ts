@@ -26,5 +26,6 @@ export const config = {
     '/zero-paradox',
     '/education-tracker',
     '/digital-products',
+    '/stat-galaxy',
   ],
 }

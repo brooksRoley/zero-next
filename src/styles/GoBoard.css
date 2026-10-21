@@ -37,6 +37,10 @@
   top: 50%;
   left: 0;
   right: 0;
+  /* GameBoard.css gives every .board-cell::before `width: 3px` (Pente's
+     intersection dot). With left set, that width wins over `right`, which
+     clipped every horizontal grid line to a 3px dash. */
+  width: auto;
   height: 1px;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 0;

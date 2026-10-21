@@ -15,7 +15,6 @@ const NAV_LINKS = [
       route('basketballPlatform'),
       route('nba'),
       route('tradeMachine'),
-      route('statGalaxy'),
       route('guestbook'),
     ],
   },
