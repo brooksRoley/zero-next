@@ -119,7 +119,7 @@ export const EXPERIENCE: ResumeRole[] = [
 ]
 
 export const SKILLS: SkillGroup[] = [
-  { label: 'Languages and frameworks', items: ['TypeScript', 'JavaScript', 'Python', 'React', 'Next.js', 'Vue', 'Angular', 'Node.js', 'Django', 'FastAPI', 'D3.js'] },
+  { label: 'Languages and frameworks', items: ['TypeScript', 'JavaScript', 'Python', 'C++', 'React', 'Next.js', 'Vue', 'Angular', 'Node.js', 'Django', 'FastAPI', 'D3.js', 'WebAssembly (Emscripten)'] },
   { label: 'Data', items: ['PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Redis', 'Memcached', 'Snowflake', 'Celery'] },
   { label: 'Infrastructure and tools', items: ['AWS (S3, SageMaker)', 'Docker', 'Kubernetes', 'Terraform', 'Vercel', 'Git', 'Bash', 'Webpack'] },
   { label: 'Accessibility and standards', items: ['WCAG', 'HIPAA', 'SSO/SAML', 'A/B testing'] },
