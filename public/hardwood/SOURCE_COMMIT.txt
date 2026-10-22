@@ -14,21 +14,23 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-Rebuilt 2026-10-21 (zero-next branch games/hardwood-sim-overhaul).
+Rebuilt 2026-10-22 (zero-next branch hiring/launcher-and-hardwood).
 
-BballTactics source: 7e6fbd5a270bc95943fe6820eb61c3391ba7a139 (main, clean
-tree: "Merge pull request #1 from brooksRoley/launcher/m0"). Includes the
-Oct 20 sim overhaul (rounds that score, OT), the Pixi court renderer, the
-Tip Off fix with the WASM engine loaded, bench heroes in real games, and the
-tutorial coach card no longer covering the scoreboard.
+BballTactics source: 54a1fce3449a6746d44a653ddafc78220bce1464 (main, clean
+tree: "Merge pull request #4 from brooksRoley/launcher/clean-version").
+Adds BballTactics PRs #5 and #6 over the previous bundle (7e6fbd5): fixed-step
+simulation with interpolated rendering, the ball carried in hand, court
+effects (score floaters, miss shudder), and the engine change from
+shared-core 04d9ad1: shots and passes fly, players steer and keep apart
+(bunching 0.78 -> 0.00, ball teleports 0.60/s -> 0.07/s over 1000 fights).
 
 Build: VITE_API_BASE='' npx vite build --base=/hardwood/ --outDir <scratch dir>
-Copied: index.html, engine.js, engine.wasm, engine_roster.json and all ten
-files in assets/ (the client is now code-split; Pixi renderers load as
-chunks). Removed the previous monolith assets/index-BSWQi1kl.js and
-assets/index-u1kvMI1u.css. Every copied file verified with cmp against the
-build. The engine changed this time (216,078 -> 230,301 bytes): the deployed
-engine predated the sim overhaul.
+Copied: index.html, engine.wasm and all ten files in assets/ (previous asset
+files removed). engine.js and engine_roster.json were byte-identical and are
+unchanged. engine.wasm 230,301 -> 236,662 bytes. Every copied file verified
+with cmp against the build.
+
+PREVIOUS BUNDLE: 2026-10-21, BballTactics 7e6fbd5 (zero-next PR #70).
 
 PROVENANCE VERIFIED 2026-10-20
   Before changing anything, BballTactics b75f7f0 was built unmodified with the
