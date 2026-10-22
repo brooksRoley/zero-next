@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react'
  *
  * Social proof for the puzzle trainer: seeing a ranked board of climbers is the
  * hook that turns a one-off solver into a returning one. The viewer's own row
- * (matched by `currentPlayerId`) is highlighted so they can find themselves.
+ * is highlighted so they can find themselves: the route matches `currentPlayerId`
+ * and flags that row `is_you`, since it never publishes other players' ids.
  */
 export default function Leaderboard({ currentPlayerId }) {
   const [state, setState] = useState({ status: 'loading', rows: [], error: null })
@@ -14,7 +15,8 @@ export default function Leaderboard({ currentPlayerId }) {
     let cancelled = false
     setState({ status: 'loading', rows: [], error: null })
 
-    fetch('/api/pente/leaderboard')
+    const query = currentPlayerId ? `?me=${encodeURIComponent(currentPlayerId)}` : ''
+    fetch(`/api/pente/leaderboard${query}`)
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
@@ -34,7 +36,7 @@ export default function Leaderboard({ currentPlayerId }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [currentPlayerId])
 
   const { status, rows, error } = state
 
@@ -75,10 +77,10 @@ export default function Leaderboard({ currentPlayerId }) {
       {status === 'ready' && rows.length > 0 && (
         <ol className="space-y-1">
           {rows.map((p) => {
-            const isYou = currentPlayerId && p.id === currentPlayerId
+            const isYou = p.is_you
             return (
               <li
-                key={p.id}
+                key={p.rank}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                   isYou
                     ? 'bg-candy-600/15 border border-candy-500/40'

@@ -110,7 +110,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/pages/api/consulting/checkout.ts` — POST: creates Stripe Checkout session for consulting deposits
 - `src/pages/api/consulting/webhook.ts` — POST: Stripe webhook handler (payment confirmation)
 - `src/pages/api/admin/leads.ts` — Admin: read captured leads for `/admin/leads`
-- `src/pages/api/intake/messages.js`, `src/pages/api/intake/send.js` — Intake-form message thread (list / send)
+- `src/pages/api/intake/messages.js`, `src/pages/api/intake/send.js` — Intake-form message thread (list / send). Stored in **Neon** (`intake_messages`, self-created by `src/lib/intakeSchema.ts`) since 2026-10-21: the Supabase table they targeted never existed, so every Contact message had failed. Voice notes upload to a Supabase Storage bucket `intake-audio` that also does not exist yet — the form falls back to the transcript
 
 **AI tools**
 - `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 30/hr per IP. Backs the Chat Sandbox and Model Arena.
@@ -197,7 +197,7 @@ The consulting funnel (`/consulting`) has Stripe Checkout wired up but is curren
 The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship game product, with a roadmap to paid tiers via Stripe.
 
 #### Architecture Decisions (locked)
-- **Supabase for ALL game state** — player profiles, ELO, puzzle bank, game history, multiplayer realtime. Supabase client is at `src/lib/supabase.ts`. The `games` table and realtime channels already exist there.
+- **Supabase for ALL game state** — player profiles, ELO, puzzle bank, game history, multiplayer realtime. Supabase client is at `src/lib/supabase.ts`. The `games` table and realtime channels already exist there. On the server the client uses `SUPABASE_SERVICE_ROLE_KEY` when set (never `NEXT_PUBLIC_`), so API-only tables can be closed to the anon key (`supabase/migrations/0009`). Player routes bound every synced field (`src/lib/playerFields.ts`) and the leaderboard never returns player ids — an id is the only key to a profile.
 - **localStorage as offline cache only** — `usePlayerProfile` is Supabase-first, with localStorage as the offline fallback. New features should write to Supabase first, cache locally second.
 - **Neon Postgres is for the business side** (leads, consulting, guestbook). Do NOT put game data in Neon. This rule is scoped to Pente/Go — their realtime multiplayer + ELO needs are why Supabase was chosen. It does not (and, as written, cannot retroactively) cover the Basketball Data Platform's `bball_runs`/`bball_board_states`/`bball_roster` tables, which live in Neon (`src/pages/api/bball/setup.ts`) and predate this decision (commit `85ac30e`, no rationale recorded). That game has no realtime/multiplayer component, so the Supabase rationale may not even apply to it — flagging the tension rather than asserting it should move; a migration is a real project, not a doc fix.
 - **Web Worker for AI engine** — The minimax bot runs in `public/penteWorker.js` (self-contained, no imports). Puzzle generation also runs there. Never move engine computation to the main thread.

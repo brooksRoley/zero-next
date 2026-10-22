@@ -1,4 +1,5 @@
-import { supabase } from 'src/lib/supabase'
+import { sql } from 'src/lib/db'
+import { ensureIntakeSchema } from 'src/lib/intakeSchema'
 import { createRateLimiter } from 'src/lib/rate-limit'
 
 // Deliberately looser than send.js's 20/hr: this is the read side of the same
@@ -8,14 +9,12 @@ import { createRateLimiter } from 'src/lib/rate-limit'
 // leaves room for page reloads while still bounding scripted abuse.
 const limiter = createRateLimiter(60, 60 * 60 * 1000) // 60 per hour
 
-// visitorId is interpolated into a PostgREST .or() filter below, so it must be a
-// strict UUID. Without this, a crafted value (e.g. "x,parent_id.gt.0") could
-// inject filter clauses and read other visitors' messages (IDOR).
+// visitorId is the only thing standing between one visitor's thread and
+// another's, so it must be a strict UUID (unguessable, and a typed column).
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
-  if (!supabase) return res.status(503).json({ error: 'Database not configured' })
 
   // Checked before input validation, matching send.js — a client burning the
   // budget on malformed requests should still be throttled.
@@ -30,28 +29,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'visitorId must be a valid UUID' })
   }
 
-  // Fetch visitor's messages and any responses to them
-  const { data: visitorMessages, error: err1 } = await supabase
-    .from('intake_messages')
-    .select('id')
-    .eq('visitor_id', visitorId)
-
-  if (err1) return res.status(500).json({ error: err1.message })
-
-  const messageIds = visitorMessages.map((m) => m.id)
-
-  // No prior messages means no possible replies — skip the .or() entirely to
-  // avoid an empty parent_id.in.() filter that PostgREST may reject or mishandle.
-  if (messageIds.length === 0) {
-    return res.status(200).json({ messages: [] })
+  // The visitor's own messages plus replies to them. visitorId is a bound
+  // parameter here, so no filter string is built from user input.
+  try {
+    await ensureIntakeSchema()
+    const messages = await sql`
+      SELECT * FROM intake_messages
+      WHERE visitor_id = ${visitorId}
+         OR parent_id IN (SELECT id FROM intake_messages WHERE visitor_id = ${visitorId})
+      ORDER BY created_at ASC
+    `
+    return res.status(200).json({ messages })
+  } catch (err) {
+    console.error('intake messages failed', err)
+    return res.status(500).json({ error: 'Could not load messages.' })
   }
-
-  const { data, error } = await supabase
-    .from('intake_messages')
-    .select('*')
-    .or(`visitor_id.eq.${visitorId},parent_id.in.(${messageIds.join(',')})`)
-    .order('created_at', { ascending: true })
-
-  if (error) return res.status(500).json({ error: error.message })
-  return res.status(200).json({ messages: data })
 }
