@@ -51,8 +51,8 @@ galaxy = scale (Stat Galaxy), court = stage (Hardwood), garden = growth
 If a feature can't be said inside the piece's metaphor, it belongs elsewhere.
 
 ### 4. Every piece gets a frame
-Title, a one-paragraph playbill note rendered on the page, and a tip-jar link
-to `/funding`. Art is the audience funnel, not a detour from it. The frame is
+Title and a one-paragraph playbill note rendered on the page. (No tip-jar
+link: `/funding` is a private payments demo since 2026-10-21.) Art is the audience funnel, not a detour from it. The frame is
 part of the work: an unframed piece is not shipped, it's abandoned on stage.
 
 ### 5. The craft floor
@@ -117,7 +117,7 @@ Before any game or piece ships, in order:
 
 - [ ] One accent, on the house dark; palette tokens only.
 - [ ] Metaphor named in one word; every string on the page speaks it.
-- [ ] Frame present: title, playbill note, `/funding` link.
+- [ ] Frame present: title, playbill note.
 - [ ] Phone playthrough clean; reduced-motion checked.
 - [ ] Loading / empty / error states designed.
 - [ ] `track()` events on the moments that matter (entry, the core action, the exit CTA).

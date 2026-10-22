@@ -19,7 +19,7 @@ function pageFiles(dir: string): string[] {
 }
 
 // Unfinished or private pages that src/proxy.ts keeps behind the login.
-const PRIVATE = ['login', 'tracker', 'zero-paradox', 'education-tracker', 'digital-products', 'stat-galaxy']
+const PRIVATE = ['login', 'tracker', 'zero-paradox', 'education-tracker', 'digital-products', 'stat-galaxy', 'funding']
 
 describe('hero and meta copy come from one place', () => {
   it('the hero and its loading fallback both render HERO_SUMMARY and AVAILABILITY', () => {
@@ -83,7 +83,7 @@ describe('the GitHub README', () => {
   })
 
   it('does not advertise pages that are behind the login', () => {
-    for (const name of ['zero-paradox', 'education-tracker', 'digital-products', 'stat-galaxy']) {
+    for (const name of ['zero-paradox', 'education-tracker', 'digital-products', 'stat-galaxy', 'funding']) {
       expect(readme, name).not.toContain(`/${name}`)
     }
   })

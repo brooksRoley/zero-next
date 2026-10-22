@@ -59,19 +59,6 @@ export default function GameOverDrawer({
           )}
         </div>
       </div>
-      <Link
-        href="/funding"
-        onClick={() =>
-          track('cta_click', {
-            page: '/posts/pente',
-            metadata: { location: 'pente_ingame_tip' },
-            beacon: true,
-          })
-        }
-        className="block mb-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
-      >
-        Enjoying Pente? Support development →
-      </Link>
 
       {gameAnalysis && (
         <div className="space-y-1">

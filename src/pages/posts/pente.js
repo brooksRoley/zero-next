@@ -1,7 +1,5 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
-import { track } from 'src/lib/analytics';
 import useGameTracking from 'src/hooks/useGameTracking';
 
 import { useRouter } from 'next/router';
@@ -22,7 +20,6 @@ import PreText from 'src/components/PreText';
 import PenteTopNav from 'src/components/pente/PenteTopNav';
 import SolarField from 'src/components/pente/SolarField';
 import InterventionCard from 'src/components/pente/InterventionCard';
-import PostSolveTip from 'src/components/pente/PostSolveTip';
 import EndlessPuzzle from 'src/components/EndlessPuzzle';
 import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
 import { logGameResult } from 'src/lib/pente/gameResults';
@@ -995,29 +992,10 @@ const GameBoard = () => {
               </button>
             </div>
           </div>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track('cta_click', {
-                page: '/posts/pente',
-                metadata: { location: 'pente_game_result_tip' },
-                beacon: true,
-              })
-            }
-            className="block mt-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
-          >
-            Enjoying Pente? Support development →
-          </Link>
         </div>
       )}
       </div>
 
-      <PostSolveTip
-        trigger={winSignal}
-        page="/posts/pente"
-        location="pente_post_win_tip"
-        label="Enjoying Pente? Keep it free →"
-      />
     </div>
   );
 };

@@ -27,5 +27,7 @@ export const config = {
     '/education-tracker',
     '/digital-products',
     '/stat-galaxy',
+    // Payments demo: Stripe Checkout in test mode, not a public tip jar.
+    '/funding',
   ],
 }

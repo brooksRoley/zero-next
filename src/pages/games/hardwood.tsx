@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Link from 'next/link'
 import { track } from 'src/lib/analytics'
 import { absoluteUrl } from 'src/lib/routes'
 
@@ -86,19 +85,6 @@ export default function HardwoodAutochess() {
             backend on this site&apos;s{' '}
             <span className="font-mono text-forest-300">/api/bball</span> routes.
           </p>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track('cta_click', {
-                page: '/games/hardwood',
-                metadata: { location: 'hardwood_tip' },
-                beacon: true,
-              })
-            }
-            className="text-candy-500 transition-colors hover:text-candy-400"
-          >
-            Enjoying the game? Support development →
-          </Link>
         </footer>
       </div>
     </main>

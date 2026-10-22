@@ -360,24 +360,6 @@ export default function Theater() {
             pass. The theater also watches its own audience: what gets played shapes
             what gets staged next.
           </p>
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-forest-500">
-              Seats are free forever. The lights cost a little.
-            </p>
-            <Link
-              href={route('funding').href}
-              onClick={() =>
-                track('cta_click', {
-                  page: '/theater',
-                  metadata: { location: 'theater_tip' },
-                  beacon: true,
-                })
-              }
-              className="text-sm text-candy-500 transition-colors hover:text-candy-400"
-            >
-              Keep the theater lit →
-            </Link>
-          </div>
         </footer>
       </div>
     </main>

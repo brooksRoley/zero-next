@@ -26,7 +26,7 @@ describe('nav / intake / funding accessibility', () => {
     expect(s).toContain('role="alert"');
     expect(s).toContain('focus-visible:ring-2');
   });
-  it('funding notify button has a visible keyboard focus ring', () => {
+  it('payments demo buttons have a visible keyboard focus ring', () => {
     expect(read('src/pages/funding.tsx')).toContain('focus-visible:ring-2');
   });
 });

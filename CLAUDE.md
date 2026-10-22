@@ -27,7 +27,6 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
 - `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
 - `/intake` (`src/pages/intake.jsx`) — Contact / intake form that feeds the consulting funnel
-- `/funding` (`src/pages/funding.tsx`) — "Support Brooks Roley" tip-jar / funding page
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
 - `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
@@ -37,6 +36,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/tracker` (`src/pages/tracker.jsx`) — Private owner dashboard; protected by `src/proxy.ts`
 - `/admin/leads` (`src/pages/admin/leads.tsx`) — Admin view of captured consulting leads (also gated by `src/proxy.ts`)
 - `/admin/analytics` (`src/pages/admin/analytics.tsx`) — Admin analytics dashboard over first-party `/api/events` data (also gated by `src/proxy.ts`). Leads with "who stops by": weekly scorecard, visitors, resume views and PDF downloads, recent visits, referrers, locations, devices and games played (`src/lib/visitorStats.ts`, `src/components/admin/VisitorSections.tsx`)
+- `/funding` (`src/pages/funding.tsx`) — Private payments demo (gated since 2026-10-21): Stripe config status, a test-mode Checkout Session per item (tips + strategy-session deposit), and the latest sessions beside our `checkout_sessions` row, so a webhook that never fired shows. Backed by `src/pages/api/admin/payments.ts` (admin cookie or `x-admin-key`; refuses live keys). It replaced a public tip jar whose buttons never went live ("Card tips aren't live yet"); every public "Support development →" link, `SupportCta` and `PostSolveTip` went with it
 - `/zero-paradox`, `/education-tracker`, `/digital-products` — unfinished pages, gated by `src/proxy.ts` since 2026-10-07 (`/stat-galaxy` joined them 2026-10-20: its public heading read "Prototype") and unlinked from public chrome (an entity that does not exist, a personal tracker that reads 0% to visitors, a storefront for an unwritten PDF). To publish one: finish it, remove its `matcher` entry, and add it back to `src/lib/routes.ts`. `src/lib/__tests__/hiringReadiness.test.ts` guards this
 
 **NBA / sports tech**
@@ -433,7 +433,7 @@ Rules:
 
 1. **Art first.** Pick the piece by asking "would Brooks proudly show this as a creator, not just a developer?" Ecosystems, growth, water, light, and motion are on-theme; the repo already leans this way (`luminous-flow`, Stat Galaxy, the Pente mountain metaphor).
 2. **Production quality anyway.** Complete, working, mobile-friendly, no placeholders. Art that crashes is a bug, not a statement.
-3. **Every piece gets a frame.** Title, a one-paragraph artist note rendered on the page, and a tip-jar link (`/funding`). Art is the audience funnel, not a detour from it — this is Income Ladder rung 2 widened beyond games.
+3. **Every piece gets a frame.** Title and a one-paragraph artist note rendered on the page. No tip-jar link: `/funding` is a private payments demo since 2026-10-21, and a public link to it fails `hiringReadiness.test.ts`. Art is the audience funnel, not a detour from it — this is Income Ladder rung 2 widened beyond games.
 4. **Reuse the instruments.** `PhysicsField`, `WaterHero`, the canvas work in `luminous-flow`, the Web Worker pattern — reach for existing engines before writing new ones.
 5. **Gallery index.** Pieces live at `/studio/[name]`. On the first STUDIO session, create `/studio` as a gallery page that lists all pieces (including back-linking the existing `/posts/luminous-flow`); every later piece adds itself to it.
 

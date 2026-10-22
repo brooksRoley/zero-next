@@ -1,158 +1,220 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Head from 'next/head'
-import { getAnonId, getSessionId, track } from 'src/lib/analytics'
+import { useRouter } from 'next/router'
 
-// Stripe Payment Links — create these in the Stripe Dashboard
-// (Payments → Payment Links → + New) and paste the live URLs below.
-// Each link is a hosted, card-accepting checkout: no server code required.
-// Until then these placeholders point at a Stripe 404 so the flow is obvious in dev.
-const PAYMENT_LINK_PLACEHOLDER = 'https://buy.stripe.com/test_REPLACE_ME'
+// Private payments demo (gated by src/proxy.ts). This used to be a public tip
+// jar whose buttons never went live, so visitors saw "Card tips aren't live
+// yet". It is now a working example of Stripe Checkout in test mode: config
+// status, a real Checkout Session per item, and the latest sessions with the
+// webhook's record beside them. Backed by /api/admin/payments.
 
-const QUICK_TIPS: { amount: number; label: string; href: string }[] = [
-  { amount: 5, label: 'Buy a coffee', href: PAYMENT_LINK_PLACEHOLDER },
-  { amount: 10, label: 'Send a snack', href: PAYMENT_LINK_PLACEHOLDER },
-  { amount: 25, label: 'Cover a server bill', href: PAYMENT_LINK_PLACEHOLDER },
+type Config = {
+  mode: 'test' | 'live' | 'missing'
+  webhook_secret: boolean
+  saved_prices: Record<string, boolean>
+}
+
+type Session = {
+  id: string
+  created: number
+  amount_total: number | null
+  currency: string | null
+  item: string | null
+  status: string | null
+  payment_status: string
+  recorded_status: string | null
+}
+
+const ITEMS: { id: string; amount: number; label: string }[] = [
+  { id: 'tip_5', amount: 5, label: 'Tip · coffee' },
+  { id: 'tip_10', amount: 10, label: 'Tip · snack' },
+  { id: 'tip_25', amount: 25, label: 'Tip · server bill' },
+  { id: 'strategy_session', amount: 150, label: 'Strategy session' },
 ]
 
-// A Payment Link with "Let customers choose what they pay" enabled.
-const CUSTOM_TIP_LINK = PAYMENT_LINK_PLACEHOLDER
+const MODE_TEXT: Record<Config['mode'], string> = {
+  test: 'Test keys — no real card is charged',
+  live: 'Live keys — the demo is disabled',
+  missing: 'STRIPE_SECRET_KEY is not set',
+}
 
-// Placeholder links 404 on Stripe, so a button renders only for a real Payment
-// Link URL. Until then the page offers the email capture alone; the buttons
-// appear automatically once real URLs replace the placeholders above.
-const isPlaceholder = (href: string) => href.includes('REPLACE_ME')
-
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
-
-// While card tips are disabled, don't strand someone who wanted to help. Reuse
-// the /api/events email-capture pattern (see digital-products.tsx) so the visit
-// becomes a retargetable signup instead of a dead end. Posts a funding_notify
-// event, which api/events.ts promotes into the email_signups mailing list.
-function TipWhenLiveCapture() {
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
-  const valid = EMAIL_RE.test(email.trim())
-
-  const handleSubmit = async () => {
-    if (!valid || status === 'submitting') return
-    setStatus('submitting')
-    try {
-      const res = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: getSessionId(),
-          anon_id: getAnonId(),
-          page: '/funding',
-          event_type: 'funding_notify',
-          metadata: { email: email.trim(), product: 'funding_tip' },
-        }),
-      })
-      if (!res.ok) throw new Error('Request failed')
-      track('cta_click', { metadata: { location: 'funding_notify' } })
-      setStatus('done')
-    } catch {
-      setStatus('error')
-    }
-  }
-
-  if (status === 'done') {
-    return (
-      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-200">
-        Thank you — I&apos;ll email you once card tips are live, and nothing else.
-      </div>
-    )
-  }
-
+function Check({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <div className="text-left">
-      <p className="mb-2 text-xs text-forest-400">
-        Card tips aren&apos;t live yet. Leave your email and I&apos;ll ping you the
-        moment they are — no newsletter, no spam.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="you@example.com"
-          aria-label="Email address"
-          className="flex-1 rounded-lg border border-forest-600 bg-forest-900/60 px-4 py-2.5 text-sm text-white placeholder-forest-500 focus:border-[#635BFF]/70 focus:outline-none focus:ring-1 focus:ring-[#635BFF]/40"
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={!valid || status === 'submitting'}
-          className="px-5 py-2.5 rounded-lg bg-[#635BFF] hover:bg-[#4F46E5] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#635BFF] focus-visible:ring-offset-2 focus-visible:ring-offset-forest-900"
-        >
-          {status === 'submitting' ? 'Saving…' : 'Notify me'}
-        </button>
-      </div>
-      {status === 'error' && (
-        <p className="mt-2 text-xs text-red-400/90">
-          Something went wrong — please try again in a moment.
-        </p>
-      )}
-    </div>
+    <li className="flex items-center gap-2 text-sm">
+      <span aria-hidden="true" className={ok ? 'text-emerald-400' : 'text-forest-500'}>
+        {ok ? '●' : '○'}
+      </span>
+      <span className={ok ? 'text-forest-100' : 'text-forest-400'}>{label}</span>
+      <span className="sr-only">{ok ? '(set)' : '(not set)'}</span>
+    </li>
   )
 }
 
+const money = (cents: number | null, currency: string | null) =>
+  cents == null ? '—' : `$${(cents / 100).toFixed(2)}${currency && currency !== 'usd' ? ` ${currency.toUpperCase()}` : ''}`
+
 export default function Funding() {
-  const tipsLive = !isPlaceholder(CUSTOM_TIP_LINK)
-  const liveTips = QUICK_TIPS.filter(({ href }) => !isPlaceholder(href))
+  const router = useRouter()
+  const [config, setConfig] = useState<Config | null>(null)
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [error, setError] = useState('')
+  const [pending, setPending] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setError('')
+    try {
+      const res = await fetch('/api/admin/payments')
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Request failed')
+      setConfig(data.config)
+      setSessions(data.sessions)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Request failed')
+    }
+  }, [])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  const checkout = async (item: string) => {
+    setPending(item)
+    setError('')
+    try {
+      const res = await fetch('/api/admin/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.url) throw new Error(data.error || 'No checkout URL returned')
+      window.location.href = data.url
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Checkout failed')
+      setPending(null)
+    }
+  }
+
+  const returned = router.query.session
+  const canCharge = config?.mode === 'test'
+
   return (
-    <main className="min-h-screen bg-forest-950 flex items-center justify-center px-4 py-16 font-sans">
+    <main className="min-h-screen bg-forest-950 text-white px-4 sm:px-8 py-10 font-sans">
       <Head>
-        <title>Support | Brooks Roley</title>
-        <meta name="description" content="Support Brooks Roley — tip by card if you enjoyed the games or tools." />
+        <title>Payments demo | Brooks Roley</title>
+        <meta name="robots" content="noindex" />
       </Head>
 
-      <div className="max-w-md w-full text-center space-y-7">
-        <h1 className="text-2xl font-semibold text-white">Thanks for playing.</h1>
+      <div className="max-w-3xl mx-auto space-y-8">
+        <header>
+          <h1 className="text-2xl sm:text-3xl font-bold">Payments demo</h1>
+          <p className="mt-1 text-sm text-forest-300">
+            Stripe Checkout end to end: pick an item, pay with test card{' '}
+            <span className="font-mono text-forest-100">4242 4242 4242 4242</span> (any future
+            date, any CVC), and watch the session land below.
+          </p>
+        </header>
 
-        <p className="text-forest-300 text-sm leading-relaxed">
-          Tips keep the hosting bills paid, the AI tokens flowing, and the next
-          game in the oven. No pressure — but it means a lot.
-        </p>
+        {returned === 'success' && (
+          <p role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            Payment completed. The row below reads <em>paid</em> once the webhook arrives — refresh in a few seconds.
+          </p>
+        )}
+        {returned === 'cancelled' && (
+          <p role="status" className="rounded-xl border border-forest-700 bg-forest-900/60 px-4 py-3 text-sm text-forest-300">
+            Checkout cancelled. Nothing was charged.
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {error}
+          </p>
+        )}
 
-        {liveTips.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            {liveTips.map(({ amount, label, href }) => (
-              <a
-                key={amount}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => track('cta_click', { metadata: { location: 'funding_tip', amount } })}
-                className="group flex flex-col items-center gap-1 rounded-xl border border-forest-700/40 bg-forest-900/60 px-3 py-4 transition-colors hover:border-[#635BFF]/60 hover:bg-forest-900"
+        <section aria-labelledby="config-heading" className="rounded-2xl border border-forest-800 bg-forest-900/40 p-5">
+          <h2 id="config-heading" className="text-sm font-semibold uppercase tracking-widest text-forest-400">
+            Configuration
+          </h2>
+          {config ? (
+            <ul className="mt-3 space-y-1.5">
+              <Check ok={config.mode === 'test'} label={MODE_TEXT[config.mode]} />
+              <Check ok={config.webhook_secret} label="Webhook secret (marks sessions paid)" />
+              {Object.entries(config.saved_prices).map(([name, ok]) => (
+                <Check key={name} ok={ok} label={`Saved Price ID · ${name.replace(/_/g, ' ')}`} />
+              ))}
+            </ul>
+          ) : (
+            !error && <p className="mt-3 text-sm text-forest-400">Loading…</p>
+          )}
+        </section>
+
+        <section aria-labelledby="charge-heading">
+          <h2 id="charge-heading" className="text-sm font-semibold uppercase tracking-widest text-forest-400">
+            Start a checkout
+          </h2>
+          <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {ITEMS.map(({ id, amount, label }) => (
+              <button
+                key={id}
+                onClick={() => checkout(id)}
+                disabled={!canCharge || pending !== null}
+                className="flex flex-col items-center gap-1 rounded-xl border border-forest-700/60 bg-forest-900/60 px-3 py-4 transition-colors hover:border-[#635BFF]/60 hover:bg-forest-900 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#635BFF] focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
               >
-                <span className="text-lg font-semibold text-white">${amount}</span>
-                <span className="text-[10px] uppercase tracking-widest text-forest-400 group-hover:text-[#635BFF]">
-                  {label}
+                <span className="text-lg font-semibold">${amount}</span>
+                <span className="text-[10px] uppercase tracking-widest text-forest-400">
+                  {pending === id ? 'Opening…' : label}
                 </span>
-              </a>
+              </button>
             ))}
           </div>
-        )}
+          <p className="mt-2 text-xs text-forest-500">
+            Payment methods shown at checkout are the ones enabled in the Stripe Dashboard.
+          </p>
+        </section>
 
-        {tipsLive && (
-          <>
-            <a
-              href={CUSTOM_TIP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track('cta_click', { metadata: { location: 'funding_tip', amount: 'custom' } })}
-              className="inline-block px-6 py-3 rounded-xl bg-[#635BFF] hover:bg-[#4F46E5] text-white font-medium text-sm transition-colors duration-200"
+        <section aria-labelledby="sessions-heading">
+          <div className="flex items-center justify-between">
+            <h2 id="sessions-heading" className="text-sm font-semibold uppercase tracking-widest text-forest-400">
+              Latest sessions
+            </h2>
+            <button
+              onClick={load}
+              className="text-xs text-forest-300 hover:text-white underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#635BFF] rounded"
             >
-              Tip a custom amount
-            </a>
-            <p className="text-forest-600 text-xs">Secure card payment via Stripe</p>
-          </>
-        )}
-
-        {!tipsLive && (
-          <TipWhenLiveCapture />
-        )}
+              Refresh
+            </button>
+          </div>
+          {sessions.length === 0 ? (
+            <p className="mt-3 text-sm text-forest-400">No sessions yet.</p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs text-forest-400">
+                  <tr>
+                    <th className="py-2 pr-3 font-medium">When</th>
+                    <th className="py-2 pr-3 font-medium">Item</th>
+                    <th className="py-2 pr-3 font-medium">Amount</th>
+                    <th className="py-2 pr-3 font-medium">Stripe</th>
+                    <th className="py-2 font-medium">Our record</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.map((s) => (
+                    <tr key={s.id} className="border-t border-forest-800">
+                      <td className="py-2 pr-3 text-forest-300 whitespace-nowrap">
+                        {new Date(s.created * 1000).toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3">{s.item ?? '—'}</td>
+                      <td className="py-2 pr-3 font-mono">{money(s.amount_total, s.currency)}</td>
+                      <td className="py-2 pr-3">{s.payment_status}</td>
+                      <td className="py-2 text-forest-300">{s.recorded_status ?? 'not recorded'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </div>
     </main>
   )
