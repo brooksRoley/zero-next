@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { supabase } from 'src/lib/supabase'
 import { getZone } from 'src/lib/pente/elo'
+import { normalizeUuid } from 'src/lib/playerId'
 
 /**
  * GET /api/pente/leaderboard — Top puzzle solvers by ELO.
@@ -10,6 +11,10 @@ import { getZone } from 'src/lib/pente/elo'
  * rather than a wall of default-state (800 ELO, "Anonymous") rows. Zone is
  * derived from elo via the shared altitude-zone map, so the client doesn't have
  * to duplicate the ELO→zone thresholds.
+ *
+ * Player ids never leave this route: an id is the only key to a profile, so
+ * publishing them let anyone overwrite any player. Pass ?me=<your id> and the
+ * matching row comes back with is_you: true.
  */
 
 const LIMIT = 20
@@ -30,14 +35,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .order('puzzles_solved', { ascending: false })
     .limit(LIMIT)
 
-  if (error) return res.status(500).json({ error: error.message })
+  if (error) {
+    console.error('leaderboard read failed', error)
+    return res.status(500).json({ error: 'Could not load the leaderboard' })
+  }
+
+  const me = normalizeUuid(req.query.me)
 
   const leaderboard = (data ?? []).map((p, i) => {
     const elo = Number(p.elo) || 0
     const zone = getZone(elo)
     return {
       rank: i + 1,
-      id: p.id,
+      is_you: me !== null && p.id === me,
       name: (p.name && String(p.name).trim()) || 'Anonymous',
       elo,
       peak_elo: Number(p.peak_elo) || elo,
