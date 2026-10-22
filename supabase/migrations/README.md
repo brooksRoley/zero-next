@@ -31,6 +31,7 @@ These run manually — there is no `supabase db push` wired up. To apply a pendi
 | 0006 | `0006_puzzle_attempts.sql` | `puzzle_attempts` table + indexes + RLS (Pente) | ✅ live (pre-dates tracking; file reconciled to the live schema 2026-10-20) |
 | 0007 | `0007_go_puzzle_attempts.sql` | `go_puzzle_attempts` table + indexes + RLS (Go) | ✅ 2026-10-15 (the table did not exist, so there was nothing to diff) |
 | 0008 | `0008_puzzle_bank.sql` | `puzzle_bank` table + indexes + RLS (Pente) | ✅ live (pre-dates tracking; file copied from the live schema 2026-10-20) |
+| 0009 | `0009_api_only_tables.sql` | Drops the anon policies on the six API-only tables + `moves` insert | ⏳ pending — needs `SUPABASE_SERVICE_ROLE_KEY` in Vercel and that deploy live first |
 
 ### 0006 and 0008: documented, not applied
 
@@ -43,6 +44,8 @@ identity (not a uuid), `attempts` is `smallint`, the indexes have different
 names (and two it declared do not exist), and it had no RLS policies. Applying
 it would have been a no-op on the table but would have created two stray
 indexes. Running either file now changes nothing.
+
+**Resolved by 0009 (once applied):** the API now writes with the service-role key, so the policy below is dropped outright rather than narrowed.
 
 **Open issue (0008):** the policy `anon can update puzzle_bank stats` is
 `for update using (true) with check (true)`, so anyone holding the public anon

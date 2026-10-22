@@ -1,29 +1,15 @@
 /**
  * Coverage for GET /api/intake/messages — the read side of the intake thread.
  *
- * The endpoint had no rate limiter while its sibling send.js did; this suite
- * pins the limiter's behavior (including that it is checked before input
- * validation) along with the guards that were previously untested: the UUID
- * validation that prevents PostgREST filter injection, and the early return
- * that avoids emitting an empty `parent_id.in.()` clause.
+ * Pins the rate limiter (checked before input validation), the UUID guard,
+ * that visitorId reaches Neon only as a bound parameter, and that database
+ * errors never reach the client.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const mockEq = vi.fn();
-const mockOrder = vi.fn();
-
-vi.mock("src/lib/supabase", () => ({
-  supabase: {
-    from: () => ({
-      select: () => ({
-        // First query: the visitor's own message ids.
-        eq: (...args) => mockEq(...args),
-        // Second query: those messages plus any replies to them.
-        or: () => ({ order: (...args) => mockOrder(...args) }),
-      }),
-    }),
-  },
-}));
+const mockSql = vi.fn();
+vi.mock("src/lib/db", () => ({ sql: (...args) => mockSql(...args) }));
+vi.mock("src/lib/intakeSchema", () => ({ ensureIntakeSchema: () => Promise.resolve() }));
 
 function createMockReq(visitorId, ip = "203.0.113.1") {
   return {
@@ -56,13 +42,8 @@ describe("api/intake/messages", () => {
     // Fresh module registry per test so the module-level rate limiter starts
     // with an empty hit log and tests can't leak budget into each other.
     vi.resetModules();
-    mockEq.mockReset();
-    mockOrder.mockReset();
-    mockEq.mockResolvedValue({ data: [{ id: 1 }], error: null });
-    mockOrder.mockResolvedValue({
-      data: [{ id: 1, visitor_id: VISITOR_ID, content: "hello" }],
-      error: null,
-    });
+    mockSql.mockReset();
+    mockSql.mockResolvedValue([{ id: 1, visitor_id: VISITOR_ID, content: "hello" }]);
     ({ default: handler } = await import("../../pages/api/intake/messages.js"));
   });
 
@@ -79,36 +60,29 @@ describe("api/intake/messages", () => {
     expect(res._status).toBe(400);
   });
 
-  it("rejects a malformed visitorId before it can reach the PostgREST filter", async () => {
+  it("rejects a malformed visitorId before any query runs", async () => {
     const res = createMockRes();
-    // A crafted value that would inject extra filter clauses if interpolated.
     await handler(createMockReq("x,parent_id.gt.0"), res);
     expect(res._status).toBe(400);
-    expect(mockEq).not.toHaveBeenCalled();
+    expect(mockSql).not.toHaveBeenCalled();
   });
 
-  it("returns an empty thread without issuing the .or() query when the visitor has no messages", async () => {
-    mockEq.mockResolvedValue({ data: [], error: null });
-    const res = createMockRes();
-    await handler(createMockReq(VISITOR_ID), res);
-    expect(res._status).toBe(200);
-    expect(res._json).toEqual({ messages: [] });
-    // The empty-id early return exists precisely to avoid `parent_id.in.()`.
-    expect(mockOrder).not.toHaveBeenCalled();
-  });
-
-  it("returns the thread on success", async () => {
+  it("returns the thread on success, binding visitorId as a parameter", async () => {
     const res = createMockRes();
     await handler(createMockReq(VISITOR_ID), res);
     expect(res._status).toBe(200);
     expect(res._json.messages).toHaveLength(1);
+    const [strings, ...values] = mockSql.mock.calls[0];
+    expect(strings.join("")).not.toContain(VISITOR_ID);
+    expect(values).toEqual([VISITOR_ID, VISITOR_ID]);
   });
 
-  it("surfaces a query error as a 500", async () => {
-    mockEq.mockResolvedValue({ data: null, error: { message: "boom" } });
+  it("surfaces a query error as a generic 500", async () => {
+    mockSql.mockRejectedValue(new Error("relation does not exist"));
     const res = createMockRes();
     await handler(createMockReq(VISITOR_ID), res);
     expect(res._status).toBe(500);
+    expect(res._json.error).not.toMatch(/relation/);
   });
 
   it("allows a full hour's budget of 60 requests, then 429s the 61st", async () => {

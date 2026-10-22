@@ -7,22 +7,9 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const mockInsert = vi.fn();
-vi.mock("src/lib/supabase", () => ({
-  supabase: {
-    from: () => ({
-      insert: (...args) => mockInsert(...args),
-    }),
-  },
-}));
-
-function chainable(result) {
-  return {
-    select: () => ({
-      single: () => Promise.resolve(result),
-    }),
-  };
-}
+const mockSql = vi.fn();
+vi.mock("src/lib/db", () => ({ sql: (...args) => mockSql(...args) }));
+vi.mock("src/lib/intakeSchema", () => ({ ensureIntakeSchema: () => Promise.resolve() }));
 
 function createMockReq(body, headers = {}) {
   return { method: "POST", headers, body, socket: {} };
@@ -50,13 +37,8 @@ describe("api/intake/send owner notification", () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    mockInsert.mockReset();
-    mockInsert.mockReturnValue(
-      chainable({
-        data: { id: 1, visitor_id: VISITOR_ID, content: "hello" },
-        error: null,
-      })
-    );
+    mockSql.mockReset();
+    mockSql.mockResolvedValue([{ id: 1, visitor_id: VISITOR_ID, content: "hello" }]);
     fetchMock = vi.fn().mockResolvedValue({ ok: true });
     global.fetch = fetchMock;
     ({ default: handler } = await import("../../pages/api/intake/send.js"));
@@ -122,5 +104,35 @@ describe("api/intake/send owner notification", () => {
     await handler(req, res);
     expect(res._status).toBe(200);
     expect(res._json.message).toBeTruthy();
+  });
+
+  it("persists to the intake_messages table and returns the stored row", async () => {
+    const res = createMockRes();
+    await handler(createMockReq({ visitorId: VISITOR_ID, type: "text", content: "hello" }), res);
+    expect(res._status).toBe(200);
+    expect(res._json.message).toEqual({ id: 1, visitor_id: VISITOR_ID, content: "hello" });
+    expect(mockSql.mock.calls[0][0].join("")).toContain("INSERT INTO intake_messages");
+  });
+
+  it("returns a generic error, never the database's message, when the write fails", async () => {
+    mockSql.mockRejectedValue(new Error('relation "intake_messages" does not exist'));
+    const res = createMockRes();
+    await handler(createMockReq({ visitorId: VISITOR_ID, type: "text", content: "hello" }), res);
+    expect(res._status).toBe(500);
+    expect(res._json.error).not.toMatch(/relation|intake_messages/);
+  });
+
+  it("rejects an audio URL that isn't this site's own upload, so no foreign link reaches the inbox", async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://abc.supabase.co";
+    const res = createMockRes();
+    await handler(createMockReq({ visitorId: VISITOR_ID, type: "voice", audioUrl: "https://evil.example/x.webm" }), res);
+    expect(res._status).toBe(400);
+    expect(mockSql).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized content", async () => {
+    const res = createMockRes();
+    await handler(createMockReq({ visitorId: VISITOR_ID, type: "text", content: "x".repeat(5001) }), res);
+    expect(res._status).toBe(400);
   });
 });
