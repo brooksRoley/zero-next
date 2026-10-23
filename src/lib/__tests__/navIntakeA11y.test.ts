@@ -11,20 +11,14 @@ describe('nav / intake / funding accessibility', () => {
     expect(s).toContain('aria-controls="mobile-menu"');
     expect(s).toContain('id="mobile-menu"');
   });
-  it('intake name label is bound to its input and the message box is named', () => {
-    const s = read('src/pages/intake.jsx');
-    expect(s).toContain('htmlFor="intake-name"');
-    expect(s).toContain('id="intake-name"');
-    expect(s).toContain('aria-label="Your message"');
+  it('contact page links show keyboard focus', () => {
+    expect(read('src/pages/intake.jsx')).toContain('focus-visible:ring-2');
   });
-  it('intake announces send results, exposes the tab state, and shows keyboard focus', () => {
+  it('contact page takes no uploads and stores nothing', () => {
     const s = read('src/pages/intake.jsx');
-    expect(s).toContain('role="status"');
-    expect(s).toContain('SEND_FAILED');
-    expect(s).toContain("aria-pressed={activeTab === 'text'}");
-    expect(s).toContain("aria-pressed={activeTab === 'voice'}");
-    expect(s).toContain('role="alert"');
-    expect(s).toContain('focus-visible:ring-2');
+    for (const banned of ['supabase', 'getUserMedia', 'MediaRecorder', '<form', '<input', '<textarea', 'fetch(']) {
+      expect(s, banned).not.toContain(banned);
+    }
   });
   it('funding notify button has a visible keyboard focus ring', () => {
     expect(read('src/pages/funding.tsx')).toContain('focus-visible:ring-2');
