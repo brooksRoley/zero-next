@@ -14,23 +14,22 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-Rebuilt 2026-10-22 (zero-next branch hiring/launcher-and-hardwood).
+Rebuilt 2026-10-23 (zero-next branch games/hardwood-open-gym).
 
-BballTactics source: 54a1fce3449a6746d44a653ddafc78220bce1464 (main, clean
-tree: "Merge pull request #4 from brooksRoley/launcher/clean-version").
-Adds BballTactics PRs #5 and #6 over the previous bundle (7e6fbd5): fixed-step
-simulation with interpolated rendering, the ball carried in hand, court
-effects (score floaters, miss shudder), and the engine change from
-shared-core 04d9ad1: shots and passes fly, players steer and keep apart
-(bunching 0.78 -> 0.00, ball teleports 0.60/s -> 0.07/s over 1000 fights).
+BballTactics source: dd0004b5e2ca1088aaaf0ac34758de1de56b904a (main, clean
+tree: "Merge pull request #8 from brooksRoley/game/open-gym").
+Adds BballTactics PRs #7 and #8 over 54a1fce: the Open Gym opening screen
+(How to Play cards, the controls tour, Run It), synthesized sound for every
+click and court event, and press feel. Sound starts muted on this embed
+(client/audio/sfx.js defaultMuted for base /hardwood/); the speaker button
+turns it on.
 
 Build: VITE_API_BASE='' npx vite build --base=/hardwood/ --outDir <scratch dir>
-Copied: index.html, engine.wasm and all ten files in assets/ (previous asset
-files removed). engine.js and engine_roster.json were byte-identical and are
-unchanged. engine.wasm 230,301 -> 236,662 bytes. Every copied file verified
-with cmp against the build.
+Copied: index.html and all ten files in assets/ (previous asset files
+removed). engine.js, engine.wasm and engine_roster.json were byte-identical
+and are unchanged. Every copied file verified with cmp against the build.
 
-PREVIOUS BUNDLE: 2026-10-21, BballTactics 7e6fbd5 (zero-next PR #70).
+PREVIOUS BUNDLE: 2026-10-22, BballTactics 54a1fce (zero-next PR #73). Before that: 2026-10-21, 7e6fbd5 (PR #70).
 
 PROVENANCE VERIFIED 2026-10-20
   Before changing anything, BballTactics b75f7f0 was built unmodified with the
