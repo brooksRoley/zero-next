@@ -34,15 +34,15 @@ export default function Login() {
         <title>Login</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <div className="min-h-screen bg-forest-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-ink-950 flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-forest-800 border border-forest-700/60 mb-4">
+            <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-ink-800 border border-ink-700/60 mb-4">
               <svg className="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </span>
-            <p className="text-forest-400 text-sm">Private dashboard</p>
+            <p className="text-ink-400 text-sm">Private dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -53,7 +53,7 @@ export default function Login() {
               placeholder="Password"
               autoFocus
               required
-              className="w-full px-4 py-3 rounded-xl bg-forest-900 border border-forest-700/60 text-forest-100 placeholder-forest-500 focus:outline-none focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/30 transition-colors text-sm"
+              className="w-full px-4 py-3 rounded-xl bg-ink-900 border border-ink-700/60 text-ink-100 placeholder-ink-500 focus:outline-none focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/30 transition-colors text-sm"
             />
 
             {error && (

@@ -19,7 +19,7 @@ const TECH_STACK = [
 
 export default function BasketballPlatformPage() {
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>Basketball Data Platform | Brooks Roley</title>
         <meta name="description" content="A unified basketball analytics system: Python data pipeline, C++ WASM simulation engine, Vue 3 auto-battler game, and native SwiftUI iOS app." />
@@ -35,8 +35,8 @@ export default function BasketballPlatformPage() {
         }
       `}</style>
 
-      <header className="border-b border-forest-800/60 px-6 py-4">
-        <Link href="/" className="text-sm text-forest-400 hover:text-forest-200 transition-colors">
+      <header className="border-b border-ink-800/60 px-6 py-4">
+        <Link href="/" className="text-sm text-ink-400 hover:text-ink-200 transition-colors">
           &larr; Back
         </Link>
       </header>
@@ -48,14 +48,14 @@ export default function BasketballPlatformPage() {
           <div className="mb-12">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">&#127936;</span>
-              <span className="text-xs font-mono uppercase tracking-widest text-forest-400">
+              <span className="text-xs font-mono uppercase tracking-widest text-ink-400">
                 Full-Stack System &middot; 4 Codebases &middot; 5 Languages
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-5">
               Basketball Data Platform
             </h1>
-            <p className="text-forest-300 text-lg leading-relaxed max-w-3xl">
+            <p className="text-ink-300 text-lg leading-relaxed max-w-3xl">
               A unified system for basketball analytics, simulation, and interactive gaming &mdash;
               spanning a Python data pipeline, a C++ physics engine compiled to WebAssembly,
               a Vue 3 auto-battler, and a native SwiftUI iOS app.
@@ -66,11 +66,11 @@ export default function BasketballPlatformPage() {
         {/* ── Shooting Drill ── */}
         <Reveal delay={100}>
           <section className="mb-14">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
               Try the Simulation
             </h2>
             <ShootingDrill />
-            <p className="text-xs text-forest-600 mt-3 font-mono text-center">
+            <p className="text-xs text-ink-600 mt-3 font-mono text-center">
               The same shot-zone model powers the C++ simulation engine and game matchmaking.
             </p>
           </section>
@@ -79,11 +79,11 @@ export default function BasketballPlatformPage() {
         {/* ── Jumpshot Lab ── */}
         <Reveal delay={150}>
           <section className="mb-14">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
               Jumpshot Lab
             </h2>
             <JumpshotSimulator />
-            <p className="text-xs text-forest-600 mt-3 font-mono text-center">
+            <p className="text-xs text-ink-600 mt-3 font-mono text-center">
               Arc · release · backspin · footwork. The same variables the C++ engine uses to evaluate every shot.
             </p>
           </section>
@@ -92,7 +92,7 @@ export default function BasketballPlatformPage() {
         {/* ── System Layers ── */}
         <section className="mb-14">
           <Reveal>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-6">
               System Layers
             </h2>
           </Reveal>
@@ -106,11 +106,11 @@ export default function BasketballPlatformPage() {
         {/* ── Architecture Diagram ── */}
         <Reveal delay={200}>
           <section className="mb-14">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
               System Architecture
             </h2>
             <ArchitectureDiagram />
-            <p className="text-xs text-forest-600 mt-3 font-mono text-center">
+            <p className="text-xs text-ink-600 mt-3 font-mono text-center">
               Data flows left to right: external APIs &rarr; service layer &rarr; engines &amp; clients
             </p>
           </section>
@@ -119,16 +119,16 @@ export default function BasketballPlatformPage() {
         {/* ── Full Tech Stack ── */}
         <Reveal>
           <section className="mb-14">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
               Technology Stack
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {TECH_STACK.map((group) => (
-                <div key={group.category} className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-forest-400 mb-3">{group.category}</p>
+                <div key={group.category} className="rounded-xl border border-ink-700/40 bg-ink-900/60 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-ink-400 mb-3">{group.category}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {group.items.map((item) => (
-                      <span key={item} className="text-xs px-2.5 py-1 rounded-full border border-forest-700/60 bg-forest-950/60 text-forest-300 font-mono">
+                      <span key={item} className="text-xs px-2.5 py-1 rounded-full border border-ink-700/60 bg-ink-950/60 text-ink-300 font-mono">
                         {item}
                       </span>
                     ))}
@@ -142,7 +142,7 @@ export default function BasketballPlatformPage() {
         {/* ── Design Decisions ── */}
         <Reveal>
           <section className="mb-14">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
               Key Design Decisions
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -164,9 +164,9 @@ export default function BasketballPlatformPage() {
                   desc: 'PlayerEntity, SynergyEngine, ShotProbability, and GameEconomy are implemented identically in C++ and Swift. This shared domain model means game balance tuning in one language transfers directly to the other.',
                 },
               ].map((card) => (
-                <div key={card.title} className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-4">
+                <div key={card.title} className="rounded-xl border border-ink-700/40 bg-ink-900/60 p-4">
                   <p className="font-semibold text-white mb-1.5">{card.title}</p>
-                  <p className="text-sm text-forest-400 leading-relaxed">{card.desc}</p>
+                  <p className="text-sm text-ink-400 leading-relaxed">{card.desc}</p>
                 </div>
               ))}
             </div>

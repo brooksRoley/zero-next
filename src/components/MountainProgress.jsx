@@ -26,8 +26,8 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
       <div className="flex items-center gap-3">
         {/* Mini mountain icon */}
         <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none">
-          <path d="M2 20 L12 4 L22 20 Z" fill="currentColor" className="text-forest-700" />
-          <path d="M9 20 L12 4 L15 20 Z" fill="currentColor" className="text-forest-600" />
+          <path d="M2 20 L12 4 L22 20 Z" fill="currentColor" className="text-ink-700" />
+          <path d="M9 20 L12 4 L15 20 Z" fill="currentColor" className="text-ink-600" />
           {/* Player dot */}
           <circle
             cx={12}
@@ -38,18 +38,18 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
         </svg>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-white">{elo}</span>
-          <span className="text-[10px] text-forest-400">{zone.name}</span>
+          <span className="text-[10px] text-ink-400">{zone.name}</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl bg-forest-900/60 border border-forest-700/40 p-4 overflow-hidden">
+    <div className="rounded-xl bg-ink-900/60 border border-ink-700/40 p-4 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div>
-          <span className="text-xs text-forest-500 uppercase tracking-wider">Rating</span>
+          <span className="text-xs text-ink-500 uppercase tracking-wider">Rating</span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-white">{elo}</span>
             {eloHistory.length > 0 && (
@@ -63,8 +63,8 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
           </div>
         </div>
         <div className="text-right">
-          <span className="text-xs text-forest-500 uppercase tracking-wider">Zone</span>
-          <div className="text-sm font-semibold text-forest-200">{zone.name}</div>
+          <span className="text-xs text-ink-500 uppercase tracking-wider">Zone</span>
+          <div className="text-sm font-semibold text-ink-200">{zone.name}</div>
         </div>
       </div>
 
@@ -183,8 +183,8 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
 
       {/* Altitude bar */}
       <div className="mt-3 flex items-center gap-2">
-        <span className="text-[10px] text-forest-600 w-8">400</span>
-        <div className="flex-1 h-2 rounded-full bg-forest-800 overflow-hidden relative">
+        <span className="text-[10px] text-ink-600 w-8">400</span>
+        <div className="flex-1 h-2 rounded-full bg-ink-800 overflow-hidden relative">
           {/* Zone gradient */}
           <div className="absolute inset-0 rounded-full"
             style={{
@@ -210,7 +210,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
             />
           )}
         </div>
-        <span className="text-[10px] text-forest-600 w-10 text-right">2400</span>
+        <span className="text-[10px] text-ink-600 w-10 text-right">2400</span>
       </div>
     </div>
   )

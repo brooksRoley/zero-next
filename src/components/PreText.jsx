@@ -23,7 +23,7 @@ export default function PreText({
   text = '',
   mode = 'flow',
   value = 0,
-  color = '#ff69b4',
+  color = '#CDA35F',
   accentColor = '#22d3ee',
   float = false,
   fontSize = null,

@@ -130,26 +130,26 @@ export default function AdminAnalyticsPage() {
         <title>Admin — Analytics</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <main className="min-h-screen bg-forest-950 text-white px-4 sm:px-8 py-8">
+      <main className="min-h-screen bg-ink-950 text-white px-4 sm:px-8 py-8">
         <div className="max-w-5xl mx-auto">
           <header className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold">Site Analytics</h1>
-              <p className="text-forest-200 text-sm mt-1">
+              <p className="text-ink-200 text-sm mt-1">
                 Who stops by, what they look at, and what they do — last {windowDays} days
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Link
                 href="/admin/leads"
-                className="rounded-lg border border-forest-700 px-4 py-2 text-sm text-forest-300 hover:bg-forest-800 transition-colors"
+                className="rounded-lg border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:bg-ink-800 transition-colors"
               >
                 Leads
               </Link>
               <button
                 onClick={load}
                 disabled={loading}
-                className="rounded-lg border border-forest-600 px-4 py-2 text-sm hover:bg-forest-800 transition-colors disabled:opacity-50"
+                className="rounded-lg border border-ink-600 px-4 py-2 text-sm hover:bg-ink-800 transition-colors disabled:opacity-50"
               >
                 {loading ? "Refreshing…" : "Refresh"}
               </button>
@@ -157,7 +157,7 @@ export default function AdminAnalyticsPage() {
           </header>
 
           {error && (
-            <div className="mb-4 rounded-lg border border-candy-500/40 bg-candy-500/10 px-4 py-3 text-candy-200 text-sm">
+            <div className="mb-4 rounded-lg border border-brass-500/40 bg-brass-500/10 px-4 py-3 text-brass-200 text-sm">
               {error}
             </div>
           )}
@@ -166,28 +166,28 @@ export default function AdminAnalyticsPage() {
 
           {data && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                <div className="text-xs uppercase tracking-wider text-forest-400">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                <div className="text-xs uppercase tracking-wider text-ink-400">
                   Page views ({windowDays}d)
                 </div>
                 <div className="mt-2 text-3xl font-bold">{totalViews}</div>
               </div>
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                <div className="text-xs uppercase tracking-wider text-forest-400">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                <div className="text-xs uppercase tracking-wider text-ink-400">
                   Interactions ({windowDays}d)
                 </div>
                 <div className="mt-2 text-3xl font-bold">{totalEvents}</div>
               </div>
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                <div className="text-xs uppercase tracking-wider text-forest-400">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                <div className="text-xs uppercase tracking-wider text-ink-400">
                   Leads ({windowDays}d)
                 </div>
-                <div className="mt-2 text-3xl font-bold text-candy-300">
+                <div className="mt-2 text-3xl font-bold text-brass-300">
                   {data.leads.last_30_days}
                 </div>
               </div>
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                <div className="text-xs uppercase tracking-wider text-forest-400">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                <div className="text-xs uppercase tracking-wider text-ink-400">
                   Leads (all time)
                 </div>
                 <div className="mt-2 text-3xl font-bold">{data.leads.total}</div>
@@ -200,11 +200,11 @@ export default function AdminAnalyticsPage() {
               <h2 className="text-lg font-semibold mb-1">
                 Consulting funnel ({windowDays}d)
               </h2>
-              <p className="text-forest-400 text-sm mb-3">
+              <p className="text-ink-400 text-sm mb-3">
                 Distinct sessions at each step: page view &rarr; section view
                 &rarr; form submit &rarr; lead captured.
               </p>
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5 space-y-4">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5 space-y-4">
                 {funnel.map((step, i) => {
                   const prev = i > 0 ? funnel[i - 1].sessions : null;
                   const rate =
@@ -214,27 +214,27 @@ export default function AdminAnalyticsPage() {
                   return (
                     <div key={step.step}>
                       <div className="flex items-baseline justify-between text-sm mb-1">
-                        <span className="text-forest-100">
-                          <span className="text-forest-500 font-mono mr-2">
+                        <span className="text-ink-100">
+                          <span className="text-ink-500 font-mono mr-2">
                             {i + 1}.
                           </span>
                           {step.label}
-                          <span className="ml-2 font-mono text-xs text-forest-500">
+                          <span className="ml-2 font-mono text-xs text-ink-500">
                             {step.step}
                           </span>
                         </span>
                         <span>
                           <span className="font-semibold">{step.sessions}</span>
                           {rate != null && (
-                            <span className="ml-2 text-xs text-forest-400">
+                            <span className="ml-2 text-xs text-ink-400">
                               {rate}% of prev
                             </span>
                           )}
                         </span>
                       </div>
-                      <div className="h-2.5 rounded-full bg-forest-950 overflow-hidden">
+                      <div className="h-2.5 rounded-full bg-ink-950 overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-candy-500/70"
+                          className="h-full rounded-full bg-brass-500/70"
                           style={{
                             width: `${funnelMax > 0 ? (step.sessions / funnelMax) * 100 : 0}%`,
                           }}
@@ -250,57 +250,57 @@ export default function AdminAnalyticsPage() {
           {data && games && (
             <section className="mb-8">
               <h2 className="text-lg font-semibold mb-1">Games (Supabase)</h2>
-              <p className="text-forest-400 text-sm mb-3">
+              <p className="text-ink-400 text-sm mb-3">
                 Live totals from the Pente/Go game database — puzzle bank,
                 puzzle solve rate, recorded games, and player ratings.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-ink-400">
                     Puzzle bank
                   </div>
                   <div className="mt-2 text-3xl font-bold">
                     {games.puzzleBank.count.toLocaleString()}
                   </div>
-                  <div className="mt-1 text-sm text-forest-400">
+                  <div className="mt-1 text-sm text-ink-400">
                     avg rating {fmtAvg(games.puzzleBank.avgRating)}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-ink-400">
                     Puzzle attempts
                   </div>
                   <div className="mt-2 text-3xl font-bold">
                     {games.puzzleAttempts.total.toLocaleString()}
                   </div>
-                  <div className="mt-1 text-sm text-forest-400">
+                  <div className="mt-1 text-sm text-ink-400">
                     {games.puzzleAttempts.total > 0
                       ? `${Math.round((games.puzzleAttempts.solved / games.puzzleAttempts.total) * 100)}% solved`
                       : "no attempts yet"}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-ink-400">
                     Games recorded
                   </div>
                   <div className="mt-2 text-3xl font-bold">
                     {games.gameResults.total.toLocaleString()}
                   </div>
-                  <div className="mt-1 text-sm text-forest-400">
+                  <div className="mt-1 text-sm text-ink-400">
                     {games.gameResults.byOpponentType.bot.toLocaleString()} vs bot
                     {" · "}
                     {games.gameResults.byOpponentType.human.toLocaleString()} vs
                     human
                   </div>
                 </div>
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-ink-400">
                     Players
                   </div>
                   <div className="mt-2 text-3xl font-bold">
                     {games.players.count.toLocaleString()}
                   </div>
-                  <div className="mt-1 text-sm text-forest-400">
+                  <div className="mt-1 text-sm text-ink-400">
                     avg game ELO {fmtAvg(games.players.avgGameElo)}
                   </div>
                 </div>
@@ -311,31 +311,31 @@ export default function AdminAnalyticsPage() {
           {data && games?.go && (
             <section className="mb-8">
               <h2 className="text-lg font-semibold mb-1">Go (Supabase)</h2>
-              <p className="text-forest-400 text-sm mb-3">
+              <p className="text-ink-400 text-sm mb-3">
                 Go lives in its own tables (go_players / go_puzzle_attempts),
                 isolated from Pente&apos;s ELO — tracked separately here so Go
                 engagement isn&apos;t dark.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-ink-400">
                     Go players
                   </div>
                   <div className="mt-2 text-3xl font-bold">
                     {games.go.players.count.toLocaleString()}
                   </div>
-                  <div className="mt-1 text-sm text-forest-400">
+                  <div className="mt-1 text-sm text-ink-400">
                     avg ELO {fmtAvg(games.go.players.avgElo)}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                  <div className="text-xs uppercase tracking-wider text-forest-400">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                  <div className="text-xs uppercase tracking-wider text-ink-400">
                     Go puzzle attempts
                   </div>
                   <div className="mt-2 text-3xl font-bold">
                     {games.go.puzzleAttempts.total.toLocaleString()}
                   </div>
-                  <div className="mt-1 text-sm text-forest-400">
+                  <div className="mt-1 text-sm text-ink-400">
                     {games.go.puzzleAttempts.total > 0
                       ? `${Math.round((games.go.puzzleAttempts.solved / games.go.puzzleAttempts.total) * 100)}% solved`
                       : "no attempts yet"}
@@ -350,7 +350,7 @@ export default function AdminAnalyticsPage() {
               <h2 className="text-lg font-semibold mb-1">
                 Puzzle rating calibration
               </h2>
-              <p className="text-forest-400 text-sm mb-3">
+              <p className="text-ink-400 text-sm mb-3">
                 Puzzles whose actual solve rate diverges most from what their{" "}
                 <span className="text-white">rating</span> predicts, given a
                 reference solver at{" "}
@@ -363,9 +363,9 @@ export default function AdminAnalyticsPage() {
                 excluded as too noisy to judge.
                 Visibility only; no rating is auto-adjusted.
               </p>
-              <div className="overflow-x-auto rounded-2xl border border-forest-700">
+              <div className="overflow-x-auto rounded-2xl border border-ink-700">
                 <table className="w-full text-sm">
-                  <thead className="bg-forest-900 text-forest-200 text-left">
+                  <thead className="bg-ink-900 text-ink-200 text-left">
                     <tr>
                       <th className="px-4 py-3 font-medium">Puzzle</th>
                       <th className="px-4 py-3 font-medium text-right">Rating</th>
@@ -379,28 +379,28 @@ export default function AdminAnalyticsPage() {
                       <th className="px-4 py-3 font-medium text-right">Gap</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-forest-800">
+                  <tbody className="divide-y divide-ink-800">
                     {games.puzzleCalibration.worst.map((row) => (
                       <tr
                         key={row.id}
-                        className="hover:bg-forest-900/40 transition-colors"
+                        className="hover:bg-ink-900/40 transition-colors"
                       >
-                        <td className="px-4 py-3 font-mono text-forest-400 text-xs">
+                        <td className="px-4 py-3 font-mono text-ink-400 text-xs">
                           {row.id.slice(0, 8)}
                         </td>
                         <td className="px-4 py-3 text-right font-medium">
                           {row.rating}
                         </td>
-                        <td className="px-4 py-3 text-right text-forest-300">
+                        <td className="px-4 py-3 text-right text-ink-300">
                           {row.timesSolved}/{row.timesServed}
                         </td>
                         <td className="px-4 py-3 text-right">
                           {Math.round(row.solveRate * 100)}%
                         </td>
-                        <td className="px-4 py-3 text-right text-forest-400">
+                        <td className="px-4 py-3 text-right text-ink-400">
                           {Math.round(row.expectedSolveRate * 100)}%
                         </td>
-                        <td className="px-4 py-3 text-right font-semibold text-candy-300">
+                        <td className="px-4 py-3 text-right font-semibold text-brass-300">
                           {Math.round(row.gap * 100)} pts
                         </td>
                       </tr>
@@ -412,7 +412,7 @@ export default function AdminAnalyticsPage() {
           )}
 
           {!loading && data && data.pageViews.length === 0 && !error && (
-            <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-12 text-center text-forest-300">
+            <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-12 text-center text-ink-300">
               No page views recorded yet. Tracking starts once the site is
               deployed with the new <span className="text-white">page_view</span>{" "}
               events.
@@ -420,9 +420,9 @@ export default function AdminAnalyticsPage() {
           )}
 
           {data && data.pageViews.length > 0 && (
-            <div className="overflow-x-auto rounded-2xl border border-forest-700">
+            <div className="overflow-x-auto rounded-2xl border border-ink-700">
               <table className="w-full text-sm">
-                <thead className="bg-forest-900 text-forest-200 text-left">
+                <thead className="bg-ink-900 text-ink-200 text-left">
                   <tr>
                     <th className="px-4 py-3 font-medium">Route</th>
                     <th className="px-4 py-3 font-medium text-right">Views</th>
@@ -430,25 +430,25 @@ export default function AdminAnalyticsPage() {
                     <th className="px-4 py-3 font-medium w-1/3">Share</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-forest-800">
+                <tbody className="divide-y divide-ink-800">
                   {data.pageViews.map((row) => (
                     <tr
                       key={row.path}
-                      className="hover:bg-forest-900/40 transition-colors"
+                      className="hover:bg-ink-900/40 transition-colors"
                     >
-                      <td className="px-4 py-3 font-mono text-forest-100">
+                      <td className="px-4 py-3 font-mono text-ink-100">
                         {row.path}
                       </td>
                       <td className="px-4 py-3 text-right font-medium">
                         {row.views}
                       </td>
-                      <td className="px-4 py-3 text-right text-forest-300">
+                      <td className="px-4 py-3 text-right text-ink-300">
                         {row.sessions}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="h-2 rounded-full bg-forest-900 overflow-hidden">
+                        <div className="h-2 rounded-full bg-ink-900 overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-candy-500/70"
+                            className="h-full rounded-full bg-brass-500/70"
                             style={{
                               width: `${maxViews > 0 ? (row.views / maxViews) * 100 : 0}%`,
                             }}
@@ -467,21 +467,21 @@ export default function AdminAnalyticsPage() {
               <h2 className="text-lg font-semibold mb-1">
                 Events ({windowDays}d)
               </h2>
-              <p className="text-forest-400 text-sm mb-3">
+              <p className="text-ink-400 text-sm mb-3">
                 Every tracked interaction except page views.{" "}
-                <span className="text-candy-300">Highlighted</span> rows are the
+                <span className="text-brass-300">Highlighted</span> rows are the
                 conversion signals that drive monetization decisions.
               </p>
 
               {events.length === 0 ? (
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-8 text-center text-forest-300">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-8 text-center text-ink-300">
                   No interaction events recorded in the last {windowDays} days
                   yet.
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                <div className="overflow-x-auto rounded-2xl border border-ink-700">
                   <table className="w-full text-sm">
-                    <thead className="bg-forest-900 text-forest-200 text-left">
+                    <thead className="bg-ink-900 text-ink-200 text-left">
                       <tr>
                         <th className="px-4 py-3 font-medium">Event</th>
                         <th className="px-4 py-3 font-medium text-right">Count</th>
@@ -491,7 +491,7 @@ export default function AdminAnalyticsPage() {
                         <th className="px-4 py-3 font-medium w-1/3">Share</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-forest-800">
+                    <tbody className="divide-y divide-ink-800">
                       {events.map((row) => {
                         const isPriority = prioritySet.has(row.event_type);
                         return (
@@ -499,20 +499,20 @@ export default function AdminAnalyticsPage() {
                             key={row.event_type}
                             className={`transition-colors ${
                               isPriority
-                                ? "bg-candy-500/5 hover:bg-candy-500/10"
-                                : "hover:bg-forest-900/40"
+                                ? "bg-brass-500/5 hover:bg-brass-500/10"
+                                : "hover:bg-ink-900/40"
                             }`}
                           >
                             <td className="px-4 py-3 font-mono">
                               <span
                                 className={
-                                  isPriority ? "text-candy-200" : "text-forest-100"
+                                  isPriority ? "text-brass-200" : "text-ink-100"
                                 }
                               >
                                 {row.event_type}
                               </span>
                               {isPriority && (
-                                <span className="ml-2 rounded-full border border-candy-500/40 px-2 py-0.5 text-[10px] uppercase tracking-wider text-candy-300">
+                                <span className="ml-2 rounded-full border border-brass-500/40 px-2 py-0.5 text-[10px] uppercase tracking-wider text-brass-300">
                                   key
                                 </span>
                               )}
@@ -520,16 +520,16 @@ export default function AdminAnalyticsPage() {
                             <td className="px-4 py-3 text-right font-medium">
                               {row.count}
                             </td>
-                            <td className="px-4 py-3 text-right text-forest-300">
+                            <td className="px-4 py-3 text-right text-ink-300">
                               {row.sessions}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="h-2 rounded-full bg-forest-900 overflow-hidden">
+                              <div className="h-2 rounded-full bg-ink-900 overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${
                                     isPriority
-                                      ? "bg-candy-400/80"
-                                      : "bg-forest-500/70"
+                                      ? "bg-brass-400/80"
+                                      : "bg-ink-500/70"
                                   }`}
                                   style={{
                                     width: `${
@@ -550,9 +550,9 @@ export default function AdminAnalyticsPage() {
               )}
 
               {eventsByPage.length > 0 && (
-                <div className="mt-4 overflow-x-auto rounded-2xl border border-forest-800">
+                <div className="mt-4 overflow-x-auto rounded-2xl border border-ink-800">
                   <table className="w-full text-sm">
-                    <thead className="bg-forest-900/70 text-forest-300 text-left">
+                    <thead className="bg-ink-900/70 text-ink-300 text-left">
                       <tr>
                         <th className="px-4 py-2.5 font-medium">Event</th>
                         <th className="px-4 py-2.5 font-medium">Page</th>
@@ -561,19 +561,19 @@ export default function AdminAnalyticsPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-forest-800/60">
+                    <tbody className="divide-y divide-ink-800/60">
                       {eventsByPage.map((row) => (
                         <tr
                           key={`${row.event_type}|${row.page}`}
-                          className="hover:bg-forest-900/30 transition-colors"
+                          className="hover:bg-ink-900/30 transition-colors"
                         >
-                          <td className="px-4 py-2 font-mono text-forest-200">
+                          <td className="px-4 py-2 font-mono text-ink-200">
                             {row.event_type}
                           </td>
-                          <td className="px-4 py-2 font-mono text-forest-400">
+                          <td className="px-4 py-2 font-mono text-ink-400">
                             {row.page}
                           </td>
-                          <td className="px-4 py-2 text-right text-forest-300">
+                          <td className="px-4 py-2 text-right text-ink-300">
                             {row.count}
                           </td>
                         </tr>
@@ -590,7 +590,7 @@ export default function AdminAnalyticsPage() {
               <h2 className="text-lg font-semibold mb-1">
                 LLM usage ({data.llmUsage.windowDays}d)
               </h2>
-              <p className="text-forest-400 text-sm mb-3">
+              <p className="text-ink-400 text-sm mb-3">
                 Token volume on the site&apos;s two unmetered AI routes —
                 Chat Sandbox / Model Arena (<span className="font-mono">ai-gateway</span>)
                 and the Chat Sandbox character generator (
@@ -600,31 +600,31 @@ export default function AdminAnalyticsPage() {
               </p>
 
               {data.llmUsage.rows.length === 0 ? (
-                <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-8 text-center text-forest-300">
+                <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-8 text-center text-ink-300">
                   No LLM usage logged in the last {data.llmUsage.windowDays}{" "}
                   days yet.
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                    <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-ink-400">
                         Calls
                       </div>
                       <div className="mt-2 text-3xl font-bold">
                         {data.llmUsage.totals.calls.toLocaleString()}
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                    <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-ink-400">
                         Input tokens
                       </div>
                       <div className="mt-2 text-3xl font-bold">
                         {data.llmUsage.totals.inputTokens.toLocaleString()}
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-5">
-                      <div className="text-xs uppercase tracking-wider text-forest-400">
+                    <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-5">
+                      <div className="text-xs uppercase tracking-wider text-ink-400">
                         Output tokens
                       </div>
                       <div className="mt-2 text-3xl font-bold">
@@ -632,9 +632,9 @@ export default function AdminAnalyticsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="overflow-x-auto rounded-2xl border border-forest-700">
+                  <div className="overflow-x-auto rounded-2xl border border-ink-700">
                     <table className="w-full text-sm">
-                      <thead className="bg-forest-900 text-forest-200 text-left">
+                      <thead className="bg-ink-900 text-ink-200 text-left">
                         <tr>
                           <th className="px-4 py-3 font-medium">Route</th>
                           <th className="px-4 py-3 font-medium">Provider</th>
@@ -650,28 +650,28 @@ export default function AdminAnalyticsPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-forest-800">
+                      <tbody className="divide-y divide-ink-800">
                         {data.llmUsage.rows.map((row) => (
                           <tr
                             key={`${row.route}|${row.provider}|${row.model}`}
-                            className="hover:bg-forest-900/40 transition-colors"
+                            className="hover:bg-ink-900/40 transition-colors"
                           >
-                            <td className="px-4 py-3 font-mono text-forest-100">
+                            <td className="px-4 py-3 font-mono text-ink-100">
                               {row.route}
                             </td>
-                            <td className="px-4 py-3 text-forest-300">
+                            <td className="px-4 py-3 text-ink-300">
                               {row.provider ?? "—"}
                             </td>
-                            <td className="px-4 py-3 font-mono text-forest-400 text-xs">
+                            <td className="px-4 py-3 font-mono text-ink-400 text-xs">
                               {row.model ?? "—"}
                             </td>
                             <td className="px-4 py-3 text-right font-medium">
                               {row.calls.toLocaleString()}
                             </td>
-                            <td className="px-4 py-3 text-right text-forest-300">
+                            <td className="px-4 py-3 text-right text-ink-300">
                               {row.input_tokens.toLocaleString()}
                             </td>
-                            <td className="px-4 py-3 text-right text-forest-300">
+                            <td className="px-4 py-3 text-right text-ink-300">
                               {row.output_tokens.toLocaleString()}
                             </td>
                           </tr>

@@ -24,16 +24,16 @@ const STONE_PREVIEWS = {
 export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
   if (!open) return null;
 
-  const sectionLabel = 'text-[10px] uppercase tracking-wider text-forest-500 mb-1.5';
+  const sectionLabel = 'text-[10px] uppercase tracking-wider text-ink-500 mb-1.5';
 
   return (
-    <div className="fixed right-3 top-28 z-50 w-60 rounded-2xl border border-forest-700/50 bg-forest-950/95 backdrop-blur-md shadow-2xl shadow-black/50 p-4">
+    <div className="fixed right-3 top-28 z-50 w-60 rounded-2xl border border-ink-700/50 bg-ink-950/95 backdrop-blur-md shadow-2xl shadow-black/50 p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-semibold text-white tracking-wide">Board Style</h3>
         <button
           onClick={onClose}
           aria-label="Close board style panel"
-          className="text-forest-500 hover:text-forest-200 transition-colors text-sm leading-none"
+          className="text-ink-500 hover:text-ink-200 transition-colors text-sm leading-none"
         >
           ✕
         </button>
@@ -53,15 +53,15 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`aspect-square rounded-lg transition-all duration-150 ${
                 active
-                  ? 'ring-2 ring-candy-400 ring-offset-2 ring-offset-forest-950 scale-105'
-                  : 'ring-1 ring-forest-700/60 hover:ring-forest-500 hover:scale-105'
+                  ? 'ring-2 ring-brass-400 ring-offset-2 ring-offset-ink-950 scale-105'
+                  : 'ring-1 ring-ink-700/60 hover:ring-ink-500 hover:scale-105'
               }`}
               style={{ background: theme.swatch }}
             />
           );
         })}
       </div>
-      <p className="text-[10px] text-forest-400 -mt-3 mb-4">
+      <p className="text-[10px] text-ink-400 -mt-3 mb-4">
         {BOARD_THEMES.find(t => t.key === prefs.theme)?.label}
       </p>
 
@@ -79,8 +79,8 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`flex-1 flex flex-col items-center gap-1 rounded-lg px-1 py-2 border transition-colors ${
                 active
-                  ? 'bg-forest-800/80 border-candy-400/60 text-white'
-                  : 'bg-forest-900/60 border-forest-700/40 text-forest-400 hover:text-forest-200 hover:border-forest-500'
+                  ? 'bg-ink-800/80 border-brass-400/60 text-white'
+                  : 'bg-ink-900/60 border-ink-700/40 text-ink-400 hover:text-ink-200 hover:border-ink-500'
               }`}
             >
               <span className="flex -space-x-1">
@@ -106,8 +106,8 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`flex-1 rounded-lg px-2 py-2 text-[11px] border transition-colors ${
                 active
-                  ? 'bg-forest-800/80 border-candy-400/60 text-white'
-                  : 'bg-forest-900/60 border-forest-700/40 text-forest-400 hover:text-forest-200 hover:border-forest-500'
+                  ? 'bg-ink-800/80 border-brass-400/60 text-white'
+                  : 'bg-ink-900/60 border-ink-700/40 text-ink-400 hover:text-ink-200 hover:border-ink-500'
               }`}
             >
               {mode.label}
@@ -115,7 +115,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
           );
         })}
       </div>
-      <p className="text-[10px] text-forest-500 mt-2 leading-snug">
+      <p className="text-[10px] text-ink-500 mt-2 leading-snug">
         Saved on this device — your opponent sees their own style.
       </p>
     </div>

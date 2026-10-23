@@ -16,7 +16,7 @@ export default function SoundToggle({ className = '' }: { className?: string }) 
       aria-label="Mute sound in every game"
       title={muted ? 'Sound off' : 'Sound on'}
       onClick={() => setMuted(!muted)}
-      className={`inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${className}`}
+      className={`inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${className}`}
     >
       <svg viewBox="0 0 20 20" width={16} height={16} aria-hidden fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 8h3l4-3.5v11L6 12H3Z" fill="currentColor" stroke="none" />

@@ -13,7 +13,7 @@ const GAME = 'tend-journal'
 
 function EntryCard({ entry, collected }: { entry: Entry; collected: boolean }) {
   return (
-    <li className={`rounded-xl border p-4 text-sm ${collected ? 'border-forest-600 bg-forest-900/50' : 'border-forest-800'}`}>
+    <li className={`rounded-xl border p-4 text-sm ${collected ? 'border-ink-600 bg-ink-900/50' : 'border-ink-800'}`}>
       <div className="flex gap-3">
         {entry.sprite && (
           <svg viewBox="0 0 40 40" width={40} height={40} className="shrink-0" aria-hidden overflow="visible">
@@ -21,15 +21,15 @@ function EntryCard({ entry, collected }: { entry: Entry; collected: boolean }) {
           </svg>
         )}
         <div className="min-w-0">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-forest-400">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink-400">
             {entry.kind} · {collected ? 'Collected' : 'Not yet collected'}
           </p>
-          <h3 className="mt-1 font-semibold text-forest-100">{entry.title}</h3>
+          <h3 className="mt-1 font-semibold text-ink-100">{entry.title}</h3>
         </div>
       </div>
-      <p className="mt-2 leading-relaxed text-forest-200">{entry.body}</p>
-      {!collected && <p className="mt-2 text-xs text-forest-400">{howToCollect(entry)}</p>}
-      <a href={entry.source.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-forest-400 underline underline-offset-2 hover:text-forest-200">
+      <p className="mt-2 leading-relaxed text-ink-200">{entry.body}</p>
+      {!collected && <p className="mt-2 text-xs text-ink-400">{howToCollect(entry)}</p>}
+      <a href={entry.source.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-ink-400 underline underline-offset-2 hover:text-ink-200">
         {entry.source.label}
       </a>
     </li>
@@ -64,7 +64,7 @@ export default function JournalPage() {
   const current = CHAPTERS.find((c) => c.id === chapter)!
 
   return (
-    <main className="min-h-screen bg-forest-950 font-sans text-forest-100">
+    <main className="min-h-screen bg-ink-950 font-sans text-ink-100">
       <Head>
         <title>The Journal — Tend | Brooks Roley</title>
         <meta
@@ -80,10 +80,10 @@ export default function JournalPage() {
         {sample && <SampleBanner page="journal" />}
         <header className="mb-8 max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">The Journal</h1>
-          <p className="mt-3 text-sm leading-relaxed text-forest-300 sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-ink-300 sm:text-base">
             A field guide in three chapters. Every entry is open to read; playing collects them. Your garden&apos;s own
             plants have their notes on the{' '}
-            <Link href={route('tend').href} className="text-forest-200 underline underline-offset-2 hover:text-white">
+            <Link href={route('tend').href} className="text-ink-200 underline underline-offset-2 hover:text-white">
               Garden
             </Link>{' '}
             page.
@@ -103,12 +103,12 @@ export default function JournalPage() {
                 aria-selected={on}
                 aria-controls="chapter"
                 onClick={() => open(c.id)}
-                className={`rounded-lg border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${
-                  on ? 'border-forest-300 bg-forest-800 font-medium' : 'border-forest-800 text-forest-300 hover:border-forest-600'
+                className={`rounded-lg border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${
+                  on ? 'border-ink-300 bg-ink-800 font-medium' : 'border-ink-800 text-ink-300 hover:border-ink-600'
                 }`}
               >
                 {c.title}{' '}
-                <span className="font-mono text-xs text-forest-400">
+                <span className="font-mono text-xs text-ink-400">
                   {have}/{of}
                 </span>
               </button>
@@ -117,9 +117,9 @@ export default function JournalPage() {
         </div>
 
         <section id="chapter" role="tabpanel" aria-labelledby={`tab-${chapter}`} className="mt-6">
-          <p className="max-w-2xl text-sm text-forest-300">{current.blurb}</p>
+          <p className="max-w-2xl text-sm text-ink-300">{current.blurb}</p>
           {!progress ? (
-            <p className="mt-4 text-forest-400">Opening the journal…</p>
+            <p className="mt-4 text-ink-400">Opening the journal…</p>
           ) : (
             <ul className="mt-4 grid gap-4 md:grid-cols-2">
               {entries.map((e) => (
@@ -129,14 +129,14 @@ export default function JournalPage() {
           )}
         </section>
 
-        <p className="mt-10 max-w-2xl text-xs text-forest-500">
+        <p className="mt-10 max-w-2xl text-xs text-ink-500">
           Each entry says only what its linked source says. Populations change across generations; individual animals and
           plants don&apos;t evolve. Wording follows the{' '}
           <a
             href="https://evolution.berkeley.edu/wp-content/uploads/2021/10/misconceptions_about_evolution_2020.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-forest-300"
+            className="underline underline-offset-2 hover:text-ink-300"
           >
             UC Museum of Paleontology misconceptions guide
           </a>

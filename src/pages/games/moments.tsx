@@ -208,7 +208,7 @@ export default function PlayoffMoments() {
   const reachR = moment.protagonist.speed * moment.timeLeft * S
 
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>Playoff Moments | Brooks Roley</title>
         <meta
@@ -233,7 +233,7 @@ export default function PlayoffMoments() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Playoff <span className="text-[#FDB927]">Moments</span>
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-forest-300">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-300">
             Five famous playoff plays, frozen one beat before they happen. You get the
             protagonist&apos;s legs — speed times seconds — against the defense&apos;s closing
             speed. Click the spot. The geometry grades you; history gets the last word.
@@ -241,7 +241,7 @@ export default function PlayoffMoments() {
         </header>
 
         {/* progress */}
-        <div className="mb-4 flex items-center gap-2 font-mono text-xs text-forest-400">
+        <div className="mb-4 flex items-center gap-2 font-mono text-xs text-ink-400">
           {MOMENTS.map((m, i) => (
             <span
               key={m.id}
@@ -341,7 +341,7 @@ export default function PlayoffMoments() {
                   </g>
                 )}
               </Court>
-              <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.18em] text-forest-500">
+              <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-500">
                 {aiming
                   ? chosen
                     ? 'Spot marked — take the shot, or click again to move it'
@@ -356,15 +356,15 @@ export default function PlayoffMoments() {
                   {moment.series}
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold">{moment.title}</h2>
-                <p className="font-mono text-xs text-forest-400">
+                <p className="font-mono text-xs text-ink-400">
                   {moment.date} · {moment.clock}
                 </p>
               </div>
 
               {!result ? (
                 <>
-                  <p className="text-sm leading-relaxed text-forest-300">{moment.story}</p>
-                  <p className="border-l-2 border-[#FDB927]/50 pl-3 text-sm font-medium leading-relaxed text-forest-100">
+                  <p className="text-sm leading-relaxed text-ink-300">{moment.story}</p>
+                  <p className="border-l-2 border-[#FDB927]/50 pl-3 text-sm font-medium leading-relaxed text-ink-100">
                     {moment.question}
                   </p>
                   <button
@@ -387,8 +387,8 @@ export default function PlayoffMoments() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed text-forest-200">{result.lesson}</p>
-                  <p className="border-l-2 border-forest-700 pl-3 text-sm italic leading-relaxed text-forest-400">
+                  <p className="text-sm leading-relaxed text-ink-200">{result.lesson}</p>
+                  <p className="border-l-2 border-ink-700 pl-3 text-sm italic leading-relaxed text-ink-400">
                     {moment.epilogue}
                   </p>
                   <button
@@ -404,7 +404,7 @@ export default function PlayoffMoments() {
         )}
 
         {finished && (
-          <div className="rounded-xl border border-forest-800/60 bg-forest-900/40 p-8 text-center">
+          <div className="rounded-xl border border-ink-800/60 bg-ink-900/40 p-8 text-center">
             <p className="font-mono text-xs uppercase tracking-[0.25em] text-[#FDB927]/80">Box score</p>
             <div className="mt-4 flex items-center justify-center gap-3">
               {grades.map((g, i) => (
@@ -413,7 +413,7 @@ export default function PlayoffMoments() {
                 </span>
               ))}
             </div>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-forest-300">
+            <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-300">
               Five frozen seconds, five reads. Twice in this repertory the geometry and
               history disagree — Fisher and Kawhi both took shots the floor graded a C
               and made them anyway. The lesson cuts both ways: learn the shape, and
@@ -429,11 +429,11 @@ export default function PlayoffMoments() {
         )}
 
         {/* the frame */}
-        <footer className="mt-10 flex flex-col gap-2 border-t border-forest-800/50 pt-5 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-xl text-xs leading-relaxed text-forest-500">
+        <footer className="mt-10 flex flex-col gap-2 border-t border-ink-800/50 pt-5 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-xl text-xs leading-relaxed text-ink-500">
             Positions are reconstructions from broadcast footage — close enough to teach
             the geometry, not survey data. Part of{' '}
-            <Link href="/theater" className="text-forest-300 underline decoration-forest-700 hover:text-forest-100">
+            <Link href="/theater" className="text-ink-300 underline decoration-ink-700 hover:text-ink-100">
               The Zero Theater
             </Link>
             , Act II.

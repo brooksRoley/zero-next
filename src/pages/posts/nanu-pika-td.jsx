@@ -5,9 +5,9 @@ export default function NanuPikaTDPage() {
   return (
     <>
       <Head>
-        <title>Nanu &amp; Pika TD | Brooks Roley</title>
+        <title>Tower Defense: Nanu Pika | Brooks Roley</title>
         <meta name="description" content="Tower defense with cat wizards. Place towers, survive ant waves, level up." />
-        <meta property="og:title" content="Nanu & Pika TD | Brooks Roley" key="og:title" />
+        <meta property="og:title" content="Tower Defense: Nanu Pika | Brooks Roley" key="og:title" />
         <meta property="og:description" content="Tower defense with cat wizards. Place towers, survive ant waves, level up." key="og:description" />
         <meta property="og:image" content="/lion.jpg" key="og:image" />
       </Head>
