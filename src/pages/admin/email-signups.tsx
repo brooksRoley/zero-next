@@ -106,13 +106,13 @@ export default function AdminEmailSignupsPage() {
           <title>Admin — Email Signups</title>
           <meta name="robots" content="noindex" />
         </Head>
-        <main className="min-h-screen bg-forest-950 text-white flex items-center justify-center px-4">
+        <main className="min-h-screen bg-ink-950 text-white flex items-center justify-center px-4">
           <form
             onSubmit={handleLogin}
-            className="w-full max-w-sm bg-forest-900/60 border border-forest-700 rounded-2xl p-8 shadow-xl"
+            className="w-full max-w-sm bg-ink-900/60 border border-ink-700 rounded-2xl p-8 shadow-xl"
           >
             <h1 className="text-2xl font-bold mb-2">Email Signups</h1>
-            <p className="text-forest-200 text-sm mb-6">
+            <p className="text-ink-200 text-sm mb-6">
               Enter your admin token to view captured emails.
             </p>
             <input
@@ -121,12 +121,12 @@ export default function AdminEmailSignupsPage() {
               onChange={(e) => setTokenInput(e.target.value)}
               placeholder="Admin token"
               autoFocus
-              className="w-full rounded-lg bg-forest-950 border border-forest-700 px-4 py-2.5 text-white placeholder-forest-400 focus:outline-none focus:ring-2 focus:ring-candy-500"
+              className="w-full rounded-lg bg-ink-950 border border-ink-700 px-4 py-2.5 text-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-brass-500"
             />
-            {error && <p className="text-candy-300 text-sm mt-3">{error}</p>}
+            {error && <p className="text-brass-300 text-sm mt-3">{error}</p>}
             <button
               type="submit"
-              className="mt-4 w-full rounded-lg bg-candy-500 hover:bg-candy-400 transition-colors px-4 py-2.5 font-semibold text-white"
+              className="mt-4 w-full rounded-lg bg-brass-500 hover:bg-brass-400 transition-colors px-4 py-2.5 font-semibold text-ink-950"
             >
               View Signups
             </button>
@@ -142,12 +142,12 @@ export default function AdminEmailSignupsPage() {
         <title>Admin — Email Signups</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <main className="min-h-screen bg-forest-950 text-white px-4 sm:px-8 py-8">
+      <main className="min-h-screen bg-ink-950 text-white px-4 sm:px-8 py-8">
         <div className="max-w-5xl mx-auto">
           <header className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold">Email Signups</h1>
-              <p className="text-forest-200 text-sm mt-1">
+              <p className="text-ink-200 text-sm mt-1">
                 {signups.length} {signups.length === 1 ? "email" : "emails"}{" "}
                 captured
               </p>
@@ -156,13 +156,13 @@ export default function AdminEmailSignupsPage() {
               <button
                 onClick={() => loadSignups(token)}
                 disabled={loading}
-                className="rounded-lg border border-forest-600 px-4 py-2 text-sm hover:bg-forest-800 transition-colors disabled:opacity-50"
+                className="rounded-lg border border-ink-600 px-4 py-2 text-sm hover:bg-ink-800 transition-colors disabled:opacity-50"
               >
                 {loading ? "Refreshing…" : "Refresh"}
               </button>
               <button
                 onClick={handleLogout}
-                className="rounded-lg border border-forest-700 px-4 py-2 text-sm text-forest-300 hover:bg-forest-800 transition-colors"
+                className="rounded-lg border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:bg-ink-800 transition-colors"
               >
                 Log out
               </button>
@@ -170,31 +170,31 @@ export default function AdminEmailSignupsPage() {
           </header>
 
           {error && (
-            <div className="mb-4 rounded-lg border border-candy-500/40 bg-candy-500/10 px-4 py-3 text-candy-200 text-sm">
+            <div className="mb-4 rounded-lg border border-brass-500/40 bg-brass-500/10 px-4 py-3 text-brass-200 text-sm">
               {error}
             </div>
           )}
 
           {summary && summary.total > 0 && (
             <div className="mb-6 grid grid-cols-2 lg:grid-cols-3 gap-3">
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   Total signups
                 </div>
                 <div className="text-3xl font-bold mt-1">{summary.total}</div>
-                <div className="text-forest-400 text-xs mt-1">all time</div>
+                <div className="text-ink-400 text-xs mt-1">all time</div>
               </div>
 
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   Last 7 days
                 </div>
                 <div className="text-3xl font-bold mt-1">{summary.last7}</div>
                 <div
                   className={`text-xs mt-1 ${
                     summary.last7 >= summary.prior7
-                      ? "text-forest-200"
-                      : "text-candy-300"
+                      ? "text-ink-200"
+                      : "text-brass-300"
                   }`}
                 >
                   {summary.prior7 === 0 && summary.last7 === 0
@@ -205,12 +205,12 @@ export default function AdminEmailSignupsPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   By source
                 </div>
                 {summary.bySource.length === 0 ? (
-                  <div className="text-forest-400 text-sm mt-2">—</div>
+                  <div className="text-ink-400 text-sm mt-2">—</div>
                 ) : (
                   <ul className="mt-2 space-y-1">
                     {summary.bySource.map((s) => (
@@ -218,10 +218,10 @@ export default function AdminEmailSignupsPage() {
                         key={s.source}
                         className="flex items-center justify-between gap-2 text-sm"
                       >
-                        <span className="text-forest-100 truncate">
+                        <span className="text-ink-100 truncate">
                           {s.source}
                         </span>
-                        <span className="text-forest-300 whitespace-nowrap">
+                        <span className="text-ink-300 whitespace-nowrap">
                           {s.count}
                         </span>
                       </li>
@@ -233,7 +233,7 @@ export default function AdminEmailSignupsPage() {
           )}
 
           {!loading && signups.length === 0 && !error && (
-            <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-12 text-center text-forest-300">
+            <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-12 text-center text-ink-300">
               No signups yet. Captures from the Model Arena email gate,
               digital-product notify list, and the updates card will appear
               here.
@@ -241,33 +241,33 @@ export default function AdminEmailSignupsPage() {
           )}
 
           {signups.length > 0 && (
-            <div className="overflow-x-auto rounded-2xl border border-forest-700">
+            <div className="overflow-x-auto rounded-2xl border border-ink-700">
               <table className="w-full text-sm">
-                <thead className="bg-forest-900 text-forest-200 text-left">
+                <thead className="bg-ink-900 text-ink-200 text-left">
                   <tr>
                     <th className="px-4 py-3 font-medium">Date</th>
                     <th className="px-4 py-3 font-medium">Email</th>
                     <th className="px-4 py-3 font-medium">Source</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-forest-800">
+                <tbody className="divide-y divide-ink-800">
                   {signups.map((s) => (
                     <tr
                       key={s.id}
-                      className="align-top hover:bg-forest-900/40 transition-colors"
+                      className="align-top hover:bg-ink-900/40 transition-colors"
                     >
-                      <td className="px-4 py-3 text-forest-300 whitespace-nowrap">
+                      <td className="px-4 py-3 text-ink-300 whitespace-nowrap">
                         {fmtDate(s.created_at)}
                       </td>
                       <td className="px-4 py-3">
                         <a
                           href={`mailto:${s.email}`}
-                          className="text-candy-300 hover:text-candy-200 underline underline-offset-2"
+                          className="text-brass-300 hover:text-brass-200 underline underline-offset-2"
                         >
                           {s.email}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-forest-200">
+                      <td className="px-4 py-3 text-ink-200">
                         {s.source || "—"}
                       </td>
                     </tr>

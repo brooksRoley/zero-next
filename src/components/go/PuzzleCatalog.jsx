@@ -29,7 +29,7 @@ export default function PuzzleCatalog() {
   return (
     <div>
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <span className="text-forest-400">Filter:</span>
+        <span className="text-ink-400">Filter:</span>
         {FILTERS.map(f => {
           const count = f.key === 'all'
             ? PUZZLES.length
@@ -42,21 +42,21 @@ export default function PuzzleCatalog() {
               onClick={() => setFilter(f.key)}
               className={`px-2.5 py-1 rounded-md border transition ${
                 filter === f.key
-                  ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                  : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                  ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                  : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
               }`}
             >
-              {f.label} <span className="text-forest-600">{count}</span>
+              {f.label} <span className="text-ink-600">{count}</span>
             </button>
           )
         })}
-        <span className="ml-auto text-forest-500">
+        <span className="ml-auto text-ink-500">
           {solved.size} / {PUZZLES.length} solved
         </span>
       </div>
 
       {visible.length === 0 ? (
-        <div className="rounded-xl border border-forest-800/60 bg-forest-900/40 p-6 text-center text-sm text-forest-400">
+        <div className="rounded-xl border border-ink-800/60 bg-ink-900/40 p-6 text-center text-sm text-ink-400">
           {filter === 'solved'
             ? 'No solved puzzles yet — pick one to start.'
             : 'Nothing here.'}
@@ -69,7 +69,7 @@ export default function PuzzleCatalog() {
               <li key={p.id}>
                 <Link
                   href={`/posts/go/puzzles/${p.id}`}
-                  className="block rounded-xl border border-forest-700/60 bg-forest-900/70 hover:border-candy-400/50 hover:bg-forest-900 px-4 py-3 transition"
+                  className="block rounded-xl border border-ink-700/60 bg-ink-900/70 hover:border-brass-400/50 hover:bg-ink-900 px-4 py-3 transition"
                 >
                   <div className="flex items-baseline justify-between gap-2 mb-1">
                     <h3 className="text-sm font-semibold text-white">{p.title}</h3>
@@ -77,8 +77,8 @@ export default function PuzzleCatalog() {
                       {p.difficulty}
                     </span>
                   </div>
-                  <p className="text-xs text-forest-300 leading-relaxed">{p.prompt}</p>
-                  <div className="mt-2 flex items-center justify-between text-[10px] text-forest-500">
+                  <p className="text-xs text-ink-300 leading-relaxed">{p.prompt}</p>
+                  <div className="mt-2 flex items-center justify-between text-[10px] text-ink-500">
                     <span className="font-mono">{p.size}×{p.size} · rating {p.rating}</span>
                     {done && (
                       <span className="text-green-400 font-medium">✓ Solved</span>

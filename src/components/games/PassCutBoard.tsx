@@ -140,7 +140,7 @@ export default function PassCutBoard({ level, onResult }: PassCutBoardProps) {
     <div className="w-full">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p
-          className="text-sm font-medium text-forest-200"
+          className="text-sm font-medium text-ink-200"
           aria-live="polite"
         >
           {turnLabel}
@@ -155,7 +155,7 @@ export default function PassCutBoard({ level, onResult }: PassCutBoardProps) {
         </button>
       </div>
 
-      <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-forest-800 bg-forest-950 shadow-xl shadow-black/40">
+      <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-ink-800 bg-ink-950 shadow-xl shadow-black/40">
         <svg
           viewBox="0 0 100 100"
           className="h-full w-full"
@@ -282,7 +282,7 @@ export default function PassCutBoard({ level, onResult }: PassCutBoardProps) {
       </div>
 
       {/* ── Legend ── */}
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-forest-400">
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-ink-400">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-0.5 w-5 rounded" style={{ background: "#5b6b7a" }} />
           Open lane

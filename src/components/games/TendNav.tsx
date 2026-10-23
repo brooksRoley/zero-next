@@ -13,8 +13,8 @@ const PAGES: { id: Page; label: string; href: string }[] = [
 /** One bar across Tend's pages, so the garden and the watershed read as one game. Carries sample mode along. */
 export default function TendNav({ current, sample }: { current: Page; sample: boolean }) {
   return (
-    <nav aria-label="Tend" className="mb-6 flex items-center gap-1 rounded-full border border-forest-800 bg-forest-900/40 p-1 text-sm">
-      <span className="px-2 font-semibold tracking-tight text-forest-100 sm:px-3">Tend</span>
+    <nav aria-label="Tend" className="mb-6 flex items-center gap-1 rounded-full border border-ink-800 bg-ink-900/40 p-1 text-sm">
+      <span className="px-2 font-semibold tracking-tight text-ink-100 sm:px-3">Tend</span>
       {PAGES.map((page) => {
         const here = page.id === current
         return (
@@ -22,8 +22,8 @@ export default function TendNav({ current, sample }: { current: Page; sample: bo
             key={page.id}
             href={sample ? { pathname: page.href, query: { sample: '1' } } : page.href}
             aria-current={here ? 'page' : undefined}
-            className={`rounded-full px-2.5 py-1.5 transition-colors sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${
-              here ? 'bg-forest-200 font-medium text-forest-950' : 'text-forest-300 hover:bg-forest-800 hover:text-forest-100'
+            className={`rounded-full px-2.5 py-1.5 transition-colors sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${
+              here ? 'bg-ink-200 font-medium text-ink-950' : 'text-ink-300 hover:bg-ink-800 hover:text-ink-100'
             }`}
           >
             {page.label}
@@ -32,7 +32,7 @@ export default function TendNav({ current, sample }: { current: Page; sample: bo
       })}
       <span className="ml-auto flex items-center gap-1">
         {sample && <span className="hidden px-2 font-mono text-xs uppercase tracking-widest text-amber-200/90 sm:inline">Sample</span>}
-        <SoundToggle className="rounded-full p-1.5 text-forest-300 hover:bg-forest-800 hover:text-forest-100" />
+        <SoundToggle className="rounded-full p-1.5 text-ink-300 hover:bg-ink-800 hover:text-ink-100" />
       </span>
     </nav>
   )

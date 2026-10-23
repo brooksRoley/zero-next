@@ -132,11 +132,11 @@ function EmailGate({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-[#C5E7EA]/20 bg-[#1c2426] p-6 shadow-2xl">
-        <h2 className="text-lg font-semibold text-[#DADBD9]">
+      <div className="w-full max-w-sm rounded-2xl border border-[#DED9CE]/20 bg-[#1A2638] p-6 shadow-2xl">
+        <h2 className="text-lg font-semibold text-[#E9E3D6]">
           You&apos;ve hit today&apos;s free limit
         </h2>
-        <p className="mt-2 text-sm text-[#DADBD9]/60">
+        <p className="mt-2 text-sm text-[#E9E3D6]/60">
           That&apos;s {FREE_DAILY_BATTLES} free runs on the house. Drop your email
           to unlock {EMAIL_BONUS_BATTLES} more today — or bring your own API key
           for unlimited runs.
@@ -149,12 +149,12 @@ function EmailGate({
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             placeholder="you@example.com"
-            className="flex-1 rounded-lg border border-[#C5E7EA]/30 bg-[#415557]/40 px-3 py-2 text-sm text-[#DADBD9] placeholder-[#DADBD9]/40 focus:border-[#C5E7EA]/70 focus:outline-none"
+            className="flex-1 rounded-lg border border-[#DED9CE]/30 bg-[#2F3C50]/40 px-3 py-2 text-sm text-[#E9E3D6] placeholder-[#E9E3D6]/40 focus:border-[#DED9CE]/70 focus:outline-none"
           />
           <button
             onClick={handleSubmit}
             disabled={!valid || status === "submitting"}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/30 text-[#C5E7EA] hover:bg-[#C5E7EA]/40 transition-colors disabled:opacity-40"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#DED9CE]/30 text-[#DED9CE] hover:bg-[#DED9CE]/40 transition-colors disabled:opacity-40"
           >
             {status === "submitting" ? "…" : "Unlock"}
           </button>
@@ -167,14 +167,14 @@ function EmailGate({
 
         <button
           onClick={onUseKeys}
-          className="mt-4 w-full px-3 py-2 rounded-lg text-sm text-[#DADBD9]/70 hover:text-[#DADBD9] border border-[#C5E7EA]/20 hover:bg-[#415557]/30 transition-colors"
+          className="mt-4 w-full px-3 py-2 rounded-lg text-sm text-[#E9E3D6]/70 hover:text-[#E9E3D6] border border-[#DED9CE]/20 hover:bg-[#2F3C50]/30 transition-colors"
         >
           Use my own API key instead
         </button>
 
         <button
           onClick={onClose}
-          className="mt-3 w-full text-xs text-[#DADBD9]/40 hover:text-[#DADBD9]/70 transition-colors"
+          className="mt-3 w-full text-xs text-[#E9E3D6]/40 hover:text-[#E9E3D6]/70 transition-colors"
         >
           Maybe later
         </button>
@@ -223,7 +223,7 @@ function BYOKPanel({
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="px-3 py-1.5 rounded-lg text-sm text-[#DADBD9]/70 hover:text-[#DADBD9] border border-[#C5E7EA]/20 hover:bg-[#415557]/30 transition-colors"
+        className="px-3 py-1.5 rounded-lg text-sm text-[#E9E3D6]/70 hover:text-[#E9E3D6] border border-[#DED9CE]/20 hover:bg-[#2F3C50]/30 transition-colors"
       >
         API Keys
         {Object.values(keys).some(Boolean) && (
@@ -231,14 +231,14 @@ function BYOKPanel({
         )}
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-[#C5E7EA]/20 bg-[#1c2426] p-4 shadow-2xl z-50">
-          <p className="text-xs text-[#DADBD9]/50 mb-3">
+        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-[#DED9CE]/20 bg-[#1A2638] p-4 shadow-2xl z-50">
+          <p className="text-xs text-[#E9E3D6]/50 mb-3">
             Keys are stored in your browser only and sent directly to the
             provider.
           </p>
           {providers.map((p) => (
             <label key={p.id} className="block mb-2">
-              <span className="text-xs text-[#DADBD9]/70 flex items-center gap-1.5">
+              <span className="text-xs text-[#E9E3D6]/70 flex items-center gap-1.5">
                 {p.name}
                 {local[p.id] && (
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
@@ -252,7 +252,7 @@ function BYOKPanel({
                     setLocal({ ...local, [p.id]: e.target.value })
                   }
                   placeholder={`${p.id} key`}
-                  className="flex-1 rounded-md border border-[#C5E7EA]/20 bg-[#415557]/30 px-2 py-1 text-xs text-[#DADBD9] placeholder-[#DADBD9]/30 focus:outline-none"
+                  className="flex-1 rounded-md border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-2 py-1 text-xs text-[#E9E3D6] placeholder-[#E9E3D6]/30 focus:outline-none"
                 />
                 {local[p.id] && (
                   <button
@@ -267,7 +267,7 @@ function BYOKPanel({
           ))}
           <button
             onClick={handleSave}
-            className="mt-2 w-full px-3 py-1.5 rounded-lg text-xs font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+            className="mt-2 w-full px-3 py-1.5 rounded-lg text-xs font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors"
           >
             Save
           </button>
@@ -291,12 +291,12 @@ function ModelSelector({
   return (
     <label className="block">
       {label && (
-        <span className="text-xs text-[#DADBD9]/50 mb-1 block">{label}</span>
+        <span className="text-xs text-[#E9E3D6]/50 mb-1 block">{label}</span>
       )}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-2 py-1.5 text-sm text-[#DADBD9] focus:outline-none"
+        className="w-full rounded-lg border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-2 py-1.5 text-sm text-[#E9E3D6] focus:outline-none"
       >
         {groups.map((g) => (
           <optgroup key={g.providerId} label={g.providerName}>
@@ -322,14 +322,14 @@ function StreamingColumn({ col }: { col: StreamColumn }) {
   };
 
   return (
-    <div className="flex-1 min-w-0 rounded-xl border border-[#C5E7EA]/15 bg-[#415557]/10 p-4 flex flex-col">
+    <div className="flex-1 min-w-0 rounded-xl border border-[#DED9CE]/15 bg-[#2F3C50]/10 p-4 flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <div className="text-sm font-medium text-[#DADBD9]">
+          <div className="text-sm font-medium text-[#E9E3D6]">
             {model?.displayName || col.modelId}
           </div>
           {model && (
-            <div className="text-[10px] text-[#DADBD9]/40">
+            <div className="text-[10px] text-[#E9E3D6]/40">
               via {providerNames[model.providerId] || model.providerId}
             </div>
           )}
@@ -339,7 +339,7 @@ function StreamingColumn({ col }: { col: StreamColumn }) {
         )}
       </div>
 
-      <div className="flex-1 text-sm text-[#DADBD9]/80 whitespace-pre-wrap overflow-y-auto max-h-96 min-h-[120px]">
+      <div className="flex-1 text-sm text-[#E9E3D6]/80 whitespace-pre-wrap overflow-y-auto max-h-96 min-h-[120px]">
         {col.content || (col.status === "idle" ? "" : "...")}
         {col.error && (
           <span className="text-red-400 text-xs block mt-2">{col.error}</span>
@@ -347,7 +347,7 @@ function StreamingColumn({ col }: { col: StreamColumn }) {
       </div>
 
       {(col.ttft !== null || col.totalTime !== null) && (
-        <div className="mt-3 pt-2 border-t border-[#C5E7EA]/10 flex gap-4 text-[10px] text-[#DADBD9]/40">
+        <div className="mt-3 pt-2 border-t border-[#DED9CE]/10 flex gap-4 text-[10px] text-[#E9E3D6]/40">
           {col.ttft !== null && <span>TTFT: {col.ttft}ms</span>}
           {col.totalTime !== null && <span>Total: {col.totalTime}ms</span>}
           {col.tokenEstimate > 0 && <span>~{col.tokenEstimate} tokens</span>}
@@ -388,10 +388,10 @@ function Leaderboard({ battles }: { battles: BattleRecord[] }) {
     .sort((a, b) => b.winRate - a.winRate);
 
   return (
-    <div className="border-t border-[#C5E7EA]/10 mt-4 pt-3">
+    <div className="border-t border-[#DED9CE]/10 mt-4 pt-3">
       <button
         onClick={() => setOpen(!open)}
-        className="text-xs text-[#DADBD9]/50 hover:text-[#DADBD9]/70 transition-colors"
+        className="text-xs text-[#E9E3D6]/50 hover:text-[#E9E3D6]/70 transition-colors"
       >
         {open ? "Hide" : "Show"} Leaderboard ({battles.length} battles)
       </button>
@@ -402,7 +402,7 @@ function Leaderboard({ battles }: { battles: BattleRecord[] }) {
             return (
               <div
                 key={s.id}
-                className="flex items-center justify-between text-xs text-[#DADBD9]/60 py-1"
+                className="flex items-center justify-between text-xs text-[#E9E3D6]/60 py-1"
               >
                 <span className="truncate mr-2">
                   {model?.displayName || s.id}
@@ -686,15 +686,15 @@ export default function ModelArena() {
       </Head>
 
       {/* Header */}
-      <header className="border-b border-[#C5E7EA]/10 px-4 py-3 flex items-center justify-between">
+      <header className="border-b border-[#DED9CE]/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-[#DADBD9]/50 hover:text-[#DADBD9] text-sm transition-colors"
+            className="text-[#E9E3D6]/50 hover:text-[#E9E3D6] text-sm transition-colors"
           >
             &larr; Home
           </Link>
-          <h1 className="text-lg font-semibold text-[#DADBD9]">
+          <h1 className="text-lg font-semibold text-[#E9E3D6]">
             Model Arena
           </h1>
         </div>
@@ -702,7 +702,7 @@ export default function ModelArena() {
       </header>
 
       {/* Mode Tabs */}
-      <div className="border-b border-[#C5E7EA]/10 px-4 py-2 flex gap-1">
+      <div className="border-b border-[#DED9CE]/10 px-4 py-2 flex gap-1">
         {(["compare", "battle"] as const).map((m) => (
           <button
             key={m}
@@ -712,8 +712,8 @@ export default function ModelArena() {
             }}
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               mode === m
-                ? "bg-[#C5E7EA]/20 text-[#C5E7EA]"
-                : "text-[#DADBD9]/50 hover:text-[#DADBD9]"
+                ? "bg-[#DED9CE]/20 text-[#DED9CE]"
+                : "text-[#E9E3D6]/50 hover:text-[#E9E3D6]"
             }`}
           >
             {m === "compare" ? "Compare" : "Battle"}
@@ -723,7 +723,7 @@ export default function ModelArena() {
 
       {/* Model Selectors (Compare mode only) */}
       {mode === "compare" && (
-        <div className="border-b border-[#C5E7EA]/10 px-4 py-3 grid grid-cols-2 gap-4">
+        <div className="border-b border-[#DED9CE]/10 px-4 py-3 grid grid-cols-2 gap-4">
           <ModelSelector value={modelA} onChange={setModelA} label="Model A" />
           <ModelSelector value={modelB} onChange={setModelB} label="Model B" />
         </div>
@@ -731,7 +731,7 @@ export default function ModelArena() {
 
       {mode === "battle" && columns.length === 0 && (
         <div className="px-4 py-6 text-center space-y-2">
-          <p className="text-sm text-[#DADBD9]/60">
+          <p className="text-sm text-[#E9E3D6]/60">
             Type a prompt and hit Send. Two random models will compete blindly.
           </p>
           {!Object.values(byokKeys).some(Boolean) && (
@@ -774,19 +774,19 @@ export default function ModelArena() {
             <div className="flex gap-3 justify-center mt-6">
               <button
                 onClick={() => handleVote("a")}
-                className="px-6 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+                className="px-6 py-2 rounded-lg text-sm font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors"
               >
                 A wins
               </button>
               <button
                 onClick={() => handleVote("tie")}
-                className="px-6 py-2 rounded-lg text-sm font-medium border border-[#C5E7EA]/20 text-[#DADBD9]/70 hover:text-[#DADBD9] transition-colors"
+                className="px-6 py-2 rounded-lg text-sm font-medium border border-[#DED9CE]/20 text-[#E9E3D6]/70 hover:text-[#E9E3D6] transition-colors"
               >
                 Tie
               </button>
               <button
                 onClick={() => handleVote("b")}
-                className="px-6 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+                className="px-6 py-2 rounded-lg text-sm font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors"
               >
                 B wins
               </button>
@@ -795,11 +795,11 @@ export default function ModelArena() {
 
           {/* Battle reveal */}
           {mode === "battle" && battleRevealed && (
-            <div className="text-center mt-4 text-sm text-[#DADBD9]/60">
+            <div className="text-center mt-4 text-sm text-[#E9E3D6]/60">
               <p>
-                Model A: <strong className="text-[#DADBD9]">{getModelById(battleModelA)?.displayName || battleModelA}</strong>
+                Model A: <strong className="text-[#E9E3D6]">{getModelById(battleModelA)?.displayName || battleModelA}</strong>
                 {" | "}
-                Model B: <strong className="text-[#DADBD9]">{getModelById(battleModelB)?.displayName || battleModelB}</strong>
+                Model B: <strong className="text-[#E9E3D6]">{getModelById(battleModelB)?.displayName || battleModelB}</strong>
               </p>
             </div>
           )}
@@ -809,13 +809,13 @@ export default function ModelArena() {
             <div className="flex gap-2 justify-center mt-4">
               <button
                 onClick={handleSend}
-                className="px-4 py-1.5 rounded-lg text-xs text-[#DADBD9]/50 hover:text-[#DADBD9] border border-[#C5E7EA]/15 transition-colors"
+                className="px-4 py-1.5 rounded-lg text-xs text-[#E9E3D6]/50 hover:text-[#E9E3D6] border border-[#DED9CE]/15 transition-colors"
               >
                 Re-run
               </button>
               <button
                 onClick={handleClear}
-                className="px-4 py-1.5 rounded-lg text-xs text-[#DADBD9]/50 hover:text-[#DADBD9] border border-[#C5E7EA]/15 transition-colors"
+                className="px-4 py-1.5 rounded-lg text-xs text-[#E9E3D6]/50 hover:text-[#E9E3D6] border border-[#DED9CE]/15 transition-colors"
               >
                 Clear
               </button>
@@ -830,7 +830,7 @@ export default function ModelArena() {
       {/* Empty state when no columns */}
       {columns.length === 0 && mode === "compare" && (
         <div className="flex-1 flex flex-col items-center justify-center gap-2">
-          <p className="text-sm text-[#DADBD9]/50">
+          <p className="text-sm text-[#E9E3D6]/50">
             Pick two models, type a prompt below, and compare responses.
           </p>
           {!Object.values(byokKeys).some(Boolean) && (
@@ -849,7 +849,7 @@ export default function ModelArena() {
       )}
 
       {/* Input Area */}
-      <div className="border-t border-[#C5E7EA]/20 bg-[#1c2426]/60 px-4 py-3">
+      <div className="border-t border-[#DED9CE]/20 bg-[#1A2638]/60 px-4 py-3">
         <div className="flex gap-2 items-end">
           <textarea
             value={prompt}
@@ -857,26 +857,26 @@ export default function ModelArena() {
             onKeyDown={handleKeyDown}
             placeholder="Enter a prompt to compare models…"
             rows={2}
-            className="flex-1 resize-none rounded-lg border border-[#C5E7EA]/40 bg-[#415557]/50 px-3 py-2 text-sm text-[#DADBD9] placeholder-[#DADBD9]/50 focus:border-[#C5E7EA]/70 focus:outline-none"
+            className="flex-1 resize-none rounded-lg border border-[#DED9CE]/40 bg-[#2F3C50]/50 px-3 py-2 text-sm text-[#E9E3D6] placeholder-[#E9E3D6]/50 focus:border-[#DED9CE]/70 focus:outline-none"
             disabled={isRunning}
           />
           <button
             onClick={handleSend}
             disabled={!prompt.trim() || isRunning}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/30 text-[#C5E7EA] hover:bg-[#C5E7EA]/40 transition-colors disabled:opacity-40"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#DED9CE]/30 text-[#DED9CE] hover:bg-[#DED9CE]/40 transition-colors disabled:opacity-40"
           >
             {isRunning ? "Running…" : "Send"}
           </button>
         </div>
         {!hasOwnKey && (
-          <p className="mt-2 text-[10px] text-[#DADBD9]/40 text-right">
+          <p className="mt-2 text-[10px] text-[#E9E3D6]/40 text-right">
             {remaining} free {remaining === 1 ? "run" : "runs"} left today
             {!unlocked && remaining <= 3 && (
               <>
                 {" · "}
                 <button
                   onClick={() => setShowGate(true)}
-                  className="underline hover:text-[#DADBD9]/70"
+                  className="underline hover:text-[#E9E3D6]/70"
                 >
                   unlock more
                 </button>

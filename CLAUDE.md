@@ -25,7 +25,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 **Portfolio / funnel**
 - `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
-- `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
+- `/consulting` (`src/pages/consulting.tsx`) — **Work**: the work by domain (robotics, sustainability, healthcare, finance, insurance, ecology) and the computer science behind the games. No prices, no form, no sticky CTA (2026-10-23, Brooks: "less preachy and desperate"). `/api/consulting/leads` and `/checkout` remain but nothing on the site calls them
 - `/intake` (`src/pages/intake.jsx`) — Contact: email, LinkedIn and Calendly links only. Nothing is uploaded or stored (see Security & privacy)
 - `/funding` — **retired 2026-10-23** (redirects to `/`). Brooks asked for the whole support ask to be "a little less beggy": no tip jar, no "support development" links, no mention of AI tokens or server bills. The replacement is `src/components/UpdatesCard.tsx`, a brief, optional, one-time "want a note when something new goes up?" card, and it is **switched off** (`UPDATES_CARD_ENABLED = false`). Do not re-add a tip jar, a funding route or a money ask on any page; `src/lib/__tests__/noTipJar.test.ts` fails if one comes back. Turning the card on is Brooks's call.
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
@@ -427,7 +427,7 @@ Find the single highest-value visual or UX improvement. Priority order:
 1. **Conversion design** — consulting CTAs, product landing sections, pricing pages, lead capture
 2. Component polish and animation refinement
 3. Responsive layout gaps (mobile breakpoints)
-4. Dark-forest Tailwind palette consistency (`forest-*` colors, candy-pink accents)
+4. Ink & Brass palette consistency (`ink-*` burnt blue, cream and gray, `charcoal` cards, `brass-*` accent; see docs/ART_DIRECTION.md)
 5. Loading, error, and empty state design
 6. Accessibility (contrast ratios, focus ring visibility)
 

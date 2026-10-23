@@ -33,7 +33,7 @@ const CONTACTS = [
 
 export default function Contact() {
   return (
-    <main className="min-h-screen bg-forest-950 text-white">
+    <main className="min-h-screen bg-ink-950 text-white">
       <Head>
         <title>Contact | Brooks Roley</title>
         <meta name="description" content="Reach Brooks Roley by email, on LinkedIn, or book a call." />
@@ -44,7 +44,7 @@ export default function Contact() {
           <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">Get in touch</h1>
         </Reveal>
         <Reveal delay={100}>
-          <p className="mb-10 text-lg text-forest-200">
+          <p className="mb-10 text-lg text-ink-200">
             Email is the quickest way to reach me. I&apos;ll reply.
           </p>
         </Reveal>
@@ -56,10 +56,10 @@ export default function Contact() {
                 href={c.href}
                 {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 onClick={() => track('cta_click', { page: '/intake', metadata: { location: `contact_${c.key}` } })}
-                className="flex h-full flex-col gap-1 rounded-xl border border-forest-700/50 bg-forest-900/40 p-5 transition-colors hover:border-forest-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
+                className="flex h-full flex-col gap-1 rounded-xl border border-ink-700/50 bg-ink-900/40 p-5 transition-colors hover:border-ink-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950"
               >
                 <span className="text-base font-semibold text-white">{c.title}</span>
-                <span className="break-all text-sm text-forest-400">{c.detail}</span>
+                <span className="break-all text-sm text-ink-400">{c.detail}</span>
               </a>
             </li>
           ))}

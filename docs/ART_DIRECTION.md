@@ -18,9 +18,9 @@ is the black box the work performs in.
 
 | Token | Value | Role |
 |---|---|---|
-| `forest-950` | `#04120c` | The house dark. Default page ground. |
-| `forest-300/400/500` | greens | Supporting text, program notes. |
-| `candy-400/500` | `#ff69b4` / `#f24da0` | The theater's own light — marquee and studio accents. |
+| `ink-950` | `#101B2B` | The house dark: burnt blue. Default page ground. (Ink & Brass, 2026-10-23, replaced forest + candy.) |
+| `ink-100/200` | creams | Body text. `ink-300/400` grays for supporting text; `charcoal` `#262A30` for cards. |
+| `brass-300/400/500` | `#D8B783` / `#CDA35F` / `#C18E3D` | The one decorator accent: links, marquee, studio accents. Solid brass buttons take `text-ink-950`, never white. `clay-400/500` is a rare second accent. |
 | `void-400/500` | `#a78bfa` / `#8b5cf6` | Mystery pieces, night-sky work (Stat Galaxy). |
 | Lakers purple / gold | `#552583` / `#FDB927` | Reserved for basketball surfaces only. |
 
@@ -97,14 +97,14 @@ daylight.
 
 | Production | Route | Act | Metaphor | Accent |
 |---|---|---|---|---|
-| Pente | `/posts/pente` | I — Duels | the duel | candy |
-| Go | `/posts/go` | I — Duels | the old game | forest light |
-| Pente Puzzles | `/posts/pente-puzzles` | II — Trials | the mountain | candy |
-| Go Puzzles | `/posts/go/puzzles` | II — Trials | the climb, quieter | forest light |
+| Pente | `/posts/pente` | I — Duels | the duel | brass |
+| Go | `/posts/go` | I — Duels | the old game | ink light |
+| Pente Puzzles | `/posts/pente-puzzles` | II — Trials | the mountain | brass |
+| Go Puzzles | `/posts/go/puzzles` | II — Trials | the climb, quieter | ink light |
 | Nanu & Pika TD | `/posts/nanu-pika-td` | II — Trials | the siege | void |
 | Hardwood Autochess | `/games/hardwood` | III — Seasons | court = stage | Lakers gold |
 | Stat Galaxy | `/stat-galaxy` (gated until finished) | Intermission | the observatory | void |
-| Luminous Flow | `/posts/luminous-flow` | Intermission | water | candy |
+| Luminous Flow | `/posts/luminous-flow` | Intermission | water | brass |
 
 New pieces join the repertory by appearing on `/theater` in the same PR that
 ships them — a production without a playbill doesn't exist.

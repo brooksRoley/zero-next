@@ -586,7 +586,7 @@ export default function NanuPikaAdventures(){
   const starLine=(n)=>"★".repeat(n)+"☆".repeat(3-n);
   if(!started)return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",background:HOUSE.ground,minHeight:"100vh",fontFamily:HOUSE.font,color:HOUSE.body,padding:"28px 16px 40px",gap:"14px"}}>
-      <h1 style={{fontSize:"30px",fontWeight:800,letterSpacing:"-0.02em",textAlign:"center",color:HOUSE.ink}}>Nanu &amp; Pika <span style={{color:HOUSE.accent}}>Adventures</span></h1>
+      <h1 style={{fontSize:"30px",fontWeight:800,letterSpacing:"-0.02em",textAlign:"center",color:HOUSE.ink}}>Tower Defense: <span style={{color:HOUSE.accent}}>Nanu Pika</span></h1>
       <p style={{color:HOUSE.body,fontSize:"14px",maxWidth:"420px",textAlign:"center",lineHeight:1.5}}>Hold the forest road against the ants. Each level is a longer, tougher siege than the last.</p>
       <div style={{fontSize:"11px",color:HOUSE.muted,letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"ui-monospace, SFMono-Regular, Menlo, monospace"}}>
         {allCleared?"Every level cleared":`Level ${nextIdx+1} of ${LEVELS.length}`} · <span style={{color:"#ffd700"}}>{totalStars(progress)} / {LEVELS.length*3} ★</span>

@@ -139,7 +139,7 @@ export default function ReadAndReact() {
   const beatPar = result ? result.points >= result.benchmark : false;
 
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>Read &amp; React | Brooks Roley</title>
         <meta
@@ -164,7 +164,7 @@ export default function ReadAndReact() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Read &amp; <span style={{ color: GOLD }}>React</span>
           </h1>
-          <p className="mt-4 text-sm leading-relaxed text-forest-300 sm:text-base">
+          <p className="mt-4 text-sm leading-relaxed text-ink-300 sm:text-base">
             Every possession you call a play; the defense answers with a coverage.
             Each matchup is worth a number of <em>expected points</em> — grounded in
             real shot efficiency. The catch: the defense watches what you like and
@@ -191,8 +191,8 @@ export default function ReadAndReact() {
                 onClick={() => goTo(i)}
                 className={`rounded-lg border px-3 py-2 text-sm transition ${
                   i === index
-                    ? "border-[#FDB927] bg-forest-800 text-white"
-                    : "border-forest-700 bg-forest-900/50 text-forest-300 hover:border-forest-500"
+                    ? "border-[#FDB927] bg-ink-800 text-white"
+                    : "border-ink-700 bg-ink-900/50 text-ink-300 hover:border-ink-500"
                 } disabled:cursor-not-allowed disabled:opacity-40`}
               >
                 {star ? "★" : unlocked ? i + 1 : "🔒"} {i === index ? l.title : ""}
@@ -206,19 +206,19 @@ export default function ReadAndReact() {
           <h2 className="text-xl font-semibold">
             {index + 1}. {level.title}
           </h2>
-          <p className="text-sm text-forest-400">Concept: {level.concept}</p>
+          <p className="text-sm text-ink-400">Concept: {level.concept}</p>
         </div>
 
         {/* Scouting report: what the defense remembers from earlier visits */}
         {readOnYou && (
           <aside
             aria-label="Scouting report"
-            className="mb-4 rounded-xl border border-forest-700 bg-forest-900/50 p-4"
+            className="mb-4 rounded-xl border border-ink-700 bg-ink-900/50 p-4"
           >
-            <p className="mb-1 font-mono text-xs uppercase tracking-widest text-forest-400">
+            <p className="mb-1 font-mono text-xs uppercase tracking-widest text-ink-400">
               Scouting report on you
             </p>
-            <p className="text-sm leading-relaxed text-forest-200">
+            <p className="text-sm leading-relaxed text-ink-200">
               Their file covers {readOnYou.series} series of yours: you
               call <strong className="text-white">{readOnYou.label}</strong>{" "}
               <span className="font-mono" style={{ color: GOLD }}>
@@ -229,7 +229,7 @@ export default function ReadAndReact() {
             <button
               type="button"
               onClick={wipeFile}
-              className="mt-2 text-xs text-forest-400 underline-offset-2 hover:text-forest-200 hover:underline"
+              className="mt-2 text-xs text-ink-400 underline-offset-2 hover:text-ink-200 hover:underline"
             >
               Wipe the file and start fresh
             </button>
@@ -246,28 +246,28 @@ export default function ReadAndReact() {
 
         {/* Reveal overlay */}
         {result && reveal && (
-          <div className="mt-6 rounded-xl border border-[#FDB927]/40 bg-forest-900/80 p-5">
+          <div className="mt-6 rounded-xl border border-[#FDB927]/40 bg-ink-900/80 p-5">
             <div className="mb-3 flex items-baseline justify-between gap-3">
               <h3 className="text-lg font-semibold">
                 {beatPar ? (
                   <span style={{ color: GOLD }}>You out-read the defense.</span>
                 ) : (
-                  <span className="text-forest-100">The defense read you.</span>
+                  <span className="text-ink-100">The defense read you.</span>
                 )}
               </h3>
-              <span className="font-mono text-sm text-forest-300">
+              <span className="font-mono text-sm text-ink-300">
                 {result.points} pts · par {result.benchmark.toFixed(1)}
               </span>
             </div>
 
-            <div className="mb-3 rounded-lg bg-forest-950/60 p-3">
-              <p className="mb-2 font-mono text-xs uppercase tracking-widest text-forest-400">
+            <div className="mb-3 rounded-lg bg-ink-950/60 p-3">
+              <p className="mb-2 font-mono text-xs uppercase tracking-widest text-ink-400">
                 The unbeatable mix (game value {reveal.value.toFixed(2)}/poss.)
               </p>
               <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
                 {level.plays.map((p, i) => (
                   <span key={p.id}>
-                    <span className="text-forest-200">{p.label}: </span>
+                    <span className="text-ink-200">{p.label}: </span>
                     <span className="font-mono" style={{ color: GOLD }}>
                       {Math.round(reveal.rowMix[i] * 100)}%
                     </span>
@@ -276,13 +276,13 @@ export default function ReadAndReact() {
               </div>
             </div>
 
-            <p className="mb-4 text-sm leading-relaxed text-forest-300">
+            <p className="mb-4 text-sm leading-relaxed text-ink-300">
               {level.teaching}
             </p>
 
             {learned && (
-              <p className="mb-4 rounded-lg border border-forest-800 bg-forest-950/40 p-3 text-sm leading-relaxed text-forest-300">
-                <span className="font-mono text-xs uppercase tracking-widest text-forest-400">
+              <p className="mb-4 rounded-lg border border-ink-800 bg-ink-950/40 p-3 text-sm leading-relaxed text-ink-300">
+                <span className="font-mono text-xs uppercase tracking-widest text-ink-400">
                   What their scouts wrote down ·{" "}
                 </span>
                 You call {learned.label} {Math.round(learned.share * 100)}% of the time
@@ -300,7 +300,7 @@ export default function ReadAndReact() {
               <button
                 type="button"
                 onClick={retry}
-                className="rounded-lg border border-forest-600 bg-forest-800 px-4 py-2 text-sm font-medium hover:border-forest-400"
+                className="rounded-lg border border-ink-600 bg-ink-800 px-4 py-2 text-sm font-medium hover:border-ink-400"
               >
                 Run it back
               </button>
@@ -308,13 +308,13 @@ export default function ReadAndReact() {
                 <button
                   type="button"
                   onClick={() => goTo(index + 1)}
-                  className="rounded-lg px-4 py-2 text-sm font-semibold text-forest-950"
+                  className="rounded-lg px-4 py-2 text-sm font-semibold text-ink-950"
                   style={{ backgroundColor: GOLD }}
                 >
                   Next level →
                 </button>
               ) : (
-                <span className="self-center text-sm text-forest-400">
+                <span className="self-center text-sm text-ink-400">
                   That&apos;s the campaign — you&apos;ve got the whole playbook.
                 </span>
               )}
@@ -323,8 +323,8 @@ export default function ReadAndReact() {
         )}
 
         {/* Frame */}
-        <footer className="mt-10 border-t border-forest-800 pt-6">
-          <p className="text-sm text-forest-400">
+        <footer className="mt-10 border-t border-ink-800 pt-6">
+          <p className="text-sm text-ink-400">
             An exact minimax solver sets par and reveals the optimal mix — the same
             game theory behind &ldquo;pick your poison&rdquo; defenses. Built as part
             of a &ldquo;math through basketball&rdquo; series.

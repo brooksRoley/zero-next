@@ -65,7 +65,7 @@ export default function StageVoid({ onAdvance }) {
       </div>
       <div className="space-y-3">
         <StepCard {...steps[step]} />
-        <div className="text-xs text-forest-500 leading-relaxed px-1">
+        <div className="text-xs text-ink-500 leading-relaxed px-1">
           Tip: there’s no &ldquo;wrong&rdquo; spot in this stage. The board accepts any move. The rules start arriving next stage.
         </div>
       </div>

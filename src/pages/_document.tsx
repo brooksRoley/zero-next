@@ -7,7 +7,7 @@ export default function Document() {
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
-        <meta name="theme-color" content="#081f15" />
+        <meta name="theme-color" content="#101B2B" />
         <meta property="og:site_name" content="Brooks Roley" />
         <meta name="twitter:image" content="https://www.brooksroley.com/cover.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
