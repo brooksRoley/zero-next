@@ -345,7 +345,7 @@ export default function Theater() {
           ))}
         </div>
 
-        {/* ── The frame: house note + tip jar ── */}
+        {/* ── The frame: house note ── */}
         <footer className="mt-16 rounded-xl border border-forest-800/60 bg-forest-900/30 p-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-candy-400/80">
             From the house
@@ -360,24 +360,6 @@ export default function Theater() {
             pass. The theater also watches its own audience: what gets played shapes
             what gets staged next.
           </p>
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-forest-500">
-              Seats are free forever. The lights cost a little.
-            </p>
-            <Link
-              href={route('funding').href}
-              onClick={() =>
-                track('cta_click', {
-                  page: '/theater',
-                  metadata: { location: 'theater_tip' },
-                  beacon: true,
-                })
-              }
-              className="text-sm text-candy-500 transition-colors hover:text-candy-400"
-            >
-              Keep the theater lit →
-            </Link>
-          </div>
         </footer>
       </div>
     </main>

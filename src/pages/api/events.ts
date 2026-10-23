@@ -46,7 +46,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const EMAIL_CAPTURE_EVENTS: Record<string, string> = {
   model_arena_email_gate: "model_arena",
   digital_product_notify: "nba_analytics_primer",
-  funding_notify: "funding_tip_jar",
+  funding_notify: "funding_tip_jar", // retired 2026-10-23; kept so old rows keep their label
+  updates_signup: "updates",
 };
 
 // Best-effort owner notification when a new email lands. Calls the Resend REST

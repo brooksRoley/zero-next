@@ -2,7 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   async redirects() {
-    return []
+    return [
+      // The tip jar is retired (2026-10-23); old links land on the home page.
+      { source: '/funding', destination: '/', permanent: false },
+    ]
   },
   async rewrites() {
     return [

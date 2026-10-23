@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
-describe('nav / intake / funding accessibility', () => {
+describe('nav / intake / updates card accessibility', () => {
   it('mobile nav toggle exposes expanded state and the controlled menu id', () => {
     const s = read('src/components/NavHeader.jsx');
     expect(s).toContain('aria-expanded={mobileOpen}');
@@ -26,7 +26,9 @@ describe('nav / intake / funding accessibility', () => {
     expect(s).toContain('role="alert"');
     expect(s).toContain('focus-visible:ring-2');
   });
-  it('funding notify button has a visible keyboard focus ring', () => {
-    expect(read('src/pages/funding.tsx')).toContain('focus-visible:ring-2');
+  it('updates card labels its email field and shows keyboard focus', () => {
+    const s = read('src/components/UpdatesCard.tsx');
+    expect(s).toContain('htmlFor="updates-email"');
+    expect(s).toContain('focus-visible:ring-2');
   });
 });

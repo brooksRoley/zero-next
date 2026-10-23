@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReadReactBoard, {
   type SeriesResult,
@@ -323,26 +322,13 @@ export default function ReadAndReact() {
           </div>
         )}
 
-        {/* Frame / tip jar */}
+        {/* Frame */}
         <footer className="mt-10 border-t border-forest-800 pt-6">
           <p className="text-sm text-forest-400">
             An exact minimax solver sets par and reveals the optimal mix — the same
             game theory behind &ldquo;pick your poison&rdquo; defenses. Built as part
             of a &ldquo;math through basketball&rdquo; series.
           </p>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track("cta_click", {
-                page: "/games/read-and-react",
-                metadata: { location: "readreact_tip" },
-                beacon: true,
-              })
-            }
-            className="mt-2 inline-block text-sm font-medium text-candy-500 hover:underline"
-          >
-            Enjoying the puzzle? Support development →
-          </Link>
         </footer>
       </div>
     </main>

@@ -8,8 +8,7 @@ import DailyChallenge from 'src/components/pente/DailyChallenge'
 import PenteTopNav from 'src/components/pente/PenteTopNav'
 import SolarField from 'src/components/pente/SolarField'
 import Leaderboard from 'src/components/pente/Leaderboard'
-import PostSolveTip from 'src/components/pente/PostSolveTip'
-import SupportCta from 'src/components/SupportCta'
+import UpdatesCard from 'src/components/UpdatesCard'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
 import { getZone } from 'src/lib/pente/elo'
 import { puzzles, getRecommendedPuzzle, getPuzzleById, DIFFICULTY_LABELS } from 'src/lib/pente/puzzles'
@@ -231,17 +230,9 @@ export default function PentePuzzlesPage() {
             <Leaderboard currentPlayerId={playerId} />
           </div>
         )}
-
-        <footer className="mt-6 text-center">
-          <SupportCta
-            page="/posts/pente-puzzles"
-            location="pente_puzzles_tip"
-            label="Enjoying the puzzles? Support development →"
-          />
-        </footer>
       </div>
 
-      <PostSolveTip trigger={solveSignal} page="/posts/pente-puzzles" />
+      <UpdatesCard trigger={solveSignal} page="/posts/pente-puzzles" />
     </div>
   )
 }
