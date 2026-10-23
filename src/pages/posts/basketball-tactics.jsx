@@ -22,27 +22,27 @@ function StatBar({ label, value, max, color }) {
   const pct = Math.min(value / max, 1) * 100
   return (
     <div className="flex-1">
-      <p className="text-[10px] text-forest-400 mb-1 font-mono uppercase tracking-widest">{label}</p>
-      <div className="h-1.5 rounded-full bg-forest-800 overflow-hidden">
+      <p className="text-[10px] text-ink-400 mb-1 font-mono uppercase tracking-widest">{label}</p>
+      <div className="h-1.5 rounded-full bg-ink-800 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
-      <p className="text-xs font-bold mt-1 text-forest-200">{value.toFixed(1)}</p>
+      <p className="text-xs font-bold mt-1 text-ink-200">{value.toFixed(1)}</p>
     </div>
   )
 }
 
 function PlayerCard({ player }) {
   return (
-    <div className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-4">
+    <div className="rounded-xl border border-ink-700/40 bg-ink-900/60 p-4">
       <div className="flex justify-between items-start mb-3">
         <div>
           <p className="font-semibold text-white">{player.name}</p>
-          <p className="text-xs text-forest-400">{posLabel(player.pos)}</p>
+          <p className="text-xs text-ink-400">{posLabel(player.pos)}</p>
         </div>
-        <span className="text-xs text-forest-500 font-mono">{player.gp} GP</span>
+        <span className="text-xs text-ink-500 font-mono">{player.gp} GP</span>
       </div>
       <div className="flex gap-3">
         <StatBar label="PTS" value={player.pts} max={MAX_PTS} color="#facc15" />
@@ -55,7 +55,7 @@ function PlayerCard({ player }) {
 
 function CourtSVG() {
   return (
-    <svg viewBox="0 0 400 280" className="w-full rounded-xl border border-forest-700/40" style={{ background: '#1a0f05' }}>
+    <svg viewBox="0 0 400 280" className="w-full rounded-xl border border-ink-700/40" style={{ background: '#1a0f05' }}>
       {/* Court surface */}
       <rect x="10" y="10" width="380" height="260" rx="4" fill="#7c3a1a" opacity="0.4" />
       {/* Outer boundary */}
@@ -105,7 +105,7 @@ function CourtSVG() {
 
 export default function BasketballTacticsPage() {
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>Lakers Tactics iOS | Brooks Roley</title>
         <meta name="description" content="SwiftUI iOS app for Lakers basketball data — live game scores, roster season averages, and an interactive tactics board." />
@@ -115,8 +115,8 @@ export default function BasketballTacticsPage() {
       </Head>
 
       {/* Header */}
-      <header className="border-b border-forest-800/60 px-6 py-4">
-        <Link href="/" className="text-sm text-forest-400 hover:text-forest-200 transition-colors">
+      <header className="border-b border-ink-800/60 px-6 py-4">
+        <Link href="/" className="text-sm text-ink-400 hover:text-ink-200 transition-colors">
           ← Back
         </Link>
       </header>
@@ -126,10 +126,10 @@ export default function BasketballTacticsPage() {
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-2xl">🏀</span>
-            <span className="text-xs font-mono uppercase tracking-widest text-forest-400">SwiftUI · iOS · REST API</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-ink-400">SwiftUI · iOS · REST API</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">Lakers Tactics</h1>
-          <p className="text-forest-300 text-lg leading-relaxed">
+          <p className="text-ink-300 text-lg leading-relaxed">
             A native iOS app for the LA Lakers ecosystem — live game scores, season-average stat cards
             with animated bar charts pulled from a REST API, and an interactive half-court tactics board
             for diagramming plays.
@@ -139,7 +139,7 @@ export default function BasketballTacticsPage() {
         {/* Stack chips */}
         <div className="flex flex-wrap gap-2 mb-10">
           {['Swift', 'SwiftUI', 'async/await', 'MVVM', 'REST API', 'UIKit bridge', 'Combine'].map(t => (
-            <span key={t} className="text-xs px-2.5 py-1 rounded-full border border-forest-700/60 bg-forest-900/60 text-forest-300 font-mono">
+            <span key={t} className="text-xs px-2.5 py-1 rounded-full border border-ink-700/60 bg-ink-900/60 text-ink-300 font-mono">
               {t}
             </span>
           ))}
@@ -147,31 +147,31 @@ export default function BasketballTacticsPage() {
 
         {/* Live roster demo */}
         <section className="mb-12">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
             Roster Season Averages
           </h2>
           <div className="grid gap-3">
             {statPlayers.map(p => <PlayerCard key={p.name} player={p} />)}
           </div>
-          <p className="text-xs text-forest-600 mt-3 font-mono">
+          <p className="text-xs text-ink-600 mt-3 font-mono">
             Live data via balldontlie.io API · averaged client-side per season
           </p>
         </section>
 
         {/* Tactics board demo */}
         <section className="mb-12">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
             Tactics Board
           </h2>
           <CourtSVG />
-          <p className="text-xs text-forest-600 mt-3 font-mono">
+          <p className="text-xs text-ink-600 mt-3 font-mono">
             In the app: tap to place player markers · drag to draw motion paths · shake or tap Clear to reset
           </p>
         </section>
 
         {/* Architecture section */}
         <section className="mb-12">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-5">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-5">
             Architecture
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -193,9 +193,9 @@ export default function BasketballTacticsPage() {
                 desc: 'UIViewRepresentable for precise tap-location capture on the tactics board, where SwiftUI TapGesture lacks coordinate data.'
               }
             ].map(card => (
-              <div key={card.title} className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-4">
+              <div key={card.title} className="rounded-xl border border-ink-700/40 bg-ink-900/60 p-4">
                 <p className="font-semibold text-white mb-1">{card.title}</p>
-                <p className="text-sm text-forest-400 leading-relaxed">{card.desc}</p>
+                <p className="text-sm text-ink-400 leading-relaxed">{card.desc}</p>
               </div>
             ))}
           </div>
@@ -207,7 +207,7 @@ export default function BasketballTacticsPage() {
             href="https://github.com/brooksroley/BasketballTactics"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-forest-300 hover:text-white border border-forest-700/60 hover:border-forest-500 rounded-lg px-4 py-2 transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-ink-300 hover:text-white border border-ink-700/60 hover:border-ink-500 rounded-lg px-4 py-2 transition-colors"
           >
             View source on GitHub
             <svg className="w-3.5 h-3.5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

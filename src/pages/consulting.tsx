@@ -1,724 +1,211 @@
-import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
-import { track as trackEvent, getAnonId } from 'src/lib/analytics'
+import Reveal from 'src/components/Reveal'
+import { track } from 'src/lib/analytics'
+import { route } from 'src/lib/routes'
 
-// Funnel events are tagged page:'consulting' and use sendBeacon, since most of
-// them (Calendly/checkout CTAs) fire right before the page unloads on nav.
-function track(event_type: string, metadata: Record<string, unknown> = {}) {
-  trackEvent(event_type, { page: 'consulting', metadata, beacon: true })
+// The work, by domain (2026-10-23). This page used to be a sales funnel:
+// pricing tiers, a "most popular" badge, a sticky "book a free call" bar and a
+// lead form. Brooks asked for it to highlight the work and read less
+// desperate. Every line here is a fact from src/lib/resume.ts or from a page
+// on this site; keep it that way. No prices, no urgency, no money ask.
+
+type Domain = {
+  domain: string
+  org: string
+  role: string
+  dates: string
+  line: string
+  href?: string
 }
 
-/* ── Stripe checkout (handleCheckout → /api/consulting/checkout) intentionally
-   not wired up yet — swap the pricing-grid "Book a Call" links for per-tier
-   checkout buttons once live Stripe keys are set in Vercel
-   (see CLAUDE.md → "Stripe — Shipping Checklist"). ── */
-
-const PRICING_TIERS = [
+const DOMAINS: Domain[] = [
   {
-    key: 'strategy',
-    name: 'Strategy Session',
-    price: '$150',
-    unit: 'one-time',
-    desc: '90 minutes on your architecture, roadmap, or a gnarly technical decision. You leave with a written plan.',
-    featured: false,
+    domain: 'Robotics',
+    org: 'Zoox',
+    role: 'Software Engineer (contract)',
+    dates: '2024 – 2025',
+    line: 'Owned the Site Reliability team’s OnCall notification system across Vue, Python, AWS, Terraform and Grafana.',
   },
   {
-    key: 'sprint',
-    name: 'Dev Sprint',
-    price: '$2,400',
-    unit: 'per week',
-    desc: 'A focused week of hands-on building — features shipped, PRs reviewed, momentum restored.',
-    featured: true,
+    domain: 'Sustainability',
+    org: 'Grove Collaborative',
+    role: 'Software Engineer II',
+    dates: '2019 – 2022',
+    line: 'Full-stack on the e-commerce platform; led a 150 ms personalization service, a Vue migration and site-wide WCAG remediation.',
   },
   {
-    key: 'fractional',
-    name: 'Fractional CTO',
-    price: '$4,000',
-    unit: 'per month',
-    desc: 'Ongoing technical leadership — architecture calls, hiring help, and a senior engineer in your corner.',
-    featured: false,
-  },
-]
-
-// Dollar value per tier, attached to lead_submit metadata so the analytics
-// funnel can weight leads by the engagement they were considering. Keep in
-// sync with PRICING_TIERS prices above.
-const TIER_VALUES: Record<string, number> = {
-  strategy: 150,
-  sprint: 2400,
-  fractional: 4000,
-}
-
-const PROJECT_TYPES = [
-  'New project build',
-  'Existing codebase work',
-  'Technical strategy/advisory',
-  'Other',
-]
-
-const BUDGET_RANGES = [
-  'Under $5k',
-  '$5k–$25k',
-  '$25k–$75k',
-  '$75k+',
-  'Not sure yet',
-]
-
-const SKILLS = [
-  'React & Next.js', 'TypeScript', 'Node.js', 'PostgreSQL',
-  'SwiftUI / iOS', 'Sports & NBA Analytics', 'Data Pipelines',
-  'AWS & Serverless', 'Vue 3', 'FastAPI / Python', 'System Design',
-]
-
-const WHAT_I_DO = [
-  {
-    title: 'Full-Stack Web Apps',
-    desc: 'React, Next.js, TypeScript, Node.js, PostgreSQL. From greenfield builds to untangling legacy code.',
+    domain: 'Healthcare',
+    org: 'Zipongo (now Foodsmart)',
+    role: 'Senior Software Engineer',
+    dates: '2017 – 2019',
+    line: 'Led front-end for role-based access control with SAML single sign-on, built to HIPAA requirements, and the provider nutrition tools.',
   },
   {
-    title: 'Sports Tech & Data',
-    desc: 'NBA analytics, data pipelines, interactive visualizations. I built a full basketball data platform from API to iOS.',
+    domain: 'Finance',
+    org: 'SigFig',
+    role: 'Front End Software Engineer',
+    dates: '2016 – 2017',
+    line: 'Angular and TypeScript interfaces for banking partners including Wells Fargo, with accessibility and internationalization.',
   },
   {
-    title: 'Games & Interactive Experiences',
-    desc: 'Browser games, physics simulations, canvas work. If it moves on screen and people interact with it, I’m into it.',
+    domain: 'Insurance',
+    org: 'Limelight Health (now part of FINEOS)',
+    role: 'Software Engineer',
+    dates: '2015 – 2016',
+    line: 'Early engineering hire on a platform generating employer insurance quotes, including a D3 quote-visualization service.',
   },
   {
-    title: 'Mobile (SwiftUI)',
-    desc: 'Native iOS apps with clean architecture. MVVM, async/await, the whole deal.',
+    domain: 'Ecology',
+    org: 'Tend: The Watershed',
+    role: 'Independent',
+    dates: '2026',
+    line: 'California from the alpine peaks to the deep-sea floor: who eats whom, and how energy moves through it.',
+    href: '/games/tend/watershed',
   },
 ]
 
-const HOW_IT_WORKS = [
-  { step: '01', title: 'We talk', desc: 'Book a free call. Tell me what you’re working on, where you’re stuck, or what you want to build. No commitment.' },
-  { step: '02', title: 'I scope it out', desc: 'I’ll put together a straightforward proposal — what I’d do, how long it’d take, and what it’d cost. Hourly or project-based, whatever makes sense.' },
-  { step: '03', title: 'We build', desc: 'I write code, ship features, and keep you in the loop. Clean PRs, clear communication, no surprises.' },
-]
+type Build = { title: string; href: string; cs: string }
 
-const PROJECTS_PROOF = [
+const BUILDS: Build[] = [
   {
-    title: 'Basketball Data Platform',
-    desc: 'Python API, C++ WASM engine, Vue 3 frontend, SwiftUI iOS app.',
-    href: '/basketball-platform',
+    title: 'Hardwood Autochess',
+    href: '/games/hardwood',
+    cs: 'A C++ simulation engine compiled to WebAssembly under a Vue 3 client, and a desktop launcher in Electron, React and TypeScript whose content-defined chunking ships a one-line change as 16 KB of a 1.07 MB build.',
   },
   {
-    title: 'Pente Online',
-    desc: 'Multiplayer strategy game with AI opponent and real-time play.',
+    title: 'Pass & Cut',
+    href: '/games/pass-and-cut',
+    cs: 'The Shannon switching game played as basketball. An exact game-tree solver runs the defense, so every level is a fair test of graph connectivity and min-cut.',
+  },
+  {
+    title: 'Read & React',
+    href: '/games/read-and-react',
+    cs: 'Play-calling against an adaptive defense. A minimax solver sets par and reveals the mixed strategy that beats a perfect read.',
+  },
+  {
+    title: 'Pente and Go',
     href: '/posts/pente',
+    cs: 'Classic board games with bots that think in a Web Worker, puzzles, ELO ratings and online play.',
   },
   {
-    title: 'Nanu & Pika TD',
-    desc: 'Tower defense game — pathfinding, wave logic, upgrade systems.',
-    href: '/posts/nanu-pika-td',
+    title: 'Basketball data platform',
+    href: '/basketball-platform',
+    cs: 'Four codebases sharing one model of the game: a Python data pipeline, the C++ engine, the Vue game and a SwiftUI iOS app.',
   },
 ]
 
-const TIMELINES = ['ASAP', '1-3 months', '3-6 months', 'Just exploring']
-
-const FAQ_ITEMS = [
-  {
-    q: 'What does a strategy session actually cover?',
-    a: 'Ninety focused minutes on whatever is blocking you — architecture review, tech-stack decisions, a roadmap gut-check, or a gnarly bug. You bring the problem; I come prepared, and you leave with a written plan of concrete next steps within 24 hours.',
-  },
-  {
-    q: 'Do you work fixed-price or hourly?',
-    a: 'Both, depending on the shape of the work. Well-scoped projects get a fixed price so you know the cost up front. Open-ended or advisory work runs hourly or as a weekly sprint. Either way, the proposal spells it out before anything starts.',
-  },
-  {
-    q: 'What timezone are you in, and when are you available?',
-    a: 'Pacific Time (Los Angeles). Core hours are roughly 9am–6pm PT on weekdays, and I can flex early or late for teams in other timezones — most US and European overlap works fine.',
-  },
-  {
-    q: 'How fast will you respond after I submit the form?',
-    a: 'Within one business day, usually much sooner. If it looks like a fit, the reply includes a Calendly link so we can get a call on the books right away.',
-  },
-  {
-    q: 'Do you only work solo, or can you join an existing team?',
-    a: 'Both. I ship solo builds end-to-end, and I also embed with existing teams — writing code alongside your engineers, reviewing PRs, or providing fractional technical leadership. I adapt to your workflow, not the other way around.',
-  },
-]
-
-export default function Consulting() {
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-
-  const [form, setForm] = useState({ name: '', email: '', company: '', project_type: '', budget_range: '', timeline: '', message: '', website: '' })
-  // Captured once on mount so attribution survives even if the visitor edits
-  // the URL or navigates within the SPA before submitting.
-  const [attribution, setAttribution] = useState({ utm_source: '', utm_medium: '', utm_campaign: '' })
-
-  // Last pricing tier the visitor engaged with (via a pricing-grid CTA click).
-  // Attached to lead_submit as tier + dollar value; null when the visitor
-  // submitted without touching the pricing grid.
-  const [selectedTier, setSelectedTier] = useState<string | null>(null)
-
-  // Mobile sticky CTA hides itself while the header "Book a Call" button is on
-  // screen, so the two CTAs never compete for the same fold.
-  const headerCtaRef = useRef<HTMLAnchorElement>(null)
-  const [showStickyCta, setShowStickyCta] = useState(false)
-
-  useEffect(() => {
-    track('consulting_view')
-    const params = new URLSearchParams(window.location.search)
-    setAttribution({
-      utm_source: params.get('utm_source') || '',
-      utm_medium: params.get('utm_medium') || '',
-      utm_campaign: params.get('utm_campaign') || '',
-    })
-  }, [])
-
-  useEffect(() => {
-    const target = headerCtaRef.current
-    if (!target) return
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowStickyCta(!entry.isIntersecting),
-      { threshold: 0 }
-    )
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [])
-
-  // Fire section_view once when the FAQ scrolls into view, so we can measure
-  // how many visitors read far enough to hit it before converting (or not).
-  const faqRef = useRef<HTMLElement>(null)
-  useEffect(() => {
-    const target = faqRef.current
-    if (!target) return
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        track('section_view', { section: 'faq' })
-        observer.disconnect()
-      }
-    }, { threshold: 0.25 })
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [])
-
-  const updateForm = (field: string, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setError('')
-
-    // Fire before the POST so the intent is captured even if the request fails
-    // or the page unloads mid-submit (beacon survives unload).
-    track('lead_form_submit', {
-      project_type: form.project_type || null,
-      budget: form.budget_range || null,
-    })
-
-    const res = await fetch('/api/consulting/leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      // anon_id joins this lead to the visitor's cross-session analytics
-      // identity (events.anon_id) the moment the lead is created.
-      body: JSON.stringify({ ...form, ...attribution, anon_id: getAnonId() }),
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      setError(data.error || 'Something went wrong')
-      setSubmitting(false)
-      return
-    }
-
-    track('lead_submit', {
-      project_type: form.project_type || null,
-      budget_range: form.budget_range || null,
-      tier: selectedTier,
-      value: selectedTier ? TIER_VALUES[selectedTier] ?? null : null,
-    })
-    setSubmitted(true)
-    setSubmitting(false)
-  }
+export default function Work() {
+  const contactClick = (location: string) =>
+    track('cta_click', { page: '/consulting', metadata: { location }, beacon: true })
 
   return (
-    <>
+    <main className="min-h-screen bg-ink-950 text-ink-100">
       <Head>
-        <title>Consulting | Brooks Roley</title>
-        <meta name="description" content="Full-stack engineer for hire — React, TypeScript, Node, iOS, sports tech. Strategy sessions from $150. Let's build something." />
-        <meta property="og:type" content="website" key="og:type" />
-        <meta property="og:title" content="Brooks Roley — Full-Stack Engineer for Hire" key="og:title" />
-        <meta property="og:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." key="og:description" />
-        <meta property="og:image" content="https://www.brooksroley.com/BRLogoTransparent.png" key="og:image" />
+        <title>Work | Brooks Roley</title>
+        <meta
+          name="description"
+          content="Brooks Roley, software engineer: ten years across robotics, healthcare, finance and sustainability, and games built on real computer science."
+        />
+        <meta property="og:title" content="Work | Brooks Roley" key="og:title" />
         <meta property="og:url" content="https://www.brooksroley.com/consulting" key="og:url" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Brooks Roley — Full-Stack Engineer for Hire" />
-        <meta name="twitter:description" content="React, TypeScript, Node, iOS, sports tech. Strategy sessions, dev sprints, and fractional CTO engagements." />
-        <meta name="twitter:image" content="https://www.brooksroley.com/BRLogoTransparent.png" />
       </Head>
 
-      <div className="min-h-screen bg-forest-950 text-forest-100">
-        {/* ── Nav ── */}
-        <header className="border-b border-forest-800/50 px-6 py-4">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <Link href="/" className="text-forest-400 hover:text-candy-400 transition-colors text-sm rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950">
-              &larr; Home
-            </Link>
-            <a
-              ref={headerCtaRef}
-              href="https://calendly.com/brooksroley/"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'header' })}
-              className="px-4 py-2 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-            >
-              Book a Call
-            </a>
-          </div>
+      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-20">
+        <Link href="/" className="text-sm text-ink-400 transition-colors hover:text-ink-200">
+          &larr; Home
+        </Link>
+
+        <header className="mt-10 max-w-3xl">
+          <Reveal>
+            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Work</h1>
+          </Reveal>
+          <Reveal delay={80}>
+            <p className="mt-5 text-lg leading-relaxed text-ink-200">
+              Software engineer with a front-end lean. Ten years shipping product in robotics,
+              healthcare, finance and sustainability, and a long habit of building games where the
+              computer science is the game.
+            </p>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="mt-4 text-sm text-ink-400">
+              Open to full-time roles, and to select contract work.
+            </p>
+          </Reveal>
         </header>
 
-        <main className="max-w-3xl mx-auto px-6 py-16">
-
-          {/* ── Hero ── */}
-          <section className="mb-12">
-            <div className="inline-flex items-center gap-2 mb-5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              Currently taking new projects
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Let&apos;s Talk
-            </h1>
-            <p className="text-forest-300 text-lg leading-relaxed">
-              I&apos;m a full-stack engineer with a frontend lean — React, TypeScript, Node, iOS, sports tech.
-              If you&apos;ve got something interesting going on and want to think through it together, reach out.
-              No pitch decks required.
-            </p>
-            <p className="mt-4 text-sm text-forest-400">
-              Strategy sessions from $150 &middot; Dev sprints from $2,400/wk &middot; Fractional CTO from $4,000/mo.
-            </p>
-          </section>
-
-          {/* ── Skills ── */}
-          <section className="mb-12">
-            <div className="flex flex-wrap gap-2">
-              {SKILLS.map(skill => (
-                <span
-                  key={skill}
-                  className="px-3 py-1.5 rounded-full text-xs bg-forest-900/60 text-forest-300 border border-forest-700/40"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          {/* ── What I Do ── */}
-          <section className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
-              What I Do
-            </h2>
-            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-              The stuff I&apos;m good at
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {WHAT_I_DO.map(item => (
-                <div
-                  key={item.title}
-                  className="rounded-xl border border-forest-700/40 bg-forest-900/60 p-5"
-                >
-                  <h3 className="text-base font-semibold text-white mb-2">{item.title}</h3>
-                  <p className="text-sm text-forest-300 leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ── How It Works ── */}
-          <section className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
-              How It Works
-            </h2>
-            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-              No pitch deck required
-            </p>
-            <div className="space-y-5">
-              {HOW_IT_WORKS.map(item => (
-                <div key={item.step} className="flex gap-4 items-start">
-                  <span className="text-sm font-mono text-candy-400/60 mt-1 shrink-0">{item.step}</span>
-                  <div>
-                    <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
-                    <p className="text-sm text-forest-300 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ── Selected Work ── */}
-          <section className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
-              Things I&apos;ve Built
-            </h2>
-            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-              See for yourself
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {PROJECTS_PROOF.map(proj => (
-                <Link
-                  key={proj.title}
-                  href={proj.href}
-                  className="group block rounded-xl border border-forest-700/40 bg-forest-900/60 p-5 transition-colors hover:border-forest-600/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-                >
-                  <h3 className="text-base font-semibold text-white mb-1 flex items-center gap-2">
-                    {proj.title}
-                    <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
-                  </h3>
-                  <p className="text-sm text-forest-300">{proj.desc}</p>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* ── Pricing ── */}
-          <section className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
-              Pricing
-            </h2>
-            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-              Pick your speed
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {PRICING_TIERS.map(tier => (
-                <div
-                  key={tier.name}
-                  className={`flex flex-col rounded-xl border p-5 ${
-                    tier.featured
-                      ? 'border-candy-500/40 bg-forest-900/80'
-                      : 'border-forest-700/40 bg-forest-900/60'
-                  }`}
-                >
-                  {tier.featured && (
-                    <span className="self-start mb-3 rounded-full bg-candy-500/15 border border-candy-500/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-candy-300">
-                      Most popular
-                    </span>
+        <section aria-labelledby="domains" className="mt-16">
+          <h2 id="domains" className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-400">
+            Across industries
+          </h2>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {DOMAINS.map((d) => {
+              const body = (
+                <>
+                  <p className="text-xs font-medium uppercase tracking-wider text-brass-300">{d.domain}</p>
+                  <p className="mt-3 font-semibold text-white">{d.org}</p>
+                  <p className="text-sm text-ink-400">
+                    {d.role} &middot; {d.dates}
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-200">{d.line}</p>
+                </>
+              )
+              const card = 'block h-full rounded-xl border border-ink-700 bg-charcoal p-5'
+              return (
+                <li key={d.org}>
+                  {d.href ? (
+                    <Link
+                      href={d.href}
+                      className={`${card} transition-colors hover:border-brass-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400`}
+                    >
+                      {body}
+                    </Link>
+                  ) : (
+                    <div className={card}>{body}</div>
                   )}
-                  <h3 className="text-base font-semibold text-white">{tier.name}</h3>
-                  <p className="mt-2">
-                    <span className="text-2xl font-bold text-white">{tier.price}</span>{' '}
-                    <span className="text-xs text-forest-400">{tier.unit}</span>
-                  </p>
-                  <p className="mt-3 text-sm text-forest-300 leading-relaxed flex-1">
-                    {tier.desc}
-                  </p>
-                  <a
-                    href="https://calendly.com/brooksroley/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => {
-                      setSelectedTier(tier.key)
-                      track('cta_click', { location: 'consulting_calendly', placement: 'pricing_grid', tier: tier.key })
-                    }}
-                    className="mt-5 block text-center px-4 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-                  >
-                    Check Availability
-                  </a>
-                </div>
-              ))}
-            </div>
-          </section>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
 
-          {/* ── FAQ ── */}
-          <section ref={faqRef} className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-2">
-              FAQ
-            </h2>
-            <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-              Before you ask
-            </p>
-            <div className="space-y-3">
-              {FAQ_ITEMS.map(item => (
-                <details
-                  key={item.q}
-                  className="group rounded-xl border border-forest-700/40 bg-forest-900/60 open:border-forest-600/60 transition-colors"
+        <section aria-labelledby="builds" className="mt-16">
+          <h2 id="builds" className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-400">
+            Computer science and game design
+          </h2>
+          <ul className="mt-6 divide-y divide-ink-700 border-y border-ink-700">
+            {BUILDS.map((b) => (
+              <li key={b.title}>
+                <Link
+                  href={b.href}
+                  className="group grid gap-2 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400 sm:grid-cols-[14rem_1fr] sm:gap-8"
                 >
-                  <summary className="flex items-center justify-between gap-4 cursor-pointer select-none list-none px-5 py-4 [&::-webkit-details-marker]:hidden">
-                    <span className="text-sm sm:text-base font-semibold text-white">{item.q}</span>
-                    <svg
-                      className="w-4 h-4 shrink-0 text-candy-400/70 transition-transform duration-200 group-open:rotate-45"
-                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                  </summary>
-                  <p className="px-5 pb-4 text-sm text-forest-300 leading-relaxed">{item.a}</p>
-                </details>
-              ))}
-            </div>
-          </section>
+                  <span className="font-semibold text-white transition-colors group-hover:text-brass-300">
+                    {b.title}
+                  </span>
+                  <span className="text-sm leading-relaxed text-ink-200">{b.cs}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-          {/* ── Ways to connect ── */}
-          <section className="mb-12">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Primary — a scheduled call is the fastest path, so it gets the
-                  filled candy-accent treatment while the rest stay secondary. */}
-              <a
-                href="https://calendly.com/brooksroley/"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'connect_tile' })}
-                className="group relative flex flex-col items-center gap-2 rounded-xl border border-candy-500/60 bg-candy-500/15 hover:bg-candy-500/25 hover:border-candy-400 p-6 text-center transition-all shadow-lg shadow-candy-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-              >
-                <span className="absolute right-3 top-3 rounded-full border border-candy-500/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-candy-200">
-                  Start here
-                </span>
-                <span className="text-2xl">&#128222;</span>
-                <span className="text-base font-semibold text-white">Schedule a Call</span>
-                <span className="text-xs text-candy-100/80">Pick a time on Calendly</span>
-              </a>
-
-              <Link
-                href="/intake"
-                onClick={() => track('intake_open', { location: 'connect_tile' })}
-                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-              >
-                <span className="text-2xl">&#127908;</span>
-                <span className="text-sm font-medium text-white">Voice Intake</span>
-                <span className="text-xs text-forest-500">Describe your project out loud &mdash; I&apos;ll receive a transcript and reply within a day.</span>
-              </Link>
-
-              <a
-                href="#contact"
-                className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-              >
-                <span className="text-2xl">&#9993;</span>
-                <span className="text-sm font-medium text-white">Send a Message</span>
-                <span className="text-xs text-forest-500">I&apos;ll reply within a day</span>
-              </a>
-            </div>
-
-            {/* Secondary — LinkedIn demoted from a full tile to a quiet link. */}
-            <div className="mt-4 text-center">
-              <a
-                href="https://www.linkedin.com/in/brooksroley/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-forest-500 hover:text-forest-300 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-              >
-                <span>&#128279;</span>
-                <span>Connect on LinkedIn &mdash; in/brooksroley</span>
-              </a>
-            </div>
-          </section>
-
-          {/* ── Contact Form ── */}
-          <section id="contact">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-6">
-              Send a Message
-            </h2>
-
-            {submitted ? (
-              <div className="text-center py-12 px-6 rounded-xl border border-forest-800/50 bg-forest-900/30">
-                <div className="text-3xl mb-3">&#9993;</div>
-                <h3 className="text-lg font-bold text-white mb-2">Got it, thanks {form.name.split(' ')[0]}.</h3>
-                <p className="text-forest-400 text-sm mb-4">
-                  I&apos;ll get back to you within 24 hours.
-                </p>
-                <a
-                  href="https://calendly.com/brooksroley/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'success_state' })}
-                  className="inline-block px-5 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-                >
-                  Or book a call now
-                </a>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Honeypot — hidden from humans, bots fill it and get silently rejected */}
-                <input
-                  type="text"
-                  name="website"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={form.website}
-                  onChange={e => updateForm('website', e.target.value)}
-                  aria-hidden="true"
-                  style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
-                />
-                {error && (
-                  <div role="alert" className="bg-red-900/30 border border-red-700/50 text-red-300 px-4 py-3 rounded-lg text-sm">
-                    {error}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="consulting-name" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                      Name *
-                    </label>
-                    <input
-                      id="consulting-name"
-                      type="text"
-                      required
-                      value={form.name}
-                      onChange={e => updateForm('name', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
-                      placeholder="Your name"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="consulting-email" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                      Email *
-                    </label>
-                    <input
-                      id="consulting-email"
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={e => updateForm('email', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="consulting-project_type" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                      Project Type
-                    </label>
-                    <select
-                      id="consulting-project_type"
-                      value={form.project_type}
-                      onChange={e => updateForm('project_type', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
-                    >
-                      <option value="">Select one…</option>
-                      {PROJECT_TYPES.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="consulting-budget_range" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                      Budget Range
-                    </label>
-                    <select
-                      id="consulting-budget_range"
-                      value={form.budget_range}
-                      onChange={e => updateForm('budget_range', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
-                    >
-                      <option value="">Select one…</option>
-                      {BUDGET_RANGES.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="consulting-company" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                      Company / Project
-                    </label>
-                    <input
-                      id="consulting-company"
-                      type="text"
-                      value={form.company}
-                      onChange={e => updateForm('company', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
-                      placeholder="Acme Inc. / side project"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="consulting-timeline" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                      Timeline
-                    </label>
-                    <select
-                      id="consulting-timeline"
-                      value={form.timeline}
-                      onChange={e => updateForm('timeline', e.target.value)}
-                      className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors"
-                    >
-                      <option value="">Select one…</option>
-                      {TIMELINES.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="consulting-message" className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
-                    What&apos;s on your mind?
-                  </label>
-                  <textarea
-                    id="consulting-message"
-                    required
-                    value={form.message}
-                    onChange={e => updateForm('message', e.target.value)}
-                    rows={5}
-                    className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 focus:ring-1 focus:ring-candy-500/40 transition-colors resize-none"
-                    placeholder="What are you working on? What would be helpful?"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full py-3 rounded-xl bg-candy-600 hover:bg-candy-500 disabled:bg-forest-700 disabled:text-forest-500 text-white font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-                >
-                  {submitting ? 'Sending...' : 'Send Message'}
-                </button>
-
-                <p className="text-center text-forest-600 text-xs">
-                  Prefer a call?{' '}
-                  <a
-                    href="https://calendly.com/brooksroley/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'form_footer' })}
-                    className="text-candy-500/70 hover:text-candy-400 underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
-                  >
-                    Book directly on Calendly
-                  </a>
-                  {' '}— no form needed.
-                </p>
-              </form>
-            )}
-          </section>
-
-        </main>
-
-        {/* ── Mobile sticky CTA — only while the header button is out of view ── */}
-        <div
-          className={`sm:hidden fixed inset-x-0 bottom-0 z-50 border-t border-candy-500/30 bg-forest-950/95 backdrop-blur px-4 py-3 transition-transform duration-300 ${
-            showStickyCta ? 'translate-y-0' : 'translate-y-full'
-          }`}
-          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
-        >
-          <a
-            href="https://calendly.com/brooksroley/"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => track('cta_click', { location: 'consulting_calendly', placement: 'sticky_mobile' })}
-            className="block w-full text-center px-4 py-3 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
+        <footer className="mt-16 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+          <Link
+            href={route('intake').href}
+            onClick={() => contactClick('work_contact')}
+            className="font-medium text-brass-300 transition-colors hover:text-brass-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400"
           >
-            Book a free call &rarr;
-          </a>
-        </div>
-
-        {/* ── Footer ── */}
-        <footer className="border-t border-forest-800/50 py-8 mt-16">
-          <div className="max-w-3xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-forest-600 text-xs">
-            <span>Brooks Roley &middot; {new Date().getFullYear()}</span>
-            <Link href="/" className="hover:text-forest-400 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950">&larr; brooksroley.com</Link>
-          </div>
+            Get in touch &rarr;
+          </Link>
+          <Link
+            href={route('resume').href}
+            className="text-ink-300 transition-colors hover:text-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400"
+          >
+            Resume
+          </Link>
         </footer>
       </div>
-    </>
+    </main>
   )
 }

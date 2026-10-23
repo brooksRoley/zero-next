@@ -77,11 +77,11 @@ function NoteBody({ kind }: { kind: PlantKind }) {
   return (
     <div>
       <h3 className="mt-1 flex items-center gap-2 font-semibold">
-        <Swatch kind={kind} /> {plant.name} <span className="font-normal italic text-forest-400">{plant.latin}</span>
+        <Swatch kind={kind} /> {plant.name} <span className="font-normal italic text-ink-400">{plant.latin}</span>
       </h3>
-      <p className="mt-1 text-forest-200">{plant.note.body}</p>
+      <p className="mt-1 text-ink-200">{plant.note.body}</p>
       {plant.note.caution && <p className="mt-2 text-amber-200">{plant.note.caution}</p>}
-      <a href={plant.note.source} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-forest-400 underline underline-offset-2 hover:text-forest-200">
+      <a href={plant.note.source} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-ink-400 underline underline-offset-2 hover:text-ink-200">
         Calscape: {plant.name}
       </a>
     </div>
@@ -257,7 +257,7 @@ export default function TendPage() {
     !!garden && today !== null && (lastSeason?.day === today || garden.beds.some((b) => isDormant(garden, b.id, today)))
 
   return (
-    <main className="min-h-screen bg-forest-950 font-sans text-forest-100">
+    <main className="min-h-screen bg-ink-950 font-sans text-ink-100">
       <Head>
         <title>Tend | Brooks Roley</title>
         <meta
@@ -277,9 +277,9 @@ export default function TendPage() {
         <TendNav current="garden" sample={sample} />
         {sample && <SampleBanner page="garden" />}
         <header className="mb-8 max-w-2xl">
-          <p className="mb-2 font-mono text-xs uppercase tracking-widest text-forest-400">A daily garden</p>
+          <p className="mb-2 font-mono text-xs uppercase tracking-widest text-ink-400">A daily garden</p>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Tend</h1>
-          <p className="mt-3 text-sm leading-relaxed text-forest-300 sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-ink-300 sm:text-base">
             Check in once a day. Every habit you kept becomes a seed. Fit the seeds onto the grid, mind the
             neighbours, and plant for the weather.
           </p>
@@ -288,8 +288,8 @@ export default function TendPage() {
               href={{ pathname: route('tend').href, query: { sample: '1' } }}
               className={
                 firstVisit
-                  ? 'mt-4 inline-block rounded-lg border border-forest-400 px-4 py-2 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300'
-                  : 'mt-3 inline-block text-sm text-forest-300 underline underline-offset-2 hover:text-white'
+                  ? 'mt-4 inline-block rounded-lg border border-ink-400 px-4 py-2 text-sm font-medium text-ink-100 transition-colors hover:bg-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300'
+                  : 'mt-3 inline-block text-sm text-ink-300 underline underline-offset-2 hover:text-white'
               }
             >
               {firstVisit ? 'Peek at a sample garden on day 40 →' : 'Peek at a sample garden'}
@@ -298,7 +298,7 @@ export default function TendPage() {
         </header>
 
         {!garden || today === null ? (
-          <p className="text-forest-400">Opening the garden…</p>
+          <p className="text-ink-400">Opening the garden…</p>
         ) : (
           <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_320px]">
             <div>
@@ -316,14 +316,14 @@ export default function TendPage() {
                 phase={phase}
                 parched={parched}
               />
-              <p className="mt-3 font-mono text-xs text-forest-400">
+              <p className="mt-3 font-mono text-xs text-ink-400">
                 Day {today - garden.startDay + 1} · {garden.beds.length} beds · {bloomCount(garden, today)} in bloom ·{' '}
                 {PHASE_LABEL[phase]}
               </p>
               {month !== null && (
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-forest-300">
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-300">
                   {almanac(month).line}{' '}
-                  <a href={almanac(month).source.url} target="_blank" rel="noopener noreferrer" className="text-forest-400 underline underline-offset-2 hover:text-forest-200">
+                  <a href={almanac(month).source.url} target="_blank" rel="noopener noreferrer" className="text-ink-400 underline underline-offset-2 hover:text-ink-200">
                     Source
                   </a>
                 </p>
@@ -332,10 +332,10 @@ export default function TendPage() {
 
             <aside className="space-y-6">
               {newNote && (
-                <section className="rounded-xl border border-forest-500/60 bg-forest-800/40 p-4 text-sm" aria-live="polite">
-                  <p className="font-mono text-xs uppercase tracking-widest text-forest-400">Field note unlocked</p>
+                <section className="rounded-xl border border-ink-500/60 bg-ink-800/40 p-4 text-sm" aria-live="polite">
+                  <p className="font-mono text-xs uppercase tracking-widest text-ink-400">Field note unlocked</p>
                   <NoteBody kind={newNote} />
-                  <button type="button" onClick={() => setNewNote(null)} className="mt-3 text-xs text-forest-400 underline-offset-2 hover:text-forest-200 hover:underline">
+                  <button type="button" onClick={() => setNewNote(null)} className="mt-3 text-xs text-ink-400 underline-offset-2 hover:text-ink-200 hover:underline">
                     Back to the garden
                   </button>
                 </section>
@@ -345,12 +345,12 @@ export default function TendPage() {
                 <section className="rounded-xl border border-amber-800/60 bg-amber-950/30 p-4 text-sm">
                   <p className="font-mono text-xs uppercase tracking-widest text-amber-300/80">From the compost bin</p>
                   <h2 className="mt-1 font-semibold">{COMPOST_NOTES[compostTip].title}</h2>
-                  <p className="mt-1 text-forest-200">{COMPOST_NOTES[compostTip].body}</p>
+                  <p className="mt-1 text-ink-200">{COMPOST_NOTES[compostTip].body}</p>
                   <div className="mt-2 flex gap-4 text-xs">
-                    <a href={COMPOST_NOTES[compostTip].source.url} target="_blank" rel="noopener noreferrer" className="text-forest-400 underline underline-offset-2 hover:text-forest-200">
+                    <a href={COMPOST_NOTES[compostTip].source.url} target="_blank" rel="noopener noreferrer" className="text-ink-400 underline underline-offset-2 hover:text-ink-200">
                       {COMPOST_NOTES[compostTip].source.label}
                     </a>
-                    <button type="button" onClick={() => setCompostTip(null)} className="text-forest-400 hover:text-forest-200">
+                    <button type="button" onClick={() => setCompostTip(null)} className="text-ink-400 hover:text-ink-200">
                       Close
                     </button>
                   </div>
@@ -369,11 +369,11 @@ export default function TendPage() {
               )}
 
               {recentSeason && (
-                <section className="rounded-xl border border-forest-700 bg-forest-900/50 p-4 text-sm">
+                <section className="rounded-xl border border-ink-700 bg-ink-900/50 p-4 text-sm">
                   <h2 className="font-semibold">
                     {recentSeason.day === today ? 'Drought today' : 'The last drought'}
                   </h2>
-                  <p className="mt-1 text-forest-300">
+                  <p className="mt-1 text-ink-300">
                     {recentSeason.held.length + recentSeason.hit.length === 0
                       ? 'Nothing was planted yet, so nothing was hurt.'
                       : `${recentSeason.held.length} of ${recentSeason.held.length + recentSeason.hit.length} beds held. ${
@@ -388,7 +388,7 @@ export default function TendPage() {
               {sample ? (
                 <section>
                   <h2 className="text-lg font-semibold">Forty days in</h2>
-                  <p className="mt-1 text-sm text-forest-400">
+                  <p className="mt-1 text-sm text-ink-400">
                     This gardener checked in on {Object.keys(garden.checkins).length} of {today - garden.startDay + 1} days
                     and weathered {garden.seasons.length} droughts, with ferns keeping most beds awake. Every field note
                     below is collected, and every watershed tier is open.
@@ -397,7 +397,7 @@ export default function TendPage() {
               ) : !checkedIn ? (
                 <section>
                   <h2 className="text-lg font-semibold">Today</h2>
-                  <p className="mt-1 text-sm text-forest-400">Which did you do? An honest empty day still tends the garden.</p>
+                  <p className="mt-1 text-sm text-ink-400">Which did you do? An honest empty day still tends the garden.</p>
                   <ul className="mt-4 space-y-2">
                     {LANES.map((lane) => {
                       const kind = KIND_FOR_LANE[lane]
@@ -408,13 +408,13 @@ export default function TendPage() {
                             type="button"
                             aria-pressed={on}
                             onClick={() => setChosen((prev) => (on ? prev.filter((l) => l !== lane) : [...prev, lane]))}
-                            className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${
-                              on ? 'border-forest-400 bg-forest-800' : 'border-forest-800 hover:border-forest-600'
+                            className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${
+                              on ? 'border-ink-400 bg-ink-800' : 'border-ink-800 hover:border-ink-600'
                             }`}
                           >
                             <Swatch kind={kind} />
                             <span className="flex-1">{PLANTS[kind].habit}</span>
-                            <span aria-hidden className="font-mono text-xs text-forest-400">{on ? '✓' : ''}</span>
+                            <span aria-hidden className="font-mono text-xs text-ink-400">{on ? '✓' : ''}</span>
                           </button>
                         </li>
                       )
@@ -423,7 +423,7 @@ export default function TendPage() {
                   <button
                     type="button"
                     onClick={submitCheckIn}
-                    className="mt-4 w-full rounded-lg bg-forest-200 px-4 py-2.5 text-sm font-semibold text-forest-950 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
+                    className="mt-4 w-full rounded-lg bg-ink-200 px-4 py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950"
                   >
                     {chosen.length ? `Check in: ${chosen.length} seed${chosen.length === 1 ? '' : 's'}` : 'Check in: nothing today'}
                   </button>
@@ -442,8 +442,8 @@ export default function TendPage() {
                             setSelectedSeed(s.id)
                             setTurn(0)
                           }}
-                          className={`flex h-14 w-14 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${
-                            s.id === seed.id ? 'border-forest-300 bg-forest-800' : 'border-forest-800 hover:border-forest-600'
+                          className={`flex h-14 w-14 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${
+                            s.id === seed.id ? 'border-ink-300 bg-ink-800' : 'border-ink-800 hover:border-ink-600'
                           }`}
                         >
                           <ShapePreview shape={orientations(s.kind)[0]} kind={s.kind} />
@@ -451,30 +451,30 @@ export default function TendPage() {
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-4 rounded-lg border border-forest-800 p-3 text-sm">
+                  <div className="mt-4 rounded-lg border border-ink-800 p-3 text-sm">
                     <p className="flex items-center gap-2 font-medium">
                       <Swatch kind={seed.kind} /> {PLANTS[seed.kind].name}
                     </p>
-                    <p className="mt-1 text-forest-300">{PLANTS[seed.kind].trait}</p>
+                    <p className="mt-1 text-ink-300">{PLANTS[seed.kind].trait}</p>
                     <div className="mt-3 flex gap-2">
                       <button
                         type="button"
                         onClick={rotate}
                         disabled={shapes.length < 2}
-                        className="rounded-md border border-forest-700 px-3 py-1.5 text-xs font-medium hover:bg-forest-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+                        className="rounded-md border border-ink-700 px-3 py-1.5 text-xs font-medium hover:bg-ink-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
                       >
                         Rotate (R)
                       </button>
                       <button
                         type="button"
                         onClick={compost}
-                        className="rounded-md border border-forest-700 px-3 py-1.5 text-xs font-medium text-forest-300 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+                        className="rounded-md border border-ink-700 px-3 py-1.5 text-xs font-medium text-ink-300 hover:bg-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
                       >
                         Compost
                       </button>
                     </div>
                   </div>
-                  <p className="mt-3 text-xs text-forest-400">
+                  <p className="mt-3 text-xs text-ink-400">
                     Point at a spot and click to plant. On a phone, tap once to preview and again to plant. A rooted bed
                     never moves.
                   </p>
@@ -482,35 +482,35 @@ export default function TendPage() {
               ) : (
                 <section>
                   <h2 className="text-lg font-semibold">All planted</h2>
-                  <p className="mt-1 text-sm text-forest-400">
+                  <p className="mt-1 text-sm text-ink-400">
                     The garden grows on every day you check in. A new day starts at {TUNING.rolloverHour}am.
                   </p>
                 </section>
               )}
 
-              <details className="rounded-xl border border-forest-800 p-4 text-sm">
+              <details className="rounded-xl border border-ink-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">
                   Field guide ({garden.notes?.length ?? 0} of {Object.keys(PLANTS).length} collected)
                 </summary>
-                <p className="mt-2 text-xs text-forest-400">Every note is open to read. A plant&apos;s first bloom adds it to your collection.</p>
+                <p className="mt-2 text-xs text-ink-400">Every note is open to read. A plant&apos;s first bloom adds it to your collection.</p>
                 <ul className="mt-3 space-y-4">
                   {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
                     <li key={kind}>
-                      <p className="font-mono text-[11px] uppercase tracking-widest text-forest-500">
+                      <p className="font-mono text-[11px] uppercase tracking-widest text-ink-500">
                         {garden.notes?.includes(kind) ? 'Collected' : 'Not yet bloomed'}
                       </p>
                       <NoteBody kind={kind} />
                     </li>
                   ))}
                 </ul>
-                <p className="mt-4 text-xs text-forest-500">
+                <p className="mt-4 text-xs text-ink-500">
                   Plant facts from Calscape, the California Native Plant Society&apos;s plant database. Composting from{' '}
-                  <a href={SOURCES.ucIpmCompost.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-forest-300">UC IPM</a>; labels from{' '}
-                  <a href={SOURCES.calrecycleLabels.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-forest-300">CalRecycle</a>.
+                  <a href={SOURCES.ucIpmCompost.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-300">UC IPM</a>; labels from{' '}
+                  <a href={SOURCES.calrecycleLabels.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-300">CalRecycle</a>.
                 </p>
               </details>
 
-              <details className="rounded-xl border border-forest-800 p-4 text-sm">
+              <details className="rounded-xl border border-ink-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">How the plants work</summary>
                 <ul className="mt-3 space-y-2">
                   {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
@@ -518,25 +518,25 @@ export default function TendPage() {
                       <Swatch kind={kind} />
                       <span>
                         <span className="font-medium">{PLANTS[kind].name}.</span>{' '}
-                        <span className="text-forest-300">{PLANTS[kind].trait}</span>
+                        <span className="text-ink-300">{PLANTS[kind].trait}</span>
                       </span>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 text-forest-400">
+                <p className="mt-3 text-ink-400">
                   Plants grow only on days you check in, and nothing dies while you are away. A drought comes every{' '}
                   {TUNING.seasonEveryDays} days, with {TUNING.forecastDays} days&apos; warning.
                 </p>
-                <p className="mt-3 text-forest-400">
+                <p className="mt-3 text-ink-400">
                   {PETS.map((pet) => pet.habit).join(' ')}
                 </p>
-                <p className="mt-3 text-forest-400">Your habits are saved in this browser only.</p>
+                <p className="mt-3 text-ink-400">Your habits are saved in this browser only.</p>
                 {!sample && (
                   <button
                     type="button"
                     onClick={reset}
                     onBlur={() => setConfirmReset(false)}
-                    className="mt-3 text-xs text-forest-500 underline-offset-2 hover:text-forest-300 hover:underline"
+                    className="mt-3 text-xs text-ink-500 underline-offset-2 hover:text-ink-300 hover:underline"
                   >
                     {confirmReset ? 'Click again to erase this garden' : 'Start over'}
                   </button>

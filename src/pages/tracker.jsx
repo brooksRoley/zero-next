@@ -110,7 +110,7 @@ const C = {
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100]
 
 const MISSIONS = [
-  { icon: '🎮', title: 'Game Development', desc: 'Pente, Nanu & Pika TD, Basketball Tactics — building games grounded in Theory of Fun.' },
+  { icon: '🎮', title: 'Game Development', desc: 'Pente, Tower Defense: Nanu Pika, Basketball Tactics — building games grounded in Theory of Fun.' },
   { icon: '🏥', title: 'CenterPointe for Children', desc: "Nonprofit web infrastructure, donor tooling, and tech support for children's programming." },
   { icon: '🛠', title: 'Open Source Tools', desc: 'pdf-to-audio, NBA analytics utilities, developer tools — free and open.' },
   { icon: '📐', title: 'Research & Education', desc: 'Game Design Theory of Fun, AWS GenAI curriculum, NBA data strategy.' },
@@ -681,24 +681,24 @@ export default function Tracker() {
         <title>Dashboard</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <div className="min-h-screen bg-forest-950">
+      <div className="min-h-screen bg-ink-950">
         {/* Dashboard header */}
-        <div className="sticky top-16 z-40 bg-forest-900/95 backdrop-blur-md border-b border-forest-700/40">
+        <div className="sticky top-16 z-40 bg-ink-900/95 backdrop-blur-md border-b border-ink-700/40">
           <div className="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
             <div className="flex items-center gap-1">
               {SECTIONS.map(s => (
                 <button key={s.id} onClick={() => setActiveSection(s.id)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     activeSection === s.id
-                      ? 'text-candy-400 bg-forest-800'
-                      : 'text-forest-300 hover:text-candy-300 hover:bg-forest-800'
+                      ? 'text-brass-400 bg-ink-800'
+                      : 'text-ink-300 hover:text-brass-300 hover:bg-ink-800'
                   }`}>
                   {s.label}
                 </button>
               ))}
             </div>
             <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs text-forest-400 hover:text-forest-200 hover:bg-forest-800 transition-colors">
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs text-ink-400 hover:text-ink-200 hover:bg-ink-800 transition-colors">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>

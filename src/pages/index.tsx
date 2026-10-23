@@ -18,13 +18,13 @@ const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
 // enhancement on top of real server HTML. Same pattern as PhysicsField above.
 const PhysicsHero = dynamic(() => import('src/components/PhysicsHero'), {
   loading: () => (
-    <section className="terrain-hero relative overflow-hidden text-[#DADBD9]">
+    <section className="terrain-hero relative overflow-hidden text-[#E9E3D6]">
       <div className="relative z-10 mx-auto flex min-h-[74vh] max-w-6xl flex-col justify-center gap-10 px-4 py-16 sm:px-6 md:min-h-[82vh] md:flex-row md:items-center md:gap-14 md:py-20">
         <div className="max-w-2xl md:flex-[1.05]">
-          <h1 className="text-[clamp(3.35rem,9vw,6.8rem)] font-extrabold leading-none text-[#DADBD9]">Brooks Roley</h1>
-          <p className="mt-4 max-w-xl text-base leading-7 text-[#DADBD9]/80 sm:text-lg sm:leading-8">
+          <h1 className="text-[clamp(3.35rem,9vw,6.8rem)] font-extrabold leading-none text-[#E9E3D6]">Brooks Roley</h1>
+          <p className="mt-4 max-w-xl text-base leading-7 text-[#E9E3D6]/80 sm:text-lg sm:leading-8">
             {HERO_SUMMARY}{' '}
-            <span className="font-medium text-[#C5E7EA]">{AVAILABILITY}</span>
+            <span className="font-medium text-[#DED9CE]">{AVAILABILITY}</span>
           </p>
         </div>
       </div>
@@ -46,16 +46,16 @@ const ExternalIcon = () => (
 
 const SectionHeading = ({ number, label }: { number: string; label: string }) => (
   <div className="flex items-baseline gap-3 mb-5 sm:mb-7">
-    <span className="font-mono text-xs tracking-wider text-[#B9968D]/85">{number}</span>
-    <span className="h-px flex-none w-6 bg-[#C5E7EA]/30" aria-hidden />
-    <h2 className="text-sm font-semibold uppercase tracking-widest text-[#DADBD9]/88">
+    <span className="font-mono text-xs tracking-wider text-[#B1ADA8]/85">{number}</span>
+    <span className="h-px flex-none w-6 bg-[#DED9CE]/30" aria-hidden />
+    <h2 className="text-sm font-semibold uppercase tracking-widest text-[#E9E3D6]/88">
       {label}
     </h2>
   </div>
 )
 
 export default function Home() {
-  const cardBase = "group relative overflow-hidden rounded-xl border border-[#C5E7EA]/14 bg-[#415557]/18 text-[#DADBD9] card-hover-border backdrop-blur-sm"
+  const cardBase = "group relative overflow-hidden rounded-xl border border-[#DED9CE]/14 bg-[#2F3C50]/18 text-[#E9E3D6] card-hover-border backdrop-blur-sm"
 
   return (
     <main className="min-h-screen terrain-page-bg font-sans">
@@ -67,7 +67,7 @@ export default function Home() {
           <>
             <SectionHeading number="01" label="Featured" />
             <Reveal>
-              <p className="mb-6 sm:mb-8 max-w-2xl text-sm sm:text-base text-[#DADBD9]/78 leading-relaxed">
+              <p className="mb-6 sm:mb-8 max-w-2xl text-sm sm:text-base text-[#E9E3D6]/78 leading-relaxed">
                 Selected work: a full-stack sports data platform, AI tools, and the games I build to sharpen the front end.
               </p>
             </Reveal>
@@ -78,13 +78,13 @@ export default function Home() {
                     <Link href={route('resume').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden">
                         <Image src="/cover.png" alt="Brooks Roley" fill className="object-cover opacity-60 card-img-hover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
                           Resume <ArrowIcon />
                         </h3>
-                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Learn more about my experiences and background.
                         </p>
                       </div>
@@ -100,13 +100,13 @@ export default function Home() {
                     <Link href={route('basketballPlatform').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
                         <Image src="/BRBaller.png" alt="Basketball Data Platform" width={140} height={70} className="object-contain opacity-70 card-img-hover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
                           Basketball Data Platform <ArrowIcon />
                         </h3>
-                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Full-stack NBA system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS.
                         </p>
                       </div>
@@ -120,17 +120,17 @@ export default function Home() {
                 <Reveal delay={300}>
                   <TiltCard>
                     <Link href={route('modelArena').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
                         <div className="flex items-center gap-3 text-2xl opacity-60">
                           <span>&#x2694;&#xFE0F;</span><span>&#x1F916;</span><span>&#x1F3C6;</span>
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
                           Model Arena <ArrowIcon />
                         </h3>
-                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Compare AI models side by side. Blind battles, speed stats, leaderboard.
                         </p>
                       </div>
@@ -144,17 +144,17 @@ export default function Home() {
                 <Reveal delay={400}>
                   <TiltCard>
                     <Link href={route('chat').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
                         <div className="flex items-center gap-2 text-2xl opacity-60">
                           <span>🎭</span><span>🤖</span><span>🧙</span>
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
                           Chat Sandbox <ArrowIcon />
                         </h3>
-                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Build a cast of AI characters. Pick their models, give them roles, watch them argue.
                         </p>
                       </div>
@@ -170,13 +170,13 @@ export default function Home() {
                     <Link href={route('pente').href} className={cardBase}>
                       <div className="aspect-[2.2/1] relative overflow-hidden">
                         <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-hover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
                           Pente <ArrowIcon />
                         </h3>
-                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Classic strategy board game. Two players, captures, five-in-a-row.
                         </p>
                       </div>
@@ -190,18 +190,18 @@ export default function Home() {
                 <Reveal delay={600}>
                   <TiltCard>
                     <Link href={route('go').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#B9968D]">
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#B1ADA8]">
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
                           <span className="w-5 h-5 rounded-full bg-[#f5f5f5] shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
                           Go <ArrowIcon />
                         </h3>
-                        <p className="mt-1 text-sm text-[#DADBD9]/68">
+                        <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Learn the ancient territory game. 9×9, 13×13, or 19×19. Chinese rules.
                         </p>
                       </div>
@@ -217,7 +217,7 @@ export default function Home() {
 
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* ── Projects ── */}
-        <section className="border-t border-[#C5E7EA]/10 py-10 sm:py-12 md:py-16">
+        <section className="border-t border-[#DED9CE]/10 py-10 sm:py-12 md:py-16">
           <Reveal>
             <SectionHeading number="02" label="Projects" />
           </Reveal>
@@ -229,13 +229,13 @@ export default function Home() {
                   <Link href={route('luminousFlow').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden">
                       <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         Luminous Flow <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Interactive fluid art. Curl noise, light, and particle physics.
                       </p>
                     </div>
@@ -245,20 +245,20 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Nanu & Pika TD */}
+            {/* Tower Defense: Nanu Pika */}
             <div data-physics-item className="physics-field-item">
               <Reveal delay={200}>
                 <TiltCard>
                   <Link href={route('nanuPikaTd').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden">
                       <Image src="/lion.jpg" alt="Nanu and Pika TD" fill className="object-cover opacity-50 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/78 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Nanu &amp; Pika TD <ArrowIcon />
+                        Tower Defense: Nanu Pika <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Tower defense with cat wizards. Place towers, survive ant waves, level up.
                       </p>
                     </div>
@@ -273,21 +273,21 @@ export default function Home() {
               <Reveal delay={300}>
                 <TiltCard>
                   <Link href={route('nba').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
                       <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full bg-[#C5E7EA]" />
-                        <div className="h-3 w-3 rounded-full bg-[#DADBD9]" />
-                        <div className="h-3 w-3 rounded-full bg-[#B9968D]" />
-                        <div className="h-3 w-3 rounded-full bg-[#B27236]" />
-                        <div className="h-3 w-3 rounded-full bg-[#415557]" />
+                        <div className="h-3 w-3 rounded-full bg-[#DED9CE]" />
+                        <div className="h-3 w-3 rounded-full bg-[#E9E3D6]" />
+                        <div className="h-3 w-3 rounded-full bg-[#B1ADA8]" />
+                        <div className="h-3 w-3 rounded-full bg-[#966F2F]" />
+                        <div className="h-3 w-3 rounded-full bg-[#2F3C50]" />
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         NBA Explorer <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Live NBA stats, standings, player analytics, and team dashboards. Interactive node graph.
                       </p>
                     </div>
@@ -302,17 +302,17 @@ export default function Home() {
               <Reveal delay={350}>
                 <TiltCard>
                   <Link href={route('tradeMachine').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
                       <div className="flex items-center gap-3 text-2xl opacity-60">
                         <span>&#x1F4B0;</span><span>&#x1F504;</span><span>&#x1F3C0;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         Trade Machine <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         NBA salary-cap explorer — build trades, test CBA legality, and see the cap math for 2026-27.
                       </p>
                     </div>
@@ -327,17 +327,17 @@ export default function Home() {
               <Reveal delay={400}>
                 <TiltCard>
                   <Link href={route('rigReport').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#1A2123]">
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
                       <div className="flex items-center gap-3 text-2xl opacity-60">
                         <span>&#x1F575;&#xFE0F;</span><span>&#x1F3C0;</span><span>&#x1F4C9;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         The Rig Report <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         A satirical NBA &ldquo;rigging&rdquo; inspector that teaches real odds math — the vig, base rates, line movement.
                       </p>
                     </div>
@@ -356,13 +356,13 @@ export default function Home() {
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x265F;&#xFE0F;</span><span>&#x1F451;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         Hardwood Autochess <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         NBA auto-battler. Draft a squad, place your board, fight ghost lineups over 10 rounds.
                       </p>
                     </div>
@@ -381,13 +381,13 @@ export default function Home() {
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x1F517;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         Pass &amp; Cut <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         A graph-theory basketball puzzle — sever the defense before it cuts your passing lanes.
                       </p>
                     </div>
@@ -406,13 +406,13 @@ export default function Home() {
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x1F9E0;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         Read &amp; React <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         A game-theory EV matrix — read the defense, pick the play, beat the minimax.
                       </p>
                     </div>
@@ -431,13 +431,13 @@ export default function Home() {
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3C0;</span><span>&#x23F1;&#xFE0F;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         Playoff Moments <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Famous NBA plays frozen one beat early — your legs against their closing speed. Click the spot history found.
                       </p>
                     </div>
@@ -452,17 +452,17 @@ export default function Home() {
               <Reveal delay={600}>
                 <TiltCard>
                   <Link href={route('theater').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-candy-900 via-forest-900 to-forest-950">
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-brass-900 via-ink-900 to-ink-950">
                       <div className="flex items-center gap-3 text-2xl opacity-70">
                         <span>&#x1F3AD;</span><span>&#x2728;</span><span>&#x1F3AB;</span>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/72 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         The Zero Theater <ArrowIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Every game on this site, staged as a production — duels, trials, seasons. Admission free.
                       </p>
                     </div>
@@ -476,7 +476,7 @@ export default function Home() {
         </section>
 
         {/* ── Connect ── */}
-        <section className="border-t border-[#C5E7EA]/10 py-10 sm:py-12 md:py-16">
+        <section className="border-t border-[#DED9CE]/10 py-10 sm:py-12 md:py-16">
           <Reveal>
             <SectionHeading number="03" label="Connect" />
           </Reveal>
@@ -486,15 +486,15 @@ export default function Home() {
               <Reveal delay={100}>
                 <TiltCard>
                   <Link href={route('linkedin').href} target="_blank" rel="noopener noreferrer" className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
                       <Image src="/BRMinimalist.png" alt="Design Icon BR" width={140} height={70} className="object-contain opacity-60 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/68 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/68 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         LinkedIn <ExternalIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Let&apos;s connect and make things happen.
                       </p>
                     </div>
@@ -509,15 +509,15 @@ export default function Home() {
               <Reveal delay={200}>
                 <TiltCard>
                   <Link href={route('github').href} target="_blank" rel="noopener noreferrer" className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#415557]/34">
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
                       <Image src="/BRBaller.png" alt="Brooks Roley logo" width={120} height={70} className="object-contain opacity-60 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1c2426] via-[#1c2426]/68 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/68 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
                         GitHub <ExternalIcon />
                       </h3>
-                      <p className="mt-1 text-sm text-[#DADBD9]/68">
+                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Explore my projects and open-source work.
                       </p>
                     </div>
@@ -531,11 +531,11 @@ export default function Home() {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="border-t border-[#C5E7EA]/10 py-6">
-          <div className="flex items-center justify-between text-xs text-[#DADBD9]/46">
+        <footer className="border-t border-[#DED9CE]/10 py-6">
+          <div className="flex items-center justify-between text-xs text-[#E9E3D6]/46">
             <span>&copy; {new Date().getFullYear()} Brooks Roley</span>
-            <Link href={route('consulting').href} className="transition-colors hover:text-[#C5E7EA]">
-              Also available for consulting
+            <Link href={route('consulting').href} className="transition-colors hover:text-[#DED9CE]">
+              Selected work
             </Link>
           </div>
         </footer>

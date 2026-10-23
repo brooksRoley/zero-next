@@ -195,6 +195,6 @@ export function difficultyColor(diff) {
     case 'easy':     return 'text-cyan-300  border-cyan-500/30  bg-cyan-900/20'
     case 'medium':   return 'text-amber-300 border-amber-500/30 bg-amber-900/20'
     case 'hard':     return 'text-red-300   border-red-500/30   bg-red-900/20'
-    default:         return 'text-forest-300 border-forest-600/30 bg-forest-800/20'
+    default:         return 'text-ink-300 border-ink-600/30 bg-ink-800/20'
   }
 }

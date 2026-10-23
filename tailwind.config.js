@@ -8,18 +8,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        forest: {
-          50:  '#edf7f0',
-          100: '#d1ecd8',
-          200: '#a3d9b1',
-          300: '#6abf82',
-          400: '#40916c',
-          500: '#2d6a4f',
-          600: '#1b4332',
-          700: '#143728',
-          800: '#0d2b1e',
-          900: '#081f15',
-          950: '#04120c',
+        // Ink & Brass (2026-10-23): burnt-blue base, cream and gray text, brass
+        // accent. Each step keeps the contrast of the forest/candy step it replaced.
+        ink: {
+          50:  '#FFFFFF',
+          100: '#F5F2ED',
+          200: '#DED9CE',
+          300: '#BCB8B3',
+          400: '#848D96',
+          500: '#5A687C',
+          600: '#2F3C50',
+          700: '#243145',
+          800: '#192739',
+          900: '#1A2638',
+          950: '#101B2B',
         },
         void: {
           50:  '#f5f3ff',
@@ -34,19 +36,21 @@ module.exports = {
           900: '#4c1d95',
           950: '#2e1065',
         },
-        candy: {
-          50:  '#fff0f6',
-          100: '#ffe0ed',
-          200: '#ffb8d9',
-          300: '#ff8cc2',
-          400: '#ff69b4',
-          500: '#f24da0',
-          600: '#db2777',
-          700: '#b91c5e',
-          800: '#9d174d',
-          900: '#831843',
-          950: '#500724',
+        brass: {
+          50:  '#FAF3E9',
+          100: '#F4E6D1',
+          200: '#E9D6B9',
+          300: '#D8B783',
+          400: '#CDA35F',
+          500: '#C18E3D',
+          600: '#966F2F',
+          700: '#7C5B27',
+          800: '#684D21',
+          900: '#57411C',
+          950: '#312410',
         },
+        charcoal: '#262A30',
+        clay: { 400: '#C9754F', 500: '#B5643F' },
       },
       backgroundImage: {
         'br-logo-box': "url('/BRLogoBox.png')",
@@ -72,8 +76,8 @@ module.exports = {
           '100%': { opacity: '1', maxHeight: '400px' },
         },
         glow: {
-          '0%, 100%': { boxShadow: '0 0 8px rgba(255,105,180,0.15)' },
-          '50%': { boxShadow: '0 0 20px rgba(255,105,180,0.3)' },
+          '0%, 100%': { boxShadow: '0 0 8px rgba(205,163,95,0.15)' },
+          '50%': { boxShadow: '0 0 20px rgba(205,163,95,0.3)' },
         },
         stonePop: {
           '0%': { transform: 'scale(0)', opacity: '0' },

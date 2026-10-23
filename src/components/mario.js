@@ -39,10 +39,10 @@ const MarioButton = () => {
       )}
       <button
         onClick={handleClick}
-        className={`relative flex border-solid items-center justify-center w-16 h-16 bg-gradient-to-br from-candy-400 to-candy-500 border-4 border-forest-600 rounded-lg shadow-lg hover:shadow-candy-400/30 hover:shadow-xl transition-shadow duration-300 ${animationClass} ${jumpClass}`}
+        className={`relative flex border-solid items-center justify-center w-16 h-16 bg-gradient-to-br from-brass-400 to-brass-500 border-4 border-ink-600 rounded-lg shadow-lg hover:shadow-brass-400/30 hover:shadow-xl transition-shadow duration-300 ${animationClass} ${jumpClass}`}
       >
         <span className="absolute text-4xl font-bold text-white select-none drop-shadow-md">?</span>
-        <span className="absolute w-full h-full border-2 border-candy-200/50 rounded-lg animate-ping"></span>
+        <span className="absolute w-full h-full border-2 border-brass-200/50 rounded-lg animate-ping"></span>
       </button>
     </div>
   );

@@ -70,11 +70,11 @@ export default function FarmPlay({ play, onPlant, onRewind }: Props) {
   const toggle = (id: number) => setSaved((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
   return (
-    <section className="rounded-xl border border-forest-700 bg-forest-900/40 p-4 text-sm" aria-labelledby="farm-play">
-      <h3 id="farm-play" className="font-semibold text-forest-100">
+    <section className="rounded-xl border border-ink-700 bg-ink-900/40 p-4 text-sm" aria-labelledby="farm-play">
+      <h3 id="farm-play" className="font-semibold text-ink-100">
         Save seed{play.seasons.length ? `: season ${play.seasons.length + 1}` : ''}
       </h3>
-      <p className="mt-1 text-forest-300">{FARM_COPY.rule}</p>
+      <p className="mt-1 text-ink-300">{FARM_COPY.rule}</p>
 
       <ul className="mt-3 grid grid-cols-4 gap-2">
         {plants.map((p) => {
@@ -87,12 +87,12 @@ export default function FarmPlay({ play, onPlant, onRewind }: Props) {
                 disabled={p.blighted}
                 onClick={() => toggle(p.id)}
                 aria-label={p.blighted ? `${p.variety}, lost to blight` : `${p.variety}, fruit size ${p.size}${on ? ', saving seed' : ''}`}
-                className={`w-full rounded-lg border p-1.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 disabled:opacity-60 ${
-                  on ? 'border-amber-300 bg-amber-500/15' : 'border-forest-800 hover:border-forest-600'
+                className={`w-full rounded-lg border p-1.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 disabled:opacity-60 ${
+                  on ? 'border-amber-300 bg-amber-500/15' : 'border-ink-800 hover:border-ink-600'
                 }`}
               >
                 <Tomato plant={p} />
-                <span className="block text-[11px] text-forest-300">{p.blighted ? 'blight' : `${p.variety} · ${p.size}`}</span>
+                <span className="block text-[11px] text-ink-300">{p.blighted ? 'blight' : `${p.variety} · ${p.size}`}</span>
               </button>
             </li>
           )
@@ -104,26 +104,26 @@ export default function FarmPlay({ play, onPlant, onRewind }: Props) {
           type="button"
           onClick={() => onPlant(saved)}
           disabled={alive.length > 0 && saved.length === 0}
-          className="rounded-lg bg-forest-200 px-4 py-2 text-sm font-semibold text-forest-950 transition-colors hover:bg-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+          className="rounded-lg bg-ink-200 px-4 py-2 text-sm font-semibold text-ink-950 transition-colors hover:bg-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
         >
           {alive.length === 0 ? 'Ask the seed bank for wild seed' : saved.length ? `Grow next season from ${saved.length} saved` : 'Pick plants to save seed from'}
         </button>
         {last && (
-          <button type="button" onClick={onRewind} className="rounded-lg border border-forest-700 px-3 py-2 text-xs text-forest-300 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300">
+          <button type="button" onClick={onRewind} className="rounded-lg border border-ink-700 px-3 py-2 text-xs text-ink-300 hover:bg-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300">
             Rewind a season
           </button>
         )}
       </div>
 
       {(caption || last) && (
-        <div className="mt-4 rounded-lg border border-forest-800 p-3" aria-live="polite">
-          {caption && <p className="font-mono text-xs text-forest-200">{caption}</p>}
+        <div className="mt-4 rounded-lg border border-ink-800 p-3" aria-live="polite">
+          {caption && <p className="font-mono text-xs text-ink-200">{caption}</p>}
           {last?.blight && (
             <p className="mt-1 text-amber-100">
               Blight! It struck the {last.blight} variety: {last.after.filter((p) => p.blighted).length} of {last.after.length} plants lost.
             </p>
           )}
-          {last?.restocked && <p className="mt-1 text-forest-300">{FARM_COPY.restocked}</p>}
+          {last?.restocked && <p className="mt-1 text-ink-300">{FARM_COPY.restocked}</p>}
           {varietiesOf(plants) === 1 && <p className="mt-1 text-amber-200">{FARM_COPY.monoculture}</p>}
           {play.seasons.length > 0 && (
             <div className="mt-2">
@@ -133,9 +133,9 @@ export default function FarmPlay({ play, onPlant, onRewind }: Props) {
         </div>
       )}
 
-      <p className="mt-3 text-[11px] text-forest-500">
+      <p className="mt-3 text-[11px] text-ink-500">
         {FARM_COPY.honest}{' '}
-        <a href={FARM_COPY.blightSource.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-forest-300">
+        <a href={FARM_COPY.blightSource.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-300">
           {FARM_COPY.blightSource.label}
         </a>
       </p>

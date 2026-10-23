@@ -216,7 +216,7 @@ function BYOKPanel({
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="px-3 py-1.5 rounded-lg text-sm text-[#DADBD9]/70 hover:text-[#DADBD9] border border-[#C5E7EA]/20 hover:bg-[#415557]/30 transition-colors"
+        className="px-3 py-1.5 rounded-lg text-sm text-[#E9E3D6]/70 hover:text-[#E9E3D6] border border-[#DED9CE]/20 hover:bg-[#2F3C50]/30 transition-colors"
       >
         API Keys
         {Object.values(keys).some(Boolean) && (
@@ -225,14 +225,14 @@ function BYOKPanel({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-[#C5E7EA]/20 bg-[#1c2426] p-4 shadow-2xl z-50">
-          <p className="text-xs text-[#DADBD9]/50 mb-3">
+        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-[#DED9CE]/20 bg-[#1A2638] p-4 shadow-2xl z-50">
+          <p className="text-xs text-[#E9E3D6]/50 mb-3">
             Keys are stored in your browser only and sent directly to the
             provider.
           </p>
           {providers.map((p) => (
             <label key={p.id} className="block mb-2">
-              <span className="text-xs text-[#DADBD9]/70 flex items-center gap-1.5">
+              <span className="text-xs text-[#E9E3D6]/70 flex items-center gap-1.5">
                 {p.name}
                 {local[p.id] && (
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
@@ -246,7 +246,7 @@ function BYOKPanel({
                     setLocal({ ...local, [p.id]: e.target.value })
                   }
                   placeholder={`${p.id} key`}
-                  className="flex-1 rounded-md border border-[#C5E7EA]/20 bg-[#415557]/30 px-2 py-1 text-xs text-[#DADBD9] placeholder-[#DADBD9]/30 focus:outline-none"
+                  className="flex-1 rounded-md border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-2 py-1 text-xs text-[#E9E3D6] placeholder-[#E9E3D6]/30 focus:outline-none"
                 />
                 {local[p.id] && (
                   <button
@@ -261,7 +261,7 @@ function BYOKPanel({
           ))}
           <button
             onClick={handleSave}
-            className="mt-2 w-full px-3 py-1.5 rounded-lg text-xs font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+            className="mt-2 w-full px-3 py-1.5 rounded-lg text-xs font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors"
           >
             Save
           </button>
@@ -317,25 +317,25 @@ function AddCharacterModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl border border-[#C5E7EA]/20 bg-[#1c2426] p-6 shadow-2xl">
-        <h2 className="text-lg font-semibold text-[#DADBD9] mb-4">
+      <div className="w-full max-w-md rounded-xl border border-[#DED9CE]/20 bg-[#1A2638] p-6 shadow-2xl">
+        <h2 className="text-lg font-semibold text-[#E9E3D6] mb-4">
           New Character
         </h2>
 
         <label className="block mb-3">
-          <span className="text-sm text-[#DADBD9]/70">Name</span>
+          <span className="text-sm text-[#E9E3D6]/70">Name</span>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Captain Blackbeard"
             maxLength={100}
-            className="mt-1 w-full rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-3 py-2 text-[#DADBD9] placeholder-[#DADBD9]/30 focus:border-[#C5E7EA]/50 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-3 py-2 text-[#E9E3D6] placeholder-[#E9E3D6]/30 focus:border-[#DED9CE]/50 focus:outline-none"
           />
         </label>
 
         <label className="block mb-3">
-          <span className="text-sm text-[#DADBD9]/70">
+          <span className="text-sm text-[#E9E3D6]/70">
             Personality (one-liner)
           </span>
           <input
@@ -344,16 +344,16 @@ function AddCharacterModal({
             onChange={(e) => setOneLiner(e.target.value)}
             placeholder="Sarcastic pirate who philosophizes about the sea"
             maxLength={280}
-            className="mt-1 w-full rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-3 py-2 text-[#DADBD9] placeholder-[#DADBD9]/30 focus:border-[#C5E7EA]/50 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-3 py-2 text-[#E9E3D6] placeholder-[#E9E3D6]/30 focus:border-[#DED9CE]/50 focus:outline-none"
           />
         </label>
 
         <label className="block mb-4">
-          <span className="text-sm text-[#DADBD9]/70">Model</span>
+          <span className="text-sm text-[#E9E3D6]/70">Model</span>
           <select
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-3 py-2 text-[#DADBD9] focus:border-[#C5E7EA]/50 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-3 py-2 text-[#E9E3D6] focus:border-[#DED9CE]/50 focus:outline-none"
           >
             {modelGroups.map((group) => (
               <optgroup key={group.providerId} label={group.providerName}>
@@ -373,14 +373,14 @@ function AddCharacterModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 rounded-lg text-sm text-[#DADBD9]/70 hover:text-[#DADBD9] transition-colors"
+            className="px-4 py-2 rounded-lg text-sm text-[#E9E3D6]/70 hover:text-[#E9E3D6] transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleCreate}
             disabled={loading}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors disabled:opacity-50"
           >
             {loading ? "Generating profile..." : "Create"}
           </button>
@@ -610,15 +610,15 @@ export default function ChatSandbox() {
       </Head>
 
       {/* Header */}
-      <header className="border-b border-[#C5E7EA]/10 px-4 py-3 flex items-center justify-between">
+      <header className="border-b border-[#DED9CE]/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-[#DADBD9]/50 hover:text-[#DADBD9] text-sm transition-colors"
+            className="text-[#E9E3D6]/50 hover:text-[#E9E3D6] text-sm transition-colors"
           >
             &larr; Home
           </Link>
-          <h1 className="text-lg font-semibold text-[#DADBD9]">
+          <h1 className="text-lg font-semibold text-[#E9E3D6]">
             Chat Sandbox
           </h1>
         </div>
@@ -626,7 +626,7 @@ export default function ChatSandbox() {
           <BYOKPanel keys={byokKeys} onUpdate={setByokKeys} />
           <button
             onClick={() => setShowModal(true)}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors"
           >
             + Add Character
           </button>
@@ -635,14 +635,14 @@ export default function ChatSandbox() {
 
       {/* Demo Mode Banner */}
       {showDemoBanner && (
-        <div className="border-b border-[#C5E7EA]/10 bg-[#C5E7EA]/5 px-4 py-2.5 flex items-center justify-between gap-3">
-          <p className="text-xs text-[#DADBD9]/70">
+        <div className="border-b border-[#DED9CE]/10 bg-[#DED9CE]/5 px-4 py-2.5 flex items-center justify-between gap-3">
+          <p className="text-xs text-[#E9E3D6]/70">
             Demo mode — these characters run on the server key. Add your own API
             keys to unlock all models.
           </p>
           <button
             onClick={() => setShowDemoBanner(false)}
-            className="shrink-0 text-[#DADBD9]/40 hover:text-[#DADBD9] text-sm transition-colors"
+            className="shrink-0 text-[#E9E3D6]/40 hover:text-[#E9E3D6] text-sm transition-colors"
             aria-label="Dismiss demo banner"
           >
             &times;
@@ -652,13 +652,13 @@ export default function ChatSandbox() {
 
       {/* Character Strip */}
       {characters.length > 0 && (
-        <div className="border-b border-[#C5E7EA]/10 px-4 py-3 flex gap-3 overflow-x-auto">
+        <div className="border-b border-[#DED9CE]/10 px-4 py-3 flex gap-3 overflow-x-auto">
           {characters.map((c) => {
             const info = getModelDisplayInfo(c.model);
             return (
               <div
                 key={c.id}
-                className="flex-none flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer hover:bg-[#415557]/30 transition-colors"
+                className="flex-none flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer hover:bg-[#2F3C50]/30 transition-colors"
                 style={{ borderColor: c.color + "40" }}
                 onClick={() =>
                   setExpandedProfile(expandedProfile === c.id ? null : c.id)
@@ -666,12 +666,12 @@ export default function ChatSandbox() {
               >
                 <span className="text-lg">{c.avatar_emoji}</span>
                 <div>
-                  <div className="font-medium text-[#DADBD9]">{c.name}</div>
-                  <div className="text-xs text-[#DADBD9]/50">
+                  <div className="font-medium text-[#E9E3D6]">{c.name}</div>
+                  <div className="text-xs text-[#E9E3D6]/50">
                     {info.name}
                   </div>
                   {info.provider && (
-                    <div className="text-[10px] text-[#DADBD9]/35">
+                    <div className="text-[10px] text-[#E9E3D6]/35">
                       via {info.provider}
                     </div>
                   )}
@@ -681,7 +681,7 @@ export default function ChatSandbox() {
                     e.stopPropagation();
                     handleDeleteCharacter(c.id);
                   }}
-                  className="ml-2 text-[#DADBD9]/30 hover:text-red-400 transition-colors"
+                  className="ml-2 text-[#E9E3D6]/30 hover:text-red-400 transition-colors"
                   title="Remove character"
                 >
                   &times;
@@ -694,8 +694,8 @@ export default function ChatSandbox() {
 
       {/* Expanded Profile View */}
       {expandedProfile && (
-        <div className="border-b border-[#C5E7EA]/10 px-4 py-3 bg-[#415557]/10">
-          <pre className="text-sm text-[#DADBD9]/80 whitespace-pre-wrap font-sans max-h-64 overflow-y-auto">
+        <div className="border-b border-[#DED9CE]/10 px-4 py-3 bg-[#2F3C50]/10">
+          <pre className="text-sm text-[#E9E3D6]/80 whitespace-pre-wrap font-sans max-h-64 overflow-y-auto">
             {characters.find((c) => c.id === expandedProfile)?.profile}
           </pre>
         </div>
@@ -704,7 +704,7 @@ export default function ChatSandbox() {
       {/* Chat Log */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {loading && !loadTimedOut && (
-          <p className="text-[#DADBD9]/40 text-sm text-center py-8">
+          <p className="text-[#E9E3D6]/40 text-sm text-center py-8">
             Loading characters...
           </p>
         )}
@@ -718,13 +718,13 @@ export default function ChatSandbox() {
                   and refresh, or add a new one below.
                 </p>
               ) : (
-                <p className="text-[#DADBD9]/50 text-sm mb-3">
+                <p className="text-[#E9E3D6]/50 text-sm mb-3">
                   No characters yet — add your first character to get started.
                 </p>
               )}
               <button
                 onClick={() => setShowModal(true)}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors"
               >
                 + Add Character
               </button>
@@ -738,8 +738,8 @@ export default function ChatSandbox() {
             <div
               className={`max-w-[75%] rounded-xl px-4 py-2.5 text-sm ${
                 m.role === "user"
-                  ? "bg-[#C5E7EA]/15 text-[#DADBD9]"
-                  : "border bg-[#415557]/20 text-[#DADBD9]"
+                  ? "bg-[#DED9CE]/15 text-[#E9E3D6]"
+                  : "border bg-[#2F3C50]/20 text-[#E9E3D6]"
               }`}
               style={
                 m.role === "assistant"
@@ -767,12 +767,12 @@ export default function ChatSandbox() {
 
       {/* Input Area */}
       {characters.length > 0 && (
-        <div className="border-t border-[#C5E7EA]/10 px-4 py-3">
+        <div className="border-t border-[#DED9CE]/10 px-4 py-3">
           <div className="flex gap-2 items-end">
             <select
               value={sendTo}
               onChange={(e) => setSendTo(e.target.value)}
-              className="rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-2 py-2 text-sm text-[#DADBD9] focus:outline-none"
+              className="rounded-lg border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-2 py-2 text-sm text-[#E9E3D6] focus:outline-none"
             >
               <option value="all">All Characters</option>
               {characters.map((c) => (
@@ -787,20 +787,20 @@ export default function ChatSandbox() {
               onKeyDown={handleKeyDown}
               placeholder="Say something..."
               rows={1}
-              className="flex-1 resize-none rounded-lg border border-[#C5E7EA]/20 bg-[#415557]/30 px-3 py-2 text-sm text-[#DADBD9] placeholder-[#DADBD9]/30 focus:border-[#C5E7EA]/50 focus:outline-none"
+              className="flex-1 resize-none rounded-lg border border-[#DED9CE]/20 bg-[#2F3C50]/30 px-3 py-2 text-sm text-[#E9E3D6] placeholder-[#E9E3D6]/30 focus:border-[#DED9CE]/50 focus:outline-none"
               disabled={!!streamingCharId}
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || !!streamingCharId}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-[#C5E7EA]/20 text-[#C5E7EA] hover:bg-[#C5E7EA]/30 transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-[#DED9CE]/20 text-[#DED9CE] hover:bg-[#DED9CE]/30 transition-colors disabled:opacity-50"
             >
               Send
             </button>
             <button
               onClick={() => handleNextRound()}
               disabled={!!streamingCharId || messages.length === 0}
-              className="px-3 py-2 rounded-lg text-sm font-medium border border-[#C5E7EA]/20 text-[#DADBD9]/70 hover:text-[#DADBD9] hover:bg-[#415557]/30 transition-colors disabled:opacity-50"
+              className="px-3 py-2 rounded-lg text-sm font-medium border border-[#DED9CE]/20 text-[#E9E3D6]/70 hover:text-[#E9E3D6] hover:bg-[#2F3C50]/30 transition-colors disabled:opacity-50"
               title="All characters respond to the conversation"
             >
               Next Round

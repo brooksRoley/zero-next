@@ -21,25 +21,25 @@ function StreakHeader({ daily }) {
   const stamps = recentStamps(14)
   const today = getDailyStamp()
   return (
-    <div className="rounded-xl bg-forest-900/70 border border-forest-700/40 p-4 mb-5">
+    <div className="rounded-xl bg-ink-900/70 border border-ink-700/40 p-4 mb-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-candy-400 leading-none">
+            <div className="text-2xl font-bold text-brass-400 leading-none">
               {daily.streak}
               <span className="text-base">🔥</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-forest-500 mt-1">
+            <div className="text-[10px] uppercase tracking-wider text-ink-500 mt-1">
               Day streak
             </div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-white leading-none">{daily.bestStreak}</div>
-            <div className="text-[10px] uppercase tracking-wider text-forest-500 mt-1">Best</div>
+            <div className="text-[10px] uppercase tracking-wider text-ink-500 mt-1">Best</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-white leading-none">{daily.totalCompleted}</div>
-            <div className="text-[10px] uppercase tracking-wider text-forest-500 mt-1">Solved</div>
+            <div className="text-[10px] uppercase tracking-wider text-ink-500 mt-1">Solved</div>
           </div>
         </div>
 
@@ -53,8 +53,8 @@ function StreakHeader({ daily }) {
                 key={s}
                 title={s}
                 className={`w-2.5 h-2.5 rounded-full ${
-                  done ? 'bg-candy-500' : 'bg-forest-700/60'
-                } ${isToday ? 'ring-2 ring-candy-400/50' : ''}`}
+                  done ? 'bg-brass-500' : 'bg-ink-700/60'
+                } ${isToday ? 'ring-2 ring-brass-400/50' : ''}`}
               />
             )
           })}
@@ -82,27 +82,27 @@ function PremiumTeaser({ daily }) {
   }
 
   return (
-    <div className="relative mt-5 rounded-xl border border-candy-500/30 bg-gradient-to-b from-candy-900/20 to-forest-900/40 p-5 overflow-hidden">
+    <div className="relative mt-5 rounded-xl border border-brass-500/30 bg-gradient-to-b from-brass-900/20 to-ink-900/40 p-5 overflow-hidden">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-candy-400" aria-hidden>🔒</span>
+            <span className="text-brass-400" aria-hidden>🔒</span>
             <h3 className="text-base font-semibold text-white">Daily Challenge Pro</h3>
           </div>
-          <p className="text-sm text-forest-300 mt-1">
+          <p className="text-sm text-ink-300 mt-1">
             Keep your streak honest and prove it on the global board.
           </p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-candy-300 leading-none">${DAILY_PRO_PRICE}</div>
-          <div className="text-[10px] uppercase tracking-wider text-forest-500">per month</div>
+          <div className="text-2xl font-bold text-brass-300 leading-none">${DAILY_PRO_PRICE}</div>
+          <div className="text-[10px] uppercase tracking-wider text-ink-500">per month</div>
         </div>
       </div>
 
       <ul className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-2">
         {PRO_FEATURES.map((f) => (
-          <li key={f} className="flex items-start gap-2 text-sm text-forest-200">
-            <span className="text-candy-400 mt-0.5 shrink-0" aria-hidden>✦</span>
+          <li key={f} className="flex items-start gap-2 text-sm text-ink-200">
+            <span className="text-brass-400 mt-0.5 shrink-0" aria-hidden>✦</span>
             <span>{f}</span>
           </li>
         ))}
@@ -110,13 +110,13 @@ function PremiumTeaser({ daily }) {
 
       <div className="mt-5">
         {submitted ? (
-          <p className="text-sm text-candy-300">
+          <p className="text-sm text-brass-300">
             Noted — you&apos;ll be first to know when Pro launches. Keep the streak alive.
           </p>
         ) : (
           <button
             onClick={handleInterest}
-            className="text-sm px-5 py-2.5 rounded-lg bg-gradient-to-r from-candy-500 to-candy-600 text-white font-semibold hover:from-candy-400 hover:to-candy-500 transition-all shadow-lg shadow-candy-500/20"
+            className="text-sm px-5 py-2.5 rounded-lg bg-gradient-to-r from-brass-500 to-brass-600 text-white font-semibold hover:from-brass-400 hover:to-brass-500 transition-all shadow-lg shadow-brass-500/20"
           >
             Notify me when it launches
           </button>
@@ -128,16 +128,16 @@ function PremiumTeaser({ daily }) {
 
 function DoneView({ daily, puzzle, onReplay }) {
   return (
-    <div className="rounded-xl bg-forest-900/60 border border-forest-700/40 p-6 text-center">
+    <div className="rounded-xl bg-ink-900/60 border border-ink-700/40 p-6 text-center">
       <div className="text-3xl mb-2" aria-hidden>✓</div>
       <h2 className="text-lg font-semibold text-white">Today&apos;s challenge complete</h2>
-      <p className="text-sm text-forest-300 mt-1">
-        You&apos;re on a <span className="text-candy-400 font-semibold">{daily.streak}-day</span> streak.
+      <p className="text-sm text-ink-300 mt-1">
+        You&apos;re on a <span className="text-brass-400 font-semibold">{daily.streak}-day</span> streak.
         Come back tomorrow for a fresh puzzle.
       </p>
       <button
         onClick={onReplay}
-        className="mt-4 text-xs px-4 py-2 rounded-md border border-forest-600 text-forest-300 hover:text-candy-400 hover:border-candy-500/40 transition-colors"
+        className="mt-4 text-xs px-4 py-2 rounded-md border border-ink-600 text-ink-300 hover:text-brass-400 hover:border-brass-500/40 transition-colors"
       >
         Replay today&apos;s puzzle ({puzzle?.title})
       </button>
@@ -188,11 +188,11 @@ export default function DailyChallenge({ playerId, elo, peakElo, eloHistory, onS
   )
 
   if (!puzzle) {
-    return <p className="text-sm text-forest-400">No daily puzzle available right now.</p>
+    return <p className="text-sm text-ink-400">No daily puzzle available right now.</p>
   }
 
   if (!loaded) {
-    return <div className="h-40 rounded-xl bg-forest-900/40 border border-forest-700/30 animate-pulse" />
+    return <div className="h-40 rounded-xl bg-ink-900/40 border border-ink-700/30 animate-pulse" />
   }
 
   return (

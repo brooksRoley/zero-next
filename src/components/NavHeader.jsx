@@ -68,7 +68,7 @@ export default function NavHeader() {
   const isActive = (href) => router.pathname === href;
 
   return (
-    <nav className="sticky top-0 z-50 bg-forest-900/90 backdrop-blur-md border-b border-forest-700/40 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-ink-900/90 backdrop-blur-md border-b border-ink-700/40 shadow-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
         {/* Logo / Home */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
@@ -94,8 +94,8 @@ export default function NavHeader() {
                   aria-controls={`nav-submenu-${item.label}`}
                   className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors
                     ${item.children.some((c) => isActive(c.href))
-                      ? 'text-candy-400 bg-forest-800'
-                      : 'text-forest-100 hover:text-candy-300 hover:bg-forest-800'
+                      ? 'text-brass-400 bg-ink-800'
+                      : 'text-ink-100 hover:text-brass-300 hover:bg-ink-800'
                     }`}
                 >
                   {item.label}
@@ -110,15 +110,15 @@ export default function NavHeader() {
                   </svg>
                 </button>
                 {openMenu === item.label && (
-                  <ul id={`nav-submenu-${item.label}`} className="absolute top-full right-0 mt-1 w-48 bg-forest-800 rounded-lg shadow-lg border border-forest-700/60 py-1 animate-[fadeIn_0.15s_ease-out]">
+                  <ul id={`nav-submenu-${item.label}`} className="absolute top-full right-0 mt-1 w-48 bg-ink-800 rounded-lg shadow-lg border border-ink-700/60 py-1 animate-[fadeIn_0.15s_ease-out]">
                     {item.children.map((child) => (
                       <li key={child.href}>
                         <Link
                           href={child.href}
                           className={`block px-4 py-2 text-sm transition-colors
                             ${isActive(child.href)
-                              ? 'text-candy-400 bg-forest-700'
-                              : 'text-forest-100 hover:text-candy-300 hover:bg-forest-700'
+                              ? 'text-brass-400 bg-ink-700'
+                              : 'text-ink-100 hover:text-brass-300 hover:bg-ink-700'
                             }`}
                         >
                           {child.label}
@@ -135,8 +135,8 @@ export default function NavHeader() {
                   {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors
                     ${isActive(item.href)
-                      ? 'text-candy-400 bg-forest-800'
-                      : 'text-forest-100 hover:text-candy-300 hover:bg-forest-800'
+                      ? 'text-brass-400 bg-ink-800'
+                      : 'text-ink-100 hover:text-brass-300 hover:bg-ink-800'
                     }`}
                 >
                   {item.label}
@@ -154,7 +154,7 @@ export default function NavHeader() {
         {/* Mobile hamburger */}
         <button
           onClick={() => setMobileOpen((prev) => !prev)}
-          className="md:hidden p-2 rounded-md text-forest-100 hover:bg-forest-800 transition-colors"
+          className="md:hidden p-2 rounded-md text-ink-100 hover:bg-ink-800 transition-colors"
           aria-label="Toggle menu"
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
@@ -173,12 +173,12 @@ export default function NavHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div id="mobile-menu" className="md:hidden border-t border-forest-700/40 bg-forest-900/95 backdrop-blur-md animate-slide-down overflow-hidden">
+        <div id="mobile-menu" className="md:hidden border-t border-ink-700/40 bg-ink-900/95 backdrop-blur-md animate-slide-down overflow-hidden">
           <ul className="px-4 py-3 space-y-1">
             {NAV_LINKS.map((item) =>
               item.children ? (
                 <li key={item.label}>
-                  <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-forest-400">
+                  <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-ink-400">
                     {item.label}
                   </p>
                   <ul className="ml-3 space-y-1">
@@ -188,8 +188,8 @@ export default function NavHeader() {
                           href={child.href}
                           className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors
                             ${isActive(child.href)
-                              ? 'text-candy-400 bg-forest-800'
-                              : 'text-forest-100 hover:text-candy-300 hover:bg-forest-800'
+                              ? 'text-brass-400 bg-ink-800'
+                              : 'text-ink-100 hover:text-brass-300 hover:bg-ink-800'
                             }`}
                         >
                           {child.label}
@@ -205,8 +205,8 @@ export default function NavHeader() {
                     {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors
                       ${isActive(item.href)
-                        ? 'text-candy-400 bg-forest-800'
-                        : 'text-forest-100 hover:text-candy-300 hover:bg-forest-800'
+                        ? 'text-brass-400 bg-ink-800'
+                        : 'text-ink-100 hover:text-brass-300 hover:bg-ink-800'
                       }`}
                   >
                     {item.label}

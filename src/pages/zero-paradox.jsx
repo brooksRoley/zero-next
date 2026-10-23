@@ -9,7 +9,7 @@ const MISSIONS = [
   {
     icon: '🎮',
     title: 'Game Development',
-    desc: 'Pente, Nanu & Pika TD, Basketball Tactics — building games grounded in Theory of Fun.',
+    desc: 'Pente, Tower Defense: Nanu Pika, Basketball Tactics — building games grounded in Theory of Fun.',
   },
   {
     icon: '🏥',

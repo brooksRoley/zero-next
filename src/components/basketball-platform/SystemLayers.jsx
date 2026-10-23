@@ -93,7 +93,7 @@ function MetricPill({ value, label }) {
   return (
     <div className="flex flex-col items-center px-4 py-2">
       <span className="text-2xl font-bold text-white">{value}</span>
-      <span className="text-xs text-forest-400 font-mono uppercase tracking-wider">{label}</span>
+      <span className="text-xs text-ink-400 font-mono uppercase tracking-wider">{label}</span>
     </div>
   )
 }
@@ -102,21 +102,21 @@ export default function LayerCard({ layer, index }) {
   const isEven = index % 2 === 0
   return (
     <Reveal delay={index * 100}>
-      <div className="rounded-2xl border border-forest-700/40 bg-forest-900/60 overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-forest-800/60">
+      <div className="rounded-2xl border border-ink-700/40 bg-ink-900/60 overflow-hidden">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-ink-800/60">
           <div className="w-3 h-3 rounded-full shrink-0" style={{ background: layer.color }} />
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-white">{layer.label}</h3>
-            <p className="text-xs text-forest-400 font-mono truncate">{layer.tech}</p>
+            <p className="text-xs text-ink-400 font-mono truncate">{layer.tech}</p>
           </div>
           <div className="flex gap-1 shrink-0">
             {layer.repo && (
-              <a href={layer.repo} target="_blank" rel="noopener noreferrer" className="text-xs text-forest-400 hover:text-white border border-forest-700/60 hover:border-forest-500 rounded-md px-2.5 py-1 transition-colors">
+              <a href={layer.repo} target="_blank" rel="noopener noreferrer" className="text-xs text-ink-400 hover:text-white border border-ink-700/60 hover:border-ink-500 rounded-md px-2.5 py-1 transition-colors">
                 Source
               </a>
             )}
             {layer.live && (
-              <a href={layer.live} target="_blank" rel="noopener noreferrer" className="text-xs text-forest-950 hover:opacity-90 rounded-md px-2.5 py-1 font-semibold transition-opacity" style={{ background: layer.color }}>
+              <a href={layer.live} target="_blank" rel="noopener noreferrer" className="text-xs text-ink-950 hover:opacity-90 rounded-md px-2.5 py-1 font-semibold transition-opacity" style={{ background: layer.color }}>
                 Live Demo
               </a>
             )}
@@ -124,17 +124,17 @@ export default function LayerCard({ layer, index }) {
         </div>
         <div className={`grid grid-cols-1 ${isEven ? 'lg:grid-cols-[1fr_auto]' : 'lg:grid-cols-[auto_1fr]'}`}>
           <div className={`px-5 py-5 ${!isEven ? 'lg:order-2' : ''}`}>
-            <p className="text-sm text-forest-200 leading-relaxed mb-4">{layer.desc}</p>
+            <p className="text-sm text-ink-200 leading-relaxed mb-4">{layer.desc}</p>
             <ul className="space-y-1.5">
               {layer.details.map((detail, i) => (
-                <li key={i} className="flex gap-2 text-xs text-forest-300 leading-relaxed">
+                <li key={i} className="flex gap-2 text-xs text-ink-300 leading-relaxed">
                   <span className="shrink-0 mt-0.5" style={{ color: layer.color }}>-</span>
                   {detail}
                 </li>
               ))}
             </ul>
           </div>
-          <div className={`flex lg:flex-col items-center justify-center gap-2 px-5 py-4 bg-forest-950/40 border-t lg:border-t-0 ${isEven ? 'lg:border-l' : 'lg:border-r lg:order-1'} border-forest-800/60`}>
+          <div className={`flex lg:flex-col items-center justify-center gap-2 px-5 py-4 bg-ink-950/40 border-t lg:border-t-0 ${isEven ? 'lg:border-l' : 'lg:border-r lg:order-1'} border-ink-800/60`}>
             {layer.metrics.map((m, i) => (
               <MetricPill key={i} value={m.value} label={m.label} />
             ))}
