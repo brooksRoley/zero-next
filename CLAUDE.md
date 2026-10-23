@@ -25,8 +25,8 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 **Portfolio / funnel**
 - `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
-- `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
-- `/intake` (`src/pages/intake.jsx`) — Contact / intake form that feeds the consulting funnel
+- `/consulting` (`src/pages/consulting.tsx`) — **Work**: the work by domain (robotics, sustainability, healthcare, finance, insurance, ecology) and the computer science behind the games. No prices, no form, no sticky CTA (2026-10-23, Brooks: "less preachy and desperate"). `/api/consulting/leads` and `/checkout` remain but nothing on the site calls them
+- `/intake` (`src/pages/intake.jsx`) — Contact: email, LinkedIn and Calendly links only. Nothing is uploaded or stored (see Security & privacy)
 - `/funding` — **retired 2026-10-23** (redirects to `/`). Brooks asked for the whole support ask to be "a little less beggy": no tip jar, no "support development" links, no mention of AI tokens or server bills. The replacement is `src/components/UpdatesCard.tsx`, a brief, optional, one-time "want a note when something new goes up?" card, and it is **switched off** (`UPDATES_CARD_ENABLED = false`). Do not re-add a tip jar, a funding route or a money ask on any page; `src/lib/__tests__/noTipJar.test.ts` fails if one comes back. Turning the card on is Brooks's call.
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
@@ -110,7 +110,6 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/pages/api/consulting/checkout.ts` — POST: creates Stripe Checkout session for consulting deposits
 - `src/pages/api/consulting/webhook.ts` — POST: Stripe webhook handler (payment confirmation)
 - `src/pages/api/admin/leads.ts` — Admin: read captured leads for `/admin/leads`
-- `src/pages/api/intake/messages.js`, `src/pages/api/intake/send.js` — Intake-form message thread (list / send)
 
 **AI tools**
 - `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 30/hr per IP. Backs the Chat Sandbox and Model Arena.
@@ -237,6 +236,31 @@ Internal components use the `src/` path alias (e.g., `import ScoreBoard from 'sr
 Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`). It is **built** from `src/lib/resume.ts` by `yarn resume:pdf` (`scripts/build-resume-pdf.ts`, headless Chrome) — never hand-edited or exported from another document. Change the data, rebuild, commit both.
 
 ---
+
+## Security & privacy
+
+Set 2026-10-23 by Brooks. These rules outrank any livelihood or conversion goal.
+
+- **No open uploads from the public.** No voice notes, files or images from
+  anonymous visitors. The old voice intake wrote browser uploads straight to a
+  public bucket with the public key, with no size or length limit. It was
+  removed. Any future upload needs a private bucket, server-issued signed
+  URLs, type/size/duration limits, a bot check, a retention period and a
+  review by Brooks first.
+- **Never trust a client-supplied URL** into the database, an email or an
+  `<audio>`/`<img>` tag. The server builds URLs it serves.
+- **Collect the least.** Prefer a link (mailto, LinkedIn, Calendly) to a form,
+  and a form to a stored thread. Every stored field is something to protect.
+- **What is public about Brooks:** name, "Orange County, CA", email, LinkedIn,
+  GitHub, this site. **Never publish** a phone number, a street address or
+  parcel number, birth date, ID or account numbers, or health and family
+  details. The home-property repo (HomeTracker) is never linked.
+- **Secrets** live in Vercel env and the gitignored `.env.local` only. Never in
+  code, the ledger, PR bodies or briefs. Payment and Stripe work stays paused
+  until Brooks has a job; when it resumes: restricted keys, verified webhook
+  signatures, test before live.
+- **Errors don't leak internals.** API routes return a generic message to
+  the client and log the detail server-side.
 
 ## Daily Agent Instructions
 
@@ -403,7 +427,7 @@ Find the single highest-value visual or UX improvement. Priority order:
 1. **Conversion design** — consulting CTAs, product landing sections, pricing pages, lead capture
 2. Component polish and animation refinement
 3. Responsive layout gaps (mobile breakpoints)
-4. Dark-forest Tailwind palette consistency (`forest-*` colors, candy-pink accents)
+4. Ink & Brass palette consistency (`ink-*` burnt blue, cream and gray, `charcoal` cards, `brass-*` accent; see docs/ART_DIRECTION.md)
 5. Loading, error, and empty state design
 6. Accessibility (contrast ratios, focus ring visibility)
 

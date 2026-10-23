@@ -14,24 +14,24 @@ const STAGES = [
 
 export default function GoLearnHub() {
   return (
-    <div className="min-h-screen bg-forest-950 text-white">
+    <div className="min-h-screen bg-ink-950 text-white">
       <Head>
         <title>Learn Go | Brooks Roley</title>
         <meta name="description" content="Learn Go from scratch — interactive lessons covering liberties, captures, life and death, and territory." />
       </Head>
 
-      <nav className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
+      <nav className="sticky top-0 z-30 backdrop-blur bg-ink-950/70 border-b border-ink-800/60">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-3">
           <Link
             href="/posts/go"
-            className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 border-r border-forest-800/60"
+            className="text-[11px] text-ink-500 hover:text-brass-400 transition-colors pr-3 border-r border-ink-800/60"
           >
             &larr; Play
           </Link>
           <span className="text-xs font-semibold text-white tracking-wide">Learn Go</span>
           <Link
             href="/posts/go/puzzles"
-            className="ml-auto text-[11px] text-candy-400 hover:text-candy-300 transition-colors px-2 py-0.5 rounded border border-candy-400/30 hover:border-candy-400/60"
+            className="ml-auto text-[11px] text-brass-400 hover:text-brass-300 transition-colors px-2 py-0.5 rounded border border-brass-400/30 hover:border-brass-400/60"
           >
             Puzzles
           </Link>
@@ -41,7 +41,7 @@ export default function GoLearnHub() {
       <div className="max-w-3xl mx-auto px-3 sm:px-6 py-8">
         <header className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Learn Go</h1>
-          <p className="text-sm text-forest-400 mt-1.5">
+          <p className="text-sm text-ink-400 mt-1.5">
             An interactive path from clicking your first stone to claiming territory.
             Every stage is playable — you’ll be playing within seconds.
           </p>
@@ -51,24 +51,24 @@ export default function GoLearnHub() {
           {STAGES.filter(stage => stage.status === 'available').map(stage => (
             <li key={stage.num}>
               <Link href={`/posts/go/learn/${stage.slug}`} className="block">
-                <div className="flex items-center gap-3 sm:gap-4 px-4 py-3 rounded-xl border transition bg-forest-900/70 border-forest-700/60 hover:border-candy-400/60 hover:bg-forest-900">
-                  <span className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full font-mono text-sm bg-candy-500/20 text-candy-200">
+                <div className="flex items-center gap-3 sm:gap-4 px-4 py-3 rounded-xl border transition bg-ink-900/70 border-ink-700/60 hover:border-brass-400/60 hover:bg-ink-900">
+                  <span className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full font-mono text-sm bg-brass-500/20 text-brass-200">
                     {stage.num}
                   </span>
                   <div className="flex-1 min-w-0">
                     <h2 className="text-sm font-semibold text-white">{stage.title}</h2>
-                    <p className="text-xs text-forest-400 mt-0.5">{stage.subtitle}</p>
+                    <p className="text-xs text-ink-400 mt-0.5">{stage.subtitle}</p>
                   </div>
-                  <span className="text-candy-400 text-sm">→</span>
+                  <span className="text-brass-400 text-sm">→</span>
                 </div>
               </Link>
             </li>
           ))}
         </ol>
 
-        <div className="mt-8 pt-6 border-t border-forest-800/60 text-xs text-forest-500">
+        <div className="mt-8 pt-6 border-t border-ink-800/60 text-xs text-ink-500">
           Already know how to play?{' '}
-          <Link href="/posts/go" className="text-candy-300 hover:text-candy-200">
+          <Link href="/posts/go" className="text-brass-300 hover:text-brass-200">
             Skip the lessons and play a full game →
           </Link>
         </div>

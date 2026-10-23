@@ -62,8 +62,8 @@ export const MODE_RULES = {
 export function modeBtnClass(active) {
   return `px-3 py-2 text-xs transition-colors ${
     active
-      ? 'bg-forest-700/70 text-white'
-      : 'bg-forest-900/60 text-forest-400 hover:text-forest-200'
+      ? 'bg-ink-700/70 text-white'
+      : 'bg-ink-900/60 text-ink-400 hover:text-ink-200'
   }`
 }
 
@@ -71,6 +71,6 @@ export function actionBtnClass(active = false) {
   return `text-xs px-3 py-2 rounded-lg border transition-colors min-h-[36px] ${
     active
       ? 'bg-cyan-900/50 text-cyan-300 border-cyan-600/50'
-      : 'bg-forest-900/60 text-forest-400 hover:text-forest-200 border-forest-700/40 hover:border-forest-500'
+      : 'bg-ink-900/60 text-ink-400 hover:text-ink-200 border-ink-700/40 hover:border-ink-500'
   }`
 }

@@ -50,7 +50,7 @@ export default function InterventionCard({
           <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
             You fell into a {tacticLabel}.
           </h2>
-          <p className="text-sm text-forest-200 mt-2 leading-relaxed">
+          <p className="text-sm text-ink-200 mt-2 leading-relaxed">
             {narrative}
           </p>
 

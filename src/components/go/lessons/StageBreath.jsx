@@ -148,7 +148,7 @@ export default function StageBreath({ onAdvance }) {
       </div>
       <div className="space-y-3">
         <StepCard {...steps[step]} />
-        <div className="text-xs text-forest-500 leading-relaxed px-1">
+        <div className="text-xs text-ink-500 leading-relaxed px-1">
           {step <= 1 && 'Cyan dots show liberties — the empty points keeping a group alive.'}
           {step >= 2 && step <= 3 && 'Red dot = the last liberty. Play there to capture.'}
         </div>

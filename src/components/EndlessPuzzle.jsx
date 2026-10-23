@@ -236,8 +236,8 @@ export default function EndlessPuzzle({
   if (loading && !puzzle) {
     return (
       <div className="text-center py-16">
-        <div className="inline-block w-8 h-8 border-2 border-candy-400 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-sm text-forest-400">Generating puzzle at your level...</p>
+        <div className="inline-block w-8 h-8 border-2 border-brass-400 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm text-ink-400">Generating puzzle at your level...</p>
       </div>
     )
   }
@@ -245,10 +245,10 @@ export default function EndlessPuzzle({
   if (!puzzle) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm text-forest-400 mb-4">Could not generate a puzzle. Try again.</p>
+        <p className="text-sm text-ink-400 mb-4">Could not generate a puzzle. Try again.</p>
         <button
           onClick={() => window.location.reload()}
-          className="text-xs px-4 py-2 rounded-lg border border-forest-700/40 text-forest-300 hover:text-white transition-colors"
+          className="text-xs px-4 py-2 rounded-lg border border-ink-700/40 text-ink-300 hover:text-white transition-colors"
         >
           Retry
         </button>
@@ -262,14 +262,14 @@ export default function EndlessPuzzle({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={onBack}
-          className="text-sm text-forest-400 hover:text-candy-400 transition-colors flex items-center gap-1"
+          className="text-sm text-ink-400 hover:text-brass-400 transition-colors flex items-center gap-1"
         >
           <span>&larr;</span> Back
         </button>
         <div className="flex items-center gap-4">
           {/* Session stats */}
-          <div className="flex items-center gap-3 text-xs text-forest-500">
-            <span>Solved: <strong className="text-candy-400">{sessionStats.solved}</strong></span>
+          <div className="flex items-center gap-3 text-xs text-ink-500">
+            <span>Solved: <strong className="text-brass-400">{sessionStats.solved}</strong></span>
             <span>Streak: <strong className="text-green-400">{sessionStats.streak}</strong></span>
           </div>
           <MountainProgress elo={currentElo} peakElo={peakElo} eloHistory={eloHistory} compact />
@@ -278,11 +278,11 @@ export default function EndlessPuzzle({
 
       {/* Training framing (from intervention) */}
       {introTacticLabel && sessionStats.solved === 0 && (
-        <div className="mb-4 rounded-lg bg-gradient-to-r from-red-900/30 to-forest-900/30 border border-red-700/30 px-4 py-2.5 text-sm flex items-center gap-3">
+        <div className="mb-4 rounded-lg bg-gradient-to-r from-red-900/30 to-ink-900/30 border border-red-700/30 px-4 py-2.5 text-sm flex items-center gap-3">
           <span className="text-[10px] font-semibold tracking-wider uppercase text-red-300 px-2 py-0.5 rounded bg-red-500/10 border border-red-400/20">
             Training
           </span>
-          <span className="text-forest-200">
+          <span className="text-ink-200">
             Drilling <strong className="text-white">{introTacticLabel}</strong> defense — solve this and the next one locks in the pattern.
           </span>
         </div>
@@ -292,20 +292,20 @@ export default function EndlessPuzzle({
       <div className="flex items-center gap-4 mb-4">
         <div className="flex-1">
           <h2 className="text-lg font-semibold text-white">{puzzle.title}</h2>
-          <p className="text-sm text-forest-300 mt-0.5">{puzzle.description}</p>
+          <p className="text-sm text-ink-300 mt-0.5">{puzzle.description}</p>
         </div>
         <div className="text-right shrink-0">
-          <span className="text-[10px] text-forest-500 uppercase tracking-wider">Rating</span>
-          <div className="text-sm font-mono text-forest-300">{puzzle.rating}</div>
+          <span className="text-[10px] text-ink-500 uppercase tracking-wider">Rating</span>
+          <div className="text-sm font-mono text-ink-300">{puzzle.rating}</div>
         </div>
       </div>
 
       {/* Player to move */}
       <div className="flex items-center gap-3 mb-4">
         <div className={`w-4 h-4 rounded-full border-2 ${
-          isBlackToMove ? 'bg-gray-900 border-gray-600' : 'bg-white border-forest-300'
+          isBlackToMove ? 'bg-gray-900 border-gray-600' : 'bg-white border-ink-300'
         }`} />
-        <span className="text-sm font-medium text-forest-200">
+        <span className="text-sm font-medium text-ink-200">
           {isBlackToMove ? 'Black' : 'White'} to move
         </span>
         <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
@@ -317,7 +317,7 @@ export default function EndlessPuzzle({
         }`}>
           {puzzle.category.replace(/_/g, ' ')}
         </span>
-        <span className="text-[10px] text-forest-500">
+        <span className="text-[10px] text-ink-500">
           {'★'.repeat(puzzle.difficulty)}{'☆'.repeat(4 - puzzle.difficulty)}
         </span>
       </div>
@@ -378,7 +378,7 @@ export default function EndlessPuzzle({
           )}
           <button
             onClick={() => setTransitionPhase('scatter')}
-            className="ml-auto text-sm px-5 py-2 rounded-lg bg-gradient-to-r from-candy-500 to-candy-600 text-white font-semibold hover:from-candy-400 hover:to-candy-500 transition-all shadow-lg shadow-candy-500/20 flex items-center gap-2"
+            className="ml-auto text-sm px-5 py-2 rounded-lg bg-gradient-to-r from-brass-500 to-brass-600 text-white font-semibold hover:from-brass-400 hover:to-brass-500 transition-all shadow-lg shadow-brass-500/20 flex items-center gap-2"
           >
             Next Puzzle
             <span className="text-xs opacity-70">[space]</span>
@@ -388,10 +388,10 @@ export default function EndlessPuzzle({
 
       {/* Explanation */}
       {solved && transitionPhase === 'idle' && (
-        <div className="mt-3 rounded-xl bg-forest-900/80 border border-forest-700/40 p-4 animate-fadeIn">
-          <p className="text-sm text-forest-300">{puzzle.explanation}</p>
+        <div className="mt-3 rounded-xl bg-ink-900/80 border border-ink-700/40 p-4 animate-fadeIn">
+          <p className="text-sm text-ink-300">{puzzle.explanation}</p>
           {attempts > 0 && (
-            <p className="text-xs text-forest-500 mt-2">
+            <p className="text-xs text-ink-500 mt-2">
               Solved in {attempts + 1} attempt{attempts > 0 ? 's' : ''}
               {showHint ? ' (with hint)' : ''}
             </p>
@@ -412,7 +412,7 @@ export default function EndlessPuzzle({
           )}
           <button
             onClick={() => setTransitionPhase('scatter')}
-            className="text-xs px-3 py-1.5 rounded-md border text-forest-500 border-forest-700/40 hover:text-forest-300 transition-colors"
+            className="text-xs px-3 py-1.5 rounded-md border text-ink-500 border-ink-700/40 hover:text-ink-300 transition-colors"
           >
             Skip
           </button>

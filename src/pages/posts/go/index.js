@@ -411,7 +411,7 @@ export default function GoPage() {
 
   return (
     <div
-      className="flex flex-col bg-forest-950 text-white overflow-hidden"
+      className="flex flex-col bg-ink-950 text-white overflow-hidden"
       style={{ ['--go-size']: boardSize, height: '100dvh' }}
     >
       <Head>
@@ -419,34 +419,34 @@ export default function GoPage() {
         <meta name="description" content="Learn and play the ancient game of Go. 9×9, 13×13, or 19×19 boards. Chinese rules with komi, handicap, and dead-stone marking." />
       </Head>
 
-      <nav className="flex-shrink-0 sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
+      <nav className="flex-shrink-0 sticky top-0 z-30 backdrop-blur bg-ink-950/70 border-b border-ink-800/60">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
           <Link
             href="/"
-            className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 mr-1 border-r border-forest-800/60"
+            className="text-[11px] text-ink-500 hover:text-brass-400 transition-colors pr-3 mr-1 border-r border-ink-800/60"
             aria-label="Back to home"
           >
             &larr;
           </Link>
           <h1 className="text-xs font-semibold text-white tracking-wide mr-3">Go</h1>
           <div className="flex gap-0.5">
-            <span className="text-xs px-3 py-1.5 rounded-md bg-candy-500/15 text-candy-300 ring-1 ring-candy-400/30">
+            <span className="text-xs px-3 py-1.5 rounded-md bg-brass-500/15 text-brass-300 ring-1 ring-brass-400/30">
               Play
             </span>
             <Link
               href="/posts/go/learn"
-              className="text-xs px-3 py-1.5 rounded-md text-forest-400 hover:text-candy-300 hover:bg-forest-800/40 transition-colors"
+              className="text-xs px-3 py-1.5 rounded-md text-ink-400 hover:text-brass-300 hover:bg-ink-800/40 transition-colors"
             >
               Learn
             </Link>
             <Link
               href="/posts/go/puzzles"
-              className="text-xs px-3 py-1.5 rounded-md text-forest-400 hover:text-candy-300 hover:bg-forest-800/40 transition-colors"
+              className="text-xs px-3 py-1.5 rounded-md text-ink-400 hover:text-brass-300 hover:bg-ink-800/40 transition-colors"
             >
               Puzzles
             </Link>
           </div>
-          <SoundToggle className="ml-auto rounded-md p-1.5 text-forest-400 hover:bg-forest-800/40 hover:text-candy-300" />
+          <SoundToggle className="ml-auto rounded-md p-1.5 text-ink-400 hover:bg-ink-800/40 hover:text-brass-300" />
         </div>
       </nav>
 
@@ -458,7 +458,7 @@ export default function GoPage() {
           <div className="w-full flex items-center justify-between mb-3 gap-3">
             <div className="flex items-center gap-2 text-sm">
               <span
-                className="inline-block w-3 h-3 rounded-full ring-2 ring-forest-700"
+                className="inline-block w-3 h-3 rounded-full ring-2 ring-ink-700"
                 style={{ backgroundColor: currentPlayer === BLACK ? '#1a1a1a' : '#f5f5f5' }}
               />
               <span className="font-semibold">
@@ -471,13 +471,13 @@ export default function GoPage() {
                       : `${currentPlayer === BLACK ? 'Black' : 'White'} to play`}
               </span>
               {botThinking && (
-                <span className="inline-block w-3 h-3 rounded-full bg-candy-400 animate-pulse" />
+                <span className="inline-block w-3 h-3 rounded-full bg-brass-400 animate-pulse" />
               )}
               {phase === 'playing' && passCount === 1 && (
                 <span className="text-xs text-amber-400 ml-1">(opponent passed — pass again to end)</span>
               )}
               {phase === 'playing' && handicap > 0 && moveCount === 0 && (
-                <span className="text-xs text-forest-500 ml-1">({handicap}-stone handicap)</span>
+                <span className="text-xs text-ink-500 ml-1">({handicap}-stone handicap)</span>
               )}
               {phase === 'marking' && acceptedBy.size > 0 && (
                 <span className="text-xs text-green-400 ml-1">
@@ -487,12 +487,12 @@ export default function GoPage() {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-3 text-xs text-forest-300">
+            <div className="flex items-center gap-3 text-xs text-ink-300">
               {vsBot && (
-                <span className="text-candy-400/80 font-mono">{rankLabel(profile.goElo)}</span>
+                <span className="text-brass-400/80 font-mono">{rankLabel(profile.goElo)}</span>
               )}
               <span>Move {moveCount}</span>
-              <span className="text-forest-600">|</span>
+              <span className="text-ink-600">|</span>
               <span title="captures by Black">B caps {totalCaptures(BLACK)}</span>
               <span title="captures by White">W caps {totalCaptures(WHITE)}</span>
             </div>
@@ -513,7 +513,7 @@ export default function GoPage() {
 
           {/* Practice mode header */}
           {practiceStage && (
-            <div className="mb-2 rounded-lg bg-candy-500/10 border border-candy-400/30 px-3 py-1.5 text-xs text-candy-200">
+            <div className="mb-2 rounded-lg bg-brass-500/10 border border-brass-400/30 px-3 py-1.5 text-xs text-brass-200">
               Practice mode: <strong>{practiceStage}</strong> focus — coach tips are on, 9×9 board
             </div>
           )}
@@ -568,7 +568,7 @@ export default function GoPage() {
                 <button
                   onClick={handlePass}
                   disabled={vsBot && currentPlayer === botColor}
-                  className="px-4 py-2 rounded-lg bg-forest-800/70 border border-forest-600/60 text-sm hover:bg-forest-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="px-4 py-2 rounded-lg bg-ink-800/70 border border-ink-600/60 text-sm hover:bg-ink-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="P"
                 >
                   Pass
@@ -587,7 +587,7 @@ export default function GoPage() {
                 <button
                   onClick={handleAcceptMarking}
                   disabled={acceptedBy.has(currentPlayer)}
-                  className="px-4 py-2 rounded-lg bg-candy-500/30 border border-candy-400/50 text-sm text-candy-100 hover:bg-candy-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="px-4 py-2 rounded-lg bg-brass-500/30 border border-brass-400/50 text-sm text-brass-100 hover:bg-brass-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
                   {acceptedBy.has(currentPlayer)
                     ? `${currentPlayer === BLACK ? 'Black' : 'White'} accepted ✓`
@@ -595,7 +595,7 @@ export default function GoPage() {
                 </button>
                 <button
                   onClick={handleResume}
-                  className="px-4 py-2 rounded-lg bg-forest-800/70 border border-forest-600/60 text-sm hover:bg-forest-700/70 transition"
+                  className="px-4 py-2 rounded-lg bg-ink-800/70 border border-ink-600/60 text-sm hover:bg-ink-700/70 transition"
                 >
                   Resume — keep playing
                 </button>
@@ -603,7 +603,7 @@ export default function GoPage() {
             )}
             <button
               onClick={() => startNewGame(boardSize, handicap)}
-              className="px-4 py-2 rounded-lg bg-candy-500/20 border border-candy-400/40 text-sm text-candy-200 hover:bg-candy-500/30 transition"
+              className="px-4 py-2 rounded-lg bg-brass-500/20 border border-brass-400/40 text-sm text-brass-200 hover:bg-brass-500/30 transition"
             >
               New game
             </button>
@@ -611,7 +611,7 @@ export default function GoPage() {
 
           {/* Settings row: rule, board size, komi, handicap */}
           <div className="mt-4 w-full max-w-md space-y-2">
-            <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
               <span className="w-16 text-right">Rule:</span>
               {SCORING_RULES.map(r => {
                 const ruleLocked = moveCount > 0
@@ -624,10 +624,10 @@ export default function GoPage() {
                     title={ruleLocked && !isActive ? 'Start a new game to switch rule' : undefined}
                     className={`px-2.5 py-1 rounded-md border transition ${
                       isActive
-                        ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
+                        ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
                         : ruleLocked
-                          ? 'bg-forest-900/40 text-forest-600 border-forest-800/40 cursor-not-allowed opacity-50'
-                          : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                          ? 'bg-ink-900/40 text-ink-600 border-ink-800/40 cursor-not-allowed opacity-50'
+                          : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                     }`}
                   >
                     {r.label}
@@ -635,10 +635,10 @@ export default function GoPage() {
                 )
               })}
               {moveCount > 0 && (
-                <span className="text-forest-600 ml-1">(locked during play)</span>
+                <span className="text-ink-600 ml-1">(locked during play)</span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
               <span className="w-16 text-right">Board:</span>
               {BOARD_SIZES.map(size => (
                 <button
@@ -646,15 +646,15 @@ export default function GoPage() {
                   onClick={() => handleSizeChange(size)}
                   className={`px-2.5 py-1 rounded-md border transition ${
                     size === boardSize
-                      ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                      : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                      ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                      : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                   }`}
                 >
                   {size}×{size}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
               <span className="w-16 text-right">Komi:</span>
               {KOMI_OPTIONS.map(k => (
                 <button
@@ -662,15 +662,15 @@ export default function GoPage() {
                   onClick={() => setKomi(k)}
                   className={`px-2.5 py-1 rounded-md border transition ${
                     k === komi
-                      ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                      : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                      ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                      : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                   }`}
                 >
                   {k}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
               <span className="w-16 text-right">Handicap:</span>
               {HANDICAP_COUNTS.map(h => (
                 <button
@@ -678,8 +678,8 @@ export default function GoPage() {
                   onClick={() => handleHandicapChange(h)}
                   className={`px-2.5 py-1 rounded-md border transition ${
                     h === handicap
-                      ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                      : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                      ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                      : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                   }`}
                 >
                   {h}
@@ -688,14 +688,14 @@ export default function GoPage() {
             </div>
 
             {/* vs Bot toggle */}
-            <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
               <span className="w-16 text-right">Mode:</span>
               <button
                 onClick={() => { setVsBot(false); startNewGame(boardSize, handicap) }}
                 className={`px-2.5 py-1 rounded-md border transition ${
                   !vsBot
-                    ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                    : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                    ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                    : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                 }`}
               >
                 2 Player
@@ -704,8 +704,8 @@ export default function GoPage() {
                 onClick={() => { setVsBot(true); startNewGame(boardSize, handicap) }}
                 className={`px-2.5 py-1 rounded-md border transition ${
                   vsBot
-                    ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                    : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                    ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                    : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                 }`}
               >
                 vs Bot
@@ -714,7 +714,7 @@ export default function GoPage() {
 
             {vsBot && (
               <>
-                <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+                <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
                   <span className="w-16 text-right">You play:</span>
                   {[{ label: 'Black ●', color: BLACK }, { label: 'White ○', color: WHITE }].map(({ label, color }) => (
                     <button
@@ -722,28 +722,28 @@ export default function GoPage() {
                       onClick={() => { setPlayerColor(color); startNewGame(boardSize, handicap) }}
                       className={`px-2.5 py-1 rounded-md border transition ${
                         playerColor === color
-                          ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                          : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                          ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                          : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                       }`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+                <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
                   <span className="w-16 text-right">Bot:</span>
-                  <span className="text-forest-300 font-mono text-[11px]">
+                  <span className="text-ink-300 font-mono text-[11px]">
                     ~{botConfig.botElo} ELO (adapts to you)
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-forest-400 flex-wrap">
+                <div className="flex items-center gap-2 text-xs text-ink-400 flex-wrap">
                   <span className="w-16 text-right">Coach:</span>
                   <button
                     onClick={() => profile.setCoachEnabled(!profile.coachEnabled)}
                     className={`px-2.5 py-1 rounded-md border transition ${
                       profile.coachEnabled
-                        ? 'bg-candy-500/15 text-candy-300 border-candy-400/40'
-                        : 'bg-forest-900/40 text-forest-400 border-forest-800/40 hover:text-candy-300 hover:border-candy-500/30'
+                        ? 'bg-brass-500/15 text-brass-300 border-brass-400/40'
+                        : 'bg-ink-900/40 text-ink-400 border-ink-800/40 hover:text-brass-300 hover:border-brass-500/30'
                     }`}
                   >
                     {profile.coachEnabled ? 'On' : 'Off'}
@@ -761,31 +761,31 @@ export default function GoPage() {
             boardSize={boardSize}
           />
 
-          <div className="rounded-xl border border-forest-700/50 bg-forest-900/70 px-4 py-3">
+          <div className="rounded-xl border border-ink-700/50 bg-ink-900/70 px-4 py-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-white">
                 {phase === 'finished' ? 'Final score' : phase === 'marking' ? 'Score (marking)' : 'Live score'}
               </h3>
-              <span className="text-[10px] uppercase tracking-wider text-forest-500">
+              <span className="text-[10px] uppercase tracking-wider text-ink-500">
                 {scoringRule === 'japanese' ? 'Territory' : 'Area'}
               </span>
             </div>
             {vsBot && (
-              <div className="flex items-center justify-between text-xs mb-3 pb-2 border-b border-forest-800/60">
-                <span className="text-forest-400">Your ELO</span>
-                <span className="font-mono text-candy-300">{profile.goElo} · {rankLabel(profile.goElo)}</span>
+              <div className="flex items-center justify-between text-xs mb-3 pb-2 border-b border-ink-800/60">
+                <span className="text-ink-400">Your ELO</span>
+                <span className="font-mono text-brass-300">{profile.goElo} · {rankLabel(profile.goElo)}</span>
               </div>
             )}
             {gameOver && winner && (
-              <div className="text-xs text-candy-300 font-mono mb-2">
+              <div className="text-xs text-brass-300 font-mono mb-2">
                 margin +{score.margin}
               </div>
             )}
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-md bg-black/40 border border-forest-800/60 px-3 py-2">
-                <div className="text-forest-400 mb-1">Black</div>
+              <div className="rounded-md bg-black/40 border border-ink-800/60 px-3 py-2">
+                <div className="text-ink-400 mb-1">Black</div>
                 <div className="text-2xl font-bold text-white">{score.black}</div>
-                <div className="text-forest-500 mt-1">
+                <div className="text-ink-500 mt-1">
                   {scoringRule === 'japanese'
                     ? `${score.blackTerritory} territory + ${score.blackPrisoners} caps`
                     : `${score.blackStones} stones + ${score.blackTerritory} territory`}
@@ -796,16 +796,16 @@ export default function GoPage() {
                   </div>
                 )}
               </div>
-              <div className="rounded-md bg-white/5 border border-forest-800/60 px-3 py-2">
-                <div className="text-forest-400 mb-1">White</div>
+              <div className="rounded-md bg-white/5 border border-ink-800/60 px-3 py-2">
+                <div className="text-ink-400 mb-1">White</div>
                 <div className="text-2xl font-bold text-white">{score.white}</div>
-                <div className="text-forest-500 mt-1">
+                <div className="text-ink-500 mt-1">
                   {scoringRule === 'japanese'
                     ? `${score.whiteTerritory} territory + ${score.whitePrisoners} caps`
                     : `${score.whiteStones} stones + ${score.whiteTerritory} territory`}
                 </div>
                 {komi > 0 && (
-                  <div className="text-candy-300/80 mt-0.5">+ {komi} komi</div>
+                  <div className="text-brass-300/80 mt-0.5">+ {komi} komi</div>
                 )}
                 {scoringRule === 'chinese' && score.whiteCapturesDead > 0 && (
                   <div className="text-red-300/80 mt-0.5">
@@ -815,7 +815,7 @@ export default function GoPage() {
               </div>
             </div>
             {score.dame > 0 && (
-              <div className="text-[10px] text-forest-500 mt-2">
+              <div className="text-[10px] text-ink-500 mt-2">
                 {score.dame} neutral point{score.dame === 1 ? '' : 's'} (dame)
                 {scoringRule === 'japanese' && ' — must be played out in real Japanese rules'}
               </div>
@@ -823,7 +823,7 @@ export default function GoPage() {
           </div>
 
           {gameOver && (
-            <div className="rounded-xl border border-candy-400/40 bg-candy-500/10 px-4 py-3 text-sm">
+            <div className="rounded-xl border border-brass-400/40 bg-brass-500/10 px-4 py-3 text-sm">
               {resignedBy ? (
                 <p>
                   <strong>{resignedBy === BLACK ? 'Black' : 'White'}</strong> resigned.{' '}
@@ -839,20 +839,20 @@ export default function GoPage() {
               )}
               {vsBot && eloChange && (
                 <div className="mt-2 flex items-center gap-2 text-xs">
-                  <span className="text-forest-400">Your ELO:</span>
+                  <span className="text-ink-400">Your ELO:</span>
                   <span className="font-mono text-white">{eloChange.before}</span>
-                  <span className="text-forest-500">→</span>
+                  <span className="text-ink-500">→</span>
                   <span className="font-mono text-white">{eloChange.after}</span>
                   <span className={`font-mono font-semibold ${eloChange.delta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {eloDelta(eloChange.before, eloChange.after)}
                   </span>
-                  <span className="text-forest-500">({rankLabel(eloChange.after)})</span>
+                  <span className="text-ink-500">({rankLabel(eloChange.after)})</span>
                 </div>
               )}
               <div className="mt-2 flex items-center gap-3">
                 <button
                   onClick={() => startNewGame(boardSize, handicap)}
-                  className="px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-xs text-candy-100 hover:bg-candy-500/30 transition"
+                  className="px-3 py-1.5 rounded-md bg-brass-500/20 border border-brass-400/40 text-xs text-brass-100 hover:bg-brass-500/30 transition"
                 >
                   Play again
                 </button>

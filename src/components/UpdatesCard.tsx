@@ -95,13 +95,13 @@ export default function UpdatesCard({ trigger, page }: Props) {
     >
       <div
         onFocus={() => timer.current && clearTimeout(timer.current)}
-        className="pointer-events-auto w-full max-w-sm rounded-xl border border-forest-700 bg-forest-900/95 px-4 py-3 shadow-2xl shadow-black/40 backdrop-blur"
+        className="pointer-events-auto w-full max-w-sm rounded-xl border border-ink-700 bg-ink-900/95 px-4 py-3 shadow-2xl shadow-black/40 backdrop-blur"
       >
         {status === 'done' ? (
-          <p className="text-sm text-forest-200">Thanks. That&apos;s all.</p>
+          <p className="text-sm text-ink-200">Thanks. That&apos;s all.</p>
         ) : (
           <form onSubmit={submit} className="flex flex-col gap-2">
-            <p className="text-sm text-forest-200">
+            <p className="text-sm text-ink-200">
               Want a short note when something new goes up?
             </p>
             <div className="flex gap-2">
@@ -112,22 +112,22 @@ export default function UpdatesCard({ trigger, page }: Props) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="min-w-0 flex-1 rounded-md border border-forest-700 bg-forest-950 px-2 py-1 text-sm text-forest-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-400"
+                className="min-w-0 flex-1 rounded-md border border-ink-700 bg-ink-950 px-2 py-1 text-sm text-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-400"
               />
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="rounded-md bg-forest-700 px-3 py-1 text-sm text-forest-50 hover:bg-forest-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-400"
+                className="rounded-md bg-ink-700 px-3 py-1 text-sm text-ink-50 hover:bg-ink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-400"
               >
                 Sign up
               </button>
             </div>
-            <div className="flex items-center justify-between text-xs text-forest-500">
+            <div className="flex items-center justify-between text-xs text-ink-500">
               <span>{status === 'error' ? 'That didn’t go through. Try again?' : 'Only when there’s something new.'}</span>
               <button
                 type="button"
                 onClick={close}
-                className="hover:text-forest-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-400"
+                className="hover:text-ink-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-400"
               >
                 No thanks
               </button>
