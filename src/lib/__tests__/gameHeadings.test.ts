@@ -21,8 +21,8 @@ const HEADING_SOURCE: Record<string, { file: string; pattern: RegExp }> = {
   luminousFlow: { file: 'src/pages/posts/luminous-flow.jsx', pattern: /<h1/ },
 }
 
-// Theater links that are not productions (the tip jar in the closing frame).
-const NOT_GAMES = ['funding']
+// Theater links that are not productions.
+const NOT_GAMES: string[] = []
 
 const read = (file: string) => fs.readFileSync(path.join(process.cwd(), file), 'utf8')
 

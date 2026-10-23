@@ -27,7 +27,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
 - `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
 - `/intake` (`src/pages/intake.jsx`) — Contact / intake form that feeds the consulting funnel
-- `/funding` (`src/pages/funding.tsx`) — "Support Brooks Roley" tip-jar / funding page
+- `/funding` — **retired 2026-10-23** (redirects to `/`). Brooks asked for the whole support ask to be "a little less beggy": no tip jar, no "support development" links, no mention of AI tokens or server bills. The replacement is `src/components/UpdatesCard.tsx`, a brief, optional, one-time "want a note when something new goes up?" card, and it is **switched off** (`UPDATES_CARD_ENABLED = false`). Do not re-add a tip jar, a funding route or a money ask on any page; `src/lib/__tests__/noTipJar.test.ts` fails if one comes back. Turning the card on is Brooks's call.
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
 - `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
@@ -215,12 +215,11 @@ The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship g
 - Game modes: Classic 1v1, Free-for-All (4 players), 2v2 Teams. Constants in `src/lib/pente/constants.js`.
 
 #### Monetization Roadmap (Pente → Stripe)
-The puzzle system is the monetization path. Model: freemium with tip-jar and premium tiers.
+The puzzle system is the monetization path. Model: freemium with premium tiers (the tip jar was retired 2026-10-23; see `/funding` above).
 
 | Phase | What | Revenue |
 |---|---|---|
 | **Free tier (now)** | Curated puzzles, Endless mode, bot play, ELO tracking | Dwell time, audience building |
-| **Tip jar (next)** | "Buy me a coffee" after solve streaks, donate to keep servers running | One-time tips via Stripe |
 | **Premium puzzles** | Daily challenge puzzles, leaderboard, puzzle history/replay, export stats | $5-9/mo Stripe subscription |
 | **Competitive tier** | Ranked matchmaking, seasonal ELO resets, tournament brackets, profile badges | $9-15/mo Stripe subscription |
 
@@ -433,7 +432,7 @@ Rules:
 
 1. **Art first.** Pick the piece by asking "would Brooks proudly show this as a creator, not just a developer?" Ecosystems, growth, water, light, and motion are on-theme; the repo already leans this way (`luminous-flow`, Stat Galaxy, the Pente mountain metaphor).
 2. **Production quality anyway.** Complete, working, mobile-friendly, no placeholders. Art that crashes is a bug, not a statement.
-3. **Every piece gets a frame.** Title, a one-paragraph artist note rendered on the page, and a tip-jar link (`/funding`). Art is the audience funnel, not a detour from it — this is Income Ladder rung 2 widened beyond games.
+3. **Every piece gets a frame.** Title and a one-paragraph artist note rendered on the page. No tip-jar or support link (retired 2026-10-23). Art is the audience funnel, not a detour from it.
 4. **Reuse the instruments.** `PhysicsField`, `WaterHero`, the canvas work in `luminous-flow`, the Web Worker pattern — reach for existing engines before writing new ones.
 5. **Gallery index.** Pieces live at `/studio/[name]`. On the first STUDIO session, create `/studio` as a gallery page that lists all pieces (including back-linking the existing `/posts/luminous-flow`); every later piece adds itself to it.
 
@@ -442,7 +441,7 @@ Output format — start with `STUDIO PIECE`, then include:
 - Branch: `studio/[descriptive-name]`
 - Title: the piece's name
 - Artist note: 2-3 sentences on what it is and why (this also ships on the page)
-- Livelihood stream: Games/audience (tip-jar frame)
+- Livelihood stream: Games/audience
 - Files changed: list
 - Code: complete diff or full new file contents
 - Visual: plain-English description of how it looks, moves, and responds
@@ -527,7 +526,7 @@ Rung 4 — Consulting ($150–$300/hr)
 Rung 3 — Digital Products ($15–$99 one-time)
          PDFs, templates, data sets, playbooks
 
-Rung 2 — Games (ad revenue / tip jar / premium features)
+Rung 2 — Games (premium features; no tip jar)
          Dwell time → audience → monetization
 
 Rung 1 — Portfolio signal (indirect — gets Brooks hired)
