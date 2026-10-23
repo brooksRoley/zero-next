@@ -856,12 +856,6 @@ export default function GoPage() {
                 >
                   Play again
                 </button>
-                <Link
-                  href="/funding"
-                  className="text-[11px] text-forest-500 hover:text-candy-300 transition-colors"
-                >
-                  Enjoying Go? Tip the dev ☕
-                </Link>
               </div>
             </div>
           )}

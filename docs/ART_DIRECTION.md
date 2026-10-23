@@ -20,7 +20,7 @@ is the black box the work performs in.
 |---|---|---|
 | `forest-950` | `#04120c` | The house dark. Default page ground. |
 | `forest-300/400/500` | greens | Supporting text, program notes. |
-| `candy-400/500` | `#ff69b4` / `#f24da0` | The theater's own light — marquee, tip-jar, studio accents. |
+| `candy-400/500` | `#ff69b4` / `#f24da0` | The theater's own light — marquee and studio accents. |
 | `void-400/500` | `#a78bfa` / `#8b5cf6` | Mystery pieces, night-sky work (Stat Galaxy). |
 | Lakers purple / gold | `#552583` / `#FDB927` | Reserved for basketball surfaces only. |
 
@@ -51,8 +51,8 @@ galaxy = scale (Stat Galaxy), court = stage (Hardwood), garden = growth
 If a feature can't be said inside the piece's metaphor, it belongs elsewhere.
 
 ### 4. Every piece gets a frame
-Title, a one-paragraph playbill note rendered on the page, and a tip-jar link
-to `/funding`. Art is the audience funnel, not a detour from it. The frame is
+Title and a one-paragraph playbill note rendered on the page. No tip-jar or
+support link (retired 2026-10-23). Art is the audience funnel, not a detour from it. The frame is
 part of the work: an unframed piece is not shipped, it's abandoned on stage.
 
 ### 5. The craft floor
@@ -117,7 +117,7 @@ Before any game or piece ships, in order:
 
 - [ ] One accent, on the house dark; palette tokens only.
 - [ ] Metaphor named in one word; every string on the page speaks it.
-- [ ] Frame present: title, playbill note, `/funding` link.
+- [ ] Frame present: title, playbill note. No money ask.
 - [ ] Phone playthrough clean; reduced-motion checked.
 - [ ] Loading / empty / error states designed.
 - [ ] `track()` events on the moments that matter (entry, the core action, the exit CTA).

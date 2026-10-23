@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PassCutBoard from "src/components/games/PassCutBoard";
 import { LEVELS } from "src/lib/games/passcut/levels";
@@ -278,25 +277,12 @@ export default function PassAndCutPage() {
           </div>
         </section>
 
-        {/* ── Tip-jar frame ── */}
+        {/* ── Frame ── */}
         <footer className="mt-6 flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
           <p className="text-forest-400">
             An exact game-tree solver plays the defense — it never misses, so every
             level is a fair test of the graph, not the bot.
           </p>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track("cta_click", {
-                page: "/games/pass-and-cut",
-                metadata: { location: "passcut_tip" },
-                beacon: true,
-              })
-            }
-            className="text-candy-500 transition-colors hover:text-candy-400"
-          >
-            Enjoying the puzzle? Support development →
-          </Link>
         </footer>
       </div>
     </main>

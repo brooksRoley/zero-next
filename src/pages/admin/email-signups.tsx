@@ -235,7 +235,7 @@ export default function AdminEmailSignupsPage() {
           {!loading && signups.length === 0 && !error && (
             <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-12 text-center text-forest-300">
               No signups yet. Captures from the Model Arena email gate,
-              digital-product notify list, and funding tip jar will appear
+              digital-product notify list, and the updates card will appear
               here.
             </div>
           )}

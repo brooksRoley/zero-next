@@ -438,15 +438,6 @@ export default function PlayoffMoments() {
             </Link>
             , Act II.
           </p>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track('cta_click', { page: '/games/moments', metadata: { location: 'moments_tip' }, beacon: true })
-            }
-            className="shrink-0 text-candy-500 transition-colors hover:text-candy-400"
-          >
-            Keep the film room open →
-          </Link>
         </footer>
       </div>
     </main>
