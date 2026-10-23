@@ -482,9 +482,9 @@ export default function Consulting() {
                 onClick={() => track('intake_open', { location: 'connect_tile' })}
                 className="flex flex-col items-center gap-2 rounded-xl border border-forest-800/50 bg-forest-900/30 hover:border-forest-700/60 p-6 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-candy-400 focus-visible:ring-offset-2 focus-visible:ring-offset-forest-950"
               >
-                <span className="text-2xl">&#127908;</span>
-                <span className="text-sm font-medium text-white">Voice Intake</span>
-                <span className="text-xs text-forest-500">Describe your project out loud &mdash; I&apos;ll receive a transcript and reply within a day.</span>
+                <span className="text-2xl">&#9993;</span>
+                <span className="text-sm font-medium text-white">Contact</span>
+                <span className="text-xs text-forest-500">Email, LinkedIn, or book a call.</span>
               </Link>
 
               <a
