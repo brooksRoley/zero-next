@@ -35,7 +35,6 @@ const REGISTRY = {
   resume: { href: '/resume', label: 'Resume' },
   consulting: { href: '/consulting', label: 'Services' },
   intake: { href: '/intake', label: 'Contact' },
-  funding: { href: '/funding', label: 'Support' },
 
   // ── NBA / sports tech ──
   basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform' },
