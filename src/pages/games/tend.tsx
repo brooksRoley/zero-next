@@ -5,8 +5,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TendBoard from 'src/components/games/TendBoard'
 import { PlantIcon } from 'src/components/games/TendPlants'
 import TendNav, { SampleBanner } from 'src/components/games/TendNav'
+import TendPerennials from 'src/components/games/TendPerennials'
 import { trackGame } from 'src/lib/analytics'
 import {
+  activeLanes,
   bloomCount,
   checkIn,
   compostSeed,
@@ -17,12 +19,15 @@ import {
   newGarden,
   placeSeed,
   resolveSeasons,
+  RESULT_LINES,
+  resultLog,
   unlockNotes,
   type GardenState,
 } from 'src/lib/games/tend/engine'
+import { dayToDate, importHabits, parseHabitFile } from 'src/lib/games/tend/habitImport'
 import { almanac, COMPOST_NOTES, SOURCES } from 'src/lib/games/tend/knowledge'
 import { PETS } from 'src/lib/games/tend/pets'
-import { KIND_FOR_LANE, LANES, orientations, PLANTS, type Cell, type Lane, type PlantKind } from 'src/lib/games/tend/plants'
+import { KIND_FOR_LANE, orientations, PLANTS, type Cell, type Lane, type PlantKind } from 'src/lib/games/tend/plants'
 import { currentPhase, PHASE_LABEL, type Phase } from 'src/lib/games/tend/daylight'
 import { browserStorage as storage } from 'src/lib/games/tend/progress'
 import { sampleGarden } from 'src/lib/games/tend/sample'
@@ -91,6 +96,8 @@ function NoteBody({ kind }: { kind: PlantKind }) {
 export default function TendPage() {
   const router = useRouter()
   const sample = router.isReady && router.query.sample === '1'
+  // `?import` shows the habit-file import. It is off by default: most players log habits here, not elsewhere.
+  const importOn = router.isReady && router.query.import !== undefined && !sample
   const sampleRef = useRef(false)
   const [garden, setGarden] = useState<GardenState | null>(null)
   const [today, setToday] = useState<number | null>(null)
@@ -105,6 +112,7 @@ export default function TendPage() {
   const [growth, setGrowth] = useState<{ grew: string[]; bloomed: string[]; n: number } | null>(null)
   const [phase, setPhase] = useState<Phase>('day')
   const [attention, setAttention] = useState<{ cell: Cell; n: number } | null>(null)
+  const [importNote, setImportNote] = useState<string | null>(null)
   // Sound waits for the player's first action; a bloom found on page load stays quiet.
   const actedRef = useRef(false)
   const gardenRef = useRef<GardenState | null>(null)
@@ -198,6 +206,32 @@ export default function TendPage() {
     trackGame('game_start', GAME, { habits: chosen.length })
   }, [garden, today, chosen])
 
+  const importFile = useCallback(
+    async (file: File | undefined) => {
+      if (!file || !garden || today === null) return
+      const parsed = file.size <= 100_000 ? parseHabitFile(await file.text()) : null
+      if (!parsed) {
+        setImportNote('That file is not a Tend habit file.')
+        return
+      }
+      const r = importHabits(garden, parsed, today)
+      setGarden(r.state)
+      const lanes = activeLanes(r.state)
+      if (r.today.length) setChosen((prev) => lanes.filter((l) => prev.includes(l) || r.today.includes(l)))
+      const label = (l: Lane) => PLANTS[KIND_FOR_LANE[l]].habit.split(':')[0]
+      const parts = [
+        r.lanesOn.length ? `${r.lanesOn.map(label).join(' and ')} added to your check-in` : '',
+        r.added ? `${r.added} past day${r.added === 1 ? '' : 's'} checked in` : '',
+        r.merged ? `${r.merged} day${r.merged === 1 ? '' : 's'} gained a habit` : '',
+        r.results ? `${r.results} result${r.results === 1 ? '' : 's'} to celebrate` : '',
+        r.rungs ? `${r.rungs} skill rung${r.rungs === 1 ? '' : 's'} opened on your perennials` : '',
+        r.today.length ? `today's ${r.today.map(label).join(' and ')} selected below` : '',
+      ].filter(Boolean)
+      setImportNote(parts.length ? `Imported: ${parts.join(', ')}.` : 'Nothing new in that file.')
+    },
+    [garden, today],
+  )
+
   const place = useCallback(
     (anchor: Cell) => {
       if (!garden || today === null || !seed || !shape) return
@@ -255,6 +289,10 @@ export default function TendPage() {
   // A drought day, or any bed still sleeping one off, and the open soil looks dry.
   const parched =
     !!garden && today !== null && (lastSeason?.day === today || garden.beds.some((b) => isDormant(garden, b.id, today)))
+  // A garden that never imported a file with the opt-in lanes shows the five lanes and five plants, as always.
+  const lanes = garden ? activeLanes(garden) : []
+  const kinds = lanes.map((lane) => KIND_FOR_LANE[lane])
+  const results = garden ? resultLog(garden) : []
 
   return (
     <main className="min-h-screen bg-ink-950 font-sans text-ink-100">
@@ -328,6 +366,8 @@ export default function TendPage() {
                   </a>
                 </p>
               )}
+              {/* Only a garden that imported a skill tree has perennials; the sample and the five-lane game never do. */}
+              {!sample && garden.perennials?.length ? <TendPerennials perennials={garden.perennials} /> : null}
             </div>
 
             <aside className="space-y-6">
@@ -385,6 +425,56 @@ export default function TendPage() {
                 </section>
               )}
 
+              {results.length > 0 && (
+                <section className="rounded-xl border border-ink-500/60 bg-ink-800/40 p-4 text-sm">
+                  <h2 className="font-semibold">What came back</h2>
+                  <p className="mt-1 text-ink-400">
+                    Results from your imported file. They are here to celebrate and never scored: the garden grows from
+                    the work, not the answers.
+                  </p>
+                  <ul className="mt-3 space-y-2">
+                    {results.slice(0, 8).map((r) => (
+                      <li key={`${r.day}-${r.kind}`} className="flex items-center gap-2">
+                        <PlantIcon kind="toyon" size={18} />
+                        <span className="font-mono text-xs text-ink-400">
+                          {new Date(`${dayToDate(r.day)}T12:00:00Z`).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            timeZone: 'UTC',
+                          })}
+                        </span>
+                        <span className="text-ink-100">{RESULT_LINES[r.kind]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {importOn && (
+                <section className="rounded-xl border border-ink-800 p-4 text-sm">
+                  <label className="block">
+                    <span className="font-semibold">Import habits</span>
+                    <span className="mt-1 block text-ink-400">
+                      A habit file fills in past days and suggests today. It is read in this browser and never uploaded.
+                    </span>
+                    <input
+                      type="file"
+                      accept="application/json,.json"
+                      onChange={(e) => {
+                        void importFile(e.target.files?.[0])
+                        e.target.value = ''
+                      }}
+                      className="mt-3 block w-full text-xs text-ink-300 file:mr-3 file:rounded-md file:border-0 file:bg-ink-200 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-ink-950 hover:file:bg-white"
+                    />
+                  </label>
+                  {importNote && (
+                    <p className="mt-2 text-ink-300" aria-live="polite">
+                      {importNote}
+                    </p>
+                  )}
+                </section>
+              )}
+
               {sample ? (
                 <section>
                   <h2 className="text-lg font-semibold">Forty days in</h2>
@@ -399,7 +489,7 @@ export default function TendPage() {
                   <h2 className="text-lg font-semibold">Today</h2>
                   <p className="mt-1 text-sm text-ink-400">Which did you do? An honest empty day still tends the garden.</p>
                   <ul className="mt-4 space-y-2">
-                    {LANES.map((lane) => {
+                    {lanes.map((lane) => {
                       const kind = KIND_FOR_LANE[lane]
                       const on = chosen.includes(lane)
                       return (
@@ -490,11 +580,11 @@ export default function TendPage() {
 
               <details className="rounded-xl border border-ink-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">
-                  Field guide ({garden.notes?.length ?? 0} of {Object.keys(PLANTS).length} collected)
+                  Field guide ({garden.notes?.filter((k) => kinds.includes(k)).length ?? 0} of {kinds.length} collected)
                 </summary>
                 <p className="mt-2 text-xs text-ink-400">Every note is open to read. A plant&apos;s first bloom adds it to your collection.</p>
                 <ul className="mt-3 space-y-4">
-                  {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
+                  {kinds.map((kind) => (
                     <li key={kind}>
                       <p className="font-mono text-[11px] uppercase tracking-widest text-ink-500">
                         {garden.notes?.includes(kind) ? 'Collected' : 'Not yet bloomed'}
@@ -513,7 +603,7 @@ export default function TendPage() {
               <details className="rounded-xl border border-ink-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">How the plants work</summary>
                 <ul className="mt-3 space-y-2">
-                  {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
+                  {kinds.map((kind) => (
                     <li key={kind} className="flex gap-2">
                       <Swatch kind={kind} />
                       <span>

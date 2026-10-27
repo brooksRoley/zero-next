@@ -1,9 +1,23 @@
-/** The five habit lanes, each of which grows one kind of plant. */
+/** The five habit lanes every garden has, each of which grows one kind of plant. */
 export const LANES = ['body', 'craft', 'rest', 'joy', 'green'] as const
-export type Lane = (typeof LANES)[number]
 
+/**
+ * Opt-in lanes. A garden gains them the first time it imports a habit file
+ * that holds them (Brooks's job-search tool writes one); a garden that never
+ * imports one plays the five lanes above, unchanged.
+ */
+export const EXTRA_LANES = ['search', 'study'] as const
+export type ExtraLane = (typeof EXTRA_LANES)[number]
+
+/** Every lane, in check-in order. */
+export const ALL_LANES = [...LANES, ...EXTRA_LANES] as const
+export type Lane = (typeof ALL_LANES)[number]
+
+/** The five lanes' plants, which every garden can grow. */
 export const PLANT_KINDS = ['oak', 'vine', 'moonflower', 'sunflower', 'fern'] as const
-export type PlantKind = (typeof PLANT_KINDS)[number]
+export const EXTRA_KINDS = ['toyon', 'buckwheat'] as const
+export const ALL_KINDS = [...PLANT_KINDS, ...EXTRA_KINDS] as const
+export type PlantKind = (typeof ALL_KINDS)[number]
 
 /** [x, y] on the grid; y grows downward, so "above" is y - 1. */
 export type Cell = readonly [number, number]
@@ -37,7 +51,9 @@ export type PlantDef = {
  * Real California natives. The traits are game rules; the field notes are
  * facts, each taken from the Calscape (California Native Plant Society) page
  * linked as its source. Player-facing teaching copy is a Learning Mode
- * surface: Brooks reviews it before it ships.
+ * surface: Brooks reviews it before it ships. The toyon and buckwheat notes
+ * (the opt-in lanes) are DRAFT COPY pending that review; their Calscape pages
+ * were opened on 2026-10-27.
  */
 export const PLANTS: Record<PlantKind, PlantDef> = {
   oak: {
@@ -117,6 +133,36 @@ export const PLANTS: Record<PlantKind, PlantDef> = {
       source: 'https://calscape.org/Polystichum-munitum-(Western-Sword-Fern)',
     },
   },
+  toyon: {
+    kind: 'toyon',
+    lane: 'search',
+    name: 'Toyon',
+    latin: 'Heteromeles arbutifolia',
+    habit: 'Search: sent an application or a warm note, followed up, or closed a loop',
+    trait: 'Oak woodland shrub. Grows faster for every oak it touches.',
+    shape: [[0, 0], [0, 1], [0, 2], [1, 2]],
+    color: '#9a6a62',
+    note: {
+      body:
+        'A shrub of coastal sage scrub, chaparral and oak woodland, also called Christmas berry. In summer it bears bunches of fragrant white flowers, and in winter clusters of scarlet berries that mockingbirds, American robins and cedar waxwings eat. It can grow up to 10 feet in three years.',
+      source: 'https://calscape.org/Heteromeles-arbutifolia-(Toyon)',
+    },
+  },
+  buckwheat: {
+    kind: 'buckwheat',
+    lane: 'study',
+    name: 'California buckwheat',
+    latin: 'Eriogonum fasciculatum',
+    habit: 'Study: did a practice rep, passed or not',
+    trait: 'Drought hardy. A drought never puts it to sleep.',
+    shape: [[0, 0], [0, 1], [1, 1]],
+    color: '#a08a78',
+    note: {
+      body:
+        'A tough shrub of dry, often south-facing slopes in coastal sage scrub. Its pink to white and cream flower clusters appear as early as March and dry to a rust red. 260 native bee species visit it, and once established it needs no water.',
+      source: 'https://calscape.org/Eriogonum-fasciculatum-(California-Buckwheat)',
+    },
+  },
 }
 
 export const KIND_FOR_LANE: Record<Lane, PlantKind> = {
@@ -125,6 +171,8 @@ export const KIND_FOR_LANE: Record<Lane, PlantKind> = {
   rest: 'moonflower',
   joy: 'sunflower',
   green: 'fern',
+  search: 'toyon',
+  study: 'buckwheat',
 }
 
 /** Shift cells so the smallest x and y are 0, sorted for stable comparison. */
