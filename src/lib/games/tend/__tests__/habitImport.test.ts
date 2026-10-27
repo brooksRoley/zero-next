@@ -29,7 +29,7 @@ describe('parseHabitFile', () => {
   it('refuses anything that is not a habit file', () => {
     expect(parseHabitFile('not json')).toBeNull()
     expect(parseHabitFile(JSON.stringify({ format: 'other', version: 1, days: {} }))).toBeNull()
-    expect(parseHabitFile(JSON.stringify({ format: 'tend-habits', version: 2, days: {} }))).toBeNull()
+    expect(parseHabitFile(JSON.stringify({ format: 'tend-habits', version: 3, days: {} }))).toBeNull()
     expect(parseHabitFile(file({ '2026-10-20': ['search'] }))).toBeNull()
     expect(parseHabitFile(file({ yesterday: ['body'] }))).toBeNull()
   })
