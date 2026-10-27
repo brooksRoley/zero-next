@@ -20,6 +20,7 @@ import {
   unlockNotes,
   type GardenState,
 } from 'src/lib/games/tend/engine'
+import { importHabits, parseHabitFile } from 'src/lib/games/tend/habitImport'
 import { almanac, COMPOST_NOTES, SOURCES } from 'src/lib/games/tend/knowledge'
 import { PETS } from 'src/lib/games/tend/pets'
 import { KIND_FOR_LANE, LANES, orientations, PLANTS, type Cell, type Lane, type PlantKind } from 'src/lib/games/tend/plants'
@@ -91,6 +92,8 @@ function NoteBody({ kind }: { kind: PlantKind }) {
 export default function TendPage() {
   const router = useRouter()
   const sample = router.isReady && router.query.sample === '1'
+  // `?import` shows the habit-file import. It is off by default: most players log habits here, not elsewhere.
+  const importOn = router.isReady && router.query.import !== undefined && !sample
   const sampleRef = useRef(false)
   const [garden, setGarden] = useState<GardenState | null>(null)
   const [today, setToday] = useState<number | null>(null)
@@ -105,6 +108,7 @@ export default function TendPage() {
   const [growth, setGrowth] = useState<{ grew: string[]; bloomed: string[]; n: number } | null>(null)
   const [phase, setPhase] = useState<Phase>('day')
   const [attention, setAttention] = useState<{ cell: Cell; n: number } | null>(null)
+  const [importNote, setImportNote] = useState<string | null>(null)
   // Sound waits for the player's first action; a bloom found on page load stays quiet.
   const actedRef = useRef(false)
   const gardenRef = useRef<GardenState | null>(null)
@@ -197,6 +201,27 @@ export default function TendPage() {
     setTurn(0)
     trackGame('game_start', GAME, { habits: chosen.length })
   }, [garden, today, chosen])
+
+  const importFile = useCallback(
+    async (file: File | undefined) => {
+      if (!file || !garden || today === null) return
+      const parsed = file.size <= 100_000 ? parseHabitFile(await file.text()) : null
+      if (!parsed) {
+        setImportNote('That file is not a Tend habit file.')
+        return
+      }
+      const r = importHabits(garden, parsed, today)
+      setGarden(r.state)
+      if (r.today.length) setChosen((prev) => LANES.filter((l) => prev.includes(l) || r.today.includes(l)))
+      const parts = [
+        r.added ? `${r.added} past day${r.added === 1 ? '' : 's'} checked in` : '',
+        r.merged ? `${r.merged} day${r.merged === 1 ? '' : 's'} gained a habit` : '',
+        r.today.length ? `today's ${r.today.map((l) => PLANTS[KIND_FOR_LANE[l]].habit.split(':')[0]).join(' and ')} selected below` : '',
+      ].filter(Boolean)
+      setImportNote(parts.length ? `Imported: ${parts.join(', ')}.` : 'Nothing new in that file.')
+    },
+    [garden, today],
+  )
 
   const place = useCallback(
     (anchor: Cell) => {
@@ -382,6 +407,31 @@ export default function TendPage() {
                             : 'Nothing went to sleep.'
                         }`}
                   </p>
+                </section>
+              )}
+
+              {importOn && (
+                <section className="rounded-xl border border-ink-800 p-4 text-sm">
+                  <label className="block">
+                    <span className="font-semibold">Import habits</span>
+                    <span className="mt-1 block text-ink-400">
+                      A habit file fills in past days and suggests today. It is read in this browser and never uploaded.
+                    </span>
+                    <input
+                      type="file"
+                      accept="application/json,.json"
+                      onChange={(e) => {
+                        void importFile(e.target.files?.[0])
+                        e.target.value = ''
+                      }}
+                      className="mt-3 block w-full text-xs text-ink-300 file:mr-3 file:rounded-md file:border-0 file:bg-ink-200 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-ink-950 hover:file:bg-white"
+                    />
+                  </label>
+                  {importNote && (
+                    <p className="mt-2 text-ink-300" aria-live="polite">
+                      {importNote}
+                    </p>
+                  )}
                 </section>
               )}
 
