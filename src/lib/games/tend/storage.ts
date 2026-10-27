@@ -1,12 +1,14 @@
-import { LANES, PLANT_KINDS } from './plants'
-import type { GardenState } from './engine'
+import { ALL_KINDS, ALL_LANES, EXTRA_LANES } from './plants'
+import { RESULT_KINDS, type GardenState } from './engine'
+import { isPerennials } from './perennials'
 
 /** Habit data stays in this browser. It is never sent to the server. */
 export const STORAGE_KEY = 'tend_garden_v1'
 
 const isInt = (v: unknown): v is number => Number.isInteger(v)
 const isCell = (v: unknown) => Array.isArray(v) && v.length === 2 && isInt(v[0]) && isInt(v[1])
-const isKind = (v: unknown) => (PLANT_KINDS as readonly unknown[]).includes(v)
+const isKind = (v: unknown) => (ALL_KINDS as readonly unknown[]).includes(v)
+const isIn = (list: readonly unknown[]) => (v: unknown) => list.includes(v)
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 
 /** Shape-checks parsed JSON, so a corrupted or hand-edited save starts fresh instead of crashing. */
@@ -15,7 +17,7 @@ export function isGardenState(v: unknown): v is GardenState {
   if (!isInt(v.startDay) || !isInt(v.size) || !isInt(v.nextId)) return false
   if (!isRecord(v.checkins) || !isRecord(v.dormancy)) return false
   const lanesOk = Object.values(v.checkins).every(
-    (lanes) => Array.isArray(lanes) && lanes.every((l) => (LANES as readonly unknown[]).includes(l)),
+    (lanes) => Array.isArray(lanes) && lanes.every(isIn(ALL_LANES)),
   )
   const seedsOk =
     Array.isArray(v.seeds) &&
@@ -41,7 +43,17 @@ export function isGardenState(v: unknown): v is GardenState {
       (s) => isRecord(s) && isInt(s.day) && s.kind === 'drought' && Array.isArray(s.hit) && Array.isArray(s.held),
     )
   const notesOk = v.notes === undefined || (Array.isArray(v.notes) && v.notes.every(isKind))
-  return lanesOk && seedsOk && bedsOk && dormancyOk && seasonsOk && notesOk
+  // Added in M1. Both optional, so a save from before them loads as a five-lane garden with no results.
+  const extraOk = v.extraLanes === undefined || (Array.isArray(v.extraLanes) && v.extraLanes.every(isIn(EXTRA_LANES)))
+  const resultsOk =
+    v.results === undefined ||
+    (isRecord(v.results) &&
+      Object.entries(v.results).every(
+        ([day, kinds]) => /^-?\d+$/.test(day) && Array.isArray(kinds) && kinds.every(isIn(RESULT_KINDS)),
+      ))
+  // Added in M3, optional: a save from before it loads with no perennials.
+  const perennialsOk = v.perennials === undefined || isPerennials(v.perennials)
+  return lanesOk && seedsOk && bedsOk && dormancyOk && seasonsOk && notesOk && extraOk && resultsOk && perennialsOk
 }
 
 export function loadGarden(storage: Pick<Storage, 'getItem'> | null): GardenState | null {

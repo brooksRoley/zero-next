@@ -9,7 +9,7 @@ yarn dev        # Start development server on localhost:3000
 yarn build      # Build for production
 yarn start      # Start production server
 yarn lint       # Run ESLint directly (not next lint — Next.js 16 broke it)
-yarn test       # Run the vitest suite once (962 tests as of 2026-10-07)
+yarn test       # Run the vitest suite once (1643 tests as of 2026-10-26)
 yarn test:watch # Vitest in watch mode
 ```
 
@@ -157,39 +157,12 @@ There are two independent auth layers. Neither uses a third-party auth provider 
 
 When adding a new admin/cron endpoint, reuse the `x-admin-key`/`CRON_SECRET` check above — do **not** introduce a new secret. When adding a new private *page*, extend the `matcher` in `src/proxy.ts` rather than rolling per-page auth.
 
-### Stripe — Shipping Checklist (Pre-Launch)
+### Stripe (paused)
 
-The consulting funnel (`/consulting`) has Stripe Checkout wired up but is currently using **test keys**. Before going live:
-
-1. **Create the Product in Stripe Dashboard**
-   - Go to dashboard.stripe.com → Products → + Add product
-   - Create three products matching the service tiers: "Strategy Session" ($150), "Dev Sprint" ($2,400/week deposit), "Fractional CTO" ($4,000/month deposit)
-   - The checkout API at `src/pages/api/consulting/checkout.ts` already supports saved Price IDs: it uses `{ price: priceId, quantity: 1 }` when the tier's `STRIPE_PRICE_*` env var is set, and falls back to inline `price_data` otherwise (identical behavior with no env vars set). So once the Products exist, you only need to paste the `price_XXXX` IDs into Vercel env vars — no code change required.
-
-2. **Switch to Live Keys**
-   - In Stripe Dashboard → Developers → API keys, copy the **live** secret key and publishable key
-   - Set in Vercel environment variables (NOT `.env.local` for production):
-     - `STRIPE_SECRET_KEY=sk_live_...`
-     - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...`
-   - Keep test keys in `.env.local` for local dev; Vercel env vars override for production
-
-3. **Private Key Management**
-   - `STRIPE_SECRET_KEY` is server-only (no `NEXT_PUBLIC_` prefix) — never exposed to the browser
-   - The checkout API validates the key is present and returns 503 if missing/placeholder
-   - For production: set `STRIPE_SECRET_KEY` in Vercel → Settings → Environment Variables → Production only
-   - Rotate keys periodically via Stripe Dashboard → Developers → API keys → Roll key
-   - Never commit live keys to the repo; `.env*.local` is gitignored
-
-4. **Webhook for Payment Confirmation** — ✅ **built** (`src/pages/api/consulting/webhook.ts`)
-   - Handles `checkout.session.completed`, verifies the signature with `stripe.webhooks.constructEvent` against `STRIPE_WEBHOOK_SECRET`, and updates `checkout_sessions.status` from 'pending' → 'paid'. Returns 503 until `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` are set.
-   - Remaining owner:brooks step: register the endpoint URL in Stripe Dashboard → Developers → Webhooks and paste the resulting `STRIPE_WEBHOOK_SECRET` (`whsec_...`) into Vercel.
-   - Optional future work: send a notification (email or Slack) when a deposit lands.
-
-5. **Post-Launch Hardening**
-   - Add rate limiting to `/api/consulting/leads` to prevent spam
-   - Add CSRF protection or honeypot field to the contact form
-   - Consider Stripe Customer Portal for managing recurring fractional CTO billing
-   - The `leads` table `status` column supports a pipeline: 'new' → 'contacted' → 'qualified' → 'converted' → 'closed'
+Payment work is paused until Brooks has a job (Security & privacy). The consulting checkout
+(`api/consulting/checkout.ts`, `webhook.ts`) runs on test keys, verifies webhook signatures and returns
+503 without keys. When it resumes: restricted live keys in Vercel only, saved Price IDs via the
+`STRIPE_PRICE_*` env vars, register the webhook, test before live. Do not raise it in briefs until then.
 
 ### Pente Game Platform
 
@@ -213,16 +186,9 @@ The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship g
 - `BotWorkerManager` in `src/lib/pente/botWorker.js` wraps the worker with promise-based `findMove()` and `generatePuzzle()`.
 - Game modes: Classic 1v1, Free-for-All (4 players), 2v2 Teams. Constants in `src/lib/pente/constants.js`.
 
-#### Monetization Roadmap (Pente → Stripe)
-The puzzle system is the monetization path. Model: freemium with premium tiers (the tip jar was retired 2026-10-23; see `/funding` above).
-
-| Phase | What | Revenue |
-|---|---|---|
-| **Free tier (now)** | Curated puzzles, Endless mode, bot play, ELO tracking | Dwell time, audience building |
-| **Premium puzzles** | Daily challenge puzzles, leaderboard, puzzle history/replay, export stats | $5-9/mo Stripe subscription |
-| **Competitive tier** | Ranked matchmaking, seasonal ELO resets, tournament brackets, profile badges | $9-15/mo Stripe subscription |
-
-When building puzzle/game features, always ask: *does this make the free tier sticky enough to convert, or does this belong behind the premium gate?* Free should be generous. Premium should feel like "I want more of this."
+#### Monetization (shelved)
+Premium puzzle and competitive tiers are shelved with all paid work until there is income. Build the
+free game to be worth returning to; see Players under Daily Agent Instructions.
 
 ### Styling
 - Tailwind CSS is primary; `src/styles/globals.css` has global resets and `.cover-photo` background utility
@@ -254,7 +220,9 @@ Set 2026-10-23 by Brooks. These rules outrank any livelihood or conversion goal.
 - **What is public about Brooks:** name, "Orange County, CA", email, LinkedIn,
   GitHub, this site. **Never publish** a phone number, a street address or
   parcel number, birth date, ID or account numbers, or health and family
-  details. The home-property repo (HomeTracker) is never linked.
+  details. The home-property repo (HomeTracker) is never linked. One exception,
+  Brooks's call on 2026-10-26: the resume may say "Family leave after my
+  father’s death" for 2025, and nothing more; `resume.test.ts` holds the line.
 - **Secrets** live in Vercel env and the gitignored `.env.local` only. Never in
   code, the ledger, PR bodies or briefs. Payment and Stripe work stays paused
   until Brooks has a job; when it resumes: restricted keys, verified webhook
@@ -275,7 +243,7 @@ This section drives the scheduled remote dev agent that runs every weekday at 8:
 - **Site:** brooksroley.com (this repo — Next.js + Vercel)
 - **iOS project:** BasketballTactics (SwiftUI + MVVM + balldontlie.io NBA API, Lakers colors #552583 purple / #FDB927 gold)
 - **Location:** Orange County, CA (homeowner — not relocating). Remote, or hybrid in Orange County / South Bay LA. Never list San Francisco.
-- **Career goal:** A full-time senior full-stack or front-end role (updated 2026-10-05). Sports tech is a welcome fit, not the filter. Until an offer is signed, **hiring readiness outranks every livelihood stream** — see the next section.
+- **Career goal:** A full-time full-stack or front-end role at L4 or L5, building L6 skills along the way (updated 2026-10-26; see Level Intention). Several offers, not one company. Sports tech is a welcome fit, not the filter. Until an offer is signed, **hiring readiness outranks every livelihood stream** — see the next section.
 - **Entity:** None. Sole proprietor; no LLC has been formed. Never write "LLC" or "Zero Paradox" on a public page.
 - **Growth mindset:** Wants concrete, encouraging feedback. Identifies gaps and learns from each PR.
 
@@ -293,7 +261,7 @@ it about a minute.
 shipped games, tools and funnels, and nothing owned "what does a hiring manager see?". This section owns it.
 
 **Every session, before choosing work, run the readiness check** (read-only, a few minutes) and record the
-result in the ledger under one standing item, `hiring-readiness`:
+result on the Board under one standing item, `hiring-readiness`:
 
 1. `/resume` renders the experience from `src/lib/resume.ts`, and the first entry is current.
 2. `public/Brooks_Roley.pdf` is not older than the last change to `src/lib/resume.ts` (`git log -1 --format=%cs`
@@ -317,6 +285,65 @@ Client work may be named only where `src/lib/resume.ts` already names it.
 
 This section retires when Brooks says he has accepted an offer. Until then the question for every PR is
 "does this make an interview more likely?" before "does this make money more likely?".
+
+---
+
+### Level Intention (through 2026-12-31)
+
+Set by Brooks 2026-10-26. **Hire at L4 or L5; build L6 skills along the way.** He is running a broad search for
+several offers, not betting on one company, so work should make him stronger everywhere he interviews.
+
+What that means for choosing and writing work:
+
+- **Prefer work that leaves evidence an interviewer can probe.** L5 is judged on owning an ambiguous project end
+  to end and writing the design others follow; L6 on setting direction across codebases. So, in this order:
+  a written design note with the tradeoffs, a measured result (an evaluation, a benchmark, an A/B), then the code.
+- **The flagship project is Search Lab** (`/lab/search`): site search over the route registry and NBA data with a
+  judged query set, NDCG/MRR with confidence intervals, interleaving through `/api/events`, and a write-up. It is
+  the most interview-relevant build open; prefer its next PR over new games or tools. Grading queries is Brooks's.
+- **Every PR's "What this teaches" box adds a fourth line, `Level:`**, naming the L5 or L6 skill the change
+  exercised (design under ambiguity, measurement, cross-codebase consistency, reviewability) or "L4" if none.
+- Never invent outcomes, scale or users to make work read as senior. Small and true beats big and inflated.
+
+---
+
+### Sustainable Cadence (set 2026-10-26)
+
+The routine exists to keep Brooks's hands free, and his review time is the scarce resource. Evidence:
+in the week before 2026-10-26 the repos took about 60 commits while 0 job applications went out; in
+August a 5-PR stack sat 9–13 days unreviewed; and today's merges needed three CI fixes because new
+workflows had never run on GitHub.
+
+- **One PR per session, at most four routine PRs open across all repos.** At four, the session opens
+  nothing new. It makes the open PRs easier to review instead: rebase, split, paste missing proof,
+  close the stale. A 3-line brief says so.
+- **Sends before builds.** When the Board's Now lane holds an unsent application, the brief's first line
+  is that application and the session's PR stays small (one item, under ~300 changed lines).
+- **Small diffs.** A routine PR over ~600 changed lines needs a design note or a reason in its body.
+- **New workflows prove themselves on a PR before anything depends on them.** A CI job that has never
+  run on GitHub doesn't gate a deploy in the same PR that adds it.
+- **Brooks merges.** The routine never merges. An interactive session merges only on Brooks's explicit
+  word in that session, after every check passes.
+
+---
+
+### Players (game growth, set 2026-10-26)
+
+Games are judged by the people who play them, not by the code shipped. The site already records
+`game_start`, `game_end` and the puzzle events per `game` slug (`/api/events`, `trackGame()`).
+
+- **Every game PR names one player metric and its value before the change:** first-session finish rate
+  (`game_end` / `game_start`), return within 7 days, or abandon rate. The PM scorecard reports game
+  sessions and returning players per game each week, beside last week's number.
+- **A new mechanic isn't done until a person has played it.** Add a 5-minute playtest row for Brooks
+  (Owner: Brooks, Waiting) with the two or three things to judge. The sweep scripts and bots measure
+  balance; they don't measure fun.
+- **Legibility before content.** Before adding a level, unit or mode, check that a first-time player can
+  tell what to do: one instruction on screen at a time, a reason for every outcome, and the game played
+  once at phone width with touch.
+- **Every game a visitor can reach fires the shared events.** Games served from another origin
+  (BballTactics on GitHub Pages) post to `/api/events` through the existing bball CORS allowance, or the
+  gap is a Board row.
 
 ---
 
@@ -350,41 +377,49 @@ Brooks is building toward financial independence through the site itself. Every 
 
 ### Global Rules
 
-- **Read the Open Recommendations Ledger first** (see the section below). It is the routine's memory across sessions — it tells you what's already been recommended, what shipped, and what's blocked on Brooks. Choose work from open, agent-doable items before inventing something new.
+- **Read the Board first** (see Board & Session Memory below). It is the routine's memory across sessions: what is in progress, what waits on Brooks, what is next. Choose work from its Next lane before inventing something new.
 - Scan the repo with Glob and selective Read before doing anything. Be token-efficient — do not read every file blindly.
-- **Spend nothing until there is income** (Brooks, 2026-10-07). Anything with a fee is shelved until the site has an income stream: forming an LLC, paid API tiers, paid plans or tools. Do not recommend or build toward them; list them once under "Shelved until income" in the ledger. Free setup that enables income (a Stripe account, Payment Links) is allowed.
+- **Spend nothing until there is income** (Brooks, 2026-10-07). Anything with a fee is shelved until the site has an income stream: forming an LLC, paid API tiers, paid plans or tools. Do not recommend or build toward them; list them once under "Shelved until income" on the Board. Free setup that enables income (a Stripe account, Payment Links) is allowed.
 - **Games fire the shared game events.** `trackGame()` / `useGameTracking()` in `src/lib/analytics.ts` and `src/hooks/useGameTracking.js` emit `game_start`, `game_end`, `puzzle_start`, `puzzle_solved`, `puzzle_failed` and `tutorial_stage_complete` with a `game` slug. A new game uses them rather than inventing event names; `src/lib/__tests__/gameTracking.test.ts` lists the instrumented surfaces. `trackGame()` also writes this browser's play journal (`src/lib/playJournal.ts`, local only), which the Theater's welcome back reads (`src/lib/welcomeBack.ts` + `returningSnapshot.ts`): a returning player gets a greeting, their unfinished business, what changed while they were away, and progress on each playbill. A first visit (no history) renders the Theater unchanged — `TheaterWelcome.test.jsx` guards that. The welcome also carries one line from the house narrator (`src/lib/narrator.ts`: authored lines gated on the player's real state, ranked, never repeated back to back; add lines there, true to the data and never scolding). Missed Go and Pente puzzles return on a spaced schedule (`src/lib/review.ts`, 1/3/7-day Leitner boxes derived from each game's existing attempt history) in a "Due for review" lane on both puzzle pages.
 - **Read the analytics before choosing what to build.** First-party events now exist (`/api/events`, the `track()` helper). When picking work, query/inspect recent conversion data (which CTAs fire, which convert) and prioritize by evidence, not intuition. "Does this PR make money more likely?" is now partly measurable — measure it.
-- Produce **one substantial PR per session, OR a bundle of small pre-specified items** the ledger has already greenlit as "ready to ship." One complete working PR beats several shallow ones — but don't let a queue of cheap, ready revenue wins starve for weeks because of a strict one-PR rule. Quality bar is unchanged: everything shipped must be complete and working.
+- Produce **one substantial PR per session, OR a bundle of small pre-specified items** the Board has already greenlit as "ready to ship." One complete working PR beats several shallow ones — but don't let a queue of cheap, ready revenue wins starve for weeks because of a strict one-PR rule. Quality bar is unchanged: everything shipped must be complete and working.
 - Write complete code — no TODOs, no placeholders, no stub functions.
+- **Tests gate every deploy.** zero-next runs Lint · Build · Test on every PR; BballTactics runs `npm test` and a touch-only phone game on every PR, and its Pages deploy waits for the tests (since 2026-10-26). Don't add features to a repo whose tests aren't in CI; add the CI first.
 - Every PR must map to at least one livelihood stream (label it clearly in the PR body).
 - Attempt `git checkout -b [branch] && git add -A && git commit -m "[title]" && gh pr create` to push and open the PR. If auth fails, output the full PR as a plaintext artifact Brooks can apply manually.
-- **Never strand work.** Every branch you push must end the session as an opened PR, or be deleted. A pushed branch with no PR is invisible to review — in July 2026 four such branches accumulated, one hiding a security fix for five days. If you cannot open the PR, log the branch name in the ledger as an explicit failure state so the next session recovers it.
+- **Never strand work.** Every branch you push must end the session as an opened PR, or be deleted. A pushed branch with no PR is invisible to review — in July 2026 four such branches accumulated, one hiding a security fix for five days. If you cannot open the PR, log the branch name on the Board as an explicit failure state so the next session recovers it.
 - **Proof over claims.** PR bodies and briefs must paste actual command output — real test counts, real lint results — not assertions of green. (A past session claimed "281/281 passing" while the suite had been red for six weeks and the real count was 335.) If you didn't run it, say you didn't run it.
-- **Log verification outcomes honestly.** If you build something user-facing, verify it (build, lint, and live-site check where possible). If verification is blocked (e.g., a 403 or missing secret), record that as an explicit failure state in the ledger — do not silently skip it. A blocker that recurs across sessions should escalate, not disappear.
+- **Log verification outcomes honestly.** If you build something user-facing, verify it (build, lint, and live-site check where possible). If verification is blocked (e.g., a 403 or missing secret), record that as an explicit failure state on the Board — do not silently skip it. A blocker that recurs across sessions should escalate, not disappear.
 - Keep total token use lean: skip lengthy preamble, get to the work.
 
 ---
 
-### Open Recommendations Ledger & Session Memory
+### Board & Session Memory
 
-Each scheduled run starts cold with no memory of prior runs. Without a shared ledger, briefs repeat the same recommendations for weeks (e.g., "flip Stripe to live keys" led every brief for over a month because nothing tracked that it had already been said). This section fixes that.
+Each scheduled run starts cold. Its memory is the **zero-next Board**
+(https://claude.ai/artifact/2LWz4qTYJQn6dMs196kJCH, a Claude Doc) when the Claude Docs connector is
+available, otherwise `project_open_recommendations.md` in the agent memory directory. It replaced the
+Open Recommendations Ledger on 2026-10-26: the ledger had grown to 32 KB, about 70% of it shipped rows,
+and state was spread across five places.
 
-**Where it lives:** the Notion "Open Recommendations" database if Notion is connected; otherwise the agent memory directory. Treat it as the single source of truth for cross-session state. Read it at session start, write to it at session end.
-
-**Each ledger item carries:** a short title, `owner` (`agent` or `brooks`), `status` (`open` → `shipped` → `verified`, or `blocked`), `first_flagged` date, and `flagged_count`.
-
-**Anti-duplication is the whole point.** Brooks does not act on every daily brief — that's by design; the personas exist to give different lenses across the week, not to demand a daily response. The failure mode this section exists to kill is a *skipped day turning into a re-printed day*: for the week of 2026-07-24→30, all seven personas (CFO→CTO) re-listed the identical backlog (NavHeader, rig-report CTA, funding capture, Stripe keys) in full every day — roughly 70% of each brief was recap, and agent-doable items like the NavHeader gap were *re-recommended* six times instead of shipped once. A missed day should cost one persona's delta scan, not trigger a full backlog re-run. The rules below enforce that.
+**How the Board works:** each row has a State (Now, Waiting on Brooks, Next, Later, Drop?, Done) and an
+Owner (Brooks, Agent, Both).
+- Sessions read Now, Waiting and Next only. Later is for the PM session.
+- At most **3 rows in Now**. A session moves a row into Now only when one leaves it.
+- A row nobody has touched in 30 days moves to **Drop?**; Brooks keeps or kills it in his weekly
+  10-minute triage. Nothing is re-flagged from Drop?.
+- Done rows move to an archive tab once a month.
 
 **Protocol every session:**
-
-1. **Read the ledger first; the email carries deltas only.** Standing items live in the ledger, not in the daily brief. Do not re-derive analysis for anything already in the ledger, and do not re-print unchanged `STANDING ITEMS` / `WAITING ON BROOKS` lists in prose. The email surfaces only (a) net-new findings, (b) deltas since the last brief, and (c) the single top action, then links the ledger. A brief with no deltas is three lines, not forty.
-2. **Separate agent-doable from human-blocked.** `owner: agent` items are yours to ship. `owner: brooks` items (Stripe Dashboard, env vars, writing a PDF, real testimonials, anything needing secrets you lack) are NOT yours — never burn a session re-analyzing them.
-3. **Ship agent-doable items; do not re-recommend them.** If an `owner: agent` item has been flagged **twice**, this session's job is to *open the PR*, not to write the ready-to-paste prompt a third time. Re-recommending an agent-doable item that you could have built is itself the failure — writing "here's the prompt to fix NavHeader" six times is six wasted sessions. Recommending is the fallback for when shipping is genuinely blocked; say what the block is.
-4. **Escalate human-blocked items exclusively.** When an `owner: brooks` item reaches `flagged_count` ≥ 3, it appears **only** as a single bold line at the very top — **"Brooks — ~30 min, do this: <action>"** — and in **no other section** of the brief. No paragraph, no duplicate entry in a `WAITING ON BROOKS` list. One line, then move on.
-5. **Own a disjoint beat; don't re-flag another beat's item.** Each persona audits its own domain (e.g. CTO=infra/tests, CFO=unit-economics, Designer=UX/a11y, Data Sci=analytics/instrumentation, CEO=revenue funnel). If a finding belongs to another persona's beat and is already in the ledger, leave it under its owner — do not re-surface it just because you also noticed it. (The persona definitions themselves live in the cloud routine prompt; keep them disjoint there.)
-6. **Pick agent work from open items**, prefer those with analytics or ledger evidence of value.
-7. **Write back on exit:** transition anything you shipped to `shipped`, add any new recommendations as `open`, increment `flagged_count` on anything you re-surfaced, and record verification results (including blocked checks).
+1. **Read the Board first; the brief carries deltas only.** Don't re-print Waiting rows in prose. A
+   brief with no deltas is three lines.
+2. **Owner: Agent rows are yours to ship, not to re-recommend.** If an agent row has been in Next for
+   two sessions, this session opens its PR or says what blocks it.
+3. **Owner: Brooks rows appear once,** as a single bold line at the top of the brief, "Brooks — ~N min,
+   do this: <action>", and nowhere else.
+4. **Stay on your beat.** Each persona audits its own domain and leaves another beat's rows alone.
+5. **Write back on exit:** move what you shipped to Done (with the PR link), add new rows to Next, and
+   record verification results, including checks that were blocked.
 
 **Weekly Unlock Session (calendar escalation).** Bold lines in briefs have proven insufficient — "flip Stripe to live keys" reached 8 flags without landing. The fix is the medium, not more flags. When Google Calendar is connected, the PM session maintains ONE recurring ~30-minute "Unlock Session" event on Brooks's calendar and rewrites its description each week with the top 3 `owner: brooks` items — each with a time estimate and exact click-by-click steps. Update the single event in place; never create a pile of new events. If Calendar is not available, put the same 3-item list at the very top of the PM brief under the heading **Unlock list (~30 min total)**. Ten minutes of Brooks unblocks weeks of agent output — this is the highest-leverage artifact the routine produces.
 
@@ -485,10 +520,10 @@ No code changes. Write a weekly brief — under 600 words total — that functio
 6. **Token tip** — one specific way to make these daily agent runs more efficient
 7. **Cost vs value** — estimate sessions run this week, approximate token cost, and what concrete livelihood or portfolio value was produced
 8. **Engagement check (Mind/Body/Spirit guardrail)** — one line: did Brooks touch the work this week (a commit, a verify, an unlock, a play session)? If the answer is "no" two weeks running, **shrink output instead of growing it**: cap the next week at one small PR total and make the top priority reducing Brooks's re-entry cost (smaller diffs, a sharper unlock list) — not adding inventory. The routine exists to keep Brooks's hands free for the court, the camera, and the kiln; engagement is the metric, not throughput.
-9. **Scorecard** — the same 4–5 numbers every week, with last week's value beside each: leads captured, tips/checkouts, game sessions (from `/api/events`), and **unlock burn rate** (median days-open of `owner: brooks` ledger items). Growth is a delta; snapshots hide stalls. The unlock burn rate is the health gauge of the human interface — the routine's proven bottleneck.
+9. **Scorecard** — the same five numbers every week, with last week's beside each: applications sent (Brooks's count), game sessions and returning players (from `/api/events`), open routine PRs and the age of the oldest, and the median days Brooks rows have waited on the Board. Growth is a delta; snapshots hide stalls.
 10. **Value lens** — examine the routine itself against ONE value, rotating weekly in order: **love → learning → growth → sustainability → excellence**. Two or three honest sentences: where did this week's work serve or betray that value? One value examined honestly beats five checked ritually.
 
-The PM session **owns the Open Recommendations Ledger.** Reconcile it: mark shipped items `verified` (or back to `open` if a check failed), prune duplicates, and make sure every human-blocked item has an accurate `flagged_count`. The "Top 3 priorities" must be drawn from the ledger, and any `owner: brooks` item flagged ≥ 3 times goes at the very top as a single bold action line — not re-analyzed in prose. The PM session also **maintains the Weekly Unlock Session and the PR Review** calendar events (see the Ledger section) and runs the Learn Log chapter check (see Learn Log below).
+The PM session **owns the Board.** Reconcile it: move rows the repo shows are finished to Done with their PR link, move rows untouched for 30 days to Drop?, and keep Now at three rows or fewer. The "Top 3 priorities" come from Next, and any Brooks row that has waited through three briefs goes at the very top as a single bold action line, not re-analyzed in prose. The PM session also **maintains the Weekly Unlock Session and the PR Review** calendar events (see Board & Session Memory) and runs the Learn Log chapter check (see Learn Log below).
 
 Also post this brief to Notion (if connected) under a "Weekly Dev Briefs" page, dated with today's date.
 
@@ -498,11 +533,11 @@ Also post this brief to Notion (if connected) under a "Weekly Dev Briefs" page, 
 
 The routine's instructions are themselves a codebase, and they decay like one — this file once claimed the project had no tests while 338 existed. Once a quarter, the PM session audits the routine instead of just running it:
 
-1. **Name the failure class.** Read the ledger's session notes for the quarter and state, in one sentence, the recurring failure pattern (past examples: briefs repeating for lack of memory; escalation flags nobody saw; branches pushed without PRs).
+1. **Name the failure class.** Read the Board's session notes for the quarter and state, in one sentence, the recurring failure pattern (past examples: briefs repeating for lack of memory; escalation flags nobody saw; branches pushed without PRs).
 2. **Propose ONE amendment.** Draft a single CLAUDE.md change that addresses it, as a PR for Brooks to review — never edit the routine's rules silently.
 3. **Prune.** Delete or correct anything stale in this file: rules that no longer bind, facts the repo has outgrown, checklists already completed. Removing a dead rule is as valuable as adding a live one.
 
-**The amendment rule (applies always, not just quarterly):** change the routine only on evidence — a named failure or a measured win, citable from the ledger, analytics, or git history. Never on vibes. Every rule added here costs tokens every session and dilutes attention on the rules that matter; unchecked accretion is a sustainability failure of the routine itself.
+**The amendment rule (applies always, not just quarterly):** change the routine only on evidence — a named failure or a measured win, citable from the Board, analytics, or git history. Never on vibes. Every rule added here costs tokens every session and dilutes attention on the rules that matter; unchecked accretion is a sustainability failure of the routine itself.
 
 ---
 
@@ -510,7 +545,7 @@ The routine's instructions are themselves a codebase, and they decay like one �
 
 Every ENGINEERING, DESIGN, and STUDIO output ends with a "Learn" line. Those lines currently evaporate. Instead, **append each one to a running Learn Log** — a "Learn Log" page in Notion if connected, otherwise `LEARN_LOG.md` in the agent memory directory — dated, one line per entry, newest at the top.
 
-Every 20 entries, the PM session turns the newest 20 into a **draft playbook chapter** (a few pages of prose organizing them into a teachable arc) and files it in the ledger as an `owner: brooks` review item. The Learn Log is raw material for a sellable engineering/design playbook — Digital Products stream, Income Ladder rung 3. Treat it as product inventory, not a diary: Brooks learns routinely, and the byproduct compounds into something sellable.
+Every 20 entries, the PM session turns the newest 20 into a **draft playbook chapter** (a few pages of prose organizing them into a teachable arc) and files it on the Board as an `owner: brooks` review item. The Learn Log is raw material for a sellable engineering/design playbook — Digital Products stream, Income Ladder rung 3. Treat it as product inventory, not a diary: Brooks learns routinely, and the byproduct compounds into something sellable.
 
 **Resurface, don't just archive.** Each ENGINEERING, DESIGN, and STUDIO session *opens* by re-reading one prior Learn Log entry (the oldest not yet resurfaced, marking it as you go) and stating in one line whether and where it applies to today's work. Learning that is never re-encountered isn't learning — it's storage. This costs two sentences and turns the log into spaced repetition.
 
@@ -518,7 +553,7 @@ Every 20 entries, the PM session turns the newest 20 into a **draft playbook cha
 
 ### Creator Ledger (life lanes — track, don't do)
 
-Alongside the Open Recommendations Ledger, keep a lightweight **Creator Ledger** with lanes: **Film**, **Body**, **Art**, **Science**. Same home as the main ledger (Notion database or agent memory). The agent cannot film cliff jumps or do Brooks's pullups — items here are never `owner: agent` for the human act itself. What the agent CAN do, and should propose as normal PR work when a lane stalls, is build the supporting infrastructure: a `/training` progression tracker (dunk/pullups — clone the `education-tracker` pattern; also a sellable micro-tool), a `/films` pre-production page (shot lists, an extreme-sports location-scouting database), a `/studio` gallery for art pieces. One line per lane in the PM brief at most; the point is that the lanes never silently disappear, not that they generate homework.
+Alongside the Board, keep a lightweight **Creator Ledger** with lanes: **Film**, **Body**, **Art**, **Science**. Same home as the Board (Notion database or agent memory). The agent cannot film cliff jumps or do Brooks's pullups — items here are never `owner: agent` for the human act itself. What the agent CAN do, and should propose as normal PR work when a lane stalls, is build the supporting infrastructure: a `/training` progression tracker (dunk/pullups — clone the `education-tracker` pattern; also a sellable micro-tool), a `/films` pre-production page (shot lists, an extreme-sports location-scouting database), a `/studio` gallery for art pieces. One line per lane in the PM brief at most; the point is that the lanes never silently disappear, not that they generate homework.
 
 ---
 
@@ -529,32 +564,15 @@ When Notion MCP is available:
 - Engineering PRs → append a one-line summary to "Shipped This Week" page
 - Design PRs / Studio pieces → append a one-line summary to "Shipped This Week" page
 - Learn lines → append to the "Learn Log" page (see Learn Log section)
-- Creator Ledger lanes (Film / Body / Art / Science) → same database as Open Recommendations or a sibling database with the same columns
-- **Open Recommendations Ledger → "Open Recommendations" database** (the cross-session memory from the Global Rules). Read at session start, reconcile at session end. If the database doesn't exist yet, create it with columns: Title, Owner (agent/brooks), Status (open/shipped/verified/blocked), First flagged (date), Flagged count (number), Notes. When Notion is not connected, keep the same ledger in the agent memory directory instead.
+- Creator Ledger lanes (Film / Body / Art / Science) → a section of the Board, one row per lane
+- **The Board is a Claude Doc** (see Board & Session Memory), not a Notion database. Don't create an "Open Recommendations" database; an existing one is history.
 
 Keep Notion entries lean. They are for Brooks to skim, not read.
 
 ---
 
-### Income Ladder (reference when choosing what to build)
+### Income Ladder (after hiring readiness)
 
-Use this to prioritize features. Lower rungs are easier to ship; higher rungs generate more recurring revenue.
-
-```
-Rung 5 — SaaS ($9–$29/mo recurring)
-         Micro-tools with auth + Stripe + usage limits
-
-Rung 4 — Consulting ($150–$300/hr)
-         Clear CTA, Calendly integration, case studies
-
-Rung 3 — Digital Products ($15–$99 one-time)
-         PDFs, templates, data sets, playbooks
-
-Rung 2 — Games (premium features; no tip jar)
-         Dwell time → audience → monetization
-
-Rung 1 — Portfolio signal (indirect — gets Brooks hired)
-         NBA tools, TypeScript quality, sports tech work
-```
-
-When in doubt, build for the highest rung you can complete in one PR.
+Until Brooks accepts an offer, Rung 1, portfolio signal that gets him hired, comes first (Hiring
+Readiness, Level Intention). Paid rungs (SaaS tiers, digital products, premium game features) are
+shelved until there is income (Global Rules). Consulting stays a link on the Work page, not a funnel.

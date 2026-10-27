@@ -12,10 +12,19 @@ import type { PlantKind } from './plants'
 export const PENTATONIC = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0] as const
 
 /** Each plant has its own note, so a garden planted over a week plays a little tune. */
-const PLANT_NOTE: Record<PlantKind, number> = { oak: 0, vine: 1, moonflower: 2, sunflower: 3, fern: 4 }
+const PLANT_NOTE: Record<PlantKind, number> = {
+  oak: 5,
+  vine: 6,
+  moonflower: 7,
+  sunflower: 8,
+  fern: 9,
+  // The opt-in lanes take the two notes just below, so all seven stay distinct.
+  toyon: 4,
+  buckwheat: 3,
+}
 
 export function noteFor(kind: PlantKind): number {
-  return PENTATONIC[PLANT_NOTE[kind] + 5]
+  return PENTATONIC[PLANT_NOTE[kind]]
 }
 
 /** A rising music-box phrase: one note per seed earned, plus a first note, so an empty day still plays two. */

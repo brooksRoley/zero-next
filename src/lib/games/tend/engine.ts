@@ -1,4 +1,5 @@
-import { KIND_FOR_LANE, LANES, type Cell, type Lane, type PlantKind } from './plants'
+import { ALL_LANES, KIND_FOR_LANE, LANES, type Cell, type ExtraLane, type Lane, type PlantKind } from './plants'
+import type { Perennial } from './perennials'
 import { TUNING } from './tuning'
 
 /**
@@ -31,6 +32,28 @@ export type GardenState = {
   nextId: number
   /** Plants whose field note is unlocked (first bloom). Optional so older saves still load. */
   notes?: PlantKind[]
+  /** Opt-in lanes this garden has turned on by importing a file that holds them. Optional so older saves still load. */
+  extraLanes?: ExtraLane[]
+  /**
+   * Day → results that came in that day (a reply, a screen, an onsite, an offer), from an imported file.
+   * Celebrated, never scored: nothing here grows a bed or earns a seed. Optional so older saves still load.
+   */
+  results?: Record<string, ResultKind[]>
+  /**
+   * The skill tree from an imported file (version 3), drawn as perennials beside the garden.
+   * Only ever added to, never reset by a season, and never a bed. Optional so older saves still load.
+   */
+  perennials?: Perennial[]
+}
+
+/** Results are what other people do in answer to the work. The work is scored; these never are. */
+export const RESULT_KINDS = ['reply', 'screen', 'onsite', 'offer'] as const
+export type ResultKind = (typeof RESULT_KINDS)[number]
+
+/** The lanes this garden checks in on: the five every garden has, plus any it has opted into, in check-in order. */
+export function activeLanes(state: GardenState): Lane[] {
+  const extra = state.extraLanes ?? []
+  return ALL_LANES.filter((lane) => (LANES as readonly Lane[]).includes(lane) || (extra as Lane[]).includes(lane))
 }
 
 export type Stage = 0 | 1 | 2 | 3
@@ -59,7 +82,7 @@ export function hasCheckedIn(state: GardenState, day: number): boolean {
 /** One check-in per day. Each habit lane kept earns one seed of its plant. */
 export function checkIn(state: GardenState, day: number, lanes: readonly Lane[]): GardenState {
   if (hasCheckedIn(state, day)) return state
-  const kept = LANES.filter((lane) => lanes.includes(lane))
+  const kept = activeLanes(state).filter((lane) => lanes.includes(lane))
   let nextId = state.nextId
   const seeds = kept.map((lane) => ({ id: `s${nextId++}`, kind: KIND_FOR_LANE[lane], earnedDay: day }))
   return {
@@ -156,9 +179,10 @@ export function tendedDays(state: GardenState, bed: Bed, today: number): number 
 
 export function stageOf(state: GardenState, bed: Bed, today: number): Stage {
   let days = tendedDays(state, bed, today)
-  if (bed.kind === 'vine') {
+  if (bed.kind === 'vine' || bed.kind === 'toyon') {
     const oaks = touching(state.beds, bed).filter((b) => b.kind === 'oak').length
-    if (days > 0) days += oaks * TUNING.vineDaysPerOak
+    const perOak = bed.kind === 'vine' ? TUNING.vineDaysPerOak : TUNING.toyonDaysPerOak
+    if (days > 0) days += oaks * perOak
   }
   const thresholds = TUNING.stageDays[bed.kind]
   let stage = 0
@@ -191,8 +215,9 @@ export function forecast(state: GardenState, today: number): { day: number; kind
 
 /**
  * Drought: every bed planted before the season day is hit unless it is a fern,
- * touches a fern, or is already sleeping. A hit bed sleeps for `dormantDays`,
- * one fewer if it touches a moonflower.
+ * touches a fern, is a buckwheat (drought hardy, though it shelters nobody), or
+ * is already sleeping. A hit bed sleeps for `dormantDays`, one fewer if it
+ * touches a moonflower.
  */
 export function resolveDrought(state: GardenState, day: number): GardenState {
   const eligible = state.beds.filter((bed) => bed.plantedDay < day && !isDormant(state, bed.id, day))
@@ -201,7 +226,7 @@ export function resolveDrought(state: GardenState, day: number): GardenState {
   const dormancy = { ...state.dormancy }
   for (const bed of eligible) {
     const near = touching(eligible, bed)
-    if (bed.kind === 'fern' || near.some((b) => b.kind === 'fern')) {
+    if (bed.kind === 'fern' || bed.kind === 'buckwheat' || near.some((b) => b.kind === 'fern')) {
       held.push(bed.id)
       continue
     }
@@ -237,13 +262,16 @@ export function unlockNotes(state: GardenState, today: number): GardenState {
 // ── Previews ────────────────────────────────────────────────────────────────
 
 export type PlacementEffect = {
-  /** Neighbours this bed would help: ferns and datura protect, oaks speed up vines. */
+  /** Neighbours this bed would help: ferns and datura protect, oaks speed up vines and toyons. */
   helps: Bed[]
   /** Poppies an oak here would shade out of bloom. */
   shades: Bed[]
-  /** What happens to the new bed itself: a vine beside an oak grows faster, a poppy under one won't bloom. */
+  /** What happens to the new bed itself: a vine or toyon beside an oak grows faster, a poppy under one won't bloom. */
   self: 'helped' | 'shaded' | null
 }
+
+/** Kinds that grow faster beside an oak. */
+const OAK_HELPED: readonly PlantKind[] = ['vine', 'toyon']
 
 /** What rooting `kind` on `cells` would do, so the player sees the effect before committing. */
 export function placementEffect(state: GardenState, kind: PlantKind, cells: readonly Cell[]): PlacementEffect {
@@ -251,8 +279,9 @@ export function placementEffect(state: GardenState, kind: PlantKind, cells: read
   const beds = [...state.beds, bed]
   const near = touching(beds, bed)
   // Only beds the drought rules would treat differently: a fern saves beds no fern already holds; a datura's
-  // shorter sleep doesn't stack, and doesn't matter to a bed a fern keeps awake.
-  const fernSafe = (b: Bed) => b.kind === 'fern' || touching(state.beds, b).some((n) => n.kind === 'fern')
+  // shorter sleep doesn't stack, and doesn't matter to a bed a fern keeps awake. A buckwheat never sleeps anyway.
+  const fernSafe = (b: Bed) =>
+    b.kind === 'fern' || b.kind === 'buckwheat' || touching(state.beds, b).some((n) => n.kind === 'fern')
   const calmed = (b: Bed) => touching(state.beds, b).some((n) => n.kind === 'moonflower')
   const helps =
     kind === 'fern'
@@ -260,14 +289,14 @@ export function placementEffect(state: GardenState, kind: PlantKind, cells: read
       : kind === 'moonflower'
         ? near.filter((b) => !fernSafe(b) && !calmed(b))
         : kind === 'oak'
-          ? near.filter((b) => b.kind === 'vine')
+          ? near.filter((b) => OAK_HELPED.includes(b.kind))
           : []
   const shades =
     kind === 'oak'
       ? state.beds.filter((b) => b.kind === 'sunflower' && !skyBlocked(state.beds, b) && skyBlocked(beds, b))
       : []
   const self =
-    kind === 'vine' && near.some((b) => b.kind === 'oak')
+    OAK_HELPED.includes(kind) && near.some((b) => b.kind === 'oak')
       ? 'helped'
       : kind === 'sunflower' && skyBlocked(beds, bed)
         ? 'shaded'
@@ -288,4 +317,22 @@ export function grewBetween(before: GardenState, after: GardenState, today: numb
     if (now === 3 && was < 3) bloomed.push(bed.id)
   }
   return { grew, bloomed }
+}
+
+// ── Results ─────────────────────────────────────────────────────────────────
+
+/** Every result on record, newest first, one entry per kind per day. For display only: results never score. */
+export function resultLog(state: GardenState): { day: number; kind: ResultKind }[] {
+  return Object.entries(state.results ?? {})
+    .map(([day, kinds]) => [Number(day), kinds] as const)
+    .sort((a, b) => b[0] - a[0])
+    .flatMap(([day, kinds]) => RESULT_KINDS.filter((k) => kinds.includes(k)).map((kind) => ({ day, kind })))
+}
+
+/** One plain, true line per result kind. DRAFT COPY for Brooks's review: it says what happened and adds no praise. */
+export const RESULT_LINES: Record<ResultKind, string> = {
+  reply: 'Someone wrote back.',
+  screen: 'Moved on to a screen.',
+  onsite: 'Moved on to an onsite.',
+  offer: 'An offer came in.',
 }
