@@ -31,10 +31,16 @@ export const TUNING = {
     moonflower: [0, 1, 3, 5],
     sunflower: [0, 1, 2, 4],
     fern: [0, 1, 3, 5],
+    // DRAFT (M1, opt-in lanes): toyon is slow alone and quick beside oaks; buckwheat is slow but never sleeps.
+    toyon: [0, 2, 4, 6],
+    buckwheat: [0, 2, 4, 7],
   } satisfies Record<PlantKind, readonly [number, number, number, number]>,
 
   /** Vine: extra tended days counted for each oak it touches. */
   vineDaysPerOak: 1,
+
+  /** DRAFT (M1). Toyon: extra tended days counted for each oak it touches ("lifting holds up the search"). */
+  toyonDaysPerOak: 1,
 
   /** Calendar days a bed sleeps after a season hits it. */
   dormantDays: 3,
