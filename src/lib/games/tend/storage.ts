@@ -1,5 +1,6 @@
 import { ALL_KINDS, ALL_LANES, EXTRA_LANES } from './plants'
 import { RESULT_KINDS, type GardenState } from './engine'
+import { isPerennials } from './perennials'
 
 /** Habit data stays in this browser. It is never sent to the server. */
 export const STORAGE_KEY = 'tend_garden_v1'
@@ -50,7 +51,9 @@ export function isGardenState(v: unknown): v is GardenState {
       Object.entries(v.results).every(
         ([day, kinds]) => /^-?\d+$/.test(day) && Array.isArray(kinds) && kinds.every(isIn(RESULT_KINDS)),
       ))
-  return lanesOk && seedsOk && bedsOk && dormancyOk && seasonsOk && notesOk && extraOk && resultsOk
+  // Added in M3, optional: a save from before it loads with no perennials.
+  const perennialsOk = v.perennials === undefined || isPerennials(v.perennials)
+  return lanesOk && seedsOk && bedsOk && dormancyOk && seasonsOk && notesOk && extraOk && resultsOk && perennialsOk
 }
 
 export function loadGarden(storage: Pick<Storage, 'getItem'> | null): GardenState | null {

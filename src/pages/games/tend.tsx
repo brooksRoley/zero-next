@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TendBoard from 'src/components/games/TendBoard'
 import { PlantIcon } from 'src/components/games/TendPlants'
 import TendNav, { SampleBanner } from 'src/components/games/TendNav'
+import TendPerennials from 'src/components/games/TendPerennials'
 import { trackGame } from 'src/lib/analytics'
 import {
   activeLanes,
@@ -223,6 +224,7 @@ export default function TendPage() {
         r.added ? `${r.added} past day${r.added === 1 ? '' : 's'} checked in` : '',
         r.merged ? `${r.merged} day${r.merged === 1 ? '' : 's'} gained a habit` : '',
         r.results ? `${r.results} result${r.results === 1 ? '' : 's'} to celebrate` : '',
+        r.rungs ? `${r.rungs} skill rung${r.rungs === 1 ? '' : 's'} opened on your perennials` : '',
         r.today.length ? `today's ${r.today.map(label).join(' and ')} selected below` : '',
       ].filter(Boolean)
       setImportNote(parts.length ? `Imported: ${parts.join(', ')}.` : 'Nothing new in that file.')
@@ -364,6 +366,8 @@ export default function TendPage() {
                   </a>
                 </p>
               )}
+              {/* Only a garden that imported a skill tree has perennials; the sample and the five-lane game never do. */}
+              {!sample && garden.perennials?.length ? <TendPerennials perennials={garden.perennials} /> : null}
             </div>
 
             <aside className="space-y-6">

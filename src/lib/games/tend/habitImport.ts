@@ -1,5 +1,6 @@
 import { activeLanes, checkIn, hasCheckedIn, RESULT_KINDS, type GardenState, type ResultKind } from './engine'
 import { ALL_LANES, EXTRA_LANES, KIND_FOR_LANE, LANES, type ExtraLane, type Lane } from './plants'
+import { mergePerennials, parseSkills, type Perennial } from './perennials'
 
 /**
  * Habits from a file, for players who already log them somewhere else (Brooks's
@@ -22,6 +23,10 @@ import { ALL_LANES, EXTRA_LANES, KIND_FOR_LANE, LANES, type ExtraLane, type Lane
  * past day already checked in gains the lanes it was missing. Today is only
  * suggested, so the player still chooses what they kept.
  *
+ * Version 3 may also add `skills`, the skill tree, drawn as perennials (see
+ * `perennials.ts`). It holds node ids, public skill names, branches and the
+ * date each rung unlocked: never a link or a word of the evidence.
+ *
  * A file that uses an opt-in lane turns that lane on for the garden, for good.
  * Results are recorded to be celebrated and are never scored: they earn no
  * seed and grow no bed.
@@ -31,10 +36,12 @@ export const HABIT_FORMAT = 'tend-habits'
 
 export type HabitFile = {
   format: typeof HABIT_FORMAT
-  version: 1 | 2
+  version: 1 | 2 | 3
   days: Record<string, Lane[]>
   /** Always present after parsing; empty for a version 1 file. */
   results: Record<string, ResultKind[]>
+  /** The skill tree, from a version 3 file that has one; null otherwise. */
+  skills: Perennial[] | null
 }
 
 export type ImportResult = {
@@ -51,6 +58,8 @@ export type ImportResult = {
   lanesOn: ExtraLane[]
   /** Results newly recorded, one per kind per day. */
   results: number
+  /** Perennial rungs this import opened. */
+  rungs: number
 }
 
 const DAY_MS = 86_400_000
@@ -93,7 +102,7 @@ function datedLists<T extends string>(raw: unknown, order: readonly T[]): Record
   return out
 }
 
-/** Parse and shape-check a habit file, version 1 or 2. Returns null for anything that isn't one. */
+/** Parse and shape-check a habit file, version 1, 2 or 3. Returns null for anything that isn't one. */
 export function parseHabitFile(text: string): HabitFile | null {
   let raw: unknown
   try {
@@ -102,18 +111,24 @@ export function parseHabitFile(text: string): HabitFile | null {
     return null
   }
   if (!isRecord(raw) || raw.format !== HABIT_FORMAT) return null
-  if (raw.version !== 1 && raw.version !== 2) return null
+  if (raw.version !== 1 && raw.version !== 2 && raw.version !== 3) return null
   const version = raw.version
   // Version 1 predates the opt-in lanes and results, so it may hold neither.
   const days = datedLists<Lane>(raw.days, version === 1 ? LANES : ALL_LANES)
   if (!days) return null
   let results: Record<string, ResultKind[]> = {}
-  if (version === 2 && raw.results !== undefined) {
+  if (version >= 2 && raw.results !== undefined) {
     const parsed = datedLists(raw.results, RESULT_KINDS)
     if (!parsed) return null
     results = parsed
   }
-  return { format: HABIT_FORMAT, version, days, results }
+  // Only version 3 may carry the skill tree; a bad one refuses the whole file, like a bad day does.
+  let skills: Perennial[] | null = null
+  if (version === 3 && raw.skills !== undefined) {
+    skills = parseSkills(raw.skills)
+    if (!skills) return null
+  }
+  return { format: HABIT_FORMAT, version, days, results, skills }
 }
 
 /** Fold a habit file into the garden. Pure: the same garden and file always give the same result. */
@@ -177,5 +192,13 @@ export function importHabits(state: GardenState, file: HabitFile, today: number)
     }
   }
 
-  return { state: next, added, merged, today: todayLanes, outside, lanesOn, results }
+  // Perennials: merged, never reset, so a second import of the same file changes nothing.
+  let rungs = 0
+  if (file.skills) {
+    const tree = mergePerennials(next.perennials, file.skills)
+    if (tree.changed) next = { ...next, perennials: tree.perennials }
+    rungs = tree.opened
+  }
+
+  return { state: next, added, merged, today: todayLanes, outside, lanesOn, results, rungs }
 }
