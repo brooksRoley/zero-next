@@ -7,8 +7,7 @@ answer to "what do I click next?" is never "read the CLAUDE.md prose again."
 
 Detailed rationale for each step lives in `CLAUDE.md` under "Stripe —
 Shipping Checklist (Pre-Launch)"; this page is the linear, check-it-off
-version of the same information plus the previously-undocumented Payment
-Link steps for `/funding`.
+version of the same information.
 
 ## 1. Consulting funnel — flip Stripe from test to live keys
 
@@ -45,37 +44,10 @@ Once this is done, the tier CTAs on `/consulting` can be swapped from
 one-line, agent-doable follow-up once live keys exist (see the comment at
 `src/pages/consulting.tsx:13`).
 
-## 2. Tip jar — 4 Stripe Payment Links for `/funding`
+## 2. Tip jar — retired
 
-`src/pages/funding.tsx` already renders 4 tip buttons, all currently
-disabled ("Coming soon") because they point at a placeholder URL. Each
-needs its own **Payment Link** — no code changes required beyond pasting
-the 4 resulting URLs.
-
-For each of the 4 links below: Stripe Dashboard → **Payments → Payment
-Links → + New link** → add the "Buy me a coffee" product (or reuse one
-product across all 4 — Stripe allows one Payment Link per fixed price) →
-set the price → **Create link** → copy the `https://buy.stripe.com/...`
-URL.
-
-- [ ] **$5 tip** ("Buy a coffee") — fixed price $5.
-- [ ] **$10 tip** ("Send a snack") — fixed price $10.
-- [ ] **$25 tip** ("Cover a server bill") — fixed price $25.
-- [ ] **Custom amount** — same flow, but enable **"Let customers choose
-      what they pay"** in the Payment Link creation form instead of a fixed
-      price.
-
-Paste the 4 URLs into `src/pages/funding.tsx`:
-- [ ] Replace the `$5`/`$10`/`$25` `href` values in the `QUICK_TIPS` array
-      (around line 11) with the 3 fixed-price links, each in its own array
-      entry (they currently all share one placeholder constant — give each
-      its own literal URL).
-- [ ] Replace `CUSTOM_TIP_LINK` (around line 18) with the "customer chooses
-      amount" link.
-
-The buttons re-enable automatically once real URLs replace the
-`REPLACE_ME` placeholder — no other code path needs to change
-(`isPlaceholder()` in `funding.tsx` detects the swap).
+The `/funding` tip jar was retired on 2026-10-23 at Brooks's request; nothing
+to set up. The optional updates card (`src/components/UpdatesCard.tsx`) is off.
 
 ## 3. Digital Products — NBA Analytics Primer PDF
 

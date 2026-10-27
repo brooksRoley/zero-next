@@ -165,14 +165,14 @@ export default function PuzzleSolver({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={onBack}
-          className="text-sm text-forest-400 hover:text-candy-400 transition-colors flex items-center gap-1"
+          className="text-sm text-ink-400 hover:text-brass-400 transition-colors flex items-center gap-1"
         >
           <span>&larr;</span> Back to Puzzles
         </button>
         <div className="flex items-center gap-3">
           {/* Mini ELO display */}
           <MountainProgress elo={elo} peakElo={peakElo} eloHistory={eloHistory} compact />
-          <span className="text-xs text-forest-500">
+          <span className="text-xs text-ink-500">
             {puzzle.category.replace(/_/g, ' ')} &middot; {difficultyStars}
           </span>
         </div>
@@ -182,11 +182,11 @@ export default function PuzzleSolver({
       <div className="flex items-center gap-4 mb-4">
         <div>
           <h2 className="text-lg font-semibold text-white">{puzzle.title}</h2>
-          <p className="text-sm text-forest-300 mt-0.5">{puzzle.description}</p>
+          <p className="text-sm text-ink-300 mt-0.5">{puzzle.description}</p>
         </div>
         <div className="ml-auto shrink-0 text-right">
-          <span className="text-[10px] text-forest-500 uppercase tracking-wider">Puzzle</span>
-          <div className="text-sm font-mono text-forest-300">{puzzle.rating}</div>
+          <span className="text-[10px] text-ink-500 uppercase tracking-wider">Puzzle</span>
+          <div className="text-sm font-mono text-ink-300">{puzzle.rating}</div>
         </div>
       </div>
 
@@ -196,10 +196,10 @@ export default function PuzzleSolver({
           className={`w-4 h-4 rounded-full border-2 ${
             isBlackToMove
               ? 'bg-gray-900 border-gray-600'
-              : 'bg-white border-forest-300'
+              : 'bg-white border-ink-300'
           }`}
         />
-        <span className="text-sm font-medium text-forest-200">
+        <span className="text-sm font-medium text-ink-200">
           {isBlackToMove ? 'Black' : 'White'} to move
         </span>
         {puzzle.gameMode && (
@@ -208,7 +208,7 @@ export default function PuzzleSolver({
           </span>
         )}
         {(puzzle.blackCaptures > 0 || puzzle.whiteCaptures > 0) && (
-          <span className="text-xs text-forest-500">
+          <span className="text-xs text-ink-500">
             Captures: B:{puzzle.blackCaptures} W:{puzzle.whiteCaptures}
           </span>
         )}
@@ -318,7 +318,7 @@ export default function PuzzleSolver({
               {onNext && (
                 <button
                   onClick={advanceToNext}
-                  className="text-sm px-5 py-2.5 rounded-lg bg-gradient-to-r from-candy-500 to-candy-600 text-white font-semibold hover:from-candy-400 hover:to-candy-500 transition-all shadow-lg shadow-candy-500/20 flex items-center gap-2"
+                  className="text-sm px-5 py-2.5 rounded-lg bg-gradient-to-r from-brass-500 to-brass-600 text-white font-semibold hover:from-brass-400 hover:to-brass-500 transition-all shadow-lg shadow-brass-500/20 flex items-center gap-2"
                 >
                   Continue Climbing
                   <span className="text-xs opacity-70">[space]</span>
@@ -328,13 +328,13 @@ export default function PuzzleSolver({
           </div>
 
           {/* Explanation */}
-          <div className="rounded-xl bg-forest-900/80 border border-forest-700/40 p-4">
-            <h3 className="text-sm font-semibold text-forest-100 mb-2">
+          <div className="rounded-xl bg-ink-900/80 border border-ink-700/40 p-4">
+            <h3 className="text-sm font-semibold text-ink-100 mb-2">
               {!alreadySolved ? 'Correct!' : 'Solution'}
             </h3>
-            <p className="text-sm text-forest-300">{puzzle.explanation}</p>
+            <p className="text-sm text-ink-300">{puzzle.explanation}</p>
             {attempts > 0 && (
-              <p className="text-xs text-forest-500 mt-2">
+              <p className="text-xs text-ink-500 mt-2">
                 Solved in {attempts + 1} attempt{attempts > 0 ? 's' : ''}
                 {showHint ? ' (with hint)' : ''}
               </p>

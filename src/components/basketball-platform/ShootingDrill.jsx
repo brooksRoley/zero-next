@@ -55,45 +55,45 @@ export default function ShootingDrill() {
   const hovered = hoveredZone ? ZONES.find(z => z.id === hoveredZone) : null
 
   return (
-    <div className="rounded-2xl border border-forest-700/40 bg-forest-900/60 overflow-hidden">
+    <div className="rounded-2xl border border-ink-700/40 bg-ink-900/60 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-forest-800/60 min-h-[5.5rem]">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-ink-800/60 min-h-[5.5rem]">
         <div className="flex-1 pr-4">
           <h3 className="text-base font-semibold text-white">Shooting Drill</h3>
           {hovered ? (
             <div className="mt-0.5">
-              <p className="text-xs font-semibold text-forest-300">
+              <p className="text-xs font-semibold text-ink-300">
                 {hovered.label} &middot; {Math.round(hovered.makePct * 100)}% expected FG &middot; {hovered.pts}pt
               </p>
-              <p className="text-[11px] text-forest-400 font-mono mt-0.5 leading-snug">{hovered.edu}</p>
+              <p className="text-[11px] text-ink-400 font-mono mt-0.5 leading-snug">{hovered.edu}</p>
             </div>
           ) : (
             <div className="mt-0.5">
-              <p className="text-xs text-forest-400 font-mono">
+              <p className="text-xs text-ink-400 font-mono">
                 Click a zone to shoot. Percentages are NBA averages.
               </p>
-              <p className="text-[11px] text-forest-500 font-mono mt-0.5 leading-snug">
+              <p className="text-[11px] text-ink-500 font-mono mt-0.5 leading-snug">
                 Try to beat your expected points!
               </p>
             </div>
           )}
         </div>
-        <div className="flex items-center gap-4 shrink-0 pl-4 border-l border-forest-800/60">
+        <div className="flex items-center gap-4 shrink-0 pl-4 border-l border-ink-800/60">
           {totalAttempts > 0 && (
             <div className="text-right">
               <p className="text-sm font-mono text-white">
                 {totalMakes}/{totalAttempts}{' '}
-                <span className="text-forest-400">({Math.round((totalMakes / totalAttempts) * 100)}%)</span>
+                <span className="text-ink-400">({Math.round((totalMakes / totalAttempts) * 100)}%)</span>
               </p>
               <div className="flex gap-2 justify-end text-xs font-mono mt-0.5">
                 <span className="text-[#FDB927]">{totalPts} pts</span>
-                <span className="text-forest-400" title="Expected Points">/ Exp: {totalExpectedPts.toFixed(1)}</span>
+                <span className="text-ink-400" title="Expected Points">/ Exp: {totalExpectedPts.toFixed(1)}</span>
               </div>
             </div>
           )}
           <button
             onClick={reset}
-            className="text-xs text-forest-400 hover:text-white border border-forest-700/60 hover:border-forest-500 rounded-md px-2.5 py-1 transition-colors"
+            className="text-xs text-ink-400 hover:text-white border border-ink-700/60 hover:border-ink-500 rounded-md px-2.5 py-1 transition-colors"
           >
             Reset
           </button>
@@ -226,7 +226,7 @@ export default function ShootingDrill() {
           ].map(({ color, label }) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-sm" style={{ background: color, opacity: 0.7 }} />
-              <span className="text-xs text-forest-400 font-mono">{label}</span>
+              <span className="text-xs text-ink-400 font-mono">{label}</span>
             </div>
           ))}
         </div>
@@ -234,7 +234,7 @@ export default function ShootingDrill() {
 
       {/* Per-zone stats strip */}
       {totalAttempts > 0 && (
-        <div className="border-t border-forest-800/60 px-5 py-3">
+        <div className="border-t border-ink-800/60 px-5 py-3">
           <div className="flex flex-wrap gap-x-5 gap-y-1.5">
             {ZONES.filter(z => stats[z.id].attempts > 0).map(zone => {
               const s = stats[zone.id]
@@ -242,7 +242,7 @@ export default function ShootingDrill() {
               const hot = pct >= Math.round(zone.makePct * 100)
               return (
                 <span key={zone.id} className="text-xs font-mono">
-                  <span className="text-forest-400">{zone.label} </span>
+                  <span className="text-ink-400">{zone.label} </span>
                   <span className="text-white">{s.makes}/{s.attempts} </span>
                   <span style={{ color: hot ? '#86efac' : '#fca5a5' }}>({pct}%)</span>
                 </span>

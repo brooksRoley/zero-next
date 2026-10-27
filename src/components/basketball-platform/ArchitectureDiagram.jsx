@@ -32,7 +32,7 @@ const ARCHITECTURE_EDGES = [
 
 function NodeBox({ node }) {
   const fills = {
-    external: 'fill-forest-800 stroke-forest-600',
+    external: 'fill-ink-800 stroke-ink-600',
     service: 'fill-[#1e3a5f] stroke-blue-500/50',
     store: 'fill-[#3b1f4a] stroke-purple-500/50',
     engine: 'fill-[#4a3000] stroke-amber-500/50',
@@ -62,10 +62,10 @@ function NodeBox({ node }) {
 export default function ArchitectureDiagram() {
   const nodeMap = Object.fromEntries(ARCHITECTURE_NODES.map(n => [n.id, n]))
   return (
-    <svg viewBox="0 0 620 300" className="w-full rounded-xl border border-forest-700/40 bg-forest-950/80" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 620 300" className="w-full rounded-xl border border-ink-700/40 bg-ink-950/80" preserveAspectRatio="xMidYMid meet">
       <defs>
         <marker id="arrowHead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <path d="M0,0 L8,3 L0,6 Z" className="fill-forest-400" />
+          <path d="M0,0 L8,3 L0,6 Z" className="fill-ink-400" />
         </marker>
       </defs>
       {ARCHITECTURE_EDGES.map((edge, i) => {
@@ -79,8 +79,8 @@ export default function ArchitectureDiagram() {
         const my = (y1 + y2) / 2
         return (
           <g key={i}>
-            <line x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-forest-500/60" strokeWidth={1.5} strokeDasharray="6 3" markerEnd="url(#arrowHead)" />
-            <text x={mx} y={my - 6} textAnchor="middle" className="fill-forest-400 text-[9px] font-mono">{edge.label}</text>
+            <line x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-ink-500/60" strokeWidth={1.5} strokeDasharray="6 3" markerEnd="url(#arrowHead)" />
+            <text x={mx} y={my - 6} textAnchor="middle" className="fill-ink-400 text-[9px] font-mono">{edge.label}</text>
           </g>
         )
       })}

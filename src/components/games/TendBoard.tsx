@@ -289,7 +289,7 @@ export default function TendBoard({
       aria-label="Garden. When a seed is selected: arrow keys move, R rotates, Enter plants, Escape cancels."
       onKeyDown={handleKey}
       onPointerDown={(e) => setTouchMode(e.pointerType === 'touch')}
-      className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+      className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
     >
       <svg
         viewBox={`0 0 ${size * C} ${size * C}`}

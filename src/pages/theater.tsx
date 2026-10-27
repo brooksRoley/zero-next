@@ -109,7 +109,7 @@ const REPERTORY: Act[] = [
       },
       {
         id: 'nanu_pika',
-        title: 'Nanu & Pika TD',
+        title: 'Tower Defense: Nanu Pika',
         metaphor: 'the siege',
         logline: 'Two small heroes, waves of trouble, and the geometry of holding a line.',
         note: 'Tower defense as a story about preparation: everything you place before the wave is a promise you keep during it.',
@@ -211,14 +211,14 @@ function WelcomeBack({ welcome }: { welcome: Greeting }) {
   return (
     <section
       aria-label="Welcome back"
-      className="mx-auto mb-12 max-w-3xl rounded-xl border border-candy-400/25 bg-forest-900/50 p-5 sm:p-6"
+      className="mx-auto mb-12 max-w-3xl rounded-xl border border-brass-400/25 bg-ink-900/50 p-5 sm:p-6"
     >
-      <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-candy-400/90">
+      <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-brass-400/90">
         Your seat is saved
       </p>
       <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl">{welcome.greeting}</h2>
       {welcome.line && (
-        <p className="mt-2 border-l-2 border-candy-400/40 pl-3 text-sm italic leading-relaxed text-forest-300">
+        <p className="mt-2 border-l-2 border-brass-400/40 pl-3 text-sm italic leading-relaxed text-ink-300">
           <span className="sr-only">From the house: </span>
           {welcome.line.text}
         </p>
@@ -227,7 +227,7 @@ function WelcomeBack({ welcome }: { welcome: Greeting }) {
         <ul className="mt-4 space-y-3">
           {welcome.notes.map((note) => (
             <li key={`${note.kind}-${note.href}`} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-              <p className="text-sm leading-relaxed text-forest-200">{note.text}</p>
+              <p className="text-sm leading-relaxed text-ink-200">{note.text}</p>
               <Link
                 href={note.href}
                 onClick={() =>
@@ -236,7 +236,7 @@ function WelcomeBack({ welcome }: { welcome: Greeting }) {
                     metadata: { location: 'theater_welcome', kind: note.kind, target: note.href },
                   })
                 }
-                className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-candy-400 transition-colors hover:text-candy-300"
+                className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-brass-400 transition-colors hover:text-brass-300"
               >
                 {note.cta} →
               </Link>
@@ -258,7 +258,7 @@ function Playbill({ production, act, progress }: { production: Production; act: 
           metadata: { location: `theater_${production.id}`, act },
         })
       }
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-forest-800/60 bg-forest-900/40 p-5 transition-colors hover:border-forest-600/70 hover:bg-forest-900/70"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-ink-800/60 bg-ink-900/40 p-5 transition-colors hover:border-ink-600/70 hover:bg-ink-900/70"
     >
       <span
         aria-hidden
@@ -273,21 +273,21 @@ function Playbill({ production, act, progress }: { production: Production; act: 
       </p>
       <h3 className="mt-2 text-xl font-semibold text-white">
         {production.title}
-        <span className="ml-2 inline-block translate-x-0 text-forest-500 transition-transform group-hover:translate-x-1 group-hover:text-forest-300">
+        <span className="ml-2 inline-block translate-x-0 text-ink-500 transition-transform group-hover:translate-x-1 group-hover:text-ink-300">
           →
         </span>
       </h3>
-      <p className="mt-2 text-sm leading-relaxed text-forest-300">{production.logline}</p>
-      <p className="mt-3 border-l-2 border-forest-800 pl-3 text-xs italic leading-relaxed text-forest-400">
+      <p className="mt-2 text-sm leading-relaxed text-ink-300">{production.logline}</p>
+      <p className="mt-3 border-l-2 border-ink-800 pl-3 text-xs italic leading-relaxed text-ink-400">
         {production.note}
       </p>
       {progress && (
-        <p className="mt-4 font-mono text-xs text-forest-200">
+        <p className="mt-4 font-mono text-xs text-ink-200">
           <span className="sr-only">Your progress: </span>
           {progress}
         </p>
       )}
-      <span className={`${progress ? 'mt-2' : 'mt-4'} font-mono text-[11px] uppercase tracking-[0.18em] text-forest-500 transition-colors group-hover:text-forest-300`}>
+      <span className={`${progress ? 'mt-2' : 'mt-4'} font-mono text-[11px] uppercase tracking-[0.18em] text-ink-500 transition-colors group-hover:text-ink-300`}>
         {progress ? 'Back to your seat' : 'Take your seat'}
       </span>
     </Link>
@@ -297,7 +297,7 @@ function Playbill({ production, act, progress }: { production: Production; act: 
 export default function Theater() {
   const welcome = useWelcome()
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>The Zero Theater | Brooks Roley</title>
         <meta
@@ -309,13 +309,13 @@ export default function Theater() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
         {/* ── Marquee ── */}
         <header className="mb-12 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-candy-400/90">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-brass-400/90">
             Now showing · admission free
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            The Zero <span className="text-candy-400">Theater</span>
+            The Zero <span className="text-brass-400">Theater</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-forest-300 sm:text-base">
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-ink-300 sm:text-base">
             Every game on this site is a production: it gets a stage, a metaphor it
             holds from curtain to curtain, and a playbill note from the maker. Duels
             first, then trials, then a whole season. The intermission pieces are just
@@ -330,11 +330,11 @@ export default function Theater() {
           {REPERTORY.map((act) => (
             <section key={act.numeral} aria-label={`${act.numeral} — ${act.name}`}>
               <div className="mb-5 flex items-baseline gap-3">
-                <h2 className="font-mono text-sm uppercase tracking-[0.25em] text-forest-400">
+                <h2 className="font-mono text-sm uppercase tracking-[0.25em] text-ink-400">
                   {act.numeral}
                 </h2>
-                <span className="text-lg font-semibold text-forest-200">{act.name}</span>
-                <span aria-hidden className="h-px flex-1 self-center bg-forest-800/70" />
+                <span className="text-lg font-semibold text-ink-200">{act.name}</span>
+                <span aria-hidden className="h-px flex-1 self-center bg-ink-800/70" />
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {act.productions.map((p) => (
@@ -345,39 +345,21 @@ export default function Theater() {
           ))}
         </div>
 
-        {/* ── The frame: house note + tip jar ── */}
-        <footer className="mt-16 rounded-xl border border-forest-800/60 bg-forest-900/30 p-6">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-candy-400/80">
+        {/* ── The frame: house note ── */}
+        <footer className="mt-16 rounded-xl border border-ink-800/60 bg-ink-900/30 p-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-brass-400/80">
             From the house
           </p>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-forest-300">
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-300">
             This theater is itself a piece, held to the same standard as everything
             on its stage: one light against the dark, one metaphor, a frame, and no
             placeholder anything. The house style that governs it lives in the
             repository as{' '}
-            <span className="font-mono text-forest-200">docs/ART_DIRECTION.md</span>{' '}
+            <span className="font-mono text-ink-200">docs/ART_DIRECTION.md</span>{' '}
             — six pillars and a pre-curtain checklist that every new production must
             pass. The theater also watches its own audience: what gets played shapes
             what gets staged next.
           </p>
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-forest-500">
-              Seats are free forever. The lights cost a little.
-            </p>
-            <Link
-              href={route('funding').href}
-              onClick={() =>
-                track('cta_click', {
-                  page: '/theater',
-                  metadata: { location: 'theater_tip' },
-                  beacon: true,
-                })
-              }
-              className="text-sm text-candy-500 transition-colors hover:text-candy-400"
-            >
-              Keep the theater lit →
-            </Link>
-          </div>
         </footer>
       </div>
     </main>

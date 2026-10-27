@@ -14,21 +14,22 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-Rebuilt 2026-10-21 (zero-next branch games/hardwood-sim-overhaul).
+Rebuilt 2026-10-23 (zero-next branch games/hardwood-open-gym).
 
-BballTactics source: 7e6fbd5a270bc95943fe6820eb61c3391ba7a139 (main, clean
-tree: "Merge pull request #1 from brooksRoley/launcher/m0"). Includes the
-Oct 20 sim overhaul (rounds that score, OT), the Pixi court renderer, the
-Tip Off fix with the WASM engine loaded, bench heroes in real games, and the
-tutorial coach card no longer covering the scoreboard.
+BballTactics source: dd0004b5e2ca1088aaaf0ac34758de1de56b904a (main, clean
+tree: "Merge pull request #8 from brooksRoley/game/open-gym").
+Adds BballTactics PRs #7 and #8 over 54a1fce: the Open Gym opening screen
+(How to Play cards, the controls tour, Run It), synthesized sound for every
+click and court event, and press feel. Sound starts muted on this embed
+(client/audio/sfx.js defaultMuted for base /hardwood/); the speaker button
+turns it on.
 
 Build: VITE_API_BASE='' npx vite build --base=/hardwood/ --outDir <scratch dir>
-Copied: index.html, engine.js, engine.wasm, engine_roster.json and all ten
-files in assets/ (the client is now code-split; Pixi renderers load as
-chunks). Removed the previous monolith assets/index-BSWQi1kl.js and
-assets/index-u1kvMI1u.css. Every copied file verified with cmp against the
-build. The engine changed this time (216,078 -> 230,301 bytes): the deployed
-engine predated the sim overhaul.
+Copied: index.html and all ten files in assets/ (previous asset files
+removed). engine.js, engine.wasm and engine_roster.json were byte-identical
+and are unchanged. Every copied file verified with cmp against the build.
+
+PREVIOUS BUNDLE: 2026-10-22, BballTactics 54a1fce (zero-next PR #73). Before that: 2026-10-21, 7e6fbd5 (PR #70).
 
 PROVENANCE VERIFIED 2026-10-20
   Before changing anything, BballTactics b75f7f0 was built unmodified with the

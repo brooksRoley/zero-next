@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
-import SupportCta from 'src/components/SupportCta'
 
 /* ── Typography options for the picker ── */
 const FONTS = [
@@ -150,19 +149,19 @@ export default function GuestBook() {
         <meta name="description" content="Sign the guest book — build a short-story prompt from collaborative ad-lib rubrics" />
       </Head>
 
-      <div className="min-h-screen bg-forest-950 text-forest-100">
+      <div className="min-h-screen bg-ink-950 text-ink-100">
         {/* Header */}
-        <header className="border-b border-forest-800/50 px-6 py-4">
+        <header className="border-b border-ink-800/50 px-6 py-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/" className="text-forest-400 hover:text-candy-400 transition-colors text-sm">
+              <Link href="/" className="text-ink-400 hover:text-brass-400 transition-colors text-sm">
                 &larr; Home
               </Link>
-              <h1 className="text-xl font-bold text-forest-100">Guest Book</h1>
+              <h1 className="text-xl font-bold text-ink-100">Guest Book</h1>
             </div>
             <button
               onClick={() => setView(view === 'book' ? 'sign' : 'book')}
-              className="px-4 py-2 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-brass-600 hover:bg-brass-500 text-ink-950 text-sm font-medium transition-colors"
             >
               {view === 'book' ? 'Sign the Book' : 'View Pages'}
             </button>
@@ -171,16 +170,16 @@ export default function GuestBook() {
 
         <main className="max-w-4xl mx-auto px-6 py-8">
           {loading ? (
-            <div className="text-center py-20 text-forest-500">Loading guest book...</div>
+            <div className="text-center py-20 text-ink-500">Loading guest book...</div>
           ) : view === 'book' ? (
             /* ═══ BOOK VIEW ═══ */
             <div className="space-y-6">
-              <p className="text-forest-400 text-sm">
+              <p className="text-ink-400 text-sm">
                 Each page is a collaboratively built short-story prompt. Sign the book to add yours.
               </p>
 
               {pages.length === 0 ? (
-                <div className="text-center py-16 text-forest-600">
+                <div className="text-center py-16 text-ink-600">
                   <p className="text-lg">The book is empty.</p>
                   <p className="text-sm mt-2">Be the first to sign it.</p>
                 </div>
@@ -188,21 +187,21 @@ export default function GuestBook() {
                 pages.map(page => (
                   <article
                     key={page.id}
-                    className="border border-forest-800/50 rounded-xl p-6 bg-forest-900/30 hover:border-forest-700/50 transition-colors"
+                    className="border border-ink-800/50 rounded-xl p-6 bg-ink-900/30 hover:border-ink-700/50 transition-colors"
                     style={{ fontFamily: FONTS.find(f => f.name === page.font_family)?.css || FONTS[0].css }}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h2 className="text-lg font-bold text-forest-100">{page.title}</h2>
-                        <p className="text-xs text-forest-500 mt-1">
-                          by <span className="text-candy-400">{page.username}</span>
+                        <h2 className="text-lg font-bold text-ink-100">{page.title}</h2>
+                        <p className="text-xs text-ink-500 mt-1">
+                          by <span className="text-brass-400">{page.username}</span>
                           {' '}&middot;{' '}
                           {new Date(page.created_at).toLocaleDateString('en-US', {
                             month: 'short', day: 'numeric', year: 'numeric',
                           })}
                         </p>
                       </div>
-                      <span className="text-[10px] uppercase tracking-widest text-forest-600 font-mono">
+                      <span className="text-[10px] uppercase tracking-widest text-ink-600 font-mono">
                         {FONTS.find(f => f.name === page.font_family)?.label || 'Sans'}
                       </span>
                     </div>
@@ -212,21 +211,21 @@ export default function GuestBook() {
                       {page.selections.map((s, i) => (
                         <span
                           key={i}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-forest-800/60 text-forest-300 border border-forest-700/40"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-ink-800/60 text-ink-300 border border-ink-700/40"
                         >
-                          <span className="text-forest-500">{s.rubric}:</span>
-                          <span className="font-medium text-forest-200">{s.element}</span>
+                          <span className="text-ink-500">{s.rubric}:</span>
+                          <span className="font-medium text-ink-200">{s.element}</span>
                           {s.contributor && (
-                            <span className="text-candy-500/70 text-[10px]">({s.contributor})</span>
+                            <span className="text-brass-500/70 text-[10px]">({s.contributor})</span>
                           )}
                         </span>
                       ))}
                     </div>
 
                     {/* Prompt text */}
-                    <div className="bg-forest-950/50 rounded-lg p-4 border border-forest-800/30">
-                      <p className="text-xs uppercase tracking-widest text-forest-600 mb-2 font-mono">Prompt</p>
-                      <p className="text-sm text-forest-300 whitespace-pre-line leading-relaxed">
+                    <div className="bg-ink-950/50 rounded-lg p-4 border border-ink-800/30">
+                      <p className="text-xs uppercase tracking-widest text-ink-600 mb-2 font-mono">Prompt</p>
+                      <p className="text-sm text-ink-300 whitespace-pre-line leading-relaxed">
                         {page.prompt_text}
                       </p>
                     </div>
@@ -234,7 +233,7 @@ export default function GuestBook() {
                     {page.generated_story && (
                       <div className="mt-4 bg-void-950/30 rounded-lg p-4 border border-void-800/30">
                         <p className="text-xs uppercase tracking-widest text-void-400 mb-2 font-mono">Story</p>
-                        <p className="text-sm text-forest-200 whitespace-pre-line leading-relaxed">
+                        <p className="text-sm text-ink-200 whitespace-pre-line leading-relaxed">
                           {page.generated_story}
                         </p>
                       </div>
@@ -247,8 +246,8 @@ export default function GuestBook() {
             /* ═══ SIGN VIEW ═══ */
             <div className="space-y-8">
               <div>
-                <h2 className="text-lg font-bold text-forest-100 mb-1">Sign the Guest Book</h2>
-                <p className="text-forest-400 text-sm">
+                <h2 className="text-lg font-bold text-ink-100 mb-1">Sign the Guest Book</h2>
+                <p className="text-ink-400 text-sm">
                   Pick one ingredient from each rubric (or add your own), choose a font, and title your page.
                 </p>
               </div>
@@ -261,7 +260,7 @@ export default function GuestBook() {
 
               {/* Username */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                <label className="block text-xs uppercase tracking-widest text-ink-500 mb-2 font-mono">
                   Your Name
                 </label>
                 <input
@@ -269,14 +268,14 @@ export default function GuestBook() {
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   placeholder="Enter your name to sign"
-                  className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors"
+                  className="w-full bg-ink-900/50 border border-ink-700/50 rounded-lg px-4 py-3 text-ink-100 placeholder-ink-600 focus:outline-none focus:border-brass-500/50 transition-colors"
                   maxLength={50}
                 />
               </div>
 
               {/* Title */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-forest-500 mb-2 font-mono">
+                <label className="block text-xs uppercase tracking-widest text-ink-500 mb-2 font-mono">
                   Page Title
                 </label>
                 <input
@@ -284,14 +283,14 @@ export default function GuestBook() {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder='e.g. "Cyberpunk Heist Gone Wrong"'
-                  className="w-full bg-forest-900/50 border border-forest-700/50 rounded-lg px-4 py-3 text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50 transition-colors"
+                  className="w-full bg-ink-900/50 border border-ink-700/50 rounded-lg px-4 py-3 text-ink-100 placeholder-ink-600 focus:outline-none focus:border-brass-500/50 transition-colors"
                   maxLength={255}
                 />
               </div>
 
               {/* Typography Picker */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-forest-500 mb-3 font-mono">
+                <label className="block text-xs uppercase tracking-widest text-ink-500 mb-3 font-mono">
                   Typography
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -301,8 +300,8 @@ export default function GuestBook() {
                       onClick={() => setSelectedFont(font)}
                       className={`px-3 py-3 rounded-lg border text-sm transition-all ${
                         selectedFont.name === font.name
-                          ? 'border-candy-500 bg-candy-500/10 text-candy-300'
-                          : 'border-forest-700/50 bg-forest-900/30 text-forest-400 hover:border-forest-600'
+                          ? 'border-brass-500 bg-brass-500/10 text-brass-300'
+                          : 'border-ink-700/50 bg-ink-900/30 text-ink-400 hover:border-ink-600'
                       }`}
                       style={{ fontFamily: font.css }}
                     >
@@ -316,10 +315,10 @@ export default function GuestBook() {
               {/* Rubric Selections */}
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs uppercase tracking-widest text-forest-500 font-mono">
+                  <label className="block text-xs uppercase tracking-widest text-ink-500 font-mono">
                     Story Ingredients
                   </label>
-                  <span className="text-xs text-forest-600">
+                  <span className="text-xs text-ink-600">
                     {filledCount} of {rubrics.length} selected
                   </span>
                 </div>
@@ -330,10 +329,10 @@ export default function GuestBook() {
                   const isAddingNew = draft?.name !== undefined
 
                   return (
-                    <div key={rubric.id} className="border border-forest-800/50 rounded-xl p-5 bg-forest-900/20">
+                    <div key={rubric.id} className="border border-ink-800/50 rounded-xl p-5 bg-ink-900/20">
                       <div className="mb-3">
-                        <h3 className="font-semibold text-forest-200">{rubric.name}</h3>
-                        <p className="text-xs text-forest-500 mt-0.5">{rubric.description}</p>
+                        <h3 className="font-semibold text-ink-200">{rubric.name}</h3>
+                        <p className="text-xs text-ink-500 mt-0.5">{rubric.description}</p>
                       </div>
 
                       {/* Existing elements */}
@@ -345,13 +344,13 @@ export default function GuestBook() {
                             title={el.description || el.name}
                             className={`px-3 py-1.5 rounded-full text-xs transition-all border ${
                               selectedId === el.id
-                                ? 'border-candy-500 bg-candy-500/15 text-candy-300'
-                                : 'border-forest-700/40 bg-forest-800/40 text-forest-400 hover:border-forest-600 hover:text-forest-300'
+                                ? 'border-brass-500 bg-brass-500/15 text-brass-300'
+                                : 'border-ink-700/40 bg-ink-800/40 text-ink-400 hover:border-ink-600 hover:text-ink-300'
                             }`}
                           >
                             {el.name}
                             {el.contributor && (
-                              <span className="ml-1 text-forest-600 text-[10px]">({el.contributor})</span>
+                              <span className="ml-1 text-ink-600 text-[10px]">({el.contributor})</span>
                             )}
                           </button>
                         ))}
@@ -361,7 +360,7 @@ export default function GuestBook() {
                       {!isAddingNew ? (
                         <button
                           onClick={() => handleNewElementDraft(rubric.id, 'name', '')}
-                          className="text-xs text-candy-500/70 hover:text-candy-400 transition-colors"
+                          className="text-xs text-brass-500/70 hover:text-brass-400 transition-colors"
                         >
                           + Add your own
                         </button>
@@ -372,7 +371,7 @@ export default function GuestBook() {
                             value={draft?.name || ''}
                             onChange={e => handleNewElementDraft(rubric.id, 'name', e.target.value)}
                             placeholder="Element name"
-                            className="flex-1 bg-forest-950/50 border border-forest-700/50 rounded-lg px-3 py-2 text-sm text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50"
+                            className="flex-1 bg-ink-950/50 border border-ink-700/50 rounded-lg px-3 py-2 text-sm text-ink-100 placeholder-ink-600 focus:outline-none focus:border-brass-500/50"
                             maxLength={255}
                           />
                           <input
@@ -380,7 +379,7 @@ export default function GuestBook() {
                             value={draft?.description || ''}
                             onChange={e => handleNewElementDraft(rubric.id, 'description', e.target.value)}
                             placeholder="Brief description"
-                            className="flex-1 bg-forest-950/50 border border-forest-700/50 rounded-lg px-3 py-2 text-sm text-forest-100 placeholder-forest-600 focus:outline-none focus:border-candy-500/50"
+                            className="flex-1 bg-ink-950/50 border border-ink-700/50 rounded-lg px-3 py-2 text-sm text-ink-100 placeholder-ink-600 focus:outline-none focus:border-brass-500/50"
                           />
                           <button
                             onClick={() => {
@@ -390,7 +389,7 @@ export default function GuestBook() {
                                 return next
                               })
                             }}
-                            className="text-forest-600 hover:text-forest-400 text-xs px-2"
+                            className="text-ink-600 hover:text-ink-400 text-xs px-2"
                           >
                             Cancel
                           </button>
@@ -404,14 +403,14 @@ export default function GuestBook() {
               {/* Preview */}
               {(title || filledCount > 0) && (
                 <div
-                  className="border border-forest-700/30 rounded-xl p-5 bg-forest-900/10"
+                  className="border border-ink-700/30 rounded-xl p-5 bg-ink-900/10"
                   style={{ fontFamily: selectedFont.css }}
                 >
-                  <p className="text-xs uppercase tracking-widest text-forest-600 mb-3 font-mono" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <p className="text-xs uppercase tracking-widest text-ink-600 mb-3 font-mono" style={{ fontFamily: 'Inter, sans-serif' }}>
                     Preview
                   </p>
-                  {title && <h3 className="text-lg font-bold text-forest-200 mb-2">{title}</h3>}
-                  <p className="text-sm text-forest-400 whitespace-pre-line">
+                  {title && <h3 className="text-lg font-bold text-ink-200 mb-2">{title}</h3>}
+                  <p className="text-sm text-ink-400 whitespace-pre-line">
                     {buildPreviewPrompt(rubrics, selections, newElements)}
                   </p>
                 </div>
@@ -421,20 +420,12 @@ export default function GuestBook() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="w-full py-3 rounded-xl bg-candy-600 hover:bg-candy-500 disabled:bg-forest-700 disabled:text-forest-500 text-white font-medium transition-colors"
+                className="w-full py-3 rounded-xl bg-brass-600 hover:bg-brass-500 disabled:bg-ink-700 disabled:text-ink-500 text-ink-950 font-medium transition-colors"
               >
                 {submitting ? 'Signing...' : 'Sign the Guest Book'}
               </button>
             </div>
           )}
-
-          <footer className="mt-10 border-t border-forest-800/60 pt-6 text-center">
-            <SupportCta
-              page="/posts/guestbook"
-              location="guestbook_tip"
-              label="Enjoy the guest book? Support development →"
-            />
-          </footer>
         </main>
       </div>
     </>

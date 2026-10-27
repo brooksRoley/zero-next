@@ -25,9 +25,9 @@ The Pages Router has grown well past the original handful of routes; below is th
 
 **Portfolio / funnel**
 - `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
-- `/consulting` (`src/pages/consulting.tsx`) — Consulting funnel: service tiers, DB-backed lead capture (with UTM + referrer attribution), Stripe Checkout deposit flow, Calendly integration
-- `/intake` (`src/pages/intake.jsx`) — Contact / intake form that feeds the consulting funnel
-- `/funding` (`src/pages/funding.tsx`) — "Support Brooks Roley" tip-jar / funding page
+- `/consulting` (`src/pages/consulting.tsx`) — **Work**: the work by domain (robotics, sustainability, healthcare, finance, insurance, ecology) and the computer science behind the games. No prices, no form, no sticky CTA (2026-10-23, Brooks: "less preachy and desperate"). `/api/consulting/leads` and `/checkout` remain but nothing on the site calls them
+- `/intake` (`src/pages/intake.jsx`) — Contact: email, LinkedIn and Calendly links only. Nothing is uploaded or stored (see Security & privacy)
+- `/funding` — **retired 2026-10-23** (redirects to `/`). Brooks asked for the whole support ask to be "a little less beggy": no tip jar, no "support development" links, no mention of AI tokens or server bills. The replacement is `src/components/UpdatesCard.tsx`, a brief, optional, one-time "want a note when something new goes up?" card, and it is **switched off** (`UPDATES_CARD_ENABLED = false`). Do not re-add a tip jar, a funding route or a money ask on any page; `src/lib/__tests__/noTipJar.test.ts` fails if one comes back. Turning the card on is Brooks's call.
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
 - `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
 - `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
@@ -110,7 +110,6 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/pages/api/consulting/checkout.ts` — POST: creates Stripe Checkout session for consulting deposits
 - `src/pages/api/consulting/webhook.ts` — POST: Stripe webhook handler (payment confirmation)
 - `src/pages/api/admin/leads.ts` — Admin: read captured leads for `/admin/leads`
-- `src/pages/api/intake/messages.js`, `src/pages/api/intake/send.js` — Intake-form message thread (list / send). Stored in **Neon** (`intake_messages`, self-created by `src/lib/intakeSchema.ts`) since 2026-10-21: the Supabase table they targeted never existed, so every Contact message had failed. Voice notes upload to a Supabase Storage bucket `intake-audio` that also does not exist yet — the form falls back to the transcript
 
 **AI tools**
 - `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 30/hr per IP. Backs the Chat Sandbox and Model Arena.
@@ -215,12 +214,11 @@ The Pente game (`/posts/pente`, `/posts/pente-puzzles`) is the site's flagship g
 - Game modes: Classic 1v1, Free-for-All (4 players), 2v2 Teams. Constants in `src/lib/pente/constants.js`.
 
 #### Monetization Roadmap (Pente → Stripe)
-The puzzle system is the monetization path. Model: freemium with tip-jar and premium tiers.
+The puzzle system is the monetization path. Model: freemium with premium tiers (the tip jar was retired 2026-10-23; see `/funding` above).
 
 | Phase | What | Revenue |
 |---|---|---|
 | **Free tier (now)** | Curated puzzles, Endless mode, bot play, ELO tracking | Dwell time, audience building |
-| **Tip jar (next)** | "Buy me a coffee" after solve streaks, donate to keep servers running | One-time tips via Stripe |
 | **Premium puzzles** | Daily challenge puzzles, leaderboard, puzzle history/replay, export stats | $5-9/mo Stripe subscription |
 | **Competitive tier** | Ranked matchmaking, seasonal ELO resets, tournament brackets, profile badges | $9-15/mo Stripe subscription |
 
@@ -238,6 +236,31 @@ Internal components use the `src/` path alias (e.g., `import ScoreBoard from 'sr
 Resume PDF is at `public/Brooks_Roley.pdf` (served as `/Brooks_Roley.pdf`). It is **built** from `src/lib/resume.ts` by `yarn resume:pdf` (`scripts/build-resume-pdf.ts`, headless Chrome) — never hand-edited or exported from another document. Change the data, rebuild, commit both.
 
 ---
+
+## Security & privacy
+
+Set 2026-10-23 by Brooks. These rules outrank any livelihood or conversion goal.
+
+- **No open uploads from the public.** No voice notes, files or images from
+  anonymous visitors. The old voice intake wrote browser uploads straight to a
+  public bucket with the public key, with no size or length limit. It was
+  removed. Any future upload needs a private bucket, server-issued signed
+  URLs, type/size/duration limits, a bot check, a retention period and a
+  review by Brooks first.
+- **Never trust a client-supplied URL** into the database, an email or an
+  `<audio>`/`<img>` tag. The server builds URLs it serves.
+- **Collect the least.** Prefer a link (mailto, LinkedIn, Calendly) to a form,
+  and a form to a stored thread. Every stored field is something to protect.
+- **What is public about Brooks:** name, "Orange County, CA", email, LinkedIn,
+  GitHub, this site. **Never publish** a phone number, a street address or
+  parcel number, birth date, ID or account numbers, or health and family
+  details. The home-property repo (HomeTracker) is never linked.
+- **Secrets** live in Vercel env and the gitignored `.env.local` only. Never in
+  code, the ledger, PR bodies or briefs. Payment and Stripe work stays paused
+  until Brooks has a job; when it resumes: restricted keys, verified webhook
+  signatures, test before live.
+- **Errors don't leak internals.** API routes return a generic message to
+  the client and log the detail server-side.
 
 ## Daily Agent Instructions
 
@@ -404,7 +427,7 @@ Find the single highest-value visual or UX improvement. Priority order:
 1. **Conversion design** — consulting CTAs, product landing sections, pricing pages, lead capture
 2. Component polish and animation refinement
 3. Responsive layout gaps (mobile breakpoints)
-4. Dark-forest Tailwind palette consistency (`forest-*` colors, candy-pink accents)
+4. Ink & Brass palette consistency (`ink-*` burnt blue, cream and gray, `charcoal` cards, `brass-*` accent; see docs/ART_DIRECTION.md)
 5. Loading, error, and empty state design
 6. Accessibility (contrast ratios, focus ring visibility)
 
@@ -433,7 +456,7 @@ Rules:
 
 1. **Art first.** Pick the piece by asking "would Brooks proudly show this as a creator, not just a developer?" Ecosystems, growth, water, light, and motion are on-theme; the repo already leans this way (`luminous-flow`, Stat Galaxy, the Pente mountain metaphor).
 2. **Production quality anyway.** Complete, working, mobile-friendly, no placeholders. Art that crashes is a bug, not a statement.
-3. **Every piece gets a frame.** Title, a one-paragraph artist note rendered on the page, and a tip-jar link (`/funding`). Art is the audience funnel, not a detour from it — this is Income Ladder rung 2 widened beyond games.
+3. **Every piece gets a frame.** Title and a one-paragraph artist note rendered on the page. No tip-jar or support link (retired 2026-10-23). Art is the audience funnel, not a detour from it.
 4. **Reuse the instruments.** `PhysicsField`, `WaterHero`, the canvas work in `luminous-flow`, the Web Worker pattern — reach for existing engines before writing new ones.
 5. **Gallery index.** Pieces live at `/studio/[name]`. On the first STUDIO session, create `/studio` as a gallery page that lists all pieces (including back-linking the existing `/posts/luminous-flow`); every later piece adds itself to it.
 
@@ -442,7 +465,7 @@ Output format — start with `STUDIO PIECE`, then include:
 - Branch: `studio/[descriptive-name]`
 - Title: the piece's name
 - Artist note: 2-3 sentences on what it is and why (this also ships on the page)
-- Livelihood stream: Games/audience (tip-jar frame)
+- Livelihood stream: Games/audience
 - Files changed: list
 - Code: complete diff or full new file contents
 - Visual: plain-English description of how it looks, moves, and responds
@@ -527,7 +550,7 @@ Rung 4 — Consulting ($150–$300/hr)
 Rung 3 — Digital Products ($15–$99 one-time)
          PDFs, templates, data sets, playbooks
 
-Rung 2 — Games (ad revenue / tip jar / premium features)
+Rung 2 — Games (premium features; no tip jar)
          Dwell time → audience → monetization
 
 Rung 1 — Portfolio signal (indirect — gets Brooks hired)

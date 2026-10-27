@@ -93,15 +93,15 @@ export default function AlpinePlay({ play, onRun, onRewind, onRestart }: Props) 
   const present = COATS.filter((c: Coat) => pikas[c] > 0)
 
   return (
-    <section className="rounded-xl border border-forest-700 bg-forest-900/40 p-4 text-sm" aria-labelledby="alpine-play">
-      <h3 id="alpine-play" className="font-semibold text-forest-100">
+    <section className="rounded-xl border border-ink-700 bg-ink-900/40 p-4 text-sm" aria-labelledby="alpine-play">
+      <h3 id="alpine-play" className="font-semibold text-ink-100">
         Watch the pikas{play.runs.length ? `: generation ${play.runs.length * ALPINE.generations}` : ''}
       </h3>
-      <p className="mt-1 text-forest-300">{ALPINE_COPY.rule}</p>
+      <p className="mt-1 text-ink-300">{ALPINE_COPY.rule}</p>
 
       <div className="mt-3">
         <Herd pikas={pikas} />
-        <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-forest-300">
+        <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink-300">
           {present.map((c) => (
             <li key={c} className="flex items-center gap-1">
               <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: COAT_COLOR[c] }} />
@@ -112,7 +112,7 @@ export default function AlpinePlay({ play, onRun, onRewind, onRestart }: Props) 
       </div>
 
       <fieldset className="mt-4">
-        <legend className="text-xs text-forest-300">This summer</legend>
+        <legend className="text-xs text-ink-300">This summer</legend>
         <div role="radiogroup" aria-label="Summer heat" className="mt-1.5 grid grid-cols-5 gap-1">
           {HEATS.map((h) => (
             <button
@@ -121,8 +121,8 @@ export default function AlpinePlay({ play, onRun, onRewind, onRestart }: Props) 
               role="radio"
               aria-checked={heat === h}
               onClick={() => setHeat(h)}
-              className={`rounded-md border px-1 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${
-                heat === h ? 'border-forest-300 bg-forest-200 font-medium text-forest-950' : 'border-forest-700 text-forest-300 hover:bg-forest-800'
+              className={`rounded-md border px-1 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${
+                heat === h ? 'border-ink-300 bg-ink-200 font-medium text-ink-950' : 'border-ink-700 text-ink-300 hover:bg-ink-800'
               }`}
             >
               {HEAT_LABEL[h]}
@@ -136,35 +136,35 @@ export default function AlpinePlay({ play, onRun, onRewind, onRestart }: Props) 
           type="button"
           onClick={() => onRun(heat)}
           disabled={total(pikas) === 0}
-          className="rounded-lg bg-forest-200 px-4 py-2 text-sm font-semibold text-forest-950 transition-colors hover:bg-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+          className="rounded-lg bg-ink-200 px-4 py-2 text-sm font-semibold text-ink-950 transition-colors hover:bg-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
         >
           Run {ALPINE.generations} generations
         </button>
         {last && (
-          <button type="button" onClick={onRewind} className="rounded-lg border border-forest-700 px-3 py-2 text-xs text-forest-300 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300">
+          <button type="button" onClick={onRewind} className="rounded-lg border border-ink-700 px-3 py-2 text-xs text-ink-300 hover:bg-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300">
             Rewind
           </button>
         )}
         {total(pikas) < 6 && (
-          <button type="button" onClick={onRestart} className="rounded-lg border border-forest-700 px-3 py-2 text-xs text-forest-300 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300">
+          <button type="button" onClick={onRestart} className="rounded-lg border border-ink-700 px-3 py-2 text-xs text-ink-300 hover:bg-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300">
             Start a new slope
           </button>
         )}
       </div>
 
       {last && (
-        <div className="mt-4 rounded-lg border border-forest-800 p-3" aria-live="polite">
-          <p className="font-mono text-xs text-forest-200">{runCaption(last)}</p>
-          {event && <p className="mt-1 text-sm text-forest-100">{event}</p>}
+        <div className="mt-4 rounded-lg border border-ink-800 p-3" aria-live="polite">
+          <p className="font-mono text-xs text-ink-200">{runCaption(last)}</p>
+          {event && <p className="mt-1 text-sm text-ink-100">{event}</p>}
           <div className="mt-2">
             <Shares run={last} />
           </div>
         </div>
       )}
 
-      <p className="mt-3 text-[11px] text-forest-500">
+      <p className="mt-3 text-[11px] text-ink-500">
         {ALPINE_COPY.honest}{' '}
-        <a href={ALPINE_COPY.source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-forest-300">
+        <a href={ALPINE_COPY.source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-300">
           {ALPINE_COPY.source.label}
         </a>
       </p>

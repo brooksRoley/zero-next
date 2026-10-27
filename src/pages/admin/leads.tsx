@@ -37,10 +37,10 @@ type Summary = {
 };
 
 const STATUS_STYLES: Record<Status, string> = {
-  new: "bg-candy-500/20 text-candy-200 border-candy-500/40",
+  new: "bg-brass-500/20 text-brass-200 border-brass-500/40",
   contacted: "bg-void-500/20 text-void-200 border-void-500/40",
-  qualified: "bg-forest-400/20 text-forest-100 border-forest-400/40",
-  converted: "bg-forest-300/25 text-forest-50 border-forest-300/50",
+  qualified: "bg-ink-400/20 text-ink-100 border-ink-400/40",
+  converted: "bg-ink-300/25 text-ink-50 border-ink-300/50",
   closed: "bg-white/10 text-white/50 border-white/20",
 };
 
@@ -151,13 +151,13 @@ export default function AdminLeadsPage() {
           <title>Admin — Leads</title>
           <meta name="robots" content="noindex" />
         </Head>
-        <main className="min-h-screen bg-forest-950 text-white flex items-center justify-center px-4">
+        <main className="min-h-screen bg-ink-950 text-white flex items-center justify-center px-4">
           <form
             onSubmit={handleLogin}
-            className="w-full max-w-sm bg-forest-900/60 border border-forest-700 rounded-2xl p-8 shadow-xl"
+            className="w-full max-w-sm bg-ink-900/60 border border-ink-700 rounded-2xl p-8 shadow-xl"
           >
             <h1 className="text-2xl font-bold mb-2">Lead Admin</h1>
-            <p className="text-forest-200 text-sm mb-6">
+            <p className="text-ink-200 text-sm mb-6">
               Enter your admin token to view consulting leads.
             </p>
             <input
@@ -166,14 +166,14 @@ export default function AdminLeadsPage() {
               onChange={(e) => setTokenInput(e.target.value)}
               placeholder="Admin token"
               autoFocus
-              className="w-full rounded-lg bg-forest-950 border border-forest-700 px-4 py-2.5 text-white placeholder-forest-400 focus:outline-none focus:ring-2 focus:ring-candy-500"
+              className="w-full rounded-lg bg-ink-950 border border-ink-700 px-4 py-2.5 text-white placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-brass-500"
             />
             {error && (
-              <p className="text-candy-300 text-sm mt-3">{error}</p>
+              <p className="text-brass-300 text-sm mt-3">{error}</p>
             )}
             <button
               type="submit"
-              className="mt-4 w-full rounded-lg bg-candy-500 hover:bg-candy-400 transition-colors px-4 py-2.5 font-semibold text-white"
+              className="mt-4 w-full rounded-lg bg-brass-500 hover:bg-brass-400 transition-colors px-4 py-2.5 font-semibold text-ink-950"
             >
               View Leads
             </button>
@@ -189,12 +189,12 @@ export default function AdminLeadsPage() {
         <title>Admin — Leads</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <main className="min-h-screen bg-forest-950 text-white px-4 sm:px-8 py-8">
+      <main className="min-h-screen bg-ink-950 text-white px-4 sm:px-8 py-8">
         <div className="max-w-7xl mx-auto">
           <header className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold">Consulting Leads</h1>
-              <p className="text-forest-200 text-sm mt-1">
+              <p className="text-ink-200 text-sm mt-1">
                 {leads.length} {leads.length === 1 ? "lead" : "leads"} total
               </p>
             </div>
@@ -202,13 +202,13 @@ export default function AdminLeadsPage() {
               <button
                 onClick={() => loadLeads(token)}
                 disabled={loading}
-                className="rounded-lg border border-forest-600 px-4 py-2 text-sm hover:bg-forest-800 transition-colors disabled:opacity-50"
+                className="rounded-lg border border-ink-600 px-4 py-2 text-sm hover:bg-ink-800 transition-colors disabled:opacity-50"
               >
                 {loading ? "Refreshing…" : "Refresh"}
               </button>
               <button
                 onClick={handleLogout}
-                className="rounded-lg border border-forest-700 px-4 py-2 text-sm text-forest-300 hover:bg-forest-800 transition-colors"
+                className="rounded-lg border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:bg-ink-800 transition-colors"
               >
                 Log out
               </button>
@@ -216,31 +216,31 @@ export default function AdminLeadsPage() {
           </header>
 
           {error && (
-            <div className="mb-4 rounded-lg border border-candy-500/40 bg-candy-500/10 px-4 py-3 text-candy-200 text-sm">
+            <div className="mb-4 rounded-lg border border-brass-500/40 bg-brass-500/10 px-4 py-3 text-brass-200 text-sm">
               {error}
             </div>
           )}
 
           {summary && summary.total > 0 && (
             <div className="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   Total leads
                 </div>
                 <div className="text-3xl font-bold mt-1">{summary.total}</div>
-                <div className="text-forest-400 text-xs mt-1">all time</div>
+                <div className="text-ink-400 text-xs mt-1">all time</div>
               </div>
 
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   Last 7 days
                 </div>
                 <div className="text-3xl font-bold mt-1">{summary.last7}</div>
                 <div
                   className={`text-xs mt-1 ${
                     summary.last7 >= summary.prior7
-                      ? "text-forest-200"
-                      : "text-candy-300"
+                      ? "text-ink-200"
+                      : "text-brass-300"
                   }`}
                 >
                   {summary.prior7 === 0 && summary.last7 === 0
@@ -251,28 +251,28 @@ export default function AdminLeadsPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   Budget provided
                 </div>
                 <div className="text-3xl font-bold mt-1">
                   {summary.withBudget}
-                  <span className="text-forest-400 text-base font-medium">
+                  <span className="text-ink-400 text-base font-medium">
                     {" "}
                     / {summary.total}
                   </span>
                 </div>
-                <div className="text-forest-400 text-xs mt-1">
+                <div className="text-ink-400 text-xs mt-1">
                   {summary.withoutBudget} missing budget
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-4">
-                <div className="text-forest-300 text-xs uppercase tracking-wide">
+              <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-4">
+                <div className="text-ink-300 text-xs uppercase tracking-wide">
                   Top sources
                 </div>
                 {summary.topSources.length === 0 ? (
-                  <div className="text-forest-400 text-sm mt-2">—</div>
+                  <div className="text-ink-400 text-sm mt-2">—</div>
                 ) : (
                   <ul className="mt-2 space-y-1">
                     {summary.topSources.map((s) => (
@@ -280,12 +280,12 @@ export default function AdminLeadsPage() {
                         key={s.source}
                         className="flex items-center justify-between gap-2 text-sm"
                       >
-                        <span className="text-forest-100 truncate">
+                        <span className="text-ink-100 truncate">
                           {s.source}
                         </span>
-                        <span className="text-forest-300 whitespace-nowrap">
+                        <span className="text-ink-300 whitespace-nowrap">
                           {s.count}{" "}
-                          <span className="text-forest-400">
+                          <span className="text-ink-400">
                             ({s.percent}%)
                           </span>
                         </span>
@@ -298,16 +298,16 @@ export default function AdminLeadsPage() {
           )}
 
           {!loading && leads.length === 0 && !error && (
-            <div className="rounded-2xl border border-forest-700 bg-forest-900/40 p-12 text-center text-forest-300">
+            <div className="rounded-2xl border border-ink-700 bg-ink-900/40 p-12 text-center text-ink-300">
               No leads yet. Submissions from{" "}
               <span className="text-white">/consulting</span> will appear here.
             </div>
           )}
 
           {leads.length > 0 && (
-            <div className="overflow-x-auto rounded-2xl border border-forest-700">
+            <div className="overflow-x-auto rounded-2xl border border-ink-700">
               <table className="w-full text-sm">
-                <thead className="bg-forest-900 text-forest-200 text-left">
+                <thead className="bg-ink-900 text-ink-200 text-left">
                   <tr>
                     <th className="px-4 py-3 font-medium">Date</th>
                     <th className="px-4 py-3 font-medium">Name</th>
@@ -320,13 +320,13 @@ export default function AdminLeadsPage() {
                     <th className="px-4 py-3 font-medium">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-forest-800">
+                <tbody className="divide-y divide-ink-800">
                   {leads.map((lead) => (
                     <tr
                       key={lead.id}
-                      className="align-top hover:bg-forest-900/40 transition-colors"
+                      className="align-top hover:bg-ink-900/40 transition-colors"
                     >
-                      <td className="px-4 py-3 text-forest-300 whitespace-nowrap">
+                      <td className="px-4 py-3 text-ink-300 whitespace-nowrap">
                         {fmtDate(lead.created_at)}
                       </td>
                       <td className="px-4 py-3 font-medium whitespace-nowrap">
@@ -335,24 +335,24 @@ export default function AdminLeadsPage() {
                       <td className="px-4 py-3">
                         <a
                           href={`mailto:${lead.email}`}
-                          className="text-candy-300 hover:text-candy-200 underline underline-offset-2"
+                          className="text-brass-300 hover:text-brass-200 underline underline-offset-2"
                         >
                           {lead.email}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-forest-200">
+                      <td className="px-4 py-3 text-ink-200">
                         {lead.company || "—"}
                       </td>
-                      <td className="px-4 py-3 text-forest-200">
+                      <td className="px-4 py-3 text-ink-200">
                         {lead.project_type || "—"}
                       </td>
-                      <td className="px-4 py-3 text-forest-200 whitespace-nowrap">
+                      <td className="px-4 py-3 text-ink-200 whitespace-nowrap">
                         {lead.budget_range || "—"}
                       </td>
-                      <td className="px-4 py-3 text-forest-200">
+                      <td className="px-4 py-3 text-ink-200">
                         {lead.timeline || "—"}
                       </td>
-                      <td className="px-4 py-3 text-forest-100 max-w-xs">
+                      <td className="px-4 py-3 text-ink-100 max-w-xs">
                         <span className="block whitespace-pre-wrap break-words">
                           {lead.message || "—"}
                         </span>
@@ -363,7 +363,7 @@ export default function AdminLeadsPage() {
                           onChange={(e) =>
                             updateStatus(lead.id, e.target.value as Status)
                           }
-                          className={`rounded-full border px-3 py-1 text-xs font-medium capitalize cursor-pointer focus:outline-none focus:ring-2 focus:ring-candy-500 ${
+                          className={`rounded-full border px-3 py-1 text-xs font-medium capitalize cursor-pointer focus:outline-none focus:ring-2 focus:ring-brass-500 ${
                             STATUS_STYLES[lead.status]
                           }`}
                         >
@@ -371,7 +371,7 @@ export default function AdminLeadsPage() {
                             <option
                               key={s}
                               value={s}
-                              className="bg-forest-900 text-white"
+                              className="bg-ink-900 text-white"
                             >
                               {s}
                             </option>

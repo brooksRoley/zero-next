@@ -24,12 +24,12 @@ export default function LessonShell({
 }) {
   const practiceStage = STAGE_PRACTICE_MAP[stageNumber]
   return (
-    <div className="min-h-screen bg-forest-950 text-white">
-      <nav className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
+    <div className="min-h-screen bg-ink-950 text-white">
+      <nav className="sticky top-0 z-30 backdrop-blur bg-ink-950/70 border-b border-ink-800/60">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-3">
           <Link
             href="/posts/go/learn"
-            className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 border-r border-forest-800/60"
+            className="text-[11px] text-ink-500 hover:text-brass-400 transition-colors pr-3 border-r border-ink-800/60"
           >
             &larr; Lessons
           </Link>
@@ -41,7 +41,7 @@ export default function LessonShell({
               <span
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full ${
-                  i === stageNumber ? 'bg-candy-400' : i < stageNumber ? 'bg-forest-500' : 'bg-forest-800'
+                  i === stageNumber ? 'bg-brass-400' : i < stageNumber ? 'bg-ink-500' : 'bg-ink-800'
                 }`}
               />
             ))}
@@ -52,30 +52,30 @@ export default function LessonShell({
       <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         <header className="mb-4">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{title}</h1>
-          {subtitle && <p className="text-sm text-forest-400 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-sm text-ink-400 mt-1">{subtitle}</p>}
         </header>
 
         <div>{children}</div>
 
         {isComplete && practiceStage && (
-          <div className="mt-4 rounded-xl border border-candy-400/30 bg-candy-500/10 px-4 py-3 text-sm">
-            <p className="text-candy-200 mb-2">
+          <div className="mt-4 rounded-xl border border-brass-400/30 bg-brass-500/10 px-4 py-3 text-sm">
+            <p className="text-brass-200 mb-2">
               Ready to put <strong>{title}</strong> into practice?
             </p>
             <Link
               href={`/posts/go?practice=${practiceStage}`}
-              className="inline-block px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-candy-100 hover:bg-candy-500/30 transition text-xs"
+              className="inline-block px-3 py-1.5 rounded-md bg-brass-500/20 border border-brass-400/40 text-brass-100 hover:bg-brass-500/30 transition text-xs"
             >
               Play a practice game &rarr;
             </Link>
           </div>
         )}
 
-        <footer className="mt-6 pt-4 border-t border-forest-800/60 flex items-center justify-between text-sm">
+        <footer className="mt-6 pt-4 border-t border-ink-800/60 flex items-center justify-between text-sm">
           {prev ? (
             <Link
               href={prev.href}
-              className="text-forest-400 hover:text-candy-300 transition-colors"
+              className="text-ink-400 hover:text-brass-300 transition-colors"
             >
               &larr; {prev.label}
             </Link>
@@ -83,7 +83,7 @@ export default function LessonShell({
           {next ? (
             <Link
               href={next.href}
-              className="px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-candy-200 hover:bg-candy-500/30 transition"
+              className="px-3 py-1.5 rounded-md bg-brass-500/20 border border-brass-400/40 text-brass-200 hover:bg-brass-500/30 transition"
             >
               {next.label} &rarr;
             </Link>
@@ -101,21 +101,21 @@ export default function LessonShell({
  */
 export function StepCard({ title, body, progress, action, secondary }) {
   return (
-    <div className="rounded-xl border border-forest-700/50 bg-forest-900/70 backdrop-blur-sm px-4 py-3 sm:px-5 sm:py-4">
+    <div className="rounded-xl border border-ink-700/50 bg-ink-900/70 backdrop-blur-sm px-4 py-3 sm:px-5 sm:py-4">
       <div className="flex items-baseline justify-between gap-3 mb-2">
         <h2 className="text-base font-semibold text-white">{title}</h2>
         {progress && (
-          <span className="text-xs text-forest-400 font-mono shrink-0">{progress}</span>
+          <span className="text-xs text-ink-400 font-mono shrink-0">{progress}</span>
         )}
       </div>
-      <p className="text-sm text-forest-200 leading-relaxed">{body}</p>
+      <p className="text-sm text-ink-200 leading-relaxed">{body}</p>
       {(action || secondary) && (
         <div className="mt-3 flex items-center gap-2">
           {action && (
             <button
               onClick={action.onClick}
               disabled={action.disabled}
-              className="px-3.5 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-sm text-candy-100 hover:bg-candy-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="px-3.5 py-1.5 rounded-md bg-brass-500/20 border border-brass-400/40 text-sm text-brass-100 hover:bg-brass-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               {action.label}
             </button>
@@ -123,7 +123,7 @@ export function StepCard({ title, body, progress, action, secondary }) {
           {secondary && (
             <button
               onClick={secondary.onClick}
-              className="px-3.5 py-1.5 rounded-md bg-forest-800/60 border border-forest-600/50 text-sm text-forest-200 hover:bg-forest-700/70 transition"
+              className="px-3.5 py-1.5 rounded-md bg-ink-800/60 border border-ink-600/50 text-sm text-ink-200 hover:bg-ink-700/70 transition"
             >
               {secondary.label}
             </button>

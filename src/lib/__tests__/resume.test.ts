@@ -60,6 +60,20 @@ describe('resume data', () => {
     expect(INTERLUDES.map((g) => g.text.slice(0, 4))).toEqual(['2025', '2022'])
   })
 
+  // The page and PDF are public. Brooks chose one short mention of his father's
+  // death for the 2025 break (2026-10-26); every other break shows dates only,
+  // and no illness, caregiving, estate or other health detail is published.
+  it('keeps breaks to dates and one approved family line', () => {
+    const APPROVED = '2025 — Family leave after my father’s death.'
+    for (const g of INTERLUDES) {
+      if (g.text === APPROVED) continue
+      expect(g.text, g.text).toMatch(/^\d{4}( – \d{4})? — Career break\.$/)
+    }
+    expect(ALL_TEXT.split(APPROVED).join('')).not.toMatch(
+      /\b(family|father|mother|parent|estate|caregiv\w*|illness|ill|death|died|passed away|funeral|medical leave|health reasons?)\b/i,
+    )
+  })
+
   // The repository and the PDF are public; the PDF carries an email and links only.
   it('puts no phone number in the PDF build script', () => {
     const script = fs.readFileSync(path.join(process.cwd(), 'scripts', 'build-resume-pdf.ts'), 'utf8')
