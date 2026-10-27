@@ -77,7 +77,12 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 export function effectText(kind: PlantKind, effect: PlacementEffect): string {
   const parts: string[] = []
   const n = effect.helps.length
-  if (n && kind === 'oak') parts.push(`speeds up ${plural(n, 'vine', 'vines')}`)
+  if (n && kind === 'oak') {
+    const vines = effect.helps.filter((b) => b.kind === 'vine').length
+    const toyons = n - vines
+    const sped = [vines ? plural(vines, 'vine', 'vines') : '', toyons ? plural(toyons, 'toyon', 'toyons') : '']
+    parts.push(`speeds up ${sped.filter(Boolean).join(' and ')}`)
+  }
   if (n && kind === 'fern') parts.push(`keeps ${plural(n, 'neighbour', 'neighbours')} safe from drought`)
   if (n && kind === 'moonflower') parts.push(`helps ${plural(n, 'neighbour', 'neighbours')} recover from drought sooner`)
   if (effect.shades.length) parts.push(`shades ${plural(effect.shades.length, 'poppy', 'poppies')} out of bloom`)
@@ -97,6 +102,8 @@ const PETAL: Record<PlantKind, string> = {
   moonflower: '#f3f1ea',
   sunflower: GOLD,
   fern: '#d8efc9',
+  toyon: '#f1ece2',
+  buckwheat: '#ecdcd4',
 }
 
 /** The hovered cell is the shape's first cell, so the cursor always sits on the bed. */

@@ -7,6 +7,7 @@ import { PlantIcon } from 'src/components/games/TendPlants'
 import TendNav, { SampleBanner } from 'src/components/games/TendNav'
 import { trackGame } from 'src/lib/analytics'
 import {
+  activeLanes,
   bloomCount,
   checkIn,
   compostSeed,
@@ -17,13 +18,15 @@ import {
   newGarden,
   placeSeed,
   resolveSeasons,
+  RESULT_LINES,
+  resultLog,
   unlockNotes,
   type GardenState,
 } from 'src/lib/games/tend/engine'
-import { importHabits, parseHabitFile } from 'src/lib/games/tend/habitImport'
+import { dayToDate, importHabits, parseHabitFile } from 'src/lib/games/tend/habitImport'
 import { almanac, COMPOST_NOTES, SOURCES } from 'src/lib/games/tend/knowledge'
 import { PETS } from 'src/lib/games/tend/pets'
-import { KIND_FOR_LANE, LANES, orientations, PLANTS, type Cell, type Lane, type PlantKind } from 'src/lib/games/tend/plants'
+import { KIND_FOR_LANE, orientations, PLANTS, type Cell, type Lane, type PlantKind } from 'src/lib/games/tend/plants'
 import { currentPhase, PHASE_LABEL, type Phase } from 'src/lib/games/tend/daylight'
 import { browserStorage as storage } from 'src/lib/games/tend/progress'
 import { sampleGarden } from 'src/lib/games/tend/sample'
@@ -212,11 +215,15 @@ export default function TendPage() {
       }
       const r = importHabits(garden, parsed, today)
       setGarden(r.state)
-      if (r.today.length) setChosen((prev) => LANES.filter((l) => prev.includes(l) || r.today.includes(l)))
+      const lanes = activeLanes(r.state)
+      if (r.today.length) setChosen((prev) => lanes.filter((l) => prev.includes(l) || r.today.includes(l)))
+      const label = (l: Lane) => PLANTS[KIND_FOR_LANE[l]].habit.split(':')[0]
       const parts = [
+        r.lanesOn.length ? `${r.lanesOn.map(label).join(' and ')} added to your check-in` : '',
         r.added ? `${r.added} past day${r.added === 1 ? '' : 's'} checked in` : '',
         r.merged ? `${r.merged} day${r.merged === 1 ? '' : 's'} gained a habit` : '',
-        r.today.length ? `today's ${r.today.map((l) => PLANTS[KIND_FOR_LANE[l]].habit.split(':')[0]).join(' and ')} selected below` : '',
+        r.results ? `${r.results} result${r.results === 1 ? '' : 's'} to celebrate` : '',
+        r.today.length ? `today's ${r.today.map(label).join(' and ')} selected below` : '',
       ].filter(Boolean)
       setImportNote(parts.length ? `Imported: ${parts.join(', ')}.` : 'Nothing new in that file.')
     },
@@ -280,6 +287,10 @@ export default function TendPage() {
   // A drought day, or any bed still sleeping one off, and the open soil looks dry.
   const parched =
     !!garden && today !== null && (lastSeason?.day === today || garden.beds.some((b) => isDormant(garden, b.id, today)))
+  // A garden that never imported a file with the opt-in lanes shows the five lanes and five plants, as always.
+  const lanes = garden ? activeLanes(garden) : []
+  const kinds = lanes.map((lane) => KIND_FOR_LANE[lane])
+  const results = garden ? resultLog(garden) : []
 
   return (
     <main className="min-h-screen bg-ink-950 font-sans text-ink-100">
@@ -410,6 +421,31 @@ export default function TendPage() {
                 </section>
               )}
 
+              {results.length > 0 && (
+                <section className="rounded-xl border border-ink-500/60 bg-ink-800/40 p-4 text-sm">
+                  <h2 className="font-semibold">What came back</h2>
+                  <p className="mt-1 text-ink-400">
+                    Results from your imported file. They are here to celebrate and never scored: the garden grows from
+                    the work, not the answers.
+                  </p>
+                  <ul className="mt-3 space-y-2">
+                    {results.slice(0, 8).map((r) => (
+                      <li key={`${r.day}-${r.kind}`} className="flex items-center gap-2">
+                        <PlantIcon kind="toyon" size={18} />
+                        <span className="font-mono text-xs text-ink-400">
+                          {new Date(`${dayToDate(r.day)}T12:00:00Z`).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            timeZone: 'UTC',
+                          })}
+                        </span>
+                        <span className="text-ink-100">{RESULT_LINES[r.kind]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
               {importOn && (
                 <section className="rounded-xl border border-ink-800 p-4 text-sm">
                   <label className="block">
@@ -449,7 +485,7 @@ export default function TendPage() {
                   <h2 className="text-lg font-semibold">Today</h2>
                   <p className="mt-1 text-sm text-ink-400">Which did you do? An honest empty day still tends the garden.</p>
                   <ul className="mt-4 space-y-2">
-                    {LANES.map((lane) => {
+                    {lanes.map((lane) => {
                       const kind = KIND_FOR_LANE[lane]
                       const on = chosen.includes(lane)
                       return (
@@ -540,11 +576,11 @@ export default function TendPage() {
 
               <details className="rounded-xl border border-ink-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">
-                  Field guide ({garden.notes?.length ?? 0} of {Object.keys(PLANTS).length} collected)
+                  Field guide ({garden.notes?.filter((k) => kinds.includes(k)).length ?? 0} of {kinds.length} collected)
                 </summary>
                 <p className="mt-2 text-xs text-ink-400">Every note is open to read. A plant&apos;s first bloom adds it to your collection.</p>
                 <ul className="mt-3 space-y-4">
-                  {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
+                  {kinds.map((kind) => (
                     <li key={kind}>
                       <p className="font-mono text-[11px] uppercase tracking-widest text-ink-500">
                         {garden.notes?.includes(kind) ? 'Collected' : 'Not yet bloomed'}
@@ -563,7 +599,7 @@ export default function TendPage() {
               <details className="rounded-xl border border-ink-800 p-4 text-sm">
                 <summary className="cursor-pointer font-medium">How the plants work</summary>
                 <ul className="mt-3 space-y-2">
-                  {(Object.keys(PLANTS) as PlantKind[]).map((kind) => (
+                  {kinds.map((kind) => (
                     <li key={kind} className="flex gap-2">
                       <Swatch kind={kind} />
                       <span>

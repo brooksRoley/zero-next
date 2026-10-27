@@ -188,7 +188,72 @@ const FERN: Draw[] = [
   ),
 ]
 
-const ART: Record<PlantKind, Draw[]> = { oak: OAK, vine: VINE, moonflower: MOONFLOWER, sunflower: POPPY, fern: FERN }
+/** A toyon leaf: a long, narrow oval, rotated about the stem base. */
+const toyonLeaf = (deg: number, length: number, fill: string) => (
+  <ellipse key={deg} cx={24} cy={40 - length} rx={3.2} ry={length * 0.42} fill={fill} stroke={LINE} strokeWidth={0.9} transform={`rotate(${deg} 24 40)`} />
+)
+
+const TOYON: Draw[] = [
+  () => <Seed />,
+  (p) => <Sprout p={p} />,
+  (p) => (
+    <g>
+      <path d="M24 40V24" stroke="#7a5a3c" strokeWidth={2} strokeLinecap="round" />
+      {[-58, -32, -10, 12, 34, 58].map((deg, i) => toyonLeaf(deg, 15 + (i % 2) * 3, i % 2 ? p.dark : p.leaf))}
+    </g>
+  ),
+  (p) => (
+    <g>
+      {TOYON[2](p)}
+      {/* Clusters of scarlet winter berries. */}
+      {[[15, 24], [31, 22], [23, 16]].map(([x, y]) => (
+        <g key={`${x},${y}`}>
+          {[[0, 0], [3, 1], [1.5, 3], [-2, 2.5]].map(([dx, dy]) => (
+            <circle key={`${dx},${dy}`} cx={x + dx} cy={y + dy} r={1.9} fill="#c0574a" stroke={LINE} strokeWidth={0.6} />
+          ))}
+        </g>
+      ))}
+    </g>
+  ),
+]
+
+/** A low mound of buckwheat's narrow leaves. */
+const buckwheatMound = (p: Palette) => (
+  <g>
+    {[-70, -50, -30, -12, 6, 24, 42, 62].map((deg, i) => (
+      <path key={deg} d="M24 40q-1-8 0-14" fill="none" stroke={i % 2 ? p.dark : p.leaf} strokeWidth={2.2} strokeLinecap="round" transform={`rotate(${deg} 24 40)`} />
+    ))}
+  </g>
+)
+
+const BUCKWHEAT: Draw[] = [
+  () => <Seed />,
+  (p) => <Sprout p={p} />,
+  (p) => buckwheatMound(p),
+  (p) => (
+    <g>
+      {buckwheatMound(p)}
+      {/* Pink-to-cream flower heads on bare stems, drying rust at the heart. */}
+      {[[14, 22], [24, 17], [34, 22]].map(([x, y]) => (
+        <g key={`${x},${y}`}>
+          <path d={`M24 34L${x} ${y + 3}`} stroke={p.stem} strokeWidth={1} />
+          <circle cx={x} cy={y} r={4.2} fill="#ecdcd4" stroke={LINE} strokeWidth={0.8} />
+          <circle cx={x} cy={y} r={1.6} fill="#b06a4a" />
+        </g>
+      ))}
+    </g>
+  ),
+]
+
+const ART: Record<PlantKind, Draw[]> = {
+  oak: OAK,
+  vine: VINE,
+  moonflower: MOONFLOWER,
+  sunflower: POPPY,
+  fern: FERN,
+  toyon: TOYON,
+  buckwheat: BUCKWHEAT,
+}
 
 type Props = {
   kind: PlantKind

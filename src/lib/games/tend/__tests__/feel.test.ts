@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { misfit, newGarden, placeSeed, checkIn } from 'src/lib/games/tend/engine'
-import { orientations, PLANT_KINDS, type Cell } from 'src/lib/games/tend/plants'
+import { ALL_KINDS, orientations, type Cell } from 'src/lib/games/tend/plants'
 import { BLOOM_NOTES, checkInPhrase, noteFor, PENTATONIC, PET_NOTES, REFUSE_NOTES, tendSounds } from 'src/lib/games/tend/sounds'
 
 describe('why a spot does not fit', () => {
@@ -33,7 +33,7 @@ describe('Tend sounds', () => {
   it('draws every note from C major pentatonic', () => {
     const all = [
       ...PENTATONIC,
-      ...PLANT_KINDS.map(noteFor),
+      ...ALL_KINDS.map(noteFor),
       ...REFUSE_NOTES,
       ...BLOOM_NOTES,
       ...PET_NOTES.boof,
@@ -44,7 +44,7 @@ describe('Tend sounds', () => {
   })
 
   it('gives each plant its own note', () => {
-    expect(new Set(PLANT_KINDS.map(noteFor)).size).toBe(PLANT_KINDS.length)
+    expect(new Set(ALL_KINDS.map(noteFor)).size).toBe(ALL_KINDS.length)
   })
 
   it('plays a longer phrase for a bigger day, and two notes for an empty one', () => {
