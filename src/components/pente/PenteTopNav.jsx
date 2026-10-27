@@ -31,12 +31,12 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
   return (
     <nav
       aria-label="Pente sections"
-      className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60"
+      className="sticky top-0 z-30 backdrop-blur bg-ink-950/70 border-b border-ink-800/60"
     >
       <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
         <Link
           href="/"
-          className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 mr-1 border-r border-forest-800/60"
+          className="text-[11px] text-ink-500 hover:text-brass-400 transition-colors pr-3 mr-1 border-r border-ink-800/60"
           aria-label="Back to home"
         >
           &larr;
@@ -54,8 +54,8 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
                 href={tab.href}
                 className={`text-xs px-3 py-1.5 rounded-md transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'bg-candy-500/15 text-candy-300 ring-1 ring-candy-400/30'
-                    : 'text-forest-400 hover:text-candy-300 hover:bg-forest-800/40'
+                    ? 'bg-brass-500/15 text-brass-300 ring-1 ring-brass-400/30'
+                    : 'text-ink-400 hover:text-brass-300 hover:bg-ink-800/40'
                 }`}
               >
                 {tab.label}
@@ -64,7 +64,7 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
           })}
         </div>
         {tagline && (
-          <p className="ml-auto pl-3 hidden md:block text-[11px] text-forest-400 truncate">{tagline}</p>
+          <p className="ml-auto pl-3 hidden md:block text-[11px] text-ink-400 truncate">{tagline}</p>
         )}
       </div>
     </nav>

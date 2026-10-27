@@ -239,13 +239,13 @@ export default function PuzzleBoard({ puzzle, onAttempt }) {
         <div className={`w-full max-w-md text-center text-sm rounded-md px-3 py-1.5 border ${
           banner.tone === 'success' ? 'bg-green-900/30 border-green-500/40 text-green-200'
           : banner.tone === 'error' ? 'bg-red-900/30 border-red-500/40 text-red-200'
-          : 'bg-forest-800/60 border-forest-600/50 text-forest-200'
+          : 'bg-ink-800/60 border-ink-600/50 text-ink-200'
         }`}>
           {banner.text}
         </div>
       )}
       {engineNote && status !== STATUS.THINKING && (
-        <div className="w-full max-w-md text-center text-xs text-forest-400">
+        <div className="w-full max-w-md text-center text-xs text-ink-400">
           {engineNote}
         </div>
       )}
@@ -261,14 +261,14 @@ export default function PuzzleBoard({ puzzle, onAttempt }) {
       <div className="flex flex-wrap items-center justify-center gap-2">
         <button
           onClick={handleReset}
-          className="px-3 py-1.5 rounded-md bg-forest-800/70 border border-forest-600/60 text-sm hover:bg-forest-700/70 transition"
+          className="px-3 py-1.5 rounded-md bg-ink-800/70 border border-ink-600/60 text-sm hover:bg-ink-700/70 transition"
         >
           Reset
         </button>
         <button
           onClick={handleShowSolution}
           disabled={status === STATUS.SOLVED}
-          className="px-3 py-1.5 rounded-md bg-forest-800/70 border border-forest-600/60 text-sm hover:bg-forest-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className="px-3 py-1.5 rounded-md bg-ink-800/70 border border-ink-600/60 text-sm hover:bg-ink-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           Show solution
         </button>

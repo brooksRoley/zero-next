@@ -216,23 +216,23 @@ function JsSlider({ label, sub, value, min, max, onChange, unit = '', kyrie, edu
   return (
     <div className="group relative">
       <div className="flex justify-between text-xs font-mono mb-1">
-        <span className="text-forest-400 flex items-center gap-1.5">
-          {label} <span className="text-forest-600 text-[10px]">{sub}</span>
+        <span className="text-ink-400 flex items-center gap-1.5">
+          {label} <span className="text-ink-600 text-[10px]">{sub}</span>
         </span>
-        <span className="text-forest-300">{value}{unit}</span>
+        <span className="text-ink-300">{value}{unit}</span>
       </div>
       <input
         type="range" min={min} max={max} value={value}
         onChange={e => onChange(Number(e.target.value))}
-        className="w-full h-1.5 accent-candy-500 cursor-pointer"
+        className="w-full h-1.5 accent-brass-500 cursor-pointer"
       />
-      <div className="flex justify-between text-[9px] font-mono text-forest-700 mt-0.5">
+      <div className="flex justify-between text-[9px] font-mono text-ink-700 mt-0.5">
         <span>{min}{unit}</span>
         <span>Kyrie ≈ {kyrie}{unit}</span>
         <span>{max}{unit}</span>
       </div>
       {edu && (
-        <p className="hidden group-hover:block absolute z-10 bottom-full mb-2 left-0 w-48 bg-forest-900 border border-forest-700 p-2 text-[10px] text-forest-300 font-sans rounded shadow-xl leading-relaxed">
+        <p className="hidden group-hover:block absolute z-10 bottom-full mb-2 left-0 w-48 bg-ink-900 border border-ink-700 p-2 text-[10px] text-ink-300 font-sans rounded shadow-xl leading-relaxed">
           {edu}
         </p>
       )}
@@ -370,29 +370,29 @@ export default function JumpshotSimulator() {
   const gameOver = horse === 'HORSE'
 
   return (
-    <div className="rounded-2xl border border-forest-700/40 bg-forest-900/60 overflow-hidden">
+    <div className="rounded-2xl border border-ink-700/40 bg-ink-900/60 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-forest-800/60">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-ink-800/60">
         <div>
           <h3 className="text-base font-semibold text-white">Jumpshot Lab — HORSE</h3>
-          <p className="text-xs text-forest-400 font-mono mt-0.5">
+          <p className="text-xs text-ink-400 font-mono mt-0.5">
             {lastResult ? lastResult.comment : "Set your form. Shoot. Don't spell HORSE."}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex gap-0.5 font-mono text-lg font-black tracking-widest bg-forest-950 px-2 py-0.5 rounded-md border border-forest-800/60 shadow-inner">
+          <div className="flex gap-0.5 font-mono text-lg font-black tracking-widest bg-ink-950 px-2 py-0.5 rounded-md border border-ink-800/60 shadow-inner">
             {'HORSE'.split('').map((L, i) => (
-              <span key={i} className={i < horse.length ? 'text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'text-forest-800/50'}>{L}</span>
+              <span key={i} className={i < horse.length ? 'text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'text-ink-800/50'}>{L}</span>
             ))}
           </div>
           {fgPct !== null && (
-            <span className="text-xs font-mono text-forest-500">
+            <span className="text-xs font-mono text-ink-500">
               {stats.makes}/{stats.attempts} ({fgPct}%)
             </span>
           )}
           <button
             onClick={reset}
-            className="text-xs text-forest-500 hover:text-white border border-forest-800 hover:border-forest-500 rounded-md px-2.5 py-1 transition-colors"
+            className="text-xs text-ink-500 hover:text-white border border-ink-800 hover:border-ink-500 rounded-md px-2.5 py-1 transition-colors"
           >
             Reset
           </button>
@@ -412,13 +412,13 @@ export default function JumpshotSimulator() {
       {gameOver ? (
         <div className="text-center py-10 px-6">
           <p className="font-mono text-3xl font-black text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] tracking-[0.2em] mb-2">H-O-R-S-E</p>
-          <p className="text-forest-300 text-sm mb-6 leading-relaxed">
+          <p className="text-ink-300 text-sm mb-6 leading-relaxed">
             You shot <span className="font-bold text-white">{fgPct}%</span> from the field with <span className="font-bold text-white">{stats.makes}</span> makes.<br/>
             Analyze your form and try again to improve your consistency.
           </p>
           <button
             onClick={reset}
-            className="px-6 py-2.5 rounded-xl bg-candy-600 hover:bg-candy-500 text-white font-bold text-sm transition-all shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:-translate-y-0.5"
+            className="px-6 py-2.5 rounded-xl bg-brass-600 hover:bg-brass-500 text-ink-950 font-bold text-sm transition-all shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:-translate-y-0.5"
           >
             Run It Back
           </button>
@@ -428,12 +428,12 @@ export default function JumpshotSimulator() {
           {/* Kyrie form meter */}
           <div>
             <div className="flex justify-between text-xs font-mono mb-1.5">
-              <span className="text-forest-500">Kyrie Form Match</span>
+              <span className="text-ink-500">Kyrie Form Match</span>
               <span style={{ color: kPct > 75 ? '#10b981' : kPct > 50 ? '#f59e0b' : '#ef4444' }}>
                 {kPct}%
               </span>
             </div>
-            <div className="h-1.5 bg-forest-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-ink-800 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-150"
                 style={{
@@ -458,14 +458,14 @@ export default function JumpshotSimulator() {
               value={shotType}
               onChange={e => setShotType(e.target.value)}
               disabled={shooting}
-              className="flex-1 bg-forest-950/60 border border-forest-700/50 rounded-lg px-3 py-2 text-forest-200 text-sm focus:outline-none focus:border-candy-500/50"
+              className="flex-1 bg-ink-950/60 border border-ink-700/50 rounded-lg px-3 py-2 text-ink-200 text-sm focus:outline-none focus:border-brass-500/50"
             >
               {JS_SHOT_TYPES.map(t => <option key={t.label}>{t.label}</option>)}
             </select>
             <button
               onClick={shoot}
               disabled={shooting}
-              className="flex-1 py-2 rounded-xl bg-candy-600 hover:bg-candy-500 disabled:bg-forest-700 disabled:text-forest-500 text-white font-semibold text-sm transition-colors"
+              className="flex-1 py-2 rounded-xl bg-brass-600 hover:bg-brass-500 disabled:bg-ink-700 disabled:text-ink-500 text-ink-950 font-semibold text-sm transition-colors"
             >
               {shooting ? 'In the air…' : 'Shoot'}
             </button>

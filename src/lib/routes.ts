@@ -33,9 +33,8 @@ const REGISTRY = {
   // ── Portfolio / funnel ──
   home: { href: '/', label: 'Home' },
   resume: { href: '/resume', label: 'Resume' },
-  consulting: { href: '/consulting', label: 'Services' },
+  consulting: { href: '/consulting', label: 'Work' },
   intake: { href: '/intake', label: 'Contact' },
-  funding: { href: '/funding', label: 'Support' },
 
   // ── NBA / sports tech ──
   basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform' },
@@ -63,7 +62,7 @@ const REGISTRY = {
   tend: { href: '/games/tend', label: 'Tend' },
   tendWatershed: { href: '/games/tend/watershed', label: 'Tend — The Watershed' },
   tendJournal: { href: '/games/tend/journal', label: 'Tend — The Journal' },
-  nanuPikaTd: { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
+  nanuPikaTd: { href: '/posts/nanu-pika-td', label: 'Tower Defense: Nanu Pika' },
 
   // ── Misc / experiments ──
   guestbook: { href: '/posts/guestbook', label: 'Guestbook' },

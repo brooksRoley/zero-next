@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PassCutBoard from "src/components/games/PassCutBoard";
 import { LEVELS } from "src/lib/games/passcut/levels";
@@ -123,7 +122,7 @@ export default function PassAndCutPage() {
   }, [result, level]);
 
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>Pass &amp; Cut | Brooks Roley</title>
         <meta
@@ -149,7 +148,7 @@ export default function PassAndCutPage() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Pass &amp; <span className="text-[#FDB927]">Cut</span>
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-forest-300 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-300 sm:text-base">
             Five players on a half court. The lines between them are pass lanes.
             Your job: connect the inbounder (PG) to the finisher at the rim (C) by{" "}
             <span className="text-[#FDB927]">securing</span> one lane per turn. The
@@ -179,8 +178,8 @@ export default function PassAndCutPage() {
                   isCurrent
                     ? "border-[#FDB927] bg-[#FDB927]/15 text-[#FDB927]"
                     : unlocked
-                    ? "border-forest-700 bg-forest-900 text-forest-200 hover:border-forest-500"
-                    : "cursor-not-allowed border-forest-800 bg-forest-900/40 text-forest-600"
+                    ? "border-ink-700 bg-ink-900 text-ink-200 hover:border-ink-500"
+                    : "cursor-not-allowed border-ink-800 bg-ink-900/40 text-ink-600"
                 }`}
                 title={unlocked ? l.title : "Complete the previous level to unlock"}
               >
@@ -192,13 +191,13 @@ export default function PassAndCutPage() {
         </nav>
 
         {/* ── Current level frame ── */}
-        <section className="rounded-2xl border border-forest-800 bg-forest-900/40 p-4 sm:p-6">
+        <section className="rounded-2xl border border-ink-800 bg-ink-900/40 p-4 sm:p-6">
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <h2 className="text-xl font-semibold text-white">
                 {index + 1}. {level.title}
               </h2>
-              <p className="mt-0.5 font-mono text-xs uppercase tracking-wider text-forest-400">
+              <p className="mt-0.5 font-mono text-xs uppercase tracking-wider text-ink-400">
                 Concept: {level.concept}
               </p>
             </div>
@@ -214,8 +213,8 @@ export default function PassAndCutPage() {
             <PassCutBoard key={boardKey} level={level} onResult={handleResult} />
 
             {result && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-forest-950/80 p-4 backdrop-blur-sm">
-                <div className="w-full max-w-sm rounded-2xl border border-forest-700 bg-forest-900 p-5 shadow-2xl shadow-black/50">
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-ink-950/80 p-4 backdrop-blur-sm">
+                <div className="w-full max-w-sm rounded-2xl border border-ink-700 bg-ink-900 p-5 shadow-2xl shadow-black/50">
                   <p
                     className={`text-lg font-bold ${
                       result === "offense" ? "text-[#FDB927]" : "text-red-400"
@@ -223,7 +222,7 @@ export default function PassAndCutPage() {
                   >
                     {result === "offense" ? "Bucket! Offense connects." : "Denied. Defense walls it off."}
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-forest-200">
+                  <p className="mt-2 text-sm leading-relaxed text-ink-200">
                     {level.teaching}
                   </p>
 
@@ -232,7 +231,7 @@ export default function PassAndCutPage() {
                       <p className="text-xs font-semibold uppercase tracking-wider text-red-300">
                         The defense cut here (min-cut)
                       </p>
-                      <p className="mt-1 text-sm text-forest-100">
+                      <p className="mt-1 text-sm text-ink-100">
                         {analysis.cut.map((e) => formatEdge(level, e)).join(", ")}
                       </p>
                     </div>
@@ -243,12 +242,12 @@ export default function PassAndCutPage() {
                       <p className="text-xs font-semibold uppercase tracking-wider text-[#FDB927]">
                         Two independent ways to the rim
                       </p>
-                      <p className="mt-1 text-sm text-forest-100">
-                        <span className="text-forest-400">A:</span>{" "}
+                      <p className="mt-1 text-sm text-ink-100">
+                        <span className="text-ink-400">A:</span>{" "}
                         {analysis.trees[0].map((e) => formatEdge(level, e)).join(", ")}
                       </p>
-                      <p className="mt-1 text-sm text-forest-100">
-                        <span className="text-forest-400">B:</span>{" "}
+                      <p className="mt-1 text-sm text-ink-100">
+                        <span className="text-ink-400">B:</span>{" "}
                         {analysis.trees[1].map((e) => formatEdge(level, e)).join(", ")}
                       </p>
                     </div>
@@ -258,7 +257,7 @@ export default function PassAndCutPage() {
                     <button
                       type="button"
                       onClick={retry}
-                      className="flex-1 rounded-full border border-forest-600 bg-forest-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-forest-700"
+                      className="flex-1 rounded-full border border-ink-600 bg-ink-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-ink-700"
                     >
                       Retry
                     </button>
@@ -278,25 +277,12 @@ export default function PassAndCutPage() {
           </div>
         </section>
 
-        {/* ── Tip-jar frame ── */}
+        {/* ── Frame ── */}
         <footer className="mt-6 flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-forest-400">
+          <p className="text-ink-400">
             An exact game-tree solver plays the defense — it never misses, so every
             level is a fair test of the graph, not the bot.
           </p>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track("cta_click", {
-                page: "/games/pass-and-cut",
-                metadata: { location: "passcut_tip" },
-                beacon: true,
-              })
-            }
-            className="text-candy-500 transition-colors hover:text-candy-400"
-          >
-            Enjoying the puzzle? Support development →
-          </Link>
         </footer>
       </div>
     </main>

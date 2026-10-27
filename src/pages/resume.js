@@ -6,8 +6,8 @@ import Reveal from 'src/components/Reveal';
 import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDES, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume';
 import { track } from 'src/lib/analytics'
 
-const CARD = 'w-full rounded-2xl bg-forest-900/85 backdrop-blur-md shadow-xl border border-forest-700/40 p-6 sm:p-8';
-const SECTION_TITLE = 'text-xs sm:text-sm uppercase tracking-widest text-candy-400 font-semibold mb-4';
+const CARD = 'w-full rounded-2xl bg-ink-900/95 backdrop-blur-md shadow-xl border border-ink-700/40 p-6 sm:p-8';
+const SECTION_TITLE = 'text-xs sm:text-sm uppercase tracking-widest text-brass-400 font-semibold mb-4';
 
 // Assembled client-side only (never in server-rendered HTML) so scrapers
 // harvesting plain-text addresses from the static page can't pick this up.
@@ -29,18 +29,18 @@ const Resume = () => {
         <meta property="og:description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." key="og:description" />
         <meta property="og:image" content="/covertitle.jpg" key="og:image" />
       </Head>
-      <div className="absolute inset-0 bg-forest-950/50" />
+      <div className="absolute inset-0 bg-ink-950/70" />
       <div className="relative max-w-2xl mx-auto px-4 py-10 sm:py-16 flex flex-col items-center gap-6 sm:gap-8">
         {/* Identity card */}
         <Reveal>
-          <div className="w-full rounded-2xl bg-forest-900/85 backdrop-blur-md shadow-xl border border-forest-700/40 p-6 sm:p-8 text-center">
-            <p className="text-xs sm:text-sm uppercase tracking-widest text-white mb-3">A brief history of me</p>
+          <div className="w-full rounded-2xl bg-ink-900/95 backdrop-blur-md shadow-xl border border-ink-700/40 p-6 sm:p-8 text-center">
+            <p className="text-xs sm:text-sm uppercase tracking-widest text-white mb-3">Resume</p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Brooks Roley</h1>
-            <p className="text-lg text-candy-400 font-medium mt-1">Software Engineer</p>
-            <p className="text-sm text-forest-100 mt-2">{LOCATION} · {AVAILABILITY}</p>
-            <p className="text-sm text-forest-300 mt-3">
+            <p className="text-lg text-brass-400 font-medium mt-1">Software Engineer</p>
+            <p className="text-sm text-ink-100 mt-2">{LOCATION} · {AVAILABILITY}</p>
+            <p className="text-sm text-ink-300 mt-3">
               {email ? (
-                <a href={`mailto:${email}`} className="hover:text-candy-300 transition-colors">
+                <a href={`mailto:${email}`} className="hover:text-brass-300 transition-colors">
                   {email}
                 </a>
               ) : (
@@ -57,7 +57,7 @@ const Resume = () => {
               href="/Brooks_Roley.pdf"
               download
               onClick={() => track('resume_pdf_download', { beacon: true })}
-              className="group flex items-center justify-center gap-2 rounded-xl bg-forest-900/85 backdrop-blur-md shadow-md border border-forest-700/40 px-4 py-3 text-sm font-medium text-forest-100 hover:text-candy-300 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300"
+              className="group flex items-center justify-center gap-2 rounded-xl bg-ink-900/95 backdrop-blur-md shadow-md border border-ink-700/40 px-4 py-3 text-sm font-medium text-ink-100 hover:text-brass-300 hover:border-brass-400/40 hover:shadow-lg hover:shadow-brass-400/5 transition-all duration-300"
             >
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -68,7 +68,7 @@ const Resume = () => {
               href="https://www.github.com/brooksroley/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-center gap-2 rounded-xl bg-forest-900/85 backdrop-blur-md shadow-md border border-forest-700/40 px-4 py-3 text-sm font-medium text-forest-100 hover:text-candy-300 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300"
+              className="group flex items-center justify-center gap-2 rounded-xl bg-ink-900/95 backdrop-blur-md shadow-md border border-ink-700/40 px-4 py-3 text-sm font-medium text-ink-100 hover:text-brass-300 hover:border-brass-400/40 hover:shadow-lg hover:shadow-brass-400/5 transition-all duration-300"
             >
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -79,7 +79,7 @@ const Resume = () => {
               href="https://www.github.com/brooksroley/zero-next"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-center gap-2 rounded-xl bg-forest-900/85 backdrop-blur-md shadow-md border border-forest-700/40 px-4 py-3 text-sm font-medium text-forest-100 hover:text-candy-300 hover:border-candy-400/40 hover:shadow-lg hover:shadow-candy-400/5 transition-all duration-300"
+              className="group flex items-center justify-center gap-2 rounded-xl bg-ink-900/95 backdrop-blur-md shadow-md border border-ink-700/40 px-4 py-3 text-sm font-medium text-ink-100 hover:text-brass-300 hover:border-brass-400/40 hover:shadow-lg hover:shadow-brass-400/5 transition-all duration-300"
             >
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
@@ -92,7 +92,7 @@ const Resume = () => {
         {/* The resume itself, as text: readable without downloading anything */}
         <section aria-labelledby="resume-summary" className={CARD}>
           <h2 id="resume-summary" className={SECTION_TITLE}>Summary</h2>
-          <p className="text-sm sm:text-base leading-relaxed text-forest-100">{SUMMARY}</p>
+          <p className="text-sm sm:text-base leading-relaxed text-ink-100">{SUMMARY}</p>
         </section>
 
         <section aria-labelledby="resume-experience" className={CARD}>
@@ -103,18 +103,18 @@ const Resume = () => {
                 <article>
                   <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-4">
                     <h3 className="text-base sm:text-lg font-semibold text-white">
-                      {r.org} <span className="font-normal text-forest-200">— {r.role}</span>
+                      {r.org} <span className="font-normal text-ink-200">— {r.role}</span>
                     </h3>
-                    <p className="text-xs sm:text-sm text-forest-300 whitespace-nowrap">{r.dates}</p>
+                    <p className="text-xs sm:text-sm text-ink-300 whitespace-nowrap">{r.dates}</p>
                   </div>
-                  <ul className="mt-2 list-disc pl-5 space-y-1.5 text-sm leading-relaxed text-forest-100">
+                  <ul className="mt-2 list-disc pl-5 space-y-1.5 text-sm leading-relaxed text-ink-100">
                     {r.bullets.map((b) => (
                       <li key={b}>{b}</li>
                     ))}
                   </ul>
                 </article>
                 {INTERLUDES.filter((g) => g.afterIndex === i).map((g) => (
-                  <p key={g.text} className="text-sm italic text-forest-200">{g.text}</p>
+                  <p key={g.text} className="text-sm italic text-ink-200">{g.text}</p>
                 ))}
               </React.Fragment>
             ))}
@@ -127,7 +127,7 @@ const Resume = () => {
             {SKILLS.map((g) => (
               <div key={g.label}>
                 <dt className="font-semibold text-white">{g.label}</dt>
-                <dd className="text-forest-100 leading-relaxed">{g.items.join(', ')}</dd>
+                <dd className="text-ink-100 leading-relaxed">{g.items.join(', ')}</dd>
               </div>
             ))}
           </dl>
@@ -135,7 +135,7 @@ const Resume = () => {
 
         <section aria-labelledby="resume-education" className={CARD}>
           <h2 id="resume-education" className={SECTION_TITLE}>Education</h2>
-          <p className="text-sm text-forest-100">
+          <p className="text-sm text-ink-100">
             <span className="font-semibold text-white">{EDUCATION.school}</span> — {EDUCATION.degree}, {EDUCATION.year}
           </p>
         </section>
@@ -144,7 +144,7 @@ const Resume = () => {
         <Reveal delay={300}>
           <div className="flex flex-col items-center gap-2">
             <MarioButton />
-            <p className="text-xs text-forest-300/50">Try me</p>
+            <p className="text-xs text-ink-300/50">Try me</p>
           </div>
         </Reveal>
       </div>

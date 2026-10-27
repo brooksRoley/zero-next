@@ -36,15 +36,16 @@ export const SITE_DESCRIPTION =
   'Open to full-time roles.'
 
 // One line per break between roles, each placed after the entry at its index.
-// Facts only, as Brooks stated them; the fuller story is for the interview.
+// Brooks chose (2026-10-26) one short mention of his father's death and nothing
+// more: no illness, caregiving or estate details. resume.test.ts guards this.
 export const INTERLUDES = [
   {
     afterIndex: 0,
-    text: '2025 — Family leave after my father’s death: settled his estate and moved to Orange County.',
+    text: '2025 — Family leave after my father’s death.',
   },
   {
     afterIndex: 1,
-    text: '2022 – 2024 — Career break: family caregiving during my father’s illness.',
+    text: '2022 – 2024 — Career break.',
   },
 ]
 
@@ -57,6 +58,7 @@ export const EXPERIENCE: ResumeRole[] = [
       'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility score under 90 fails the check.',
       'Work daily with AI coding agents under tests and my own review. A scheduled agent opens pull requests on this site that I review before they merge.',
       'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
+      'Built a desktop launcher for the game in Electron, React and TypeScript. Updates download only the chunks that changed (a one-line change ships 16 KB of a 1.07 MB build), and every install is verified, resumable and can roll back.',
     ],
   },
   {

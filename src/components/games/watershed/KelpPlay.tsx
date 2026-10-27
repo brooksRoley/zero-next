@@ -37,7 +37,7 @@ function Row({ species, value }: { species: Species; value: number }) {
   const n = shown(value)
   return (
     <div className="flex items-center gap-3">
-      <span className="w-16 shrink-0 text-xs text-forest-300">{SPECIES_NAME[species]}</span>
+      <span className="w-16 shrink-0 text-xs text-ink-300">{SPECIES_NAME[species]}</span>
       <svg viewBox="0 0 270 30" className="h-7 w-full max-w-[270px]" role="img" aria-label={`${SPECIES_NAME[species]}: ${n} of 9`}>
         {Array.from({ length: 9 }, (_, i) => (
           <svg key={i} x={i * 30} y={0} width={30} height={30} viewBox="0 0 40 40" overflow="visible" opacity={i < n ? 1 : 0.12}>
@@ -45,7 +45,7 @@ function Row({ species, value }: { species: Species; value: number }) {
           </svg>
         ))}
       </svg>
-      <span className="w-4 shrink-0 text-right font-mono text-xs text-forest-300">{n}</span>
+      <span className="w-4 shrink-0 text-right font-mono text-xs text-ink-300">{n}</span>
     </div>
   )
 }
@@ -108,12 +108,12 @@ export default function KelpPlay({ play, unlimited, still, onRun, onRewind }: Pr
   const state = forest.barren ? KELP_COPY.barren : last?.start.barren ? KELP_COPY.recovered : KELP_COPY.forest
 
   return (
-    <section className="rounded-xl border border-forest-700 bg-forest-900/40 p-4 text-sm" aria-labelledby="kelp-play">
+    <section className="rounded-xl border border-ink-700 bg-ink-900/40 p-4 text-sm" aria-labelledby="kelp-play">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 id="kelp-play" className="font-semibold text-forest-100">
+        <h3 id="kelp-play" className="font-semibold text-ink-100">
           Play the forest{play.years.length ? `: year ${play.years.length}` : ''}
         </h3>
-        <p className="font-mono text-xs text-forest-400" aria-label={unlimited ? 'Unlimited nudges in the sample' : `${play.nudges} of ${MAX_NUDGES} nudges`}>
+        <p className="font-mono text-xs text-ink-400" aria-label={unlimited ? 'Unlimited nudges in the sample' : `${play.nudges} of ${MAX_NUDGES} nudges`}>
           {unlimited ? 'nudges: free' : `${'●'.repeat(play.nudges)}${'○'.repeat(MAX_NUDGES - play.nudges)} nudges`}
         </p>
       </div>
@@ -125,7 +125,7 @@ export default function KelpPlay({ play, unlimited, still, onRun, onRewind }: Pr
       </div>
 
       <fieldset className="mt-4">
-        <legend className="text-xs text-forest-300">Otter protection</legend>
+        <legend className="text-xs text-ink-300">Otter protection</legend>
         <div role="radiogroup" aria-label="Otter protection" className="mt-1.5 grid grid-cols-5 gap-1">
           {NOTCHES.map((n) => (
             <button
@@ -135,8 +135,8 @@ export default function KelpPlay({ play, unlimited, still, onRun, onRewind }: Pr
               aria-checked={setting === n}
               disabled={!!playing}
               onClick={() => setSetting(n)}
-              className={`rounded-md border px-1 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300 ${
-                setting === n ? 'border-forest-300 bg-forest-200 font-medium text-forest-950' : 'border-forest-700 text-forest-300 hover:bg-forest-800'
+              className={`rounded-md border px-1 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300 ${
+                setting === n ? 'border-ink-300 bg-ink-200 font-medium text-ink-950' : 'border-ink-700 text-ink-300 hover:bg-ink-800'
               }`}
             >
               {NOTCH_LABEL[n]}
@@ -150,7 +150,7 @@ export default function KelpPlay({ play, unlimited, still, onRun, onRewind }: Pr
           type="button"
           onClick={run}
           disabled={blocked || !!playing}
-          className="rounded-lg bg-forest-200 px-4 py-2 text-sm font-semibold text-forest-950 transition-colors hover:bg-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+          className="rounded-lg bg-ink-200 px-4 py-2 text-sm font-semibold text-ink-950 transition-colors hover:bg-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
         >
           {playing ? `Month ${playing.at} of 12…` : changed && !unlimited ? 'Run a year (spends a nudge)' : 'Run a year'}
         </button>
@@ -158,7 +158,7 @@ export default function KelpPlay({ play, unlimited, still, onRun, onRewind }: Pr
           <button
             type="button"
             onClick={onRewind}
-            className="rounded-lg border border-forest-700 px-3 py-2 text-xs text-forest-300 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-300"
+            className="rounded-lg border border-ink-700 px-3 py-2 text-xs text-ink-300 hover:bg-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-300"
           >
             Rewind a year
           </button>
@@ -171,30 +171,30 @@ export default function KelpPlay({ play, unlimited, still, onRun, onRewind }: Pr
       )}
 
       {last && !playing && r && score && (
-        <div className="mt-4 rounded-lg border border-forest-800 p-3" aria-live="polite">
-          <p className="font-mono text-xs text-forest-200">{rippleCaption(r)}</p>
+        <div className="mt-4 rounded-lg border border-ink-800 p-3" aria-live="polite">
+          <p className="font-mono text-xs text-ink-200">{rippleCaption(r)}</p>
           {last.protection === last.from ? (
-            <p className="mt-1 text-xs text-forest-400">Same lever as last year, so no change against the ghost year.</p>
+            <p className="mt-1 text-xs text-ink-400">Same lever as last year, so no change against the ghost year.</p>
           ) : score.moved > 0 ? (
-            <p className="mt-1 text-sm font-semibold text-forest-100">
+            <p className="mt-1 text-sm font-semibold text-ink-100">
               You moved {score.moved}. The forest moved {score.forest}.
             </p>
           ) : (
-            <p className="mt-1 text-sm text-forest-100">
+            <p className="mt-1 text-sm text-ink-100">
               The otters barely moved this year, but the forest moved {score.forest}.
             </p>
           )}
           <div className="mt-2">
             <YearLine actual={runYear(last.start, last.protection)} ghost={runYear(last.start, last.from)} />
-            <p className="text-[11px] text-forest-500">{KELP_COPY.ghost}</p>
+            <p className="text-[11px] text-ink-500">{KELP_COPY.ghost}</p>
           </div>
         </div>
       )}
 
-      <p className={`mt-3 leading-relaxed ${forest.barren ? 'text-amber-100' : 'text-forest-300'}`}>{state}</p>
-      <p className="mt-2 text-[11px] text-forest-500">
+      <p className={`mt-3 leading-relaxed ${forest.barren ? 'text-amber-100' : 'text-ink-300'}`}>{state}</p>
+      <p className="mt-2 text-[11px] text-ink-500">
         {KELP_COPY.honest}{' '}
-        <a href={KELP_COPY.source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-forest-300">
+        <a href={KELP_COPY.source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink-300">
           {KELP_COPY.source.label}
         </a>
       </p>

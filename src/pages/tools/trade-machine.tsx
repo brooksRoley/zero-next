@@ -767,10 +767,6 @@ export default function TradeMachinePage() {
             ·{" "}
             <Link href="/games/hardwood" className="text-slate-400 hover:text-white underline">
               Hardwood Autochess
-            </Link>{" "}
-            ·{" "}
-            <Link href="/funding" className="text-slate-400 hover:text-white underline">
-              support this work
             </Link>
           </p>
         </footer>

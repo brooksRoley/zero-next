@@ -37,10 +37,10 @@ export default function TurnStatusBar({
         {botThinking ? '…' : '’s turn'}
       </span>
       {moveCount > 0 && (
-        <span className="text-forest-600 text-xs font-mono">#{moveCount}</span>
+        <span className="text-ink-600 text-xs font-mono">#{moveCount}</span>
       )}
       {lastBotStats && botEnabled && !botThinking && (
-        <span className="text-forest-700 text-[10px] font-mono opacity-60" title="Engine search depth / nodes evaluated">
+        <span className="text-ink-700 text-[10px] font-mono opacity-60" title="Engine search depth / nodes evaluated">
           d{lastBotStats.depth} {lastBotStats.nodes > 1000 ? `${(lastBotStats.nodes / 1000).toFixed(1)}k` : lastBotStats.nodes}n
         </span>
       )}
@@ -50,7 +50,7 @@ export default function TurnStatusBar({
         {/* Compact score display for all active players */}
         {activePlayers.map((p, i) => (
           <span key={p} className="flex items-center gap-0.5">
-            {i > 0 && <span className="text-forest-700 mx-0.5">{i === 1 ? '–' : ':'}</span>}
+            {i > 0 && <span className="text-ink-700 mx-0.5">{i === 1 ? '–' : ':'}</span>}
             <span
               className="inline-block w-2 h-2 rounded-full"
               style={{ backgroundColor: PLAYER_COLORS[p]?.hex }}
@@ -61,7 +61,7 @@ export default function TurnStatusBar({
                 : (captures[p] || 0)
               }
             </span>
-            <span className="text-forest-600">/{gameMode?.captureThreshold || 5}</span>
+            <span className="text-ink-600">/{gameMode?.captureThreshold || 5}</span>
           </span>
         ))}
       </div>

@@ -93,7 +93,8 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
   it('mentions consulting only after full-time roles on the landing page', () => {
     const home = read('src/pages/index.tsx')
     const fullTime = home.indexOf('{AVAILABILITY}')
-    const consulting = home.search(/available for consulting/i)
+    // The footer's "Selected work" link (the /consulting page) comes after it.
+    const consulting = home.indexOf("route('consulting')")
     expect(fullTime).toBeGreaterThan(-1)
     expect(consulting).toBeGreaterThan(fullTime)
   })
@@ -112,7 +113,14 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     const home = read('src/pages/index.tsx')
     const at = (key: string) => home.indexOf(`route('${key}')`)
     expect(at('resume')).toBeLessThan(at('basketballPlatform'))
-    expect(at('basketballPlatform')).toBeLessThan(at('pente'))
+    expect(at('basketballPlatform')).toBeLessThan(at('theater'))
+  })
+
+  it('uses no emoji as card art on the home page', () => {
+    const home = read('src/pages/index.tsx')
+    // Both the HTML-entity form (&#x1F3C0;) and literal pictographs.
+    expect(home).not.toMatch(/&#x(1F[0-9A-F]{3}|2[67][0-9A-F]{2});/i)
+    expect(home).not.toMatch(/\p{Extended_Pictographic}/u)
   })
 })
 

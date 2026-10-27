@@ -66,12 +66,12 @@ function NotifyCapture() {
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
           placeholder="you@example.com"
           aria-label="Email address"
-          className="flex-1 rounded-lg border border-forest-600 bg-forest-900/60 px-4 py-2.5 text-sm text-white placeholder-forest-500 focus:border-candy-500/70 focus:outline-none focus:ring-1 focus:ring-candy-500/40"
+          className="flex-1 rounded-lg border border-ink-600 bg-ink-900/60 px-4 py-2.5 text-sm text-white placeholder-ink-500 focus:border-brass-500/70 focus:outline-none focus:ring-1 focus:ring-brass-500/40"
         />
         <button
           onClick={handleSubmit}
           disabled={!valid || status === 'submitting'}
-          className="px-5 py-2.5 rounded-lg bg-candy-600 hover:bg-candy-500 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-lg bg-brass-600 hover:bg-brass-500 text-ink-950 text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {status === 'submitting' ? 'Saving…' : 'Notify me'}
         </button>
@@ -81,7 +81,7 @@ function NotifyCapture() {
           Something went wrong — please try again in a moment.
         </p>
       )}
-      <p className="mt-2 text-xs text-forest-500">
+      <p className="mt-2 text-xs text-ink-500">
         One launch email. No newsletter, no spam.
       </p>
     </div>
@@ -107,15 +107,15 @@ export default function DigitalProducts() {
         <meta property="og:url" content="https://www.brooksroley.com/digital-products" key="og:url" />
       </Head>
 
-      <div className="min-h-screen bg-forest-950 text-forest-100">
-        <header className="border-b border-forest-800/50 px-6 py-4">
+      <div className="min-h-screen bg-ink-950 text-ink-100">
+        <header className="border-b border-ink-800/50 px-6 py-4">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <Link href="/" className="text-forest-400 hover:text-candy-400 transition-colors text-sm">
+            <Link href="/" className="text-ink-400 hover:text-brass-400 transition-colors text-sm">
               &larr; Home
             </Link>
             <Link
               href="/tools/nba-accuracy"
-              className="text-sm text-forest-400 hover:text-candy-400 transition-colors"
+              className="text-sm text-ink-400 hover:text-brass-400 transition-colors"
               onClick={() => track('cta_click', { page: '/digital-products', metadata: { location: 'digital_products_header', target: 'nba_accuracy' } })}
             >
               See the live model scoreboard &rarr;
@@ -125,17 +125,17 @@ export default function DigitalProducts() {
 
         <main className="max-w-3xl mx-auto px-6 py-16">
           <section className="mb-12">
-            <span className="inline-block rounded-full border border-candy-500/30 bg-candy-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-candy-300">
+            <span className="inline-block rounded-full border border-brass-500/30 bg-brass-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brass-300">
               Coming soon
             </span>
             <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-white">
               NBA Analytics Primer
             </h1>
-            <p className="mt-2 text-lg text-forest-300">
+            <p className="mt-2 text-lg text-ink-300">
               <span className="text-2xl font-bold text-white">$19</span>{' '}
-              <span className="text-sm text-forest-400">one-time · PDF · sold via Gumroad</span>
+              <span className="text-sm text-ink-400">one-time · PDF · sold via Gumroad</span>
             </p>
-            <p className="mt-4 text-forest-300 leading-relaxed">
+            <p className="mt-4 text-ink-300 leading-relaxed">
               A practical, no-fluff guide to building basketball prediction
               models from free public data — written by the engineer behind the
               spread model whose results are published, wins and losses alike,
@@ -144,24 +144,24 @@ export default function DigitalProducts() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-forest-400 mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400 mb-4">
               What&apos;s inside
             </h2>
             <ul className="space-y-3">
               {PRIMER_CONTENTS.map(item => (
-                <li key={item} className="flex gap-3 text-sm text-forest-200 leading-relaxed">
-                  <span className="text-candy-400 mt-0.5">&#9656;</span>
+                <li key={item} className="flex gap-3 text-sm text-ink-200 leading-relaxed">
+                  <span className="text-brass-400 mt-0.5">&#9656;</span>
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="mb-12 rounded-2xl border border-forest-700/50 bg-forest-900/60 p-6">
+          <section className="mb-12 rounded-2xl border border-ink-700/50 bg-ink-900/60 p-6">
             <h2 className="text-lg font-semibold text-white mb-2">
               Get one email when it launches
             </h2>
-            <p className="text-sm text-forest-300 mb-5 leading-relaxed">
+            <p className="text-sm text-ink-300 mb-5 leading-relaxed">
               The primer is being written now. Leave your email and you&apos;ll
               hear about it the day it ships — early subscribers get the launch
               price.
@@ -169,15 +169,15 @@ export default function DigitalProducts() {
             <NotifyCapture />
           </section>
 
-          <section className="text-sm text-forest-400 leading-relaxed">
+          <section className="text-sm text-ink-400 leading-relaxed">
             <p>
               Want the methodology before the book? The model&apos;s
               against-the-spread record updates as games settle at{' '}
-              <Link href="/tools/nba-accuracy" className="text-candy-300 hover:text-candy-200 transition-colors">
+              <Link href="/tools/nba-accuracy" className="text-brass-300 hover:text-brass-200 transition-colors">
                 /tools/nba-accuracy
               </Link>
               , and the tooling lives in the{' '}
-              <Link href="/basketball-platform" className="text-candy-300 hover:text-candy-200 transition-colors">
+              <Link href="/basketball-platform" className="text-brass-300 hover:text-brass-200 transition-colors">
                 Basketball Data Platform
               </Link>{' '}
               case study.
