@@ -459,7 +459,9 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
             className="mt-10 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#DED9CE]/62 transition-colors hover:text-[#E9E3D6]"
           >
             <span>Scroll</span>
-            <span aria-hidden="true">v</span>
+            <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
           </a>
         </div>
 
