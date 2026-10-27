@@ -68,7 +68,7 @@ export default function Home() {
             <SectionHeading number="01" label="Featured" />
             <Reveal>
               <p className="mb-6 sm:mb-8 max-w-2xl text-sm sm:text-base text-[#E9E3D6]/78 leading-relaxed">
-                Selected work: a full-stack sports data platform, AI tools, and the games I build to sharpen the front end.
+                Selected work: a sports data platform, the game engine and tools built on it, and the rest of the games in one place.
               </p>
             </Reveal>
             <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
@@ -119,19 +119,17 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={300}>
                   <TiltCard>
-                    <Link href={route('modelArena').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
-                        <div className="flex items-center gap-3 text-2xl opacity-60">
-                          <span>&#x2694;&#xFE0F;</span><span>&#x1F916;</span><span>&#x1F3C6;</span>
-                        </div>
+                    <Link href={route('hardwood').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
+                        <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/70">Engine · Client · Launcher</span>
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Model Arena <ArrowIcon />
+                          Hardwood Autochess <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                          Compare AI models side by side. Blind battles, speed stats, leaderboard.
+                          An NBA auto-battler: a C++ engine compiled to WebAssembly under a Vue 3 client, with a desktop launcher that ships only the chunks that changed.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -143,19 +141,17 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={400}>
                   <TiltCard>
-                    <Link href={route('chat').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
-                        <div className="flex items-center gap-2 text-2xl opacity-60">
-                          <span>🎭</span><span>🤖</span><span>🧙</span>
-                        </div>
+                    <Link href={route('tradeMachine').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
+                        <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/70">Payroll · Cap · Aprons</span>
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Chat Sandbox <ArrowIcon />
+                          Trade Machine <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                          Build a cast of AI characters. Pick their models, give them roles, watch them argue.
+                          NBA salary-cap explorer — build trades, test CBA legality, and see the cap math for 2026-27.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -167,17 +163,23 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={500}>
                   <TiltCard>
-                    <Link href={route('pente').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden">
-                        <Image src="/marathon.png" alt="Marathon Celebration" fill className="object-cover opacity-40 card-img-hover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
+                    <Link href={route('nba').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
+                        <div className="flex items-center gap-3">
+                          <div className="h-3 w-3 rounded-full bg-[#DED9CE]" />
+                          <div className="h-3 w-3 rounded-full bg-[#E9E3D6]" />
+                          <div className="h-3 w-3 rounded-full bg-[#B1ADA8]" />
+                          <div className="h-3 w-3 rounded-full bg-[#966F2F]" />
+                          <div className="h-3 w-3 rounded-full bg-[#2F3C50]" />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Pente <ArrowIcon />
+                          NBA Explorer <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                          Classic strategy board game. Two players, captures, five-in-a-row.
+                          Live NBA stats, standings, player analytics, and team dashboards. Interactive node graph.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -189,20 +191,17 @@ export default function Home() {
               <div data-physics-item className="physics-field-item">
                 <Reveal delay={600}>
                   <TiltCard>
-                    <Link href={route('go').href} className={cardBase}>
-                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#B1ADA8]">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
-                          <span className="w-5 h-5 rounded-full bg-[#f5f5f5] shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
-                        </div>
+                    <Link href={route('theater').href} className={cardBase}>
+                      <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-brass-900 via-ink-900 to-ink-950">
+                        <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/70">Every game, one stage</span>
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Go <ArrowIcon />
+                          The Zero Theater <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                          Learn the ancient territory game. 9×9, 13×13, or 19×19. Chinese rules.
+                          Every game on this site, staged as a production — duels, trials, seasons. Admission free.
                         </p>
                       </div>
                       <div className="tilt-highlight" />
@@ -222,115 +221,13 @@ export default function Home() {
             <SectionHeading number="02" label="Projects" />
           </Reveal>
           <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-            {/* Luminous Flow */}
+            {/* The Rig Report */}
             <div data-physics-item className="physics-field-item">
               <Reveal delay={100}>
                 <TiltCard>
-                  <Link href={route('luminousFlow').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden">
-                      <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Luminous Flow <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        Interactive fluid art. Curl noise, light, and particle physics.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* Tower Defense: Nanu Pika */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={200}>
-                <TiltCard>
-                  <Link href={route('nanuPikaTd').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden">
-                      <Image src="/lion.jpg" alt="Nanu and Pika TD" fill className="object-cover opacity-50 card-img-hover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Tower Defense: Nanu Pika <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        Tower defense with cat wizards. Place towers, survive ant waves, level up.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* NBA Explorer */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={300}>
-                <TiltCard>
-                  <Link href={route('nba').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
-                      <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full bg-[#DED9CE]" />
-                        <div className="h-3 w-3 rounded-full bg-[#E9E3D6]" />
-                        <div className="h-3 w-3 rounded-full bg-[#B1ADA8]" />
-                        <div className="h-3 w-3 rounded-full bg-[#966F2F]" />
-                        <div className="h-3 w-3 rounded-full bg-[#2F3C50]" />
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        NBA Explorer <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        Live NBA stats, standings, player analytics, and team dashboards. Interactive node graph.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* Trade Machine */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={350}>
-                <TiltCard>
-                  <Link href={route('tradeMachine').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
-                      <div className="flex items-center gap-3 text-2xl opacity-60">
-                        <span>&#x1F4B0;</span><span>&#x1F504;</span><span>&#x1F3C0;</span>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Trade Machine <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        NBA salary-cap explorer — build trades, test CBA legality, and see the cap math for 2026-27.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* The Rig Report */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={400}>
-                <TiltCard>
                   <Link href={route('rigReport').href} className={cardBase}>
                     <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#141F30]">
-                      <div className="flex items-center gap-3 text-2xl opacity-60">
-                        <span>&#x1F575;&#xFE0F;</span><span>&#x1F3C0;</span><span>&#x1F4C9;</span>
-                      </div>
+                      <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/70">Implied odds · The vig</span>
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
@@ -347,23 +244,21 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Hardwood Autochess */}
+            {/* Model Arena */}
             <div data-physics-item className="physics-field-item">
-              <Reveal delay={500}>
+              <Reveal delay={200}>
                 <TiltCard>
-                  <Link href={route('hardwood').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#552583]">
-                      <div className="flex items-center gap-3 text-2xl opacity-70">
-                        <span>&#x1F3C0;</span><span>&#x265F;&#xFE0F;</span><span>&#x1F451;</span>
-                      </div>
+                  <Link href={route('modelArena').href} className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-[#2F3C50]/34">
+                      <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/70">Blind A/B · Latency</span>
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Hardwood Autochess <ArrowIcon />
+                        Model Arena <ArrowIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        NBA auto-battler. Draft a squad, place your board, fight ghost lineups over 10 rounds.
+                        Compare AI models side by side. Blind battles, speed stats, leaderboard.
                       </p>
                     </div>
                     <div className="tilt-highlight" />
@@ -372,98 +267,21 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Pass & Cut */}
+            {/* Luminous Flow */}
             <div data-physics-item className="physics-field-item">
-              <Reveal delay={520}>
+              <Reveal delay={300}>
                 <TiltCard>
-                  <Link href={route('passAndCut').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#1d4ed8] via-[#1e3a8a] to-[#0f172a]">
-                      <div className="flex items-center gap-3 text-2xl opacity-70">
-                        <span>&#x1F3C0;</span><span>&#x1F517;</span>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
+                  <Link href={route('luminousFlow').href} className={cardBase}>
+                    <div className="aspect-[2.2/1] relative overflow-hidden">
+                      <Image src="/water1.jpg" alt="Luminous Flow" fill className="object-cover opacity-50 card-img-hover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/78 to-transparent" />
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Pass &amp; Cut <ArrowIcon />
+                        Luminous Flow <ArrowIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        A graph-theory basketball puzzle — sever the defense before it cuts your passing lanes.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* Read & React */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={560}>
-                <TiltCard>
-                  <Link href={route('readAndReact').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#552583] via-[#3b1a5c] to-[#0f172a]">
-                      <div className="flex items-center gap-3 text-2xl opacity-70">
-                        <span>&#x1F3C0;</span><span>&#x1F9E0;</span>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Read &amp; React <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        A game-theory EV matrix — read the defense, pick the play, beat the minimax.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* Playoff Moments */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={580}>
-                <TiltCard>
-                  <Link href={route('moments').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#0b3d2e] via-[#071410] to-[#0f172a]">
-                      <div className="flex items-center gap-3 text-2xl opacity-70">
-                        <span>&#x1F3C0;</span><span>&#x23F1;&#xFE0F;</span>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Playoff Moments <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        Famous NBA plays frozen one beat early — your legs against their closing speed. Click the spot history found.
-                      </p>
-                    </div>
-                    <div className="tilt-highlight" />
-                  </Link>
-                </TiltCard>
-              </Reveal>
-            </div>
-
-            {/* The Zero Theater */}
-            <div data-physics-item className="physics-field-item">
-              <Reveal delay={600}>
-                <TiltCard>
-                  <Link href={route('theater').href} className={cardBase}>
-                    <div className="aspect-[2.2/1] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-brass-900 via-ink-900 to-ink-950">
-                      <div className="flex items-center gap-3 text-2xl opacity-70">
-                        <span>&#x1F3AD;</span><span>&#x2728;</span><span>&#x1F3AB;</span>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A2638] via-[#1A2638]/72 to-transparent" />
-                    </div>
-                    <div className="relative px-5 pb-5 -mt-8">
-                      <h3 className="text-xl font-semibold flex items-center gap-2">
-                        The Zero Theater <ArrowIcon />
-                      </h3>
-                      <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        Every game on this site, staged as a production — duels, trials, seasons. Admission free.
+                        Interactive fluid art. Curl noise, light, and particle physics.
                       </p>
                     </div>
                     <div className="tilt-highlight" />
@@ -495,7 +313,7 @@ export default function Home() {
                         LinkedIn <ExternalIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
-                        Let&apos;s connect and make things happen.
+                        Message me on LinkedIn.
                       </p>
                     </div>
                     <div className="tilt-highlight" />
