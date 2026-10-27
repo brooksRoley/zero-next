@@ -1,4 +1,5 @@
 import { ALL_LANES, KIND_FOR_LANE, LANES, type Cell, type ExtraLane, type Lane, type PlantKind } from './plants'
+import type { Perennial } from './perennials'
 import { TUNING } from './tuning'
 
 /**
@@ -38,6 +39,11 @@ export type GardenState = {
    * Celebrated, never scored: nothing here grows a bed or earns a seed. Optional so older saves still load.
    */
   results?: Record<string, ResultKind[]>
+  /**
+   * The skill tree from an imported file (version 3), drawn as perennials beside the garden.
+   * Only ever added to, never reset by a season, and never a bed. Optional so older saves still load.
+   */
+  perennials?: Perennial[]
 }
 
 /** Results are what other people do in answer to the work. The work is scored; these never are. */

@@ -288,3 +288,26 @@ export function PlantIcon({ kind, size = 16 }: { kind: PlantKind; size?: number 
     </svg>
   )
 }
+
+/**
+ * A perennial from the skill tree, drawn as a coast live oak in five stages,
+ * one per rung: seed, sprout, sapling, young tree, and (every rung open) a
+ * permanent tree with acorns, spread roots and a ring of stones around it.
+ * Perennials never sleep, so there is no dry form.
+ */
+export function PerennialTree({ stage }: { stage: number }) {
+  const s = Math.max(0, Math.min(4, stage))
+  if (s === 0) return <Seed />
+  if (s === 1) return <Sprout p={GREEN} />
+  if (s < 4) return OAK[s - 1](GREEN)
+  return (
+    <g>
+      {/* Surface roots, then the stones that mark it as kept for good. */}
+      <path d="M22 40q-6 0-10 2M26 40q6 0 10 2M24 40q0 2-1 3" fill="none" stroke="#7a5a3c" strokeWidth={1.4} strokeLinecap="round" />
+      {[8, 14, 34, 40].map((x) => (
+        <ellipse key={x} cx={x} cy={42.5} rx={2.6} ry={1.5} fill="#a59d8c" stroke={LINE} strokeWidth={0.7} />
+      ))}
+      {OAK[3](GREEN)}
+    </g>
+  )
+}
