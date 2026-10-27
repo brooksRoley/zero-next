@@ -3,8 +3,9 @@
  *
  * A habit file of version 3 may carry `skills`, written by Brooks's job-search
  * tool (`agent.py tree`): one node per skill, each with a few rungs that
- * unlock only when that tool holds evidence for them (a repo or PR link, a
- * live page, a measured result, a design note). The file carries none of that
+ * unlock only when that tool holds evidence for them: work experience first
+ * (a resume role, something shipped, measured or designed at an employer),
+ * with public projects standing in; private repos never count. The file carries none of that
  * evidence. Each node is just its id, a public skill name, its branch, how
  * many rungs it has, and one slot per rung:
  *
@@ -42,7 +43,7 @@ export const RUNG_LABELS_4 = ['Used it', 'Shipped it', 'Measured it', 'Wrote the
 export const PERENNIAL_COPY = {
   title: 'Perennials',
   intro:
-    'Your skill tree, from the file you imported. A rung opens only when the tool that wrote the file holds evidence for it: a repo or PR link, a live page, a measured result or a design note. Perennials never go dormant and never reset.',
+    'Your skill tree, from the file you imported. A rung opens only with evidence an interviewer could check: work experience first, with public projects standing in. Private repos never count. Perennials never go dormant and never reset.',
   permanent: 'Permanent tree',
   locked: 'Not yet',
   undated: 'on record',
