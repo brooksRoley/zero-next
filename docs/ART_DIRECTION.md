@@ -43,6 +43,26 @@ fields, water, the canvas transitions already in the repertory. 60fps is the
 floor — a dropped frame is a wrong note. `prefers-reduced-motion` is honored
 everywhere; stillness must also read as designed.
 
+**Motion vocabulary.** Five curves and three durations, defined once in
+`src/lib/ui/tactile.js` (`EASING`, `DURATION`) and mirrored as CSS variables
+in `globals.css` and Tailwind utilities (`ease-settle`, `duration-ui`, …):
+
+| Curve | Use it when | Example |
+|---|---|---|
+| `overshoot` | a piece **lands** | stone drop, planted bed, stamp |
+| `settle` | something **arrives** | Reveal, hero lines, cards, menus |
+| `responsive` | the hand drives it | drag, hover follow |
+| `weighted` | a large thing **travels** | board transitions, walking pets, shake |
+| `exit` | something **leaves** | captured stones, dismissals |
+
+Durations: `tap` 150ms (hover, press, focus), `ui` 250ms (menus, toggles),
+`enter` 500ms (arrivals). Game pieces keep their own `TIMING` values. Never
+write a new `cubic-bezier`; if none of the five fits, the change to this table
+ships first. `motionTokens.test.ts` enforces both. A global
+`prefers-reduced-motion` net in `globals.css` collapses every CSS animation and
+transition; canvas and `requestAnimationFrame` work checks
+`prefersReducedMotion()` (`src/lib/motion.ts`) itself.
+
 ### 3. One metaphor, held
 Every piece commits to a single figurative frame and never mixes:
 mountain = mastery (Pente Puzzles), water = flow (Luminous Flow),

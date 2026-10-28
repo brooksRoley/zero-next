@@ -17,6 +17,39 @@
   * {
     box-sizing: border-box;
   }
+
+  /* Motion vocabulary — mirrors EASING and DURATION in src/lib/ui/tactile.js.
+   * Use these (or Tailwind's ease-overshoot / ease-settle / ...), never a new
+   * cubic-bezier. motionTokens.test.ts holds the two copies together. */
+  :root {
+    --ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-responsive: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-weighted: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-exit: cubic-bezier(0.55, 0, 0.9, 0.4);
+    --dur-tap: 150ms;
+    --dur-ui: 250ms;
+    --dur-enter: 500ms;
+  }
+
+  /* Pillar 2: stillness must also read as designed. One net for every CSS
+   * animation and transition on the site, so a new piece can't forget it.
+   * Durations go near zero rather than to `none` so animationend and
+   * transitionend still fire and state machines waiting on them advance.
+   * Canvas and requestAnimationFrame work checks prefersReducedMotion()
+   * (src/lib/motion.ts) itself. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+      transition-delay: 0ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 .cover-photo {
@@ -68,7 +101,7 @@ img {
   position: relative;
   transition:
     border-color 0.35s ease,
-    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow 0.4s var(--ease-settle);
 }
 
 .card-hover-border::before {
@@ -92,7 +125,14 @@ img {
   opacity: 1;
 }
 
-.tilt-card:hover .card-hover-border {
+/* Keyboard visitors get the same lift as the pointer, plus a brass ring. */
+.card-hover-border:focus-visible {
+  outline: 2px solid #CDA35F; /* brass-400 */
+  outline-offset: 3px;
+}
+
+.tilt-card:hover .card-hover-border,
+.card-hover-border:focus-visible {
   border-color: rgba(222, 217, 206, 0.42);
   box-shadow:
     0 14px 36px -8px rgba(0, 0, 0, 0.55),
@@ -164,6 +204,12 @@ img {
     0 16px 40px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   outline: none;
+}
+
+/* The hover lift alone is too faint to find with a keyboard; same brass ring as the cards. */
+.terrain-token:focus-visible {
+  outline: 2px solid #CDA35F; /* brass-400 */
+  outline-offset: 3px;
 }
 
 .terrain-token--aqua {

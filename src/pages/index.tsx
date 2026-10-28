@@ -55,7 +55,7 @@ const SectionHeading = ({ number, label }: { number: string; label: string }) =>
 )
 
 export default function Home() {
-  const cardBase = "group relative overflow-hidden rounded-xl border border-[#DED9CE]/14 bg-[#2F3C50]/18 text-[#E9E3D6] card-hover-border backdrop-blur-sm"
+  const cardBase = "group relative block overflow-hidden rounded-xl border border-[#DED9CE]/14 bg-[#2F3C50]/18 text-[#E9E3D6] card-hover-border backdrop-blur-sm"
 
   return (
     <main className="min-h-screen terrain-page-bg font-sans">
