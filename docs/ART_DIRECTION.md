@@ -81,6 +81,17 @@ error states are *designed*, not defaulted. WCAG AA contrast, visible focus.
 **Art that crashes is a bug, not a statement** — production quality is what
 lets a piece be shown proudly by a creator, not just a developer.
 
+**Measured floors** (adopted 2026-10-28 from a site-wide experiment: each rule
+injected on 28 routes at five widths and audited against a control run; PR #81):
+
+| Floor | Rule | Evidence |
+|---|---|---|
+| Tap size | Every control is at least **24×24px** (WCAG 2.5.8). Inline links in running text are exempt. Give text links `inline-flex` + padding: `min-height` does nothing on an inline element. Game boards are exempt when placement uses drag-to-preview (Pente). | Under-24px phone targets 107 → 30; +0.1% page height; no new overflow |
+| Text size | No HTML text under **12px**. SVG labels inside a chart are judged at their rendered size. | Sub-12px phone text 784 → 258 (the rest is SVG); +0.9% height; no new overflow |
+| Measure | Cap body copy in **`ch`**, about 65–70ch (`max-w-[65ch]`), not in px or `max-w-2xl`. A px cap lets small text run long. | Overlong lines 54 → 12; the remainder were `max-w-2xl` paragraphs at `text-sm`/`text-xs` running 96–112 characters per line |
+
+These bind new work now; existing pages come into line as they are touched.
+
 ### 6. The house learns
 Every production is instrumented with the first-party `track()` helper
 (`src/lib/analytics.ts`), so the theater can watch its own audience. Observed
@@ -138,7 +149,7 @@ Before any game or piece ships, in order:
 - [ ] One accent, on the house dark; palette tokens only.
 - [ ] Metaphor named in one word; every string on the page speaks it.
 - [ ] Frame present: title, playbill note. No money ask.
-- [ ] Phone playthrough clean; reduced-motion checked.
+- [ ] Phone playthrough clean; reduced-motion checked; measured floors met (24px taps, 12px text, measure in `ch`).
 - [ ] Loading / empty / error states designed.
 - [ ] `track()` events on the moments that matter (entry, the core action, the exit CTA).
 - [ ] Listed on `/theater`.
