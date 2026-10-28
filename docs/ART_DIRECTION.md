@@ -63,6 +63,30 @@ ships first. `motionTokens.test.ts` enforces both. A global
 transition; canvas and `requestAnimationFrame` work checks
 `prefersReducedMotion()` (`src/lib/motion.ts`) itself.
 
+**Ember, the house light** (adopted 2026-10-28; Brooks chose it from the
+Motion Lab plates). Brass light moving through cream dots is the site's
+signature. It comes in two forms and nothing else:
+
+| Form | Where | What it does |
+|---|---|---|
+| `EmberText` (`src/components/EmberText.tsx`) | At most one per page, for a name or a marquee: the home hero, the Theater | The words are drawn as dots that fly in and settle. A brass band sweeps across them, follows the cursor, and throws the odd spark. The real text sits underneath, transparent, for screen readers and selection |
+| `.ember-glint` (`globals.css`) | Card titles inside a `.group` link | One brass pass across the title on hover or keyboard focus |
+
+**Randomness, with rules.** Novelty comes from a seeded "weather"
+(`src/lib/ember/weather.ts`), drawn once per visit, so the light behaves a
+little differently each time but consistently within a visit:
+- Sweep direction (left, right, or out from the centre), band width, warmth (which brass), flicker depth, and how many sparks lift off.
+- Idle sweeps come at irregular gaps of 7 to 15 seconds, never on a metronome. A rare *flare* (about 1 visit in 12) lights the whole name once.
+- Glints vary per title (angle, speed, direction), from a hash of the title, so server and client agree.
+- **Never random:** legibility (dot spacing scales with the font so strokes are three to four dots wide), the palette (cream dots, brass light only), or the timing tokens.
+
+**Budgets.** About 1,500 dots at the largest hero size. The canvas pauses when it's off screen or the tab is hidden, and drops to 20 fps between sweeps. With reduced motion it draws one still frame, lit, and nothing moves.
+
+**Pillar 2 tension, stated.** Idle sweeps are ambient motion, which pillar 2
+discourages. They're kept sparse and irregular, and every other sweep answers
+state: page load, the pointer, focus, hover. If play data or a complaint shows
+the idle sweep distracts, it's the first thing to remove.
+
 ### 3. One metaphor, held
 Every piece commits to a single figurative frame and never mixes:
 mountain = mastery (Pente Puzzles), water = flow (Luminous Flow),

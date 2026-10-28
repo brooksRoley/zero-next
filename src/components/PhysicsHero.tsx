@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ReactNode, useEffect, useRef } from 'react'
 import Matter from 'matter-js'
-import PreText from 'src/components/PreText'
+import EmberText from 'src/components/EmberText'
 import { AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
 
 const PALETTE = {
@@ -404,24 +404,11 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
           </div>
 
           <div className="mb-4">
-            <PreText
+            <EmberText
               text="Brooks Roley"
-              mode="flow"
-              color={PALETTE.mist}
-              accentColor={PALETTE.aqua}
-              tag="h1"
-              fontSize="clamp(3.35rem, 9vw, 6.8rem)"
-              fontWeight="800"
-              interactive
-              fieldRadius={110}
-              fieldStrength={0.55}
-              settle={0.095}
-              className="max-w-max"
-              style={{ lineHeight: 0.9 }}
+              id="home-hero-title"
+              style={{ fontSize: 'clamp(3.35rem, 9vw, 6.8rem)', fontWeight: 800, lineHeight: 0.9 }}
             />
-            <span id="home-hero-title" className="sr-only">
-              Brooks Roley
-            </span>
           </div>
 
           <p className="max-w-xl text-base leading-7 text-[#E9E3D6]/80 sm:text-lg sm:leading-8">

@@ -6,6 +6,7 @@ import Reveal from 'src/components/Reveal'
 import TiltCard from 'src/components/TiltCard'
 import { AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
 import { route } from 'src/lib/routes'
+import { glintStyle } from 'src/lib/ember/weather'
 
 const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
   loading: () => <div className="physics-field-grid" />,
@@ -13,7 +14,7 @@ const PhysicsField = dynamic(() => import('src/components/PhysicsField'), {
 
 // Server-rendered: the `featured` prop carries the primary "Work with me" CTA and
 // every Featured card, so this must not be ssr:false — crawlers and no-JS clients
-// would see only the fallback below. matter-js and PreText are both SSR-safe (all
+// would see only the fallback below. matter-js and EmberText are both SSR-safe (all
 // browser APIs live inside effects), so the physics layer mounts as a client-side
 // enhancement on top of real server HTML. Same pattern as PhysicsField above.
 const PhysicsHero = dynamic(() => import('src/components/PhysicsHero'), {
@@ -54,6 +55,11 @@ const SectionHeading = ({ number, label }: { number: string; label: string }) =>
   </div>
 )
 
+// A card title takes one brass pass when its card is hovered or focused (Ember glint).
+const CardTitle = ({ children }: { children: string }) => (
+  <span className="ember-glint" style={glintStyle(children)}>{children}</span>
+)
+
 export default function Home() {
   const cardBase = "group relative block overflow-hidden rounded-xl border border-[#DED9CE]/14 bg-[#2F3C50]/18 text-[#E9E3D6] card-hover-border backdrop-blur-sm"
 
@@ -82,7 +88,7 @@ export default function Home() {
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Resume <ArrowIcon />
+                          <CardTitle>Resume</CardTitle> <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Learn more about my experiences and background.
@@ -104,7 +110,7 @@ export default function Home() {
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Basketball Data Platform <ArrowIcon />
+                          <CardTitle>Basketball Data Platform</CardTitle> <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Full-stack NBA system. Python API, C++ WASM engine, Vue 3 game, SwiftUI iOS.
@@ -126,7 +132,7 @@ export default function Home() {
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Hardwood Autochess <ArrowIcon />
+                          <CardTitle>Hardwood Autochess</CardTitle> <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           An NBA auto-battler: a C++ engine compiled to WebAssembly under a Vue 3 client, with a desktop launcher that ships only the chunks that changed.
@@ -148,7 +154,7 @@ export default function Home() {
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          Trade Machine <ArrowIcon />
+                          <CardTitle>Trade Machine</CardTitle> <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           NBA salary-cap explorer — build trades, test CBA legality, and see the cap math for 2026-27.
@@ -176,7 +182,7 @@ export default function Home() {
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          NBA Explorer <ArrowIcon />
+                          <CardTitle>NBA Explorer</CardTitle> <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Live NBA stats, standings, player analytics, and team dashboards. Interactive node graph.
@@ -198,7 +204,7 @@ export default function Home() {
                       </div>
                       <div className="relative px-5 pb-5 -mt-8">
                         <h3 className="text-xl font-semibold flex items-center gap-2">
-                          The Zero Theater <ArrowIcon />
+                          <CardTitle>The Zero Theater</CardTitle> <ArrowIcon />
                         </h3>
                         <p className="mt-1 text-sm text-[#E9E3D6]/68">
                           Every game on this site, staged as a production — duels, trials, seasons. Admission free.
@@ -232,7 +238,7 @@ export default function Home() {
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        The Rig Report <ArrowIcon />
+                        <CardTitle>The Rig Report</CardTitle> <ArrowIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         A satirical NBA &ldquo;rigging&rdquo; inspector that teaches real odds math — the vig, base rates, line movement.
@@ -255,7 +261,7 @@ export default function Home() {
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Model Arena <ArrowIcon />
+                        <CardTitle>Model Arena</CardTitle> <ArrowIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Compare AI models side by side. Blind battles, speed stats, leaderboard.
@@ -278,7 +284,7 @@ export default function Home() {
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        Luminous Flow <ArrowIcon />
+                        <CardTitle>Luminous Flow</CardTitle> <ArrowIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Interactive fluid art. Curl noise, light, and particle physics.
@@ -310,7 +316,7 @@ export default function Home() {
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        LinkedIn <ExternalIcon />
+                        <CardTitle>LinkedIn</CardTitle> <ExternalIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Message me on LinkedIn.
@@ -333,7 +339,7 @@ export default function Home() {
                     </div>
                     <div className="relative px-5 pb-5 -mt-8">
                       <h3 className="text-xl font-semibold flex items-center gap-2">
-                        GitHub <ExternalIcon />
+                        <CardTitle>GitHub</CardTitle> <ExternalIcon />
                       </h3>
                       <p className="mt-1 text-sm text-[#E9E3D6]/68">
                         Explore my projects and open-source work.
