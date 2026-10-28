@@ -40,7 +40,7 @@ export default function InterventionCard({
         style={{
           opacity: appear ? 1 : 0,
           transform: appear ? 'translateY(0) rotateX(0deg)' : 'translateY(40px) rotateX(8deg)',
-          transition: 'opacity 520ms cubic-bezier(0.22, 1, 0.36, 1), transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: 'opacity 520ms var(--ease-settle), transform 520ms var(--ease-overshoot)',
         }}
       >
         <div className="intervention-card-inner">
