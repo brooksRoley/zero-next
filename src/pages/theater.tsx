@@ -1,4 +1,6 @@
 import Head from 'next/head'
+import EmberText from 'src/components/EmberText'
+import { glintStyle } from 'src/lib/ember/weather'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { track } from 'src/lib/analytics'
@@ -272,7 +274,7 @@ function Playbill({ production, act, progress }: { production: Production; act: 
         {production.metaphor}
       </p>
       <h3 className="mt-2 text-xl font-semibold text-white">
-        {production.title}
+        <span className="ember-glint" style={glintStyle(production.title)}>{production.title}</span>
         <span className="ml-2 inline-block translate-x-0 text-ink-500 transition-transform group-hover:translate-x-1 group-hover:text-ink-300">
           →
         </span>
@@ -312,9 +314,12 @@ export default function Theater() {
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-brass-400/90">
             Now showing · admission free
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            The Zero <span className="text-brass-400">Theater</span>
-          </h1>
+          <EmberText
+            className="mt-3"
+            text={[{ text: 'The Zero ' }, { text: 'Theater', accent: true }]}
+            accentClassName="text-brass-400"
+            style={{ fontSize: 'clamp(1.9rem, 8.5vw, 3.75rem)', fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1 }}
+          />
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-ink-300 sm:text-base">
             Every game on this site is a production: it gets a stage, a metaphor it
             holds from curtain to curtain, and a playbill note from the maker. Duels
