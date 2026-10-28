@@ -24,11 +24,30 @@ export const LOCATION = 'Orange County, CA'
 
 export const AVAILABILITY = 'Open to full-time roles — remote, or hybrid in Orange County.'
 
-// One line for the year between roles, placed after the entry at this index.
-export const INTERLUDE = {
-  afterIndex: 0,
-  text: '2025 — Family leave: settled a parent’s estate and relocated to Orange County.',
-}
+// The home hero's one-paragraph pitch. The hero, its loading fallback and the
+// site-wide meta description all read from here so they cannot drift apart.
+export const HERO_SUMMARY =
+  'Full-stack software engineer with a front-end lean. I build fast, accessible interfaces ' +
+  'in React, Vue and TypeScript and the Python and Node services behind them.'
+
+// Search results and link previews. Kept under ~160 characters so it is not cut off.
+export const SITE_DESCRIPTION =
+  'Brooks Roley — full-stack software engineer with a front-end lean: React, TypeScript, Node and Python. ' +
+  'Open to full-time roles.'
+
+// One line per break between roles, each placed after the entry at its index.
+// Brooks chose (2026-10-26) one short mention of his father's death and nothing
+// more: no illness, caregiving or estate details. resume.test.ts guards this.
+export const INTERLUDES = [
+  {
+    afterIndex: 0,
+    text: '2025 — Family leave after my father’s death.',
+  },
+  {
+    afterIndex: 1,
+    text: '2022 – 2024 — Career break.',
+  },
+]
 
 export const EXPERIENCE: ResumeRole[] = [
   {
@@ -36,10 +55,11 @@ export const EXPERIENCE: ResumeRole[] = [
     role: 'Software Engineer',
     dates: '2026 – Present',
     bullets: [
-      'Built and deployed a bilingual (English and Spanish) family intake system for Centerpointe for Children, a pediatric occupational therapy clinic. Answers are encrypted in the parent’s browser (RSA-OAEP and AES-256-GCM), so the form service and the inbox only ever hold ciphertext.',
+      'Built and deployed a bilingual (English and Spanish) intake system for Centerpointe for Children, a pediatric occupational therapy clinic. Answers are encrypted in the browser (RSA-OAEP and AES-256-GCM), so the form service and the inbox only ever hold ciphertext.',
       'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility score under 90 fails the check.',
       'Work daily with AI coding agents under tests and my own review. A scheduled agent opens pull requests on this site that I review before they merge.',
       'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
+      'Built a desktop launcher for the game in Electron, React and TypeScript. Updates download only the chunks that changed (a one-line change ships 16 KB of a 1.07 MB build), and every install is verified, resumable and can roll back.',
     ],
   },
   {
@@ -54,7 +74,7 @@ export const EXPERIENCE: ResumeRole[] = [
   {
     org: 'Grove Collaborative',
     role: 'Software Engineer II',
-    dates: '2019 – 2023',
+    dates: '2019 – 2022',
     bullets: [
       'Full-stack engineer on a Django and Vue e-commerce platform, and Scrum Lead across teams focused on discovery, personalization and engagement.',
       'Led development of a homepage personalization service on AWS SageMaker that responded in 150ms through caching and async workflows, with a custom admin UI.',
@@ -102,7 +122,7 @@ export const EXPERIENCE: ResumeRole[] = [
 ]
 
 export const SKILLS: SkillGroup[] = [
-  { label: 'Languages and frameworks', items: ['TypeScript', 'JavaScript', 'Python', 'React', 'Next.js', 'Vue', 'Angular', 'Node.js', 'Django', 'FastAPI', 'D3.js'] },
+  { label: 'Languages and frameworks', items: ['TypeScript', 'JavaScript', 'Python', 'C++', 'React', 'Next.js', 'Vue', 'Angular', 'Node.js', 'Django', 'FastAPI', 'D3.js', 'WebAssembly (Emscripten)'] },
   { label: 'Data', items: ['PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Redis', 'Memcached', 'Snowflake', 'Celery'] },
   { label: 'Infrastructure and tools', items: ['AWS (S3, SageMaker)', 'Docker', 'Kubernetes', 'Terraform', 'Vercel', 'Git', 'Bash', 'Webpack'] },
   { label: 'Accessibility and standards', items: ['WCAG', 'HIPAA', 'SSO/SAML', 'A/B testing'] },

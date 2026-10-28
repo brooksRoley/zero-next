@@ -147,7 +147,7 @@ export default function StageExpansion({ onAdvance }) {
       </div>
       <div className="space-y-3">
         <StepCard {...steps[step]} />
-        <div className="text-xs text-forest-500 leading-relaxed px-1">
+        <div className="text-xs text-ink-500 leading-relaxed px-1">
           {step === 0 && `Dark dots = enclosed empty points = your territory. ${view.terrCount} points × 7 stones in the corner.`}
           {step === 1 && `${view.stoneCount} stones in the center yield only ${view.terrCount} territory point${view.terrCount === 1 ? '' : 's'}.`}
           {step === 2 && view.stoneCount === 0 && 'Click anywhere in the dimmed corner area to place a black stone.'}

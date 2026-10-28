@@ -1,7 +1,5 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
-import { track } from 'src/lib/analytics';
 import useGameTracking from 'src/hooks/useGameTracking';
 
 import { useRouter } from 'next/router';
@@ -9,6 +7,7 @@ import GameLobby from 'src/components/GameLobby';
 import MultiplayerStatus from 'src/components/MultiplayerStatus';
 import confetti from 'canvas-confetti';
 import useGameSounds from 'src/hooks/useGameSounds';
+import SoundToggle from 'src/components/SoundToggle';
 import usePlayerProfile from 'src/hooks/usePlayerProfile';
 import useMultiplayerGame from 'src/hooks/useMultiplayerGame';
 import { EMPTY, BLACK, WHITE, RED, BLUE, GAME_MODES, PLAYER_COLORS } from 'src/lib/pente/constants';
@@ -21,7 +20,7 @@ import PreText from 'src/components/PreText';
 import PenteTopNav from 'src/components/pente/PenteTopNav';
 import SolarField from 'src/components/pente/SolarField';
 import InterventionCard from 'src/components/pente/InterventionCard';
-import PostSolveTip from 'src/components/pente/PostSolveTip';
+import UpdatesCard from 'src/components/UpdatesCard';
 import EndlessPuzzle from 'src/components/EndlessPuzzle';
 import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
 import { logGameResult } from 'src/lib/pente/gameResults';
@@ -615,7 +614,7 @@ const GameBoard = () => {
 
   return (
     <div
-      className="flex flex-col bg-forest-950 overflow-hidden relative"
+      className="flex flex-col bg-ink-950 overflow-hidden relative"
       style={{ height: '100dvh' }}
     >
       <Head>
@@ -631,7 +630,7 @@ const GameBoard = () => {
       </div>
 
       <div className="relative z-10 flex flex-col flex-1 min-h-0">
-      <PenteTopNav active="game" />
+      <PenteTopNav active="game" heading tagline="Five in a row, or capture five pairs, wins." />
 
       <BoardCustomizer
         open={showCustomizer}
@@ -643,16 +642,16 @@ const GameBoard = () => {
       {/* ══════════════════════════════════════════════════════════════
           COMPACT HEADER
       ══════════════════════════════════════════════════════════════ */}
-      <header className="flex-shrink-0 border-b border-forest-800/60 bg-forest-950/70 backdrop-blur">
+      <header className="flex-shrink-0 border-b border-ink-800/60 bg-ink-950/70 backdrop-blur">
 
         {/* Row 1 — Mode tabs + action buttons */}
         <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
           {/* Mode tabs */}
-          <div className="flex rounded-lg overflow-hidden border border-forest-700/40 shrink-0">
+          <div className="flex rounded-lg overflow-hidden border border-ink-700/40 shrink-0">
             {MODE_PRESETS.map((preset, i) => (
               <button
                 key={preset.key}
-                className={`${modeBtnClass(modePreset === preset.key)} ${i > 0 ? 'border-l border-forest-700/40' : ''}`}
+                className={`${modeBtnClass(modePreset === preset.key)} ${i > 0 ? 'border-l border-ink-700/40' : ''}`}
                 onClick={() => switchPreset(preset.key)}
               >
                 {preset.label}
@@ -677,6 +676,7 @@ const GameBoard = () => {
                 New
               </button>
             )}
+            <SoundToggle className={actionBtnClass()} />
             <button
               className={actionBtnClass(showCustomizer)}
               onClick={() => setShowCustomizer(s => !s)}
@@ -698,12 +698,12 @@ const GameBoard = () => {
         {/* Adaptive bot ELO display (bot modes only) */}
         {botEnabled && !gameOver && (
           <div className="flex items-center gap-2 px-3 pb-1.5">
-            <span className="text-[10px] text-forest-500 uppercase tracking-wider">Adaptive Bot</span>
-            <span className="text-[10px] text-forest-400 font-mono">
+            <span className="text-[10px] text-ink-400 uppercase tracking-wider">Adaptive Bot</span>
+            <span className="text-[10px] text-ink-300 font-mono">
               ~{botEffectiveElo ?? getAdaptiveBotConfig(gameElo, gamesPlayed).effectiveElo} ELO
             </span>
             {gamesPlayed < 5 && (
-              <span className="text-[10px] text-candy-pink/60 italic">
+              <span className="text-[10px] text-brass-300 italic">
                 calibrating ({5 - gamesPlayed} games left)
               </span>
             )}
@@ -780,7 +780,7 @@ const GameBoard = () => {
 
         {/* Thin eval strip — mobile only (classic mode) */}
         {showEval && (
-          <div className="md:hidden mx-3 mb-2 h-1.5 rounded-full bg-gray-900 border border-forest-800/40 overflow-hidden flex">
+          <div className="md:hidden mx-3 mb-2 h-1.5 rounded-full bg-gray-900 border border-ink-800/40 overflow-hidden flex">
             <div
               className="bg-gradient-to-r from-gray-800 to-gray-500 transition-all duration-500"
               style={{ width: `${100 - evalPercent}%` }}
@@ -799,7 +799,9 @@ const GameBoard = () => {
       {/* ══════════════════════════════════════════════════════════════
           BOARD / CONTENT AREA
       ══════════════════════════════════════════════════════════════ */}
-      <main className="flex-1 min-h-0 flex items-center justify-center overflow-hidden p-2 sm:p-3">
+      {/* Top-aligned on phones: centred, a 19×19 board that is as wide as the
+          screen floated mid-height and left a dead band under the controls. */}
+      <main className="flex-1 min-h-0 flex items-start md:items-center justify-center overflow-hidden p-2 sm:p-3">
 
         {/* Lobby */}
         {showLobby && (
@@ -819,8 +821,8 @@ const GameBoard = () => {
             {/* Eval bar — desktop sidebar (classic only) */}
             {showEval && (
               <div className="hidden md:flex flex-col items-center gap-1 shrink-0">
-                <span className="text-[10px] text-forest-500 uppercase tracking-wider">Eval</span>
-                <div className="w-4 h-52 rounded-full bg-gray-900 border border-forest-700/40 overflow-hidden relative">
+                <span className="text-[10px] text-ink-500 uppercase tracking-wider">Eval</span>
+                <div className="w-4 h-52 rounded-full bg-gray-900 border border-ink-700/40 overflow-hidden relative">
                   <div
                     className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white to-gray-300 transition-all duration-500"
                     style={{ height: `${evalPercent}%` }}
@@ -830,7 +832,7 @@ const GameBoard = () => {
                     style={{ height: `${100 - evalPercent}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-forest-500 font-mono">
+                <span className="text-[10px] text-ink-500 font-mono">
                   {evalClamped > 0 ? '+' : ''}{(evalClamped / 1000).toFixed(1)}k
                 </span>
               </div>
@@ -901,7 +903,7 @@ const GameBoard = () => {
 
             {/* In-page training puzzle mount — no reload, same surface */}
             {trainingActive && intervention && (
-              <div className="absolute inset-0 z-40 rounded-xl overflow-auto bg-forest-950/95 backdrop-blur-sm border border-forest-700/40 p-4 sm:p-5">
+              <div className="absolute inset-0 z-40 rounded-xl overflow-auto bg-ink-950/95 backdrop-blur-sm border border-ink-700/40 p-4 sm:p-5">
                 <EndlessPuzzle
                   playerId={playerId}
                   elo={puzzleElo}
@@ -953,7 +955,7 @@ const GameBoard = () => {
       />
       {/* Post-multiplayer game result */}
       {isOnline && mp.gameStatus === 'finished' && (
-        <div className="flex-shrink-0 border-t border-forest-700/40 bg-forest-900/90 px-4 py-3">
+        <div className="flex-shrink-0 border-t border-ink-700/40 bg-ink-900/90 px-4 py-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
               <span
@@ -973,7 +975,7 @@ const GameBoard = () => {
                   resetLocalBoard();
                   mm.enterQueue();
                 }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-candy-500 to-candy-600 text-white font-semibold hover:from-candy-400 hover:to-candy-500 transition-all"
+                className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-brass-500 to-brass-600 text-white font-semibold hover:from-brass-400 hover:to-brass-500 transition-all"
               >
                 Play Again
               </button>
@@ -985,35 +987,17 @@ const GameBoard = () => {
                   setBotInstances([]);
                   resetLocalBoard();
                 }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-forest-700/60 text-white border border-forest-600 hover:bg-forest-600/60 transition-colors"
+                className="text-xs px-3 py-1.5 rounded-lg bg-ink-700/60 text-white border border-ink-600 hover:bg-ink-600/60 transition-colors"
               >
                 Back to Menu
               </button>
             </div>
           </div>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track('cta_click', {
-                page: '/posts/pente',
-                metadata: { location: 'pente_game_result_tip' },
-                beacon: true,
-              })
-            }
-            className="block mt-2.5 text-sm text-candy-500 hover:text-candy-400 transition-colors"
-          >
-            Enjoying Pente? Support development →
-          </Link>
         </div>
       )}
       </div>
 
-      <PostSolveTip
-        trigger={winSignal}
-        page="/posts/pente"
-        location="pente_post_win_tip"
-        label="Enjoying Pente? Keep it free →"
-      />
+      <UpdatesCard trigger={winSignal} page="/posts/pente" />
     </div>
   );
 };

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'fs'
 import path from 'path'
-import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDE, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume'
+import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDES, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume'
 
 // Everything a visitor reads on /resume, as one string.
 const ALL_TEXT = [
-  SUMMARY, LOCATION, AVAILABILITY, INTERLUDE.text,
+  SUMMARY, LOCATION, AVAILABILITY, ...INTERLUDES.map((g) => g.text),
   ...EXPERIENCE.flatMap((r) => [r.org, r.role, r.dates, ...r.bullets]),
   ...SKILLS.flatMap((g) => [g.label, ...g.items]),
   EDUCATION.school, EDUCATION.degree, EDUCATION.year,
@@ -47,9 +47,31 @@ describe('resume data', () => {
     }
   })
 
-  it('places the interlude between two real entries', () => {
-    expect(INTERLUDE.afterIndex).toBeGreaterThanOrEqual(0)
-    expect(INTERLUDE.afterIndex).toBeLessThan(EXPERIENCE.length - 1)
+  it('places every interlude between two real entries', () => {
+    for (const g of INTERLUDES) {
+      expect(g.afterIndex, g.text).toBeGreaterThanOrEqual(0)
+      expect(g.afterIndex, g.text).toBeLessThan(EXPERIENCE.length - 1)
+    }
+  })
+
+  // Grove ended with a 2022 layoff; the resume said 2023 for over a year.
+  it('dates Grove to 2022 and explains every break after it', () => {
+    expect(EXPERIENCE.find((r) => r.org.startsWith('Grove'))?.dates).toBe('2019 – 2022')
+    expect(INTERLUDES.map((g) => g.text.slice(0, 4))).toEqual(['2025', '2022'])
+  })
+
+  // The page and PDF are public. Brooks chose one short mention of his father's
+  // death for the 2025 break (2026-10-26); every other break shows dates only,
+  // and no illness, caregiving, estate or other health detail is published.
+  it('keeps breaks to dates and one approved family line', () => {
+    const APPROVED = '2025 — Family leave after my father’s death.'
+    for (const g of INTERLUDES) {
+      if (g.text === APPROVED) continue
+      expect(g.text, g.text).toMatch(/^\d{4}( – \d{4})? — Career break\.$/)
+    }
+    expect(ALL_TEXT.split(APPROVED).join('')).not.toMatch(
+      /\b(family|father|mother|parent|estate|caregiv\w*|illness|ill|death|died|passed away|funeral|medical leave|health reasons?)\b/i,
+    )
   })
 
   // The repository and the PDF are public; the PDF carries an email and links only.

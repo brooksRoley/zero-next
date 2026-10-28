@@ -14,28 +14,36 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-zero-next commit that restored/vendored this bundle:
-  e99e60e  revert(hardwood): restore July-monolith bundle (undo #43 regression)
-           Tue Sep 8 2026 — reverts PR #43, restoring the bundle originally
-           vendored in commit aeb7fce ("feat(hardwood): serve the game
-           same-origin at /hardwood", 2026-07-10).
+Rebuilt 2026-10-23 (zero-next branch games/hardwood-open-gym).
 
-Build identity:
-  This is the "July monolith" build of BballTactics.
+BballTactics source: dd0004b5e2ca1088aaaf0ac34758de1de56b904a (main, clean
+tree: "Merge pull request #8 from brooksRoley/game/open-gym").
+Adds BballTactics PRs #7 and #8 over 54a1fce: the Open Gym opening screen
+(How to Play cards, the controls tour, Run It), synthesized sound for every
+click and court event, and press feel. Sound starts muted on this embed
+(client/audio/sfx.js defaultMuted for base /hardwood/); the speaker button
+turns it on.
 
-BballTactics source SHA (recorded provenance, per zero-next project memory):
-  f7b01e3  "Push to actions and github pages" (2026-07-10) — the BballTactics
-           origin/main monolith rewrite that the deployed /hardwood bundle was
-           built from.
+Build: VITE_API_BASE='' npx vite build --base=/hardwood/ --outDir <scratch dir>
+Copied: index.html and all ten files in assets/ (previous asset files
+removed). engine.js, engine.wasm and engine_roster.json were byte-identical
+and are unchanged. Every copied file verified with cmp against the build.
 
-  NOTE: f7b01e3 is the provenance RECORDED IN PROJECT MEMORY, not a SHA verified
-  against the BballTactics repo during the creation of this file. If you cannot
-  confirm this exact upstream build SHA against BballTactics origin/main, treat
-  it as:
-      BballTactics source SHA: UNKNOWN — record on next rebuild
+PREVIOUS BUNDLE: 2026-10-22, BballTactics 54a1fce (zero-next PR #73). Before that: 2026-10-21, 7e6fbd5 (PR #70).
+
+PROVENANCE VERIFIED 2026-10-20
+  Before changing anything, BballTactics b75f7f0 was built unmodified with the
+  command above. Every file matched the then-deployed bundle byte for byte
+  (index-CpvGEpOe.js, index-P7yAxl1j.css, index.html, engine.js, engine.wasm,
+  engine_roster.json). So the "July monolith" bundle restored by e99e60e WAS
+  built from f7b01e3's client source; the earlier "UNKNOWN" caveat is resolved.
 
 HOW TO REBUILD / RE-SYNC (and what to update here)
 --------------------------------------------------
+BballTactics' `npm run build:hardwood` now builds into its own dist-hardwood/
+(changed 2026-10-20), so it no longer deletes this file. Still build outside
+zero-next and copy what changed.
+
 In BballTactics: git fetch, then build from CURRENT origin/main (the canonical
 build is the July monolith line, not the older May base):
 

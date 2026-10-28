@@ -27,10 +27,10 @@ function verdict(score: number): string {
 }
 
 function meterColor(score: number): string {
-  if (score >= 60) return "#f24da0"; // candy-500
-  if (score >= 40) return "#ff8cc2"; // candy-300
-  if (score >= 20) return "#B27236"; // ochre
-  return "#6abf82"; // forest-300
+  if (score >= 60) return "#C18E3D"; // brass-500
+  if (score >= 40) return "#D8B783"; // brass-300
+  if (score >= 20) return "#966F2F"; // brass-600
+  return "#BCB8B3"; // ink-300
 }
 
 function fmtTipoff(iso: string): string {
@@ -52,7 +52,7 @@ function RiggedOMeter({ score }: { score: number }) {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-1.5">
-        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#DADBD9]/50">
+        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E9E3D6]/50">
           Rigged-o-Meter
         </span>
         <span className="font-mono text-xs font-bold" style={{ color }}>
@@ -60,7 +60,7 @@ function RiggedOMeter({ score }: { score: number }) {
         </span>
       </div>
       <div
-        className="h-3 w-full rounded-full bg-forest-900 border border-forest-700/60 overflow-hidden"
+        className="h-3 w-full rounded-full bg-ink-900 border border-ink-700/60 overflow-hidden"
         role="meter"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -71,7 +71,7 @@ function RiggedOMeter({ score }: { score: number }) {
           className="h-full rounded-full transition-all duration-700"
           style={{
             width: `${Math.max(score, 3)}%`,
-            background: `linear-gradient(90deg, #2d6a4f, ${color})`,
+            background: `linear-gradient(90deg, #5A687C, ${color})`,
           }}
         />
       </div>
@@ -102,20 +102,20 @@ function ExhibitCard({
     <div
       className={`rounded-lg border p-4 transition-colors duration-300 ${
         revealed
-          ? "border-forest-400/50 bg-forest-800/40"
-          : "border-candy-500/40 bg-candy-950/30"
+          ? "border-ink-400/50 bg-ink-800/40"
+          : "border-brass-500/40 bg-brass-950/30"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <div
             className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
-              revealed ? "text-forest-300" : "text-candy-300"
+              revealed ? "text-ink-300" : "text-brass-300"
             }`}
           >
             {exhibit.title}
           </div>
-          <div className="mt-1 text-sm font-semibold text-[#DADBD9]">
+          <div className="mt-1 text-sm font-semibold text-[#E9E3D6]">
             {exhibit.stat}
           </div>
         </div>
@@ -123,21 +123,21 @@ function ExhibitCard({
           aria-hidden
           className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider border ${
             revealed
-              ? "border-forest-400/60 text-forest-200"
-              : "border-candy-400/60 text-candy-200 rotate-2"
+              ? "border-ink-400/60 text-ink-200"
+              : "border-brass-400/60 text-brass-200 rotate-2"
           }`}
         >
           {revealed ? "Declassified" : "Confidential"}
         </span>
       </div>
 
-      <p className="mt-3 text-sm leading-relaxed text-[#DADBD9]/85">
+      <p className="mt-3 text-sm leading-relaxed text-[#E9E3D6]/85">
         {revealed ? exhibit.sober : exhibit.conspiracy}
       </p>
 
       {revealed && (
-        <p className="mt-3 rounded border border-forest-500/30 bg-forest-950/60 px-3 py-2 text-xs leading-relaxed text-forest-100/90">
-          <span className="font-mono uppercase tracking-wider text-forest-300">
+        <p className="mt-3 rounded border border-ink-500/30 bg-ink-950/60 px-3 py-2 text-xs leading-relaxed text-ink-100/90">
+          <span className="font-mono uppercase tracking-wider text-ink-300">
             The actual lesson:{" "}
           </span>
           {exhibit.lesson}
@@ -150,8 +150,8 @@ function ExhibitCard({
         aria-pressed={revealed}
         className={`mt-3 w-full rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
           revealed
-            ? "border-candy-500/50 text-candy-300 hover:bg-candy-950/40"
-            : "border-forest-400/50 text-forest-200 hover:bg-forest-800/60"
+            ? "border-brass-500/50 text-brass-300 hover:bg-brass-950/40"
+            : "border-ink-400/50 text-ink-200 hover:bg-ink-800/60"
         }`}
       >
         {revealed ? "Restore the conspiracy" : "Okay, but what actually happened?"}
@@ -167,30 +167,30 @@ function CaseFileCard({ entry, index }: { entry: CaseFileEntry; index: number })
 
   return (
     <article
-      className={`relative rounded-xl border border-[#C5E7EA]/15 bg-[#0d1b14]/80 p-5 shadow-lg shadow-black/30 backdrop-blur-sm ${tilt}`}
+      className={`relative rounded-xl border border-[#DED9CE]/15 bg-[#0d1b14]/80 p-5 shadow-lg shadow-black/30 backdrop-blur-sm ${tilt}`}
     >
       {/* red-string corner pin, CSS only */}
       <span
         aria-hidden
-        className="absolute -top-1.5 left-6 h-3 w-3 rounded-full bg-candy-500 shadow shadow-candy-500/50"
+        className="absolute -top-1.5 left-6 h-3 w-3 rounded-full bg-brass-500 shadow shadow-brass-500/50"
       />
       <span
         aria-hidden
-        className="absolute top-0 left-7 h-10 w-px origin-top rotate-[24deg] bg-gradient-to-b from-candy-500/70 to-transparent"
+        className="absolute top-0 left-7 h-10 w-px origin-top rotate-[24deg] bg-gradient-to-b from-brass-500/70 to-transparent"
       />
 
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#B9968D]">
+          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#B1ADA8]">
             Case {caseNo}
             {game.gameLabel ? ` · ${game.gameLabel}` : ""}
           </div>
-          <h3 className="mt-1 text-lg font-bold text-[#DADBD9]">
-            {game.awayTeam} <span className="text-[#DADBD9]/40">@</span>{" "}
+          <h3 className="mt-1 text-lg font-bold text-[#E9E3D6]">
+            {game.awayTeam} <span className="text-[#E9E3D6]/40">@</span>{" "}
             {game.homeTeam}
           </h3>
         </div>
-        <div className="text-right font-mono text-[11px] text-[#DADBD9]/55">
+        <div className="text-right font-mono text-[11px] text-[#E9E3D6]/55">
           <div>{fmtTipoff(game.commenceTime)}</div>
           <div className="mt-0.5">
             {game.closingSpread != null && (
@@ -200,7 +200,7 @@ function CaseFileCard({ entry, index }: { entry: CaseFileEntry; index: number })
               </span>
             )}
             {entry.holdPct != null && (
-              <span className="text-candy-300"> · hold {entry.holdPct}%</span>
+              <span className="text-brass-300"> · hold {entry.holdPct}%</span>
             )}
           </div>
         </div>
@@ -211,7 +211,7 @@ function CaseFileCard({ entry, index }: { entry: CaseFileEntry; index: number })
       </div>
 
       {report.exhibits.length === 0 ? (
-        <p className="mt-4 rounded-lg border border-forest-700/50 bg-forest-900/40 px-4 py-3 text-sm text-[#DADBD9]/70">
+        <p className="mt-4 rounded-lg border border-ink-700/50 bg-ink-900/40 px-4 py-3 text-sm text-[#E9E3D6]/70">
           The Bureau found nothing. Which is, of course, exactly what they would
           want a game to look like. (Statistically: a normal game.)
         </p>
@@ -229,39 +229,39 @@ function CaseFileCard({ entry, index }: { entry: CaseFileEntry; index: number })
 function HouseAlwaysWins({ house }: { house: RigReportResponse["house"] }) {
   if (house.avgHoldPct == null) return null;
   return (
-    <section className="rounded-xl border border-candy-500/30 bg-candy-950/20 p-5">
-      <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-candy-300">
+    <section className="rounded-xl border border-brass-500/30 bg-brass-950/20 p-5">
+      <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-brass-300">
         Standing Exhibit: The House Always Wins
       </h2>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <div className="text-3xl font-bold text-candy-300">
+          <div className="text-3xl font-bold text-brass-300">
             {house.avgOverroundPct}%
           </div>
-          <div className="mt-1 text-xs text-[#DADBD9]/60">
+          <div className="mt-1 text-xs text-[#E9E3D6]/60">
             average overround across {house.gamesWithMoneylines}{" "}
             {house.gamesWithMoneylines === 1 ? "game" : "games"} tonight — the
             implied probabilities sum past 100% by this much
           </div>
         </div>
         <div>
-          <div className="text-3xl font-bold text-candy-300">{house.avgHoldPct}%</div>
-          <div className="mt-1 text-xs text-[#DADBD9]/60">
+          <div className="text-3xl font-bold text-brass-300">{house.avgHoldPct}%</div>
+          <div className="mt-1 text-xs text-[#E9E3D6]/60">
             the hold: the cut of all money wagered the book keeps if action is
             balanced. No fixing required.
           </div>
         </div>
         <div>
-          <div className="text-3xl font-bold text-candy-300">
+          <div className="text-3xl font-bold text-brass-300">
             −${house.lossPer100}
           </div>
-          <div className="mt-1 text-xs text-[#DADBD9]/60">
+          <div className="mt-1 text-xs text-[#E9E3D6]/60">
             expected result per $100 wagered blindly into these lines. At the
             standard −110, you must win 52.4% just to break even.
           </div>
         </div>
       </div>
-      <p className="mt-4 text-sm leading-relaxed text-[#DADBD9]/75">
+      <p className="mt-4 text-sm leading-relaxed text-[#E9E3D6]/75">
         This is the only rigging the Bureau has ever proven, and it&apos;s printed
         on the price tag. A sportsbook doesn&apos;t need any game&apos;s outcome
         to go its way — it charges a fee on both sides of every market and lets
@@ -277,53 +277,53 @@ function SourceShortcomings({ meta, source }: {
   source: RigReportResponse["source"];
 }) {
   return (
-    <section className="rounded-xl border border-[#C5E7EA]/12 bg-[#0d1b14]/60 p-5">
-      <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-[#B9968D]">
+    <section className="rounded-xl border border-[#DED9CE]/12 bg-[#0d1b14]/60 p-5">
+      <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-[#B1ADA8]">
         Our Sources&apos; Shortcomings (Full Disclosure)
       </h2>
-      <p className="mt-3 text-sm text-[#DADBD9]/70">
+      <p className="mt-3 text-sm text-[#E9E3D6]/70">
         An integrity bureau that hides its own data problems is just another
         conspiracy. Ours, itemized:
       </p>
-      <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[#DADBD9]/70">
+      <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[#E9E3D6]/70">
         <li>
-          <span className="text-[#DADBD9]/90 font-medium">The Odds API (free tier):</span>{" "}
+          <span className="text-[#E9E3D6]/90 font-medium">The Odds API (free tier):</span>{" "}
           500 credits/month; our snapshot (3 markets × 1 region) costs 3 credits,
           so we cache each pull in our own database for 6 hours — you may be
           reading lines that moved hours ago. When quota hits zero, the feed
           simply stops until the 1st of the month.
           {!meta.oddsApiConfigured && (
-            <span className="text-candy-300"> (No key configured — this source is currently offline.)</span>
+            <span className="text-brass-300"> (No key configured — this source is currently offline.)</span>
           )}
         </li>
         <li>
-          <span className="text-[#DADBD9]/90 font-medium">Our own Neon archive:</span>{" "}
+          <span className="text-[#E9E3D6]/90 font-medium">Our own Neon archive:</span>{" "}
           odds snapshots only exist for days the ingest cron actually ran, and
           only from the bookmakers it captured. Gaps look identical to quiet days
           — a survivorship problem we&apos;d gleefully flag in anyone else&apos;s data.
         </li>
         <li>
-          <span className="text-[#DADBD9]/90 font-medium">balldontlie.io (free tier):</span>{" "}
+          <span className="text-[#E9E3D6]/90 font-medium">balldontlie.io (free tier):</span>{" "}
           5 requests/minute and no betting odds at all — fine for rosters and
           scores, useless for market forensics.
         </li>
         <li>
-          <span className="text-[#DADBD9]/90 font-medium">ESPN&apos;s unofficial scoreboard JSON:</span>{" "}
+          <span className="text-[#E9E3D6]/90 font-medium">ESPN&apos;s unofficial scoreboard JSON:</span>{" "}
           undocumented, unversioned, and can change or vanish without notice.
           Odds fields appear for some games and not others.
         </li>
         <li>
-          <span className="text-[#DADBD9]/90 font-medium">API-Basketball (free tier):</span>{" "}
+          <span className="text-[#E9E3D6]/90 font-medium">API-Basketball (free tier):</span>{" "}
           100 requests/day, resets at midnight UTC, unused quota evaporates.
         </li>
         <li>
-          <span className="text-[#DADBD9]/90 font-medium">The model:</span>{" "}
+          <span className="text-[#E9E3D6]/90 font-medium">The model:</span>{" "}
           our Monte Carlo spread model carries a mean absolute error of roughly
           9–10 points per game. When it &ldquo;dissents&rdquo; from Vegas, the
           smart money is on the model being wrong.
         </li>
       </ul>
-      <p className="mt-3 font-mono text-[11px] text-[#DADBD9]/45">
+      <p className="mt-3 font-mono text-[11px] text-[#E9E3D6]/45">
         Current feed: {source.toUpperCase()}
         {meta.cacheAgeMinutes != null && ` · snapshot age ${meta.cacheAgeMinutes} min`}
         {" · "}
@@ -372,9 +372,9 @@ export default function RigReport() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-forest-950 font-sans text-[#DADBD9]">
+    <main className="min-h-screen bg-ink-950 font-sans text-[#E9E3D6]">
       <Head>
-        <title>The Rig Report | Entertainment Integrity Bureau</title>
+        <title>The Rig Report | Brooks Roley</title>
         <meta
           name="description"
           content="A satirical NBA 'rigging' inspector that teaches real sports analytics: implied probability, the vig, line movement, and why upsets are supposed to happen."
@@ -389,17 +389,17 @@ export default function RigReport() {
         <meta property="og:url" content={absoluteUrl('rigReport')} key="og:url" />
       </Head>
 
-      <header className="border-b border-[#C5E7EA]/10 px-6 py-4">
+      <header className="border-b border-[#DED9CE]/10 px-6 py-4">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link
             href="/nba"
-            className="text-sm text-[#DADBD9]/55 transition-colors hover:text-[#DADBD9]"
+            className="text-sm text-[#E9E3D6]/55 transition-colors hover:text-[#E9E3D6]"
           >
             &larr; NBA Explorer
           </Link>
           <Link
             href="/"
-            className="text-sm text-[#DADBD9]/45 transition-colors hover:text-[#DADBD9]/80"
+            className="text-sm text-[#E9E3D6]/45 transition-colors hover:text-[#E9E3D6]/80"
           >
             Home
           </Link>
@@ -409,13 +409,13 @@ export default function RigReport() {
       <div className="mx-auto max-w-4xl px-6 py-12">
         {/* Masthead */}
         <div className="relative">
-          <span className="inline-block rounded-full bg-candy-600/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-candy-300">
+          <span className="inline-block rounded-full bg-brass-600/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-brass-300">
             Entertainment Integrity Bureau
           </span>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
             The Rig Report
           </h1>
-          <p className="mt-3 max-w-2xl leading-relaxed text-[#DADBD9]/70">
+          <p className="mt-3 max-w-2xl leading-relaxed text-[#E9E3D6]/70">
             The Bureau operates on one founding assumption: every NBA game is
             rigged for entertainment and betting profit. It then inspects the
             actual numbers. The numbers keep explaining themselves. This is
@@ -424,8 +424,8 @@ export default function RigReport() {
         </div>
 
         {/* Satire / not-advice disclaimer — always visible */}
-        <div className="mt-6 rounded-lg border border-[#B27236]/50 bg-[#B27236]/10 px-4 py-3 text-sm leading-relaxed text-[#DADBD9]/85">
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#B27236]">
+        <div className="mt-6 rounded-lg border border-[#966F2F]/50 bg-[#966F2F]/10 px-4 py-3 text-sm leading-relaxed text-[#E9E3D6]/85">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#966F2F]">
             Official notice ·{" "}
           </span>
           This page is <strong>satire</strong> and a statistics lesson. It is{" "}
@@ -436,13 +436,13 @@ export default function RigReport() {
         </div>
 
         {loading && (
-          <p className="py-16 text-center text-sm text-[#DADBD9]/50">
+          <p className="py-16 text-center text-sm text-[#E9E3D6]/50">
             Pulling case files from the records office…
           </p>
         )}
 
         {!loading && error && (
-          <div className="mt-8 rounded-xl border border-candy-800/50 bg-candy-950/30 px-5 py-4 text-sm text-candy-200">
+          <div className="mt-8 rounded-xl border border-brass-800/50 bg-brass-950/30 px-5 py-4 text-sm text-brass-200">
             {error}
           </div>
         )}
@@ -450,7 +450,7 @@ export default function RigReport() {
         {!loading && !error && data && (
           <>
             {data.source === "demo" && (
-              <div className="mt-6 rounded-lg border border-[#C5E7EA]/25 bg-[#C5E7EA]/5 px-4 py-3 font-mono text-xs uppercase tracking-wider text-[#C5E7EA]">
+              <div className="mt-6 rounded-lg border border-[#DED9CE]/25 bg-[#DED9CE]/5 px-4 py-3 font-mono text-xs uppercase tracking-wider text-[#DED9CE]">
                 Demo case file — invented (but realistic) numbers so the Bureau
                 has something to be wrong about. Live lines appear when odds
                 data is available.
@@ -466,11 +466,11 @@ export default function RigReport() {
             <div className="mt-10 space-y-6">
               <HouseAlwaysWins house={data.house} />
 
-              <section className="rounded-xl border border-forest-500/30 bg-forest-900/30 p-5">
-                <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-forest-300">
+              <section className="rounded-xl border border-ink-500/30 bg-ink-900/30 p-5">
+                <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-ink-300">
                   Bureau Findings To Date
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-[#DADBD9]/80">
+                <p className="mt-3 text-sm leading-relaxed text-[#E9E3D6]/80">
                   Despite continuous inspection, the Bureau has yet to catch the
                   league doing anything the math didn&apos;t predict. Upsets occur
                   at their base rates. Lines move when information arrives.
@@ -483,7 +483,7 @@ export default function RigReport() {
                 <Link
                   href="/tools/nba-accuracy"
                   onClick={() => track("rig_cta_accuracy")}
-                  className="mt-3 inline-block rounded-md border border-forest-400/50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-forest-200 transition-colors hover:bg-forest-800/60"
+                  className="mt-3 inline-block rounded-md border border-ink-400/50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-ink-200 transition-colors hover:bg-ink-800/60"
                 >
                   Model vs Vegas accuracy dashboard &rarr;
                 </Link>
@@ -494,11 +494,11 @@ export default function RigReport() {
           </>
         )}
 
-        <footer className="mt-12 border-t border-[#C5E7EA]/10 pt-6 text-xs text-[#DADBD9]/40">
+        <footer className="mt-12 border-t border-[#DED9CE]/10 pt-6 text-xs text-[#E9E3D6]/40">
           <p>
             The Entertainment Integrity Bureau is a bit. The math is not.
             Satire · no wagering functionality · no advice. Built by{" "}
-            <Link href="/" className="underline hover:text-[#DADBD9]/70">
+            <Link href="/" className="underline hover:text-[#E9E3D6]/70">
               Brooks Roley
             </Link>
             .

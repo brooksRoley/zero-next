@@ -11,7 +11,7 @@ export default function QueueBanner({ onLeave }) {
       </span>
       <button
         onClick={onLeave}
-        className="text-xs px-2 py-1 rounded-md bg-forest-800/60 text-forest-300 hover:text-white hover:bg-forest-700/60 border border-forest-700/40 transition-colors"
+        className="text-xs px-2 py-1 rounded-md bg-ink-800/60 text-ink-300 hover:text-white hover:bg-ink-700/60 border border-ink-700/40 transition-colors"
       >
         Leave Queue
       </button>

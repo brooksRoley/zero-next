@@ -166,7 +166,7 @@ export default function StageSurvival({ onAdvance }) {
       </div>
       <div className="space-y-3">
         <StepCard {...renderedStep} />
-        <div className="text-xs text-forest-500 leading-relaxed px-1">
+        <div className="text-xs text-ink-500 leading-relaxed px-1">
           {step <= 1 && 'Green rings mark eyes — empty points enclosed by one color.'}
           {step === 2 && 'A group with one eye loses to outside-then-inside attack.'}
           {step === 3 && !practiceSolved && 'Red dot marks the vital point — click it.'}

@@ -1,5 +1,7 @@
--- supabase/matchmaking_queue.sql
--- Run this in Supabase SQL editor to create the matchmaking infrastructure.
+-- 0001_matchmaking_queue.sql
+-- Matchmaking for Pente online play: a queue table, realtime on it, and an
+-- atomic claim_match() RPC. First actually applied 2026-10-15 (see README).
+-- Idempotent: safe to re-run.
 
 -- Queue table
 create table if not exists matchmaking_queue (
@@ -18,12 +20,32 @@ create index if not exists idx_queue_waiting
   on matchmaking_queue (status, created_at)
   where status = 'waiting';
 
--- Enable realtime on the table
-alter publication supabase_realtime add table matchmaking_queue;
+-- Enable realtime on the table (guarded, so re-running doesn't fail)
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'matchmaking_queue'
+  ) then
+    alter publication supabase_realtime add table matchmaking_queue;
+  end if;
+end $$;
+
+-- RLS, matching the other game tables: the client (anon key) reads the queue,
+-- adds its own row, and cancels it.
+alter table matchmaking_queue enable row level security;
+drop policy if exists "Queue is publicly readable" on matchmaking_queue;
+create policy "Queue is publicly readable" on matchmaking_queue for select using (true);
+drop policy if exists "Anyone can join the queue" on matchmaking_queue;
+create policy "Anyone can join the queue" on matchmaking_queue for insert with check (true);
+drop policy if exists "Anyone can update a queue row" on matchmaking_queue;
+create policy "Anyone can update a queue row" on matchmaking_queue for update using (true) with check (true);
 
 -- Atomic match claim RPC
 -- Takes: claimer's player_id/name/elo, target queue row id
 -- Returns: game_id on success, null on conflict
+-- Runs as the caller (security invoker): RLS already lets the anon role read and
+-- update the queue and insert into games, so it needs no elevated rights.
 create or replace function claim_match(
   p_claimer_id uuid,
   p_claimer_name text,
@@ -90,4 +112,4 @@ begin
 
   return v_game_id;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security invoker set search_path = public;

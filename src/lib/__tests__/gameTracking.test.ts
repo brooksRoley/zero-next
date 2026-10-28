@@ -67,6 +67,11 @@ describe('every game surface is instrumented', () => {
     'src/pages/games/pass-and-cut.tsx',
     'src/pages/games/read-and-react.tsx',
     'src/pages/games/moments.tsx',
+    'src/pages/games/tend.tsx',
+    'src/pages/games/tend/watershed.tsx',
+    'src/pages/games/tend/journal.tsx',
+    // The page is a thin shell; the game state, and so the tracking, lives here.
+    'src/components/nanu-pika-td.jsx',
   ]
 
   it.each(SURFACES)('%s uses trackGame or useGameTracking', (file) => {

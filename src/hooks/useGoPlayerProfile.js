@@ -1,26 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { STARTING_ELO, eloUpdate } from 'src/lib/go/elo'
+import { getPlayerId } from 'src/lib/playerId'
 
 const STORAGE_KEY = 'go.profile.v2'
 const LEGACY_V1_KEY = 'go.profile.v1'
 const LEGACY_SOLVED_KEY = 'go.puzzles.solved'
 const ATTEMPTS_CAP = 200
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-function newPlayerId() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
-  // Fallback: synthesize a UUID-shaped string so the DB column still accepts it.
-  const r = () => Math.random().toString(16).slice(2, 10)
-  return `${r()}-${r().slice(0, 4)}-4${r().slice(0, 3)}-8${r().slice(0, 3)}-${r()}${r().slice(0, 4)}`
-}
-
-// Older builds stored `go-<uuid>`. Strip the prefix so Supabase (uuid column) accepts it.
-function normalizeId(id) {
-  if (!id) return newPlayerId()
-  const stripped = id.startsWith('go-') ? id.slice(3) : id
-  return UUID_RE.test(stripped) ? stripped : newPlayerId()
-}
 
 function nowIso() {
   return new Date().toISOString()
@@ -28,7 +13,7 @@ function nowIso() {
 
 function emptyProfile() {
   return {
-    playerId: newPlayerId(),
+    playerId: null,        // set by loadProfile from the shared player id
     name: '',
     goElo: STARTING_ELO,
     peakElo: STARTING_ELO,
@@ -43,13 +28,12 @@ function emptyProfile() {
   }
 }
 
-function loadProfile() {
+function loadStoredProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       const merged = { ...emptyProfile(), ...parsed }
-      merged.playerId = normalizeId(merged.playerId)
       return merged
     }
   } catch { /* ignore */ }
@@ -59,7 +43,6 @@ function loadProfile() {
     if (v1Raw) {
       const parsed = JSON.parse(v1Raw)
       const migrated = { ...emptyProfile(), ...parsed }
-      migrated.playerId = normalizeId(migrated.playerId)
       saveProfile(migrated)
       return migrated
     }
@@ -71,6 +54,16 @@ function loadProfile() {
     if (oldSolved) fresh.solved = JSON.parse(oldSolved)
   } catch { /* ignore */ }
   return fresh
+}
+
+// Go shares one player id with every other game (src/lib/playerId.ts). A Go
+// profile saved under an older Go-only id takes the shared id here; the next
+// sync finds no go_players row for it and uploads the local profile, so the
+// rating and solved list carry over.
+function loadProfile() {
+  const profile = loadStoredProfile()
+  profile.playerId = getPlayerId()
+  return profile
 }
 
 function saveProfile(profile) {
@@ -215,53 +208,56 @@ export default function useGoPlayerProfile() {
     })
   }, [persist])
 
+  // Latest committed profile, so recordAttempt can compute an attempt outside a
+  // state updater. Updaters must stay pure: React may run them twice (always in
+  // StrictMode), and an insert fired from one logged every Go attempt twice.
+  const profileRef = useRef(profile)
+  useEffect(() => { profileRef.current = profile }, [profile])
+
   const recordAttempt = useCallback(({ puzzleId, puzzleRating, solved, usedHint, solveTimeMs }) => {
-    let result = null
-    update(prev => {
-      const eloBefore = prev.goElo
-      const eloAfter = eloUpdate(eloBefore, puzzleRating, solved, usedHint)
-      const attempt = {
-        id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-        puzzleId,
+    const prev = profileRef.current
+    if (!prev) return null
+    const eloBefore = prev.goElo
+    const eloAfter = eloUpdate(eloBefore, puzzleRating, solved, usedHint)
+    const attempt = {
+      id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      puzzleId,
+      solved: !!solved,
+      usedHint: !!usedHint,
+      solveTimeMs: Number.isFinite(solveTimeMs) ? solveTimeMs : null,
+      eloBefore,
+      eloAfter,
+      createdAt: nowIso(),
+    }
+    const next = {
+      ...prev,
+      goElo: eloAfter,
+      peakElo: Math.max(prev.peakElo, eloAfter),
+      solved: solved && !prev.solved.includes(puzzleId) ? [...prev.solved, puzzleId] : prev.solved,
+      attempts: [attempt, ...prev.attempts].slice(0, ATTEMPTS_CAP),
+    }
+    // A second attempt before the next render must build on this one.
+    profileRef.current = next
+    update(() => next)
+
+    // Persist the attempt server-side. Fire-and-forget: local state is the
+    // source of truth, so a failed/offline POST must never block the UI.
+    fetch('/api/go/puzzle-attempts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        player_id: prev.playerId,
+        puzzle_id: puzzleId,
+        puzzle_rating: puzzleRating ?? null,
         solved: !!solved,
-        usedHint: !!usedHint,
-        solveTimeMs: Number.isFinite(solveTimeMs) ? solveTimeMs : null,
-        eloBefore,
-        eloAfter,
-        createdAt: nowIso(),
-      }
-      const attempts = [attempt, ...prev.attempts].slice(0, ATTEMPTS_CAP)
-      const solvedList = solved && !prev.solved.includes(puzzleId)
-        ? [...prev.solved, puzzleId]
-        : prev.solved
-      result = { eloBefore, eloAfter, attempt }
+        used_hint: !!usedHint,
+        elo_before: eloBefore,
+        elo_after: eloAfter,
+        solve_time_ms: Number.isFinite(solveTimeMs) ? solveTimeMs : null,
+      }),
+    }).catch(() => { /* offline — local attempts log has it */ })
 
-      // Persist the attempt server-side. Fire-and-forget: local state is the
-      // source of truth, so a failed/offline POST must never block the UI.
-      fetch('/api/go/puzzle-attempts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          player_id: prev.playerId,
-          puzzle_id: puzzleId,
-          puzzle_rating: puzzleRating ?? null,
-          solved: !!solved,
-          used_hint: !!usedHint,
-          elo_before: eloBefore,
-          elo_after: eloAfter,
-          solve_time_ms: Number.isFinite(solveTimeMs) ? solveTimeMs : null,
-        }),
-      }).catch(() => { /* offline — local attempts log has it */ })
-
-      return {
-        ...prev,
-        goElo: eloAfter,
-        peakElo: Math.max(prev.peakElo, eloAfter),
-        solved: solvedList,
-        attempts,
-      }
-    })
-    return result
+    return { eloBefore, eloAfter, attempt }
   }, [update])
 
   const markLessonComplete = useCallback((stageNum) => {

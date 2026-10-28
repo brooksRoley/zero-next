@@ -42,6 +42,13 @@ export type GameRow = {
   stages_completed: number
 }
 
+export type GameFunnelRow = {
+  game: string
+  players: number
+  clicked_consulting: number
+  leads: number
+}
+
 export type ScorecardRow = { label: string; thisWeek: number; lastWeek: number }
 
 export type SessionRow = {
@@ -75,6 +82,7 @@ export type VisitorStats = {
   devices: DeviceRow[]
   hiring: HiringSignal
   games: GameRow[]
+  gameFunnel: GameFunnelRow[]
   scorecard: ScorecardRow[]
   recentSessions: SessionRow[]
 }
@@ -101,6 +109,7 @@ export async function readVisitorStats(sql: Sql): Promise<VisitorStats> {
     devices,
     hiringRows,
     games,
+    gameFunnel,
     weekRows,
     leadWeekRows,
     signupWeekRows,
@@ -233,6 +242,46 @@ export async function readVisitorStats(sql: Sql): Promise<VisitorStats> {
       GROUP BY 1
       ORDER BY sessions DESC, game ASC
     `),
+    // Game -> consulting -> lead, per game, joined on the durable anon_id: of
+    // the browsers that played a game, how many clicked "Work with me" and how
+    // many later submitted a lead. Visitors without an anon_id cannot be joined
+    // and are left out rather than guessed at.
+    rows<GameFunnelRow>(sql`
+      WITH players AS (
+        SELECT metadata->>'game' AS game, anon_id
+        FROM events
+        WHERE created_at > NOW() - INTERVAL '30 days'
+          AND anon_id IS NOT NULL
+          AND metadata->>'game' IS NOT NULL
+          AND event_type IN ('game_start', 'game_end', 'puzzle_start', 'puzzle_solved', 'puzzle_failed', 'tutorial_stage_complete')
+          AND COALESCE(device, '') <> 'bot'
+        GROUP BY 1, 2
+      ),
+      clicks AS (
+        SELECT DISTINCT metadata->>'game' AS game, anon_id
+        FROM events
+        WHERE created_at > NOW() - INTERVAL '30 days'
+          AND event_type = 'consulting_from_game'
+          AND anon_id IS NOT NULL
+      ),
+      leaders AS (
+        SELECT DISTINCT anon_id
+        FROM events
+        WHERE created_at > NOW() - INTERVAL '30 days'
+          AND event_type = 'lead_submit'
+          AND anon_id IS NOT NULL
+      )
+      SELECT
+        p.game,
+        COUNT(*)::int AS players,
+        (COUNT(*) FILTER (WHERE c.anon_id IS NOT NULL))::int AS clicked_consulting,
+        (COUNT(*) FILTER (WHERE c.anon_id IS NOT NULL AND l.anon_id IS NOT NULL))::int AS leads
+      FROM players p
+      LEFT JOIN clicks c ON c.game = p.game AND c.anon_id = p.anon_id
+      LEFT JOIN leaders l ON l.anon_id = p.anon_id
+      GROUP BY p.game
+      ORDER BY players DESC, p.game ASC
+    `),
     // Scorecard: the last 7 days against the 7 before them.
     rows<Record<string, number>>(sql`
       SELECT
@@ -342,6 +391,7 @@ export async function readVisitorStats(sql: Sql): Promise<VisitorStats> {
     devices,
     hiring: hiringRows[0] ?? EMPTY_HIRING,
     games,
+    gameFunnel,
     scorecard,
     recentSessions,
   }

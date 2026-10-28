@@ -37,24 +37,24 @@ export default function PuzzleCatalog({
       {/* Stats bar */}
       <div className="flex items-center gap-4 mb-5 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-forest-500 uppercase tracking-wider">Solved</span>
+          <span className="text-xs text-ink-500 uppercase tracking-wider">Solved</span>
           <span className="text-sm font-semibold text-white">{solvedCount}/{puzzles.length}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-forest-500 uppercase tracking-wider">Streak</span>
-          <span className="text-sm font-semibold text-candy-400">{currentStreak} day{currentStreak !== 1 ? 's' : ''}</span>
+          <span className="text-xs text-ink-500 uppercase tracking-wider">Streak</span>
+          <span className="text-sm font-semibold text-brass-400">{currentStreak} day{currentStreak !== 1 ? 's' : ''}</span>
         </div>
         {bestStreak > 0 && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-forest-500 uppercase tracking-wider">Best</span>
-            <span className="text-sm font-semibold text-forest-300">{bestStreak}</span>
+            <span className="text-xs text-ink-500 uppercase tracking-wider">Best</span>
+            <span className="text-sm font-semibold text-ink-300">{bestStreak}</span>
           </div>
         )}
         {/* Progress bar */}
         <div className="flex-1 min-w-[100px]">
-          <div className="h-1.5 rounded-full bg-forest-800 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-ink-800 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-candy-500 to-candy-400 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-brass-500 to-brass-400 transition-all duration-500"
               style={{ width: `${(solvedCount / puzzles.length) * 100}%` }}
             />
           </div>
@@ -64,19 +64,19 @@ export default function PuzzleCatalog({
       {/* Recommended puzzle */}
       {recommended && (
         <div className="mb-5">
-          <span className="text-xs text-forest-500 uppercase tracking-wider mb-2 block">Recommended for you</span>
+          <span className="text-xs text-ink-500 uppercase tracking-wider mb-2 block">Recommended for you</span>
           <button
             onClick={() => onSelectPuzzle(recommended)}
-            className="w-full text-left p-4 rounded-xl border-2 border-candy-500/40 bg-candy-900/10 hover:bg-candy-900/20 transition-all hover:scale-[1.01]"
+            className="w-full text-left p-4 rounded-xl border-2 border-brass-500/40 bg-brass-900/10 hover:bg-brass-900/20 transition-all hover:scale-[1.01]"
           >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-white">{recommended.title}</h3>
-                <p className="text-xs text-forest-400 mt-0.5">{recommended.description}</p>
+                <p className="text-xs text-ink-400 mt-0.5">{recommended.description}</p>
               </div>
               <div className="text-right shrink-0 ml-4">
-                <div className="text-xs text-forest-500">Rating {recommended.rating}</div>
-                <div className="text-[10px] text-forest-600 mt-0.5">
+                <div className="text-xs text-ink-500">Rating {recommended.rating}</div>
+                <div className="text-[10px] text-ink-600 mt-0.5">
                   {recommended.category.replace(/_/g, ' ')} &middot; {'★'.repeat(recommended.difficulty)}{'☆'.repeat(4 - recommended.difficulty)}
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function PuzzleCatalog({
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="text-xs px-3 py-1.5 rounded-md bg-forest-950 border border-forest-700/40 text-forest-200 focus:outline-none focus:border-candy-400/50"
+          className="text-xs px-3 py-1.5 rounded-md bg-ink-950 border border-ink-700/40 text-ink-200 focus:outline-none focus:border-brass-400/50"
         >
           <option value="all">All Categories</option>
           {PUZZLE_CATEGORIES.map(cat => (
@@ -107,8 +107,8 @@ export default function PuzzleCatalog({
             onClick={() => setDifficultyFilter(0)}
             className={`text-xs px-2 py-1 rounded-md border transition-colors ${
               difficultyFilter === 0
-                ? 'bg-forest-700/60 text-white border-forest-600'
-                : 'text-forest-400 border-forest-700/40 hover:text-forest-200'
+                ? 'bg-ink-700/60 text-white border-ink-600'
+                : 'text-ink-400 border-ink-700/40 hover:text-ink-200'
             }`}
           >
             All
@@ -119,8 +119,8 @@ export default function PuzzleCatalog({
               onClick={() => setDifficultyFilter(d === difficultyFilter ? 0 : d)}
               className={`text-xs px-2 py-1 rounded-md border transition-colors ${
                 difficultyFilter === d
-                  ? 'bg-forest-700/60 text-white border-forest-600'
-                  : 'text-forest-400 border-forest-700/40 hover:text-forest-200'
+                  ? 'bg-ink-700/60 text-white border-ink-600'
+                  : 'text-ink-400 border-ink-700/40 hover:text-ink-200'
               }`}
               title={DIFFICULTY_LABELS[d - 1]}
             >
@@ -132,7 +132,7 @@ export default function PuzzleCatalog({
 
       {/* Puzzle grid */}
       {filtered.length === 0 ? (
-        <div className="text-center text-forest-500 text-sm py-8">
+        <div className="text-center text-ink-500 text-sm py-8">
           No puzzles match these filters.
         </div>
       ) : (
@@ -147,12 +147,12 @@ export default function PuzzleCatalog({
                 onClick={() => onSelectPuzzle(puzzle)}
                 className={`text-left p-4 rounded-xl border transition-all hover:scale-[1.02] ${
                   isRecommended
-                    ? 'border-candy-500/40 bg-candy-900/10'
+                    ? 'border-brass-500/40 bg-brass-900/10'
                     : solved
-                      ? 'bg-forest-900/40 border-forest-600/40'
+                      ? 'bg-ink-900/40 border-ink-600/40'
                       : aboveLevel
-                        ? 'bg-forest-900/80 border-forest-700/20 opacity-70'
-                        : 'bg-forest-900/80 border-forest-700/40 hover:border-candy-400/30'
+                        ? 'bg-ink-900/80 border-ink-700/20 opacity-70'
+                        : 'bg-ink-900/80 border-ink-700/40 hover:border-brass-400/30'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -161,10 +161,10 @@ export default function PuzzleCatalog({
                     {solved && (
                       <span className="text-green-400 text-xs">Solved</span>
                     )}
-                    <span className="text-[10px] text-forest-500 font-mono">{puzzle.rating}</span>
+                    <span className="text-[10px] text-ink-500 font-mono">{puzzle.rating}</span>
                   </div>
                 </div>
-                <p className="text-xs text-forest-400 mt-1 line-clamp-2">{puzzle.description}</p>
+                <p className="text-xs text-ink-400 mt-1 line-clamp-2">{puzzle.description}</p>
                 <div className="flex items-center gap-2 mt-3">
                   <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
                     puzzle.category === 'capture' ? 'text-red-400 border-red-700/40' :
@@ -176,11 +176,11 @@ export default function PuzzleCatalog({
                   }`}>
                     {puzzle.category.replace(/_/g, ' ')}
                   </span>
-                  <span className="text-[10px] text-forest-500">
+                  <span className="text-[10px] text-ink-500">
                     {'★'.repeat(puzzle.difficulty)}{'☆'.repeat(4 - puzzle.difficulty)}
                   </span>
                   {aboveLevel && !solved && (
-                    <span className="text-[10px] text-forest-600 ml-auto">above level</span>
+                    <span className="text-[10px] text-ink-600 ml-auto">above level</span>
                   )}
                 </div>
               </button>

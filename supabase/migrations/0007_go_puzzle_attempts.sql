@@ -43,3 +43,11 @@ create index if not exists idx_go_puzzle_attempts_puzzle_id
 -- Time-windowed rollups for /admin/analytics.
 create index if not exists idx_go_puzzle_attempts_created_at
   on go_puzzle_attempts (created_at desc);
+
+-- Row-level security, mirroring Pente's `puzzle_attempts` (read and insert
+-- for the anon key the API uses). Idempotent via drop-if-exists.
+alter table go_puzzle_attempts enable row level security;
+drop policy if exists "anon can read go_puzzle_attempts" on go_puzzle_attempts;
+create policy "anon can read go_puzzle_attempts" on go_puzzle_attempts for select using (true);
+drop policy if exists "anon can insert go_puzzle_attempts" on go_puzzle_attempts;
+create policy "anon can insert go_puzzle_attempts" on go_puzzle_attempts for insert with check (true);

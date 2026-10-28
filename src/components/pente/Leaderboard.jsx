@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react'
  *
  * Social proof for the puzzle trainer: seeing a ranked board of climbers is the
  * hook that turns a one-off solver into a returning one. The viewer's own row
- * (matched by `currentPlayerId`) is highlighted so they can find themselves.
+ * is highlighted so they can find themselves: the route matches `currentPlayerId`
+ * and flags that row `is_you`, since it never publishes other players' ids.
  */
 export default function Leaderboard({ currentPlayerId }) {
   const [state, setState] = useState({ status: 'loading', rows: [], error: null })
@@ -14,7 +15,8 @@ export default function Leaderboard({ currentPlayerId }) {
     let cancelled = false
     setState({ status: 'loading', rows: [], error: null })
 
-    fetch('/api/pente/leaderboard')
+    const query = currentPlayerId ? `?me=${encodeURIComponent(currentPlayerId)}` : ''
+    fetch(`/api/pente/leaderboard${query}`)
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
@@ -34,18 +36,18 @@ export default function Leaderboard({ currentPlayerId }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [currentPlayerId])
 
   const { status, rows, error } = state
 
   return (
     <section
       aria-label="Pente puzzle leaderboard"
-      className="rounded-xl bg-forest-900/60 border border-forest-700/40 p-4 sm:p-6"
+      className="rounded-xl bg-ink-900/60 border border-ink-700/40 p-4 sm:p-6"
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-white">Leaderboard</h2>
-        <span className="text-xs text-forest-500">Top 20 by rating</span>
+        <span className="text-xs text-ink-500">Top 20 by rating</span>
       </div>
 
       {status === 'loading' && (
@@ -53,21 +55,21 @@ export default function Leaderboard({ currentPlayerId }) {
           {Array.from({ length: 6 }).map((_, i) => (
             <li
               key={i}
-              className="h-9 rounded-lg bg-forest-800/40 animate-pulse"
+              className="h-9 rounded-lg bg-ink-800/40 animate-pulse"
             />
           ))}
         </ul>
       )}
 
       {status === 'error' && (
-        <p className="text-sm text-forest-400 py-6 text-center">
+        <p className="text-sm text-ink-400 py-6 text-center">
           Couldn&apos;t load the leaderboard right now.
-          <span className="block text-xs text-forest-600 mt-1">{error}</span>
+          <span className="block text-xs text-ink-600 mt-1">{error}</span>
         </p>
       )}
 
       {status === 'ready' && rows.length === 0 && (
-        <p className="text-sm text-forest-400 py-6 text-center">
+        <p className="text-sm text-ink-400 py-6 text-center">
           No ranked solvers yet — solve a puzzle to claim the top spot.
         </p>
       )}
@@ -75,19 +77,19 @@ export default function Leaderboard({ currentPlayerId }) {
       {status === 'ready' && rows.length > 0 && (
         <ol className="space-y-1">
           {rows.map((p) => {
-            const isYou = currentPlayerId && p.id === currentPlayerId
+            const isYou = p.is_you
             return (
               <li
-                key={p.id}
+                key={p.rank}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                   isYou
-                    ? 'bg-candy-600/15 border border-candy-500/40'
-                    : 'border border-transparent hover:bg-forest-800/40'
+                    ? 'bg-brass-600/15 border border-brass-500/40'
+                    : 'border border-transparent hover:bg-ink-800/40'
                 }`}
               >
                 <span
                   className={`w-6 shrink-0 text-right font-mono tabular-nums ${
-                    p.rank <= 3 ? 'text-candy-400 font-bold' : 'text-forest-500'
+                    p.rank <= 3 ? 'text-brass-400 font-bold' : 'text-ink-500'
                   }`}
                 >
                   {p.rank}
@@ -98,11 +100,11 @@ export default function Leaderboard({ currentPlayerId }) {
                   title={p.zone?.name || ''}
                   aria-hidden="true"
                 />
-                <span className="flex-1 truncate text-forest-100">
+                <span className="flex-1 truncate text-ink-100">
                   {p.name}
-                  {isYou && <span className="ml-2 text-xs text-candy-300">you</span>}
+                  {isYou && <span className="ml-2 text-xs text-brass-300">you</span>}
                 </span>
-                <span className="hidden sm:block text-xs text-forest-500 shrink-0">
+                <span className="hidden sm:block text-xs text-ink-500 shrink-0">
                   {p.puzzles_solved} solved
                 </span>
                 <span className="w-12 shrink-0 text-right font-mono tabular-nums text-white">

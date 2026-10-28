@@ -58,8 +58,8 @@ export default function GoPuzzlePage({ puzzleId }) {
 
   if (!puzzle) {
     return (
-      <div className="min-h-screen bg-forest-950 text-white flex items-center justify-center">
-        <p className="text-sm text-forest-400">Puzzle not found.</p>
+      <div className="min-h-screen bg-ink-950 text-white flex items-center justify-center">
+        <p className="text-sm text-ink-400">Puzzle not found.</p>
       </div>
     )
   }
@@ -67,16 +67,16 @@ export default function GoPuzzlePage({ puzzleId }) {
   const isSolved = solved.has(puzzle.id)
 
   return (
-    <div className="min-h-screen bg-forest-950 text-white">
+    <div className="min-h-screen bg-ink-950 text-white">
       <Head>
-        <title>{puzzle.title} | Go Puzzles</title>
+        <title>{`${puzzle.title} — Go Puzzles | Brooks Roley`}</title>
       </Head>
 
-      <nav className="sticky top-0 z-30 backdrop-blur bg-forest-950/70 border-b border-forest-800/60">
+      <nav className="sticky top-0 z-30 backdrop-blur bg-ink-950/70 border-b border-ink-800/60">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-3">
           <Link
             href="/posts/go/puzzles"
-            className="text-[11px] text-forest-500 hover:text-candy-400 transition-colors pr-3 border-r border-forest-800/60"
+            className="text-[11px] text-ink-500 hover:text-brass-400 transition-colors pr-3 border-r border-ink-800/60"
           >
             &larr; All puzzles
           </Link>
@@ -85,7 +85,7 @@ export default function GoPuzzlePage({ puzzleId }) {
             {puzzle.difficulty}
           </span>
           {ready && (
-            <span className="text-[10px] text-forest-400 font-mono">
+            <span className="text-[10px] text-ink-400 font-mono">
               you {goElo} · {rankLabel(goElo)}
             </span>
           )}
@@ -93,10 +93,10 @@ export default function GoPuzzlePage({ puzzleId }) {
       </nav>
 
       <div className="max-w-3xl mx-auto px-3 sm:px-6 py-6 space-y-4">
-        <div className="rounded-xl border border-forest-700/50 bg-forest-900/70 px-4 py-3">
-          <p className="text-sm text-forest-200 leading-relaxed">{puzzle.prompt}</p>
+        <div className="rounded-xl border border-ink-700/50 bg-ink-900/70 px-4 py-3">
+          <p className="text-sm text-ink-200 leading-relaxed">{puzzle.prompt}</p>
           <div className="flex items-center justify-between mt-1.5 text-xs">
-            <span className="text-forest-500 font-mono">puzzle rating {puzzle.rating}</span>
+            <span className="text-ink-500 font-mono">puzzle rating {puzzle.rating}</span>
             {isSolved && !lastResult && (
               <span className="text-green-400">✓ Solved previously</span>
             )}
@@ -121,29 +121,29 @@ export default function GoPuzzlePage({ puzzleId }) {
               </span>
               <span className="font-mono">
                 {lastResult.eloBefore} → {lastResult.eloAfter}
-                <span className="ml-2 text-forest-300">{eloDelta(lastResult.eloBefore, lastResult.eloAfter)}</span>
+                <span className="ml-2 text-ink-300">{eloDelta(lastResult.eloBefore, lastResult.eloAfter)}</span>
               </span>
             </div>
           </div>
         )}
 
-        <footer className="flex items-center justify-between text-sm pt-3 border-t border-forest-800/60">
+        <footer className="flex items-center justify-between text-sm pt-3 border-t border-ink-800/60">
           {prevId ? (
-            <Link href={`/posts/go/puzzles/${prevId}`} className="text-forest-400 hover:text-candy-300">
+            <Link href={`/posts/go/puzzles/${prevId}`} className="text-ink-400 hover:text-brass-300">
               &larr; Previous
             </Link>
           ) : <span />}
           {nextId ? (
             <Link
               href={`/posts/go/puzzles/${nextId}`}
-              className="px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-candy-200 hover:bg-candy-500/30 transition"
+              className="px-3 py-1.5 rounded-md bg-brass-500/20 border border-brass-400/40 text-brass-200 hover:bg-brass-500/30 transition"
             >
               Next puzzle &rarr;
             </Link>
           ) : (
             <Link
               href="/posts/go/puzzles"
-              className="px-3 py-1.5 rounded-md bg-candy-500/20 border border-candy-400/40 text-candy-200 hover:bg-candy-500/30 transition"
+              className="px-3 py-1.5 rounded-md bg-brass-500/20 border border-brass-400/40 text-brass-200 hover:bg-brass-500/30 transition"
             >
               Back to catalog
             </Link>

@@ -58,7 +58,7 @@ describe('hiring readiness — check 3: no placeholders on public pages', () => 
     expect(filesMatching(pattern)).toEqual([])
   })
 
-  it.each(['/zero-paradox', '/education-tracker', '/digital-products'])(
+  it.each(['/zero-paradox', '/education-tracker', '/digital-products', '/stat-galaxy'])(
     'keeps the unfinished page %s behind the proxy',
     (routePath) => {
       expect(isGated(routePath)).toBe(true)
@@ -92,10 +92,35 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
 
   it('mentions consulting only after full-time roles on the landing page', () => {
     const home = read('src/pages/index.tsx')
-    const fullTime = home.indexOf('full-time')
-    const consulting = home.search(/available for consulting/i)
+    const fullTime = home.indexOf('{AVAILABILITY}')
+    // The footer's "Selected work" link (the /consulting page) comes after it.
+    const consulting = home.indexOf("route('consulting')")
     expect(fullTime).toBeGreaterThan(-1)
     expect(consulting).toBeGreaterThan(fullTime)
+  })
+
+  it('keeps consulting out of the hero, the featured grid and the top nav', () => {
+    const hero = read('src/components/PhysicsHero.tsx')
+    expect(hero).not.toMatch(/games and tools/i)
+    expect(hero).not.toContain("'/consulting'")
+    const home = read('src/pages/index.tsx')
+    const featured = home.slice(home.indexOf('label="Featured"'), home.indexOf('label="Projects"'))
+    expect(featured).not.toContain("route('consulting')")
+    expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
+  })
+
+  it('leads the featured grid with the resume, then work, then games', () => {
+    const home = read('src/pages/index.tsx')
+    const at = (key: string) => home.indexOf(`route('${key}')`)
+    expect(at('resume')).toBeLessThan(at('basketballPlatform'))
+    expect(at('basketballPlatform')).toBeLessThan(at('theater'))
+  })
+
+  it('uses no emoji as card art on the home page', () => {
+    const home = read('src/pages/index.tsx')
+    // Both the HTML-entity form (&#x1F3C0;) and literal pictographs.
+    expect(home).not.toMatch(/&#x(1F[0-9A-F]{3}|2[67][0-9A-F]{2});/i)
+    expect(home).not.toMatch(/\p{Extended_Pictographic}/u)
   })
 })
 

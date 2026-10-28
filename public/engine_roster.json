@@ -45,6 +45,9 @@
         "cost": 3,
         "is_active": true,
         "injury_status": "",
+        "role": "bench_hero",
+        "ppg_mean": 11.2,
+        "ppg_stddev": 5.8,
         "stats": {
             "shooting": 38,
             "speed": 56,
@@ -296,6 +299,87 @@
             "shooting": 72,
             "speed": 42,
             "defense": 65
+        }
+    },
+    {
+        "id": 24,
+        "name": "Shai Gilgeous-Alexander",
+        "team": "OKC",
+        "cost": 5,
+        "is_active": true,
+        "injury_status": "",
+        "stats": {
+            "shooting": 76,
+            "speed": 66,
+            "defense": 62
+        }
+    },
+    {
+        "id": 25,
+        "name": "Chet Holmgren",
+        "team": "OKC",
+        "cost": 4,
+        "is_active": true,
+        "injury_status": "",
+        "stats": {
+            "shooting": 55,
+            "speed": 48,
+            "defense": 76
+        }
+    },
+    {
+        "id": 26,
+        "name": "Jalen Williams",
+        "team": "OKC",
+        "cost": 4,
+        "is_active": false,
+        "injury_status": "Out — Hamstring (playoffs)",
+        "stats": {
+            "shooting": 59,
+            "speed": 60,
+            "defense": 63
+        }
+    },
+    {
+        "id": 27,
+        "name": "Ajay Mitchell",
+        "team": "OKC",
+        "cost": 2,
+        "is_active": true,
+        "injury_status": "",
+        "stats": {
+            "shooting": 54,
+            "speed": 58,
+            "defense": 43
+        }
+    },
+    {
+        "id": 28,
+        "name": "Jared McCain",
+        "team": "PHI",
+        "cost": 2,
+        "is_active": true,
+        "injury_status": "",
+        "role": "bench_hero",
+        "ppg_mean": 8.5,
+        "ppg_stddev": 6.2,
+        "stats": {
+            "shooting": 58,
+            "speed": 50,
+            "defense": 34
+        }
+    },
+    {
+        "id": 29,
+        "name": "Stephon Castle",
+        "team": "SAS",
+        "cost": 3,
+        "is_active": true,
+        "injury_status": "",
+        "stats": {
+            "shooting": 56,
+            "speed": 62,
+            "defense": 60
         }
     }
 ]

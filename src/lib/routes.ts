@@ -33,14 +33,12 @@ const REGISTRY = {
   // ── Portfolio / funnel ──
   home: { href: '/', label: 'Home' },
   resume: { href: '/resume', label: 'Resume' },
-  consulting: { href: '/consulting', label: 'Services' },
+  consulting: { href: '/consulting', label: 'Work' },
   intake: { href: '/intake', label: 'Contact' },
-  funding: { href: '/funding', label: 'Support' },
 
   // ── NBA / sports tech ──
   basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform' },
   nba: { href: '/nba', label: 'NBA Explorer — League Lens' },
-  statGalaxy: { href: '/stat-galaxy', label: 'Stat Galaxy' },
   tradeMachine: { href: '/tools/trade-machine', label: 'Trade Machine' },
   rigReport: { href: '/tools/rig-report', label: 'The Rig Report' },
   nbaAccuracy: { href: '/tools/nba-accuracy', label: 'Prediction Accuracy' },
@@ -61,7 +59,10 @@ const REGISTRY = {
   readAndReact: { href: '/games/read-and-react', label: 'Read & React' },
   hardwood: { href: '/games/hardwood', label: 'Hardwood Autochess' },
   moments: { href: '/games/moments', label: 'Playoff Moments' },
-  nanuPikaTd: { href: '/posts/nanu-pika-td', label: 'Nanu & Pika TD' },
+  tend: { href: '/games/tend', label: 'Tend' },
+  tendWatershed: { href: '/games/tend/watershed', label: 'Tend — The Watershed' },
+  tendJournal: { href: '/games/tend/journal', label: 'Tend — The Journal' },
+  nanuPikaTd: { href: '/posts/nanu-pika-td', label: 'Tower Defense: Nanu Pika' },
 
   // ── Misc / experiments ──
   guestbook: { href: '/posts/guestbook', label: 'Guestbook' },

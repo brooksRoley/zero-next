@@ -54,16 +54,16 @@ export default function GoLessonPage({ stageParam }) {
 
   if (!Number.isFinite(stageNum) || !STAGES[stageNum]) {
     return (
-      <div className="min-h-screen bg-forest-950 text-white flex flex-col items-center justify-center gap-3 px-6">
+      <div className="min-h-screen bg-ink-950 text-white flex flex-col items-center justify-center gap-3 px-6">
         <Head><title>Stage not yet available | Brooks Roley</title></Head>
         <h1 className="text-xl font-semibold">This stage isn’t live yet</h1>
-        <p className="text-sm text-forest-400 text-center max-w-md">
+        <p className="text-sm text-ink-400 text-center max-w-md">
           Stages 4–5 (Combat and Flow) are on the roadmap but not built yet.
           Stages 0–3 are interactive today.
         </p>
         <Link
           href="/posts/go/learn"
-          className="mt-2 px-4 py-2 rounded-md bg-candy-500/20 border border-candy-400/40 text-sm text-candy-100 hover:bg-candy-500/30 transition"
+          className="mt-2 px-4 py-2 rounded-md bg-brass-500/20 border border-brass-400/40 text-sm text-brass-100 hover:bg-brass-500/30 transition"
         >
           Back to lessons
         </Link>
@@ -91,7 +91,7 @@ export default function GoLessonPage({ stageParam }) {
       isComplete={!!profile.lessonProgress[String(stageNum)]?.completed}
     >
       <Head>
-        <title>Stage {stageNum}: {stage.title} | Learn Go</title>
+        <title>{`Stage ${stageNum}: ${stage.title} — Learn Go | Brooks Roley`}</title>
       </Head>
       <Component
         onAdvance={() => {

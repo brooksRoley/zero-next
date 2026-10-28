@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { ReactNode, useEffect, useRef } from 'react'
 import Matter from 'matter-js'
 import PreText from 'src/components/PreText'
-import { AVAILABILITY } from 'src/lib/resume'
+import { AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
 
 const PALETTE = {
-  mist: '#DADBD9',
-  slate: '#415557',
-  stone: '#B9968D',
-  copper: '#B27236',
-  aqua: '#C5E7EA',
+  mist: '#E9E3D6',
+  slate: '#2F3C50',
+  stone: '#B1ADA8',
+  copper: '#966F2F',
+  aqua: '#DED9CE',
 }
 
 type TokenTone = 'aqua' | 'stone' | 'copper' | 'slate'
@@ -46,40 +46,40 @@ type TokenState = TokenSpec & {
 
 const TOKEN_SPECS: TokenSpec[] = [
   {
+    label: 'Resume',
+    href: '/resume',
+    tone: 'copper',
+    w: 128,
+    h: 52,
+    desktop: [0.24, 0.2],
+    mobile: [0.24, 0.16],
+  },
+  {
+    label: 'Basketball Data',
+    href: '/basketball-platform',
+    tone: 'aqua',
+    w: 176,
+    h: 50,
+    desktop: [0.68, 0.22],
+    mobile: [0.7, 0.3],
+  },
+  {
+    label: 'Model Arena',
+    href: '/tools/model-arena',
+    tone: 'stone',
+    w: 152,
+    h: 50,
+    desktop: [0.52, 0.5],
+    mobile: [0.42, 0.52],
+  },
+  {
     label: 'Pente',
     href: '/posts/pente',
-    tone: 'aqua',
-    w: 120,
-    h: 50,
-    desktop: [0.22, 0.2],
-    mobile: [0.22, 0.16],
-  },
-  {
-    label: 'Canvas Motion',
-    href: '/posts/luminous-flow',
-    tone: 'stone',
-    w: 168,
-    h: 50,
-    desktop: [0.7, 0.22],
-    mobile: [0.72, 0.22],
-  },
-  {
-    label: 'Tower Defense',
-    href: '/posts/nanu-pika-td',
-    tone: 'copper',
-    w: 160,
-    h: 52,
-    desktop: [0.55, 0.5],
-    mobile: [0.5, 0.5],
-  },
-  {
-    label: 'Go',
-    href: '/posts/go',
     tone: 'slate',
-    w: 96,
+    w: 112,
     h: 50,
-    desktop: [0.3, 0.74],
-    mobile: [0.2, 0.76],
+    desktop: [0.28, 0.76],
+    mobile: [0.22, 0.78],
   },
   {
     label: 'Featured Work',
@@ -87,8 +87,8 @@ const TOKEN_SPECS: TokenSpec[] = [
     tone: 'aqua',
     w: 158,
     h: 50,
-    desktop: [0.78, 0.76],
-    mobile: [0.78, 0.74],
+    desktop: [0.76, 0.76],
+    mobile: [0.74, 0.76],
   },
 ]
 
@@ -385,7 +385,7 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
   return (
     <section
       ref={sectionRef}
-      className="terrain-hero relative overflow-hidden text-[#DADBD9]"
+      className="terrain-hero relative overflow-hidden text-[#E9E3D6]"
       aria-labelledby="home-hero-title"
     >
       <canvas
@@ -396,11 +396,11 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
 
       <div className="relative z-10 mx-auto flex min-h-[74vh] max-w-6xl flex-col justify-center gap-10 px-4 py-16 sm:px-6 md:min-h-[82vh] md:flex-row md:items-center md:gap-14 md:py-20">
         <div className="max-w-2xl md:flex-[1.05]">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#C5E7EA]/20 bg-[#DADBD9]/8 px-3 py-1.5 text-xs uppercase tracking-[0.22em] text-[#C5E7EA]/82 backdrop-blur-md">
-            <span className="h-2 w-2 rounded-full bg-[#B27236]" aria-hidden="true" />
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#DED9CE]/20 bg-[#E9E3D6]/8 px-3 py-1.5 text-xs uppercase tracking-[0.22em] text-[#DED9CE]/82 backdrop-blur-md">
+            <span className="h-2 w-2 rounded-full bg-[#966F2F]" aria-hidden="true" />
             <span>Orange County, CA</span>
-            <span className="text-[#DADBD9]/28">/</span>
-            <span>games and tools</span>
+            <span className="text-[#E9E3D6]/28">/</span>
+            <span>Software engineer</span>
           </div>
 
           <div className="mb-4">
@@ -424,37 +424,44 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
             </span>
           </div>
 
-          <p className="max-w-xl text-base leading-7 text-[#DADBD9]/80 sm:text-lg sm:leading-8">
-            Full-stack software engineer with a front-end lean. I build fast, accessible
-            interfaces in React, Vue and TypeScript and the Python and Node services
-            behind them.{' '}
-            <span className="font-medium text-[#C5E7EA]">{AVAILABILITY}</span>
+          <p className="max-w-xl text-base leading-7 text-[#E9E3D6]/80 sm:text-lg sm:leading-8">
+            {HERO_SUMMARY}{' '}
+            <span className="font-medium text-[#DED9CE]">{AVAILABILITY}</span>
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#featured"
-              className="inline-flex items-center gap-2 rounded-full border border-[#C5E7EA]/22 bg-[#C5E7EA]/10 px-4 py-2 text-sm font-medium text-[#DADBD9] transition-colors hover:border-[#C5E7EA]/38 hover:bg-[#C5E7EA]/16"
-            >
-              <span>Explore work</span>
-              <span aria-hidden="true">&rarr;</span>
-            </a>
             <Link
               href="/resume"
-              className="inline-flex items-center gap-2 rounded-full border border-[#B9968D]/24 bg-[#B27236]/10 px-4 py-2 text-sm font-medium text-[#DADBD9] transition-colors hover:border-[#B9968D]/40 hover:bg-[#B27236]/16"
+              className="inline-flex items-center gap-2 rounded-full border border-[#B1ADA8]/40 bg-[#966F2F]/70 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#966F2F]/85"
             >
               <span>Resume</span>
               <span aria-hidden="true">&rarr;</span>
             </Link>
+            <Link
+              href="/intake"
+              className="inline-flex items-center gap-2 rounded-full border border-[#DED9CE]/22 bg-[#DED9CE]/10 px-4 py-2 text-sm font-medium text-[#E9E3D6] transition-colors hover:border-[#DED9CE]/38 hover:bg-[#DED9CE]/16"
+            >
+              <span>Contact</span>
+              <span aria-hidden="true">&rarr;</span>
+            </Link>
+            <a
+              href="#featured"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#E9E3D6]/78 transition-colors hover:text-[#E9E3D6]"
+            >
+              <span>Explore work</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
           </div>
 
           <a
             href="#featured"
             aria-label="Scroll to featured work"
-            className="mt-10 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#C5E7EA]/62 transition-colors hover:text-[#DADBD9]"
+            className="mt-10 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#DED9CE]/62 transition-colors hover:text-[#E9E3D6]"
           >
             <span>Scroll</span>
-            <span aria-hidden="true">v</span>
+            <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
           </a>
         </div>
 
@@ -463,8 +470,8 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
             ref={stageRef}
             className="terrain-stage relative mx-auto h-[300px] w-full max-w-[440px] sm:h-[340px] md:h-[420px]"
           >
-            <div className="pointer-events-none absolute inset-[12%] rounded-[999px] border border-[#C5E7EA]/10" />
-            <div className="pointer-events-none absolute inset-x-[18%] top-[48%] h-px bg-[#C5E7EA]/12" />
+            <div className="pointer-events-none absolute inset-[12%] rounded-[999px] border border-[#DED9CE]/10" />
+            <div className="pointer-events-none absolute inset-x-[18%] top-[48%] h-px bg-[#DED9CE]/12" />
             <div className="pointer-events-none absolute inset-0 rounded-[42px] bg-[radial-gradient(circle_at_50%_50%,rgba(197,231,234,0.08),rgba(65,85,87,0)_60%)]" />
 
             <nav aria-label="Hero shortcuts">

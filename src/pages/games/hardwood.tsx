@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Link from 'next/link'
 import { track } from 'src/lib/analytics'
 import { absoluteUrl } from 'src/lib/routes'
 
@@ -10,7 +9,7 @@ const GAME_URL = '/hardwood'
 
 export default function HardwoodAutochess() {
   return (
-    <main className="min-h-screen bg-forest-950 text-white font-sans">
+    <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
         <title>Hardwood Autochess | Brooks Roley</title>
         <meta
@@ -36,7 +35,7 @@ export default function HardwoodAutochess() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             Hardwood <span className="text-[#FDB927]">Autochess</span>
           </h1>
-          <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-forest-300">
+          <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-ink-300">
             A TFT-style NBA auto-battler. Draft a squad from a cost-tiered shop, place
             them on a 5&times;5 court grid, then pick an offense and a coverage scheme
             before each fight. Every round you battle a ghost board from another
@@ -58,14 +57,11 @@ export default function HardwoodAutochess() {
             >
               Open full screen ↗
             </a>
-            <span className="text-xs text-forest-500">
-              If the embed below doesn&apos;t load, the full-screen link always works.
-            </span>
           </div>
         </header>
 
         {/* ── Game embed ── */}
-        <div className="overflow-hidden rounded-xl border border-forest-800/60 bg-black shadow-2xl shadow-black/40">
+        <div className="overflow-hidden rounded-xl border border-ink-800/60 bg-black shadow-2xl shadow-black/40">
           <iframe
             src={GAME_URL}
             title="Hardwood Autochess — NBA auto-battler"
@@ -81,27 +77,14 @@ export default function HardwoodAutochess() {
           />
         </div>
 
-        {/* ── Frame / tip jar ── */}
+        {/* ── Frame ── */}
         <footer className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm">
-          <p className="text-forest-400">
+          <p className="text-ink-400">
             Vue 3 front end served same-origin from{' '}
-            <span className="font-mono text-forest-300">/hardwood</span>, ghost-board
+            <span className="font-mono text-ink-300">/hardwood</span>, ghost-board
             backend on this site&apos;s{' '}
-            <span className="font-mono text-forest-300">/api/bball</span> routes.
+            <span className="font-mono text-ink-300">/api/bball</span> routes.
           </p>
-          <Link
-            href="/funding"
-            onClick={() =>
-              track('cta_click', {
-                page: '/games/hardwood',
-                metadata: { location: 'hardwood_tip' },
-                beacon: true,
-              })
-            }
-            className="text-candy-500 transition-colors hover:text-candy-400"
-          >
-            Enjoying the game? Support development →
-          </Link>
         </footer>
       </div>
     </main>

@@ -18,9 +18,9 @@ is the black box the work performs in.
 
 | Token | Value | Role |
 |---|---|---|
-| `forest-950` | `#04120c` | The house dark. Default page ground. |
-| `forest-300/400/500` | greens | Supporting text, program notes. |
-| `candy-400/500` | `#ff69b4` / `#f24da0` | The theater's own light — marquee, tip-jar, studio accents. |
+| `ink-950` | `#101B2B` | The house dark: burnt blue. Default page ground. (Ink & Brass, 2026-10-23, replaced forest + candy.) |
+| `ink-100/200` | creams | Body text. `ink-300/400` grays for supporting text; `charcoal` `#262A30` for cards. |
+| `brass-300/400/500` | `#D8B783` / `#CDA35F` / `#C18E3D` | The one decorator accent: links, marquee, studio accents. Solid brass buttons take `text-ink-950`, never white. `clay-400/500` is a rare second accent. |
 | `void-400/500` | `#a78bfa` / `#8b5cf6` | Mystery pieces, night-sky work (Stat Galaxy). |
 | Lakers purple / gold | `#552583` / `#FDB927` | Reserved for basketball surfaces only. |
 
@@ -51,8 +51,8 @@ galaxy = scale (Stat Galaxy), court = stage (Hardwood), garden = growth
 If a feature can't be said inside the piece's metaphor, it belongs elsewhere.
 
 ### 4. Every piece gets a frame
-Title, a one-paragraph playbill note rendered on the page, and a tip-jar link
-to `/funding`. Art is the audience funnel, not a detour from it. The frame is
+Title and a one-paragraph playbill note rendered on the page. No tip-jar or
+support link (retired 2026-10-23). Art is the audience funnel, not a detour from it. The frame is
 part of the work: an unframed piece is not shipped, it's abandoned on stage.
 
 ### 5. The craft floor
@@ -97,14 +97,14 @@ daylight.
 
 | Production | Route | Act | Metaphor | Accent |
 |---|---|---|---|---|
-| Pente | `/posts/pente` | I — Duels | the duel | candy |
-| Go | `/posts/go` | I — Duels | the old game | forest light |
-| Pente Puzzles | `/posts/pente-puzzles` | II — Trials | the mountain | candy |
-| Go Puzzles | `/posts/go/puzzles` | II — Trials | the climb, quieter | forest light |
+| Pente | `/posts/pente` | I — Duels | the duel | brass |
+| Go | `/posts/go` | I — Duels | the old game | ink light |
+| Pente Puzzles | `/posts/pente-puzzles` | II — Trials | the mountain | brass |
+| Go Puzzles | `/posts/go/puzzles` | II — Trials | the climb, quieter | ink light |
 | Nanu & Pika TD | `/posts/nanu-pika-td` | II — Trials | the siege | void |
 | Hardwood Autochess | `/games/hardwood` | III — Seasons | court = stage | Lakers gold |
-| Stat Galaxy | `/stat-galaxy` | Intermission | the observatory | void |
-| Luminous Flow | `/posts/luminous-flow` | Intermission | water | candy |
+| Stat Galaxy | `/stat-galaxy` (gated until finished) | Intermission | the observatory | void |
+| Luminous Flow | `/posts/luminous-flow` | Intermission | water | brass |
 
 New pieces join the repertory by appearing on `/theater` in the same PR that
 ships them — a production without a playbill doesn't exist.
@@ -117,7 +117,7 @@ Before any game or piece ships, in order:
 
 - [ ] One accent, on the house dark; palette tokens only.
 - [ ] Metaphor named in one word; every string on the page speaks it.
-- [ ] Frame present: title, playbill note, `/funding` link.
+- [ ] Frame present: title, playbill note. No money ask.
 - [ ] Phone playthrough clean; reduced-motion checked.
 - [ ] Loading / empty / error states designed.
 - [ ] `track()` events on the moments that matter (entry, the core action, the exit CTA).

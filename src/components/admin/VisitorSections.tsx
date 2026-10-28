@@ -4,16 +4,16 @@ import type { ScorecardRow, SessionRow, VisitorStats } from "src/lib/visitorStat
 // "Who stops by" — the visitor-level half of /admin/analytics. Pure display:
 // every number comes from src/lib/visitorStats.ts.
 
-const CARD = "rounded-2xl border border-forest-700 bg-forest-900/40";
-const TH = "px-4 py-2 text-left text-xs uppercase tracking-wider text-forest-400 font-medium";
+const CARD = "rounded-2xl border border-ink-700 bg-ink-900/40";
+const TH = "px-4 py-2 text-left text-xs uppercase tracking-wider text-ink-400 font-medium";
 const TD = "px-4 py-3 align-top";
 
 function Tile({ label, value, note }: { label: string; value: ReactNode; note?: ReactNode }) {
   return (
     <div className={`${CARD} p-5`}>
-      <div className="text-xs uppercase tracking-wider text-forest-400">{label}</div>
+      <div className="text-xs uppercase tracking-wider text-ink-400">{label}</div>
       <div className="mt-2 text-3xl font-bold">{value}</div>
-      {note && <div className="mt-1 text-xs text-forest-400">{note}</div>}
+      {note && <div className="mt-1 text-xs text-ink-400">{note}</div>}
     </div>
   );
 }
@@ -22,14 +22,14 @@ function Section({ title, blurb, children }: { title: string; blurb?: ReactNode;
   return (
     <section className="mb-8">
       <h2 className="text-lg font-semibold mb-1">{title}</h2>
-      {blurb && <p className="text-forest-400 text-sm mb-3">{blurb}</p>}
+      {blurb && <p className="text-ink-400 text-sm mb-3">{blurb}</p>}
       {children}
     </section>
   );
 }
 
 function Empty({ children }: { children: ReactNode }) {
-  return <div className={`${CARD} px-5 py-4 text-sm text-forest-400`}>{children}</div>;
+  return <div className={`${CARD} px-5 py-4 text-sm text-ink-400`}>{children}</div>;
 }
 
 function ScoreTile({ row }: { row: ScorecardRow }) {
@@ -60,7 +60,7 @@ function DailyBars({ daily }: { daily: VisitorStats["daily"] }) {
   if (daily.length === 0) return null;
   return (
     <div className={`${CARD} p-5`}>
-      <div className="flex items-baseline justify-between text-xs text-forest-400 mb-3">
+      <div className="flex items-baseline justify-between text-xs text-ink-400 mb-3">
         <span>Visitors per day (Pacific time)</span>
         <span>Busiest day: {max.toLocaleString()}</span>
       </div>
@@ -76,13 +76,13 @@ function DailyBars({ daily }: { daily: VisitorStats["daily"] }) {
             title={`${d.day}: ${d.visitors} visitors, ${d.sessions} sessions, ${d.views} page views`}
           >
             <div
-              className="w-full rounded-t bg-candy-500/70 group-hover:bg-candy-400 transition-colors"
+              className="w-full rounded-t bg-brass-500/70 group-hover:bg-brass-400 transition-colors"
               style={{ height: d.visitors > 0 && max > 0 ? `${Math.max((d.visitors / max) * 100, 4)}%` : "1px" }}
             />
           </div>
         ))}
       </div>
-      <div className="flex justify-between text-[11px] text-forest-500 mt-2 font-mono">
+      <div className="flex justify-between text-[11px] text-ink-500 mt-2 font-mono">
         <span>{shortDay(daily[0].day)}</span>
         <span>{shortDay(daily[daily.length - 1].day)}</span>
       </div>
@@ -126,7 +126,7 @@ function SessionsTable({ sessions }: { sessions: SessionRow[] }) {
     <div className={`${CARD} overflow-x-auto`}>
       <table className="w-full text-sm min-w-[860px]">
         <thead>
-          <tr className="border-b border-forest-800">
+          <tr className="border-b border-ink-800">
             <th className={TH}>When</th>
             <th className={TH}>Who</th>
             <th className={TH}>Came from</th>
@@ -137,33 +137,33 @@ function SessionsTable({ sessions }: { sessions: SessionRow[] }) {
         </thead>
         <tbody>
           {sessions.map((s) => (
-            <tr key={s.session_id} className="border-b border-forest-800/50 last:border-0">
-              <td className={`${TD} whitespace-nowrap text-forest-200`}>
+            <tr key={s.session_id} className="border-b border-ink-800/50 last:border-0">
+              <td className={`${TD} whitespace-nowrap text-ink-200`}>
                 {when(s.started_at)}
-                <div className="text-xs text-forest-500">{duration(s)}</div>
+                <div className="text-xs text-ink-500">{duration(s)}</div>
               </td>
               <td className={TD}>
                 {s.email ? (
-                  <span className="text-candy-300">{s.email}</span>
+                  <span className="text-brass-300">{s.email}</span>
                 ) : (
-                  <span className="font-mono text-xs text-forest-300">{(s.anon_id ?? s.session_id).slice(0, 8)}</span>
+                  <span className="font-mono text-xs text-ink-300">{(s.anon_id ?? s.session_id).slice(0, 8)}</span>
                 )}
-                <div className="text-xs text-forest-500">
+                <div className="text-xs text-ink-500">
                   {s.visit_count > 1 ? `returning · visit ${s.visit_count}` : "first visit"}
                 </div>
               </td>
-              <td className={`${TD} text-forest-200`}>{source(s)}</td>
-              <td className={`${TD} text-forest-200`}>
+              <td className={`${TD} text-ink-200`}>{source(s)}</td>
+              <td className={`${TD} text-ink-200`}>
                 {place(s)}
-                <div className="text-xs text-forest-500">
+                <div className="text-xs text-ink-500">
                   {[s.device, s.browser, s.os].filter(Boolean).join(" · ") || "—"}
                 </div>
               </td>
-              <td className={`${TD} font-mono text-xs text-forest-300`}>
+              <td className={`${TD} font-mono text-xs text-ink-300`}>
                 {(s.pages ?? []).join(" → ") || "—"}
-                {s.page_views > (s.pages?.length ?? 0) && <span className="text-forest-500"> …</span>}
+                {s.page_views > (s.pages?.length ?? 0) && <span className="text-ink-500"> …</span>}
               </td>
-              <td className={`${TD} font-mono text-xs text-forest-300`}>{(s.actions ?? []).join(", ") || "—"}</td>
+              <td className={`${TD} font-mono text-xs text-ink-300`}>{(s.actions ?? []).join(", ") || "—"}</td>
             </tr>
           ))}
         </tbody>
@@ -186,7 +186,7 @@ function SimpleTable({
     <div className={`${CARD} overflow-x-auto`}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-forest-800">
+          <tr className="border-b border-ink-800">
             {head.map((h, i) => (
               <th key={h} className={`${TH} ${i === 0 ? "" : "text-right"}`}>
                 {h}
@@ -196,9 +196,9 @@ function SimpleTable({
         </thead>
         <tbody>
           {rows.map((cells, r) => (
-            <tr key={r} className="border-b border-forest-800/50 last:border-0">
+            <tr key={r} className="border-b border-ink-800/50 last:border-0">
               {cells.map((cell, i) => (
-                <td key={i} className={`px-4 py-2.5 ${i === 0 ? "text-forest-100" : "text-right text-forest-300"}`}>
+                <td key={i} className={`px-4 py-2.5 ${i === 0 ? "text-ink-100" : "text-right text-ink-300"}`}>
                   {cell}
                 </td>
               ))}
@@ -317,6 +317,17 @@ export default function VisitorSections({ stats }: { stats: VisitorStats | null 
             g.stages_completed,
           ])}
           empty="No games recorded yet."
+        />
+      </Section>
+
+      <Section
+        title={`Game to lead (${windowDays}d)`}
+        blurb="Browsers that played a game, clicked “Work with me” from it, and later submitted a lead. Only Pente has the click so far."
+      >
+        <SimpleTable
+          head={["Game", "Players", "Clicked consulting", "Became a lead"]}
+          rows={stats.gameFunnel.map((g) => [g.game, g.players, g.clicked_consulting, g.leads])}
+          empty="No game players with a stored visitor id yet."
         />
       </Section>
     </>

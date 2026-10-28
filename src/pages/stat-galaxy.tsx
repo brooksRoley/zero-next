@@ -2,7 +2,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import Matter from 'matter-js'
-import SupportCta from 'src/components/SupportCta'
 
 // ── Team color palette (keyed by NBA team_id) ──────────────────────────
 const TEAM_COLORS: Record<number, string> = {
@@ -306,7 +305,7 @@ export default function StatGalaxy() {
   return (
     <main className="h-screen bg-[#0a0c10] text-white font-sans flex flex-col">
       <Head>
-        <title>Stat Galaxy | NBA Physics Explorer</title>
+        <title>Stat Galaxy — NBA Physics Explorer | Brooks Roley</title>
       </Head>
 
       <header className="flex items-center justify-between px-6 py-4 border-b border-[#252a36] bg-[#12151c] z-10">
@@ -321,12 +320,6 @@ export default function StatGalaxy() {
         </div>
         <div className="flex flex-col items-end gap-1 text-xs font-mono text-[#8b8fa3]">
           <span className="hidden sm:inline">Drag the Stat Wells to see players cluster by gravity.</span>
-          <SupportCta
-            page="/stat-galaxy"
-            location="stat_galaxy_tip"
-            label="Support development →"
-            className="text-[#f97316] hover:text-[#fb923c] transition-colors"
-          />
         </div>
       </header>
 
