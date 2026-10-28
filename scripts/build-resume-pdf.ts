@@ -44,9 +44,9 @@ const skills = SKILLS.map(
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Brooks Roley — Resume</title>
 <style>
-  @page { size: Letter; margin: 0.55in 0.6in; }
+  @page { size: Letter; margin: 0.45in 0.6in; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font: 9.4pt/1.42 "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1c2321; }
+  body { font: 9.4pt/1.38 "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1c2321; }
   header { display: flex; justify-content: space-between; align-items: flex-end; gap: 24pt;
            border-bottom: 1.2pt solid #1f5c3a; padding-bottom: 8pt; margin-bottom: 10pt; }
   h1 { font-size: 23pt; font-weight: 700; letter-spacing: -0.3pt; line-height: 1.1; }
@@ -56,7 +56,7 @@ const html = `<!doctype html>
   .cols { display: grid; grid-template-columns: 1fr 1.72in; column-gap: 20pt; }
   h2 { font-size: 8.2pt; text-transform: uppercase; letter-spacing: 1.1pt; color: #1f5c3a;
        margin-bottom: 6pt; }
-  .role { margin-bottom: 9pt; break-inside: avoid; }
+  .role { margin-bottom: 7pt; break-inside: avoid; }
   .role-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10pt; }
   h3 { font-size: 10.2pt; font-weight: 700; }
   h3 span { font-weight: 400; }
