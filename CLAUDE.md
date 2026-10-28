@@ -221,8 +221,10 @@ Set 2026-10-23 by Brooks. These rules outrank any livelihood or conversion goal.
   GitHub, this site. **Never publish** a phone number, a street address or
   parcel number, birth date, ID or account numbers, or health and family
   details. The home-property repo (HomeTracker) is never linked. One exception,
-  Brooks's call on 2026-10-26: the resume may say "Family leave after my
-  father’s death" for 2025, and nothing more; `resume.test.ts` holds the line.
+  Brooks's call on 2026-10-28: the resume may say "Family leave: caring for my
+  father at the end of his life, and a move from the Bay Area to Orange County"
+  for 2022–2024, and nothing more (no hospice, estate or property);
+  `resume.test.ts` holds the line.
 - **Secrets** live in Vercel env and the gitignored `.env.local` only. Never in
   code, the ledger, PR bodies or briefs. Payment and Stripe work stays paused
   until Brooks has a job; when it resumes: restricted keys, verified webhook
