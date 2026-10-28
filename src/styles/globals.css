@@ -311,3 +311,45 @@ img {
     animation: none;
   }
 }
+
+/* ── Ember, the house light (docs/ART_DIRECTION.md) ── */
+
+/* EmberText: the DOM text shows until the canvas is ready, then hands off. It
+ * stays in the accessibility tree and selectable; only its paint goes. */
+.ember-lit .ember-text,
+.ember-lit .ember-text span {
+  color: transparent;
+}
+
+/* Glint: one brass pass across a title when its card is hovered or focused.
+ * The text keeps its own color (currentColor paints the band's edges); only
+ * the fill is swapped for the gradient. Angle, speed and direction vary per
+ * title via glintStyle() in src/lib/ember/weather.ts. */
+.ember-glint {
+  background-image: linear-gradient(
+    var(--glint-angle, 104deg),
+    currentColor 0 42%,
+    #D8B783 47%,
+    #F4E6D1 50%,
+    #D8B783 53%,
+    currentColor 58% 100%
+  );
+  background-size: 260% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.group:hover .ember-glint,
+.group:focus-visible .ember-glint {
+  animation: emberGlint var(--glint-dur, 900ms) var(--ease-settle) var(--glint-delay, 0ms) both;
+  animation-direction: var(--glint-direction, normal);
+}
+@keyframes emberGlint {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+@media (forced-colors: active) {
+  .ember-glint { background: none; -webkit-text-fill-color: currentColor; }
+  .ember-lit .ember-text, .ember-lit .ember-text span { color: CanvasText; }
+}
