@@ -1,6 +1,6 @@
 /* A freshly rooted bed lands: a quick grow with a slight overshoot (EASING.overshoot in src/lib/ui/tactile.js). */
 .planted {
-  animation: plant 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: plant 280ms var(--ease-overshoot) both;
   transform-box: fill-box;
   transform-origin: 50% 60%;
 }
@@ -14,7 +14,7 @@
 
 /* After a check-in, beds that grew a stage pop, one after another. */
 .grew {
-  animation: grew 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: grew 360ms var(--ease-overshoot) both;
   transform-box: fill-box;
   transform-origin: 50% 100%;
 }

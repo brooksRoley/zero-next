@@ -38,7 +38,7 @@ export default function Reveal({ children, className = '', delay = 0 }) {
       style={animated ? {
         opacity: hidden ? 0 : 1,
         transform: hidden ? 'translateY(24px)' : 'translateY(0)',
-        transition: `opacity 0.5s ease-out ${delay}ms, transform 0.5s ease-out ${delay}ms`,
+        transition: `opacity var(--dur-enter) var(--ease-settle) ${delay}ms, transform var(--dur-enter) var(--ease-settle) ${delay}ms`,
       } : undefined}
     >
       {children}

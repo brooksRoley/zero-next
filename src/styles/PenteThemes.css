@@ -310,7 +310,7 @@
    THEME-CHANGE WARP — brief perspective dip when switching skins
    ══════════════════════════════════════════════════════════════════ */
 .game-board.theme-warp {
-  animation: themeWarp 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: themeWarp 0.55s var(--ease-settle);
 }
 @keyframes themeWarp {
   0%   { transform: perspective(700px) rotateX(9deg) scale(0.96); filter: saturate(0.5) brightness(1.25); }

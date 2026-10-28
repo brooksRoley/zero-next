@@ -14,7 +14,9 @@ const PAGES: { id: Page; label: string; href: string }[] = [
 export default function TendNav({ current, sample }: { current: Page; sample: boolean }) {
   return (
     <nav aria-label="Tend" className="mb-6 flex items-center gap-1 rounded-full border border-ink-800 bg-ink-900/40 p-1 text-sm">
-      <span className="px-2 font-semibold tracking-tight text-ink-100 sm:px-3">Tend</span>
+      {/* Under 360px the page links and sound toggle need the wordmark's room;
+          each page's own heading still names the game. */}
+      <span className="px-2 font-semibold tracking-tight text-ink-100 max-[359px]:hidden sm:px-3">Tend</span>
       {PAGES.map((page) => {
         const here = page.id === current
         return (
