@@ -135,7 +135,7 @@
     0 3px 7px rgba(0,0,0,0.45),
     0 1px 2px rgba(0,0,0,0.3);
   border-radius: 50%;
-  animation: stoneDrop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: stoneDrop 0.28s var(--ease-overshoot) both;
   cursor: default;
   border-color: transparent;
   z-index: 2;
@@ -155,7 +155,7 @@
     0 3px 7px rgba(0,0,0,0.25),
     0 1px 2px rgba(0,0,0,0.15);
   border-radius: 50%;
-  animation: stoneDrop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: stoneDrop 0.28s var(--ease-overshoot) both;
   cursor: default;
   border-color: transparent;
   z-index: 2;
@@ -175,7 +175,7 @@
     0 3px 7px rgba(0,0,0,0.35),
     0 1px 2px rgba(0,0,0,0.25);
   border-radius: 50%;
-  animation: stoneDrop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: stoneDrop 0.28s var(--ease-overshoot) both;
   cursor: default;
   border-color: transparent;
   z-index: 2;
@@ -195,7 +195,7 @@
     0 3px 7px rgba(0,0,0,0.35),
     0 1px 2px rgba(0,0,0,0.25);
   border-radius: 50%;
-  animation: stoneDrop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: stoneDrop 0.28s var(--ease-overshoot) both;
   cursor: default;
   border-color: transparent;
   z-index: 2;
@@ -224,7 +224,7 @@
   position: absolute;
   inset: 5%;
   border-radius: 50%;
-  animation: captureEject 0.42s cubic-bezier(0.55, 0, 0.9, 0.4) forwards;
+  animation: captureEject 0.42s var(--ease-exit) forwards;
   pointer-events: none;
   z-index: 6;
 }
@@ -335,7 +335,7 @@
   10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
   20%, 40%, 60%, 80%      { transform: translateX(5px); }
 }
-.shake-button:active { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+.shake-button:active { animation: shake 0.5s var(--ease-weighted) both; }
 
 @keyframes colorChange {
   0%   { background-color: #ff69b4; }
@@ -446,7 +446,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: stampPress 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: stampPress 520ms var(--ease-overshoot) both;
   position: relative;
   transform-origin: 50% 50%;
 }
@@ -633,7 +633,7 @@
 /* ── Shattered board state: dim + desaturate when intervention is up ───── */
 .game-board.shattered {
   filter: saturate(0.45) brightness(0.5);
-  transition: filter 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: filter 700ms var(--ease-settle);
 }
 .game-board.shattered .board-cell.blunder-glow {
   filter: none;

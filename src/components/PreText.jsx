@@ -313,21 +313,21 @@ export default function PreText({
       className={`relative inline-block leading-none ${className}`}
       style={{ ...floatStyle, ...style }}
     >
-      {/* Hidden element — drives layout sizing and provides accessible text */}
+      {/* Transparent element — drives layout sizing and carries the accessible
+          text. Transparent, not `invisible`: visibility:hidden drops it from the
+          accessibility tree, which left the home page without a heading. */}
       <Tag
-        aria-hidden="false"
-        className="invisible select-none pointer-events-none whitespace-nowrap"
+        className="text-transparent select-none pointer-events-none whitespace-nowrap"
         style={{ fontWeight, fontSize: fontSize || undefined }}
       >
         {text}
       </Tag>
 
-      {/* Canvas overlays the hidden text exactly */}
+      {/* Canvas overlays the text exactly; decorative, the Tag above is read */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 pointer-events-none"
-        aria-label={text}
-        role="img"
+        aria-hidden="true"
       />
     </div>
   )
