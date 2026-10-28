@@ -16,9 +16,9 @@ export interface SkillGroup {
 }
 
 export const SUMMARY =
-  'Full-stack software engineer with a front-end lean and ten years across healthcare, e-commerce and fintech. ' +
-  'I build fast, accessible interfaces in React, Vue and TypeScript and the Python and Node services behind them, ' +
-  'and I have led framework migrations and compliance work under WCAG and HIPAA.'
+  'Full-stack software engineer with ten years across healthcare, e-commerce and fintech, specializing in user interfaces. ' +
+  'I build fast, accessible front ends in React, Vue and TypeScript and the Python and Node services behind them, ' +
+  'and have led framework migrations, product work, and WCAG and HIPAA compliance.'
 
 export const LOCATION = 'Orange County, CA'
 
@@ -36,16 +36,12 @@ export const SITE_DESCRIPTION =
   'Open to full-time roles.'
 
 // One line per break between roles, each placed after the entry at its index.
-// Brooks chose (2026-10-26) one short mention of his father's death and nothing
-// more: no illness, caregiving or estate details. resume.test.ts guards this.
+// Brooks chose (2026-10-28) one line for the years between Grove and Zoox and
+// nothing more: no illness, estate or property details. resume.test.ts guards this.
 export const INTERLUDES = [
   {
-    afterIndex: 0,
-    text: '2025 — Family leave after my father’s death.',
-  },
-  {
     afterIndex: 1,
-    text: '2022 – 2024 — Career break.',
+    text: '2022 – 2024 — Family leave: caring for my father at the end of his life, and a move from the Bay Area to Orange County.',
   },
 ]
 
@@ -53,12 +49,12 @@ export const EXPERIENCE: ResumeRole[] = [
   {
     org: 'Independent',
     role: 'Software Engineer',
-    dates: '2026 – Present',
+    dates: '2025 – Present',
     bullets: [
-      'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs the test suite and Lighthouse on every change, and an accessibility score under 90 fails the check.',
-      'Work daily with AI coding agents under tests and my own review. A scheduled agent opens pull requests on this site that I review before they merge.',
+      'Built a bilingual intake system for Centerpointe for Children, a pediatric therapy clinic. Answers are encrypted in the browser (RSA-OAEP, AES-256-GCM), so the server and inbox hold only ciphertext.',
+      'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs 1,700+ tests and Lighthouse on every change, and a scheduled AI coding agent opens pull requests that I review before they merge.',
       'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
-      'Built a desktop launcher for the game in Electron, React and TypeScript. Updates download only the chunks that changed (a one-line change ships 16 KB of a 1.07 MB build), and every install is verified, resumable and can roll back.',
+      'Built a desktop launcher in Electron, React and TypeScript. Updates ship only changed chunks (16 KB of a 1.07 MB build for a one-line change); installs are verified, resumable and roll back.',
     ],
   },
   {
@@ -67,7 +63,7 @@ export const EXPERIENCE: ResumeRole[] = [
     dates: 'September 2024 – March 2025',
     bullets: [
       'Owned the Site Reliability team’s OnCall notification system: Vue and Vuetify, Python and FastAPI, AWS, OpsGenie, Slack, Terraform, HashiCorp Vault and Grafana.',
-      'Integrated the ‘Zoox Intelligence’ AI into the OnCall app and its Slack integration to improve developer experience.',
+      'Integrated the ‘Zoox Intelligence’ AI into the OnCall app and its Slack bot.',
     ],
   },
   {
@@ -76,20 +72,18 @@ export const EXPERIENCE: ResumeRole[] = [
     dates: '2019 – 2022',
     bullets: [
       'Full-stack engineer on a Django and Vue e-commerce platform, and Scrum Lead across teams focused on discovery, personalization and engagement.',
-      'Led development of a homepage personalization service on AWS SageMaker that responded in 150ms through caching and async workflows, with a custom admin UI.',
-      'Led the migration from Backbone.js to the Vue Composition API and Vue Router, giving faster page loads and smaller client bundles.',
+      'Led a homepage personalization service on AWS SageMaker for 1.5M+ active customers, responding in 150ms through caching and async workflows.',
+      'Led the migration from Backbone.js to the Vue Composition API and Vue Router, and unified the product tiles into one data-fetching path, for faster loads and smaller bundles.',
       'Partnered with accessibility firm A360 to lead site-wide WCAG remediation.',
-      'Unified and refactored the product tile components into one data-fetching path, improving performance, accessibility and styling across the platform.',
     ],
   },
   {
     org: 'Zipongo (now Foodsmart)',
-    role: 'Senior Software Engineer',
+    role: 'Senior Associate and Software Engineer',
     dates: '2017 – 2019',
     bullets: [
       'Led front-end development of role-based access control interfaces in React, Redux and Node.js with SAML single sign-on, built to HIPAA requirements.',
       'Designed and built the provider tools for creating and managing personalized nutrition plans, integrated with backend recipe services.',
-      'Delivered full-stack features with product and clinical teams.',
     ],
   },
   {
@@ -97,25 +91,15 @@ export const EXPERIENCE: ResumeRole[] = [
     role: 'Front End Software Engineer',
     dates: '2016 – 2017',
     bullets: [
-      'Built Angular and TypeScript interfaces for banking partners including Wells Fargo, with an emphasis on accessibility and internationalization.',
-      'Built a behavioral analytics layer that captured customer interactions for product decisions.',
+      'Built Angular and TypeScript interfaces for banking partners including Wells Fargo, with accessibility, internationalization and a behavioral analytics layer.',
     ],
   },
   {
-    org: 'Limelight Health (now part of FINEOS)',
+    org: 'Limelight Health',
     role: 'Software Engineer',
     dates: '2015 – 2016',
     bullets: [
-      'Early engineering hire on a Node.js MEAN-stack platform generating insurance quotes for employers.',
-      'Built a PDF generation service in PHP and D3.js that visualized quotes across medical, dental, vision and life products.',
-    ],
-  },
-  {
-    org: 'Dev Bootcamp',
-    role: 'Web Design Phase 0 Instructor',
-    dates: '2014 – 2015',
-    bullets: [
-      'Remote tutor for an intensive course on full-stack web development in JavaScript and Ruby on Rails.',
+      'Early hire at a startup FINEOS later acquired for $75M. Built Node.js quoting APIs and the PDF service (PHP, D3.js) that charted insurance costs.',
     ],
   },
 ]

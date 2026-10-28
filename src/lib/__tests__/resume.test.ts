@@ -54,23 +54,27 @@ describe('resume data', () => {
     }
   })
 
-  // Grove ended with a 2022 layoff; the resume said 2023 for over a year.
-  it('dates Grove to 2022 and explains every break after it', () => {
+  // Grove ended with a 2022 layoff; the resume said 2023 for over a year. The
+  // family leave runs from that layoff to Zoox, so no year goes unexplained.
+  it('dates Grove to 2022 and explains every year after it', () => {
     expect(EXPERIENCE.find((r) => r.org.startsWith('Grove'))?.dates).toBe('2019 – 2022')
-    expect(INTERLUDES.map((g) => g.text.slice(0, 4))).toEqual(['2025', '2022'])
+    expect(INTERLUDES.map((g) => g.text.slice(0, 11))).toEqual(['2022 – 2024'])
+    expect(EXPERIENCE.find((r) => r.org === 'Zoox')?.dates).toMatch(/^September 2024/)
+    expect(EXPERIENCE[0].dates).toBe('2025 – Present')
   })
 
-  // The page and PDF are public. Brooks chose one short mention of his father's
-  // death for the 2025 break (2026-10-26); every other break shows dates only,
-  // and no illness, caregiving, estate or other health detail is published.
+  // The page and PDF are public. Brooks chose one family line for 2022–2024
+  // (2026-10-28); every other break shows dates only, and no illness, hospice,
+  // estate, property or other health detail is published.
   it('keeps breaks to dates and one approved family line', () => {
-    const APPROVED = '2025 — Family leave after my father’s death.'
+    const APPROVED =
+      '2022 – 2024 — Family leave: caring for my father at the end of his life, and a move from the Bay Area to Orange County.'
     for (const g of INTERLUDES) {
       if (g.text === APPROVED) continue
       expect(g.text, g.text).toMatch(/^\d{4}( – \d{4})? — Career break\.$/)
     }
     expect(ALL_TEXT.split(APPROVED).join('')).not.toMatch(
-      /\b(family|father|mother|parent|estate|caregiv\w*|illness|ill|death|died|passed away|funeral|medical leave|health reasons?)\b/i,
+      /\b(family|father|mother|parent|estate|caregiv\w*|illness|ill|death|died|passed away|funeral|hospice|medical leave|health reasons?|propert(y|ies)|inherit\w*|trust)\b/i,
     )
   })
 
@@ -78,6 +82,12 @@ describe('resume data', () => {
   it('puts no phone number in the PDF build script', () => {
     const script = fs.readFileSync(path.join(process.cwd(), 'scripts', 'build-resume-pdf.ts'), 'utf8')
     expect(script).not.toMatch(/PHONE|\d{3}[-.\s'\], ]+\d{3}[-.\s'\], ]+\d{4}/)
+  })
+
+  // A recruiter gives the PDF a glance; ten years fit on one page (2026-10-28).
+  it('keeps the PDF to one page', () => {
+    const pdf = fs.readFileSync(path.join(process.cwd(), 'public', 'Brooks_Roley.pdf')).toString('latin1')
+    expect(pdf.match(/\/Count (\d+)/)?.[1]).toBe('1')
   })
 
   it('states one location and no second metro', () => {
