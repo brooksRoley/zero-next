@@ -104,16 +104,32 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(hero).not.toMatch(/games and tools/i)
     expect(hero).not.toContain("'/consulting'")
     const home = read('src/pages/index.tsx')
-    const featured = home.slice(home.indexOf('label="Featured"'), home.indexOf('label="Projects"'))
+    const featured = home.slice(home.indexOf('label="Work"'), home.indexOf('label="Contact"'))
     expect(featured).not.toContain("route('consulting')")
     expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
   })
 
-  it('leads the featured grid with the resume, then work, then games', () => {
+  it('leads the work with Hardwood and keeps the resume in it', () => {
     const home = read('src/pages/index.tsx')
     const at = (key: string) => home.indexOf(`route('${key}')`)
-    expect(at('resume')).toBeLessThan(at('basketballPlatform'))
-    expect(at('basketballPlatform')).toBeLessThan(at('theater'))
+    expect(at('hardwood')).toBeGreaterThan(-1)
+    expect(at('hardwood')).toBeLessThan(at('basketballPlatform'))
+    expect(at('resume')).toBeGreaterThan(-1)
+  })
+
+  // Decided 2026-10-30: a recruiter's first page shows the two lanes (game client,
+  // product web) and a way to write. Satire, art pieces and the games index stay
+  // at their URLs but off the home page, where they read as noise or as risk.
+  it('keeps satire, art pieces and the games index off the home page', () => {
+    const home = read('src/pages/index.tsx')
+    for (const key of ['rigReport', 'modelArena', 'luminousFlow', 'theater']) {
+      expect(home, key).not.toContain(`route('${key}')`)
+    }
+  })
+
+  it('puts email one click from the home page', () => {
+    expect(read('src/pages/index.tsx')).toContain('mailto:')
+    expect(read('src/components/PhysicsHero.tsx')).toContain('mailto:')
   })
 
   it('uses no emoji as card art on the home page', () => {
