@@ -51,44 +51,26 @@ const TOKEN_SPECS: TokenSpec[] = [
     tone: 'copper',
     w: 128,
     h: 52,
-    desktop: [0.24, 0.2],
-    mobile: [0.24, 0.16],
+    desktop: [0.28, 0.24],
+    mobile: [0.26, 0.2],
   },
   {
-    label: 'Basketball Data',
-    href: '/basketball-platform',
+    label: 'Hardwood',
+    href: '/games/hardwood',
     tone: 'aqua',
-    w: 176,
+    w: 148,
     h: 50,
-    desktop: [0.68, 0.22],
-    mobile: [0.7, 0.3],
+    desktop: [0.66, 0.48],
+    mobile: [0.68, 0.48],
   },
   {
-    label: 'Model Arena',
-    href: '/tools/model-arena',
+    label: 'Email',
+    href: 'mailto:brooksroley@gmail.com',
     tone: 'stone',
-    w: 152,
-    h: 50,
-    desktop: [0.52, 0.5],
-    mobile: [0.42, 0.52],
-  },
-  {
-    label: 'Pente',
-    href: '/posts/pente',
-    tone: 'slate',
     w: 112,
     h: 50,
-    desktop: [0.28, 0.76],
-    mobile: [0.22, 0.78],
-  },
-  {
-    label: 'Featured Work',
-    href: '/#featured',
-    tone: 'aqua',
-    w: 158,
-    h: 50,
-    desktop: [0.76, 0.76],
-    mobile: [0.74, 0.76],
+    desktop: [0.32, 0.76],
+    mobile: [0.3, 0.78],
   },
 ]
 
@@ -424,32 +406,21 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
               <span>Resume</span>
               <span aria-hidden="true">&rarr;</span>
             </Link>
-            <Link
-              href="/intake"
+            <a
+              href="mailto:brooksroley@gmail.com"
               className="inline-flex items-center gap-2 rounded-full border border-[#DED9CE]/22 bg-[#DED9CE]/10 px-4 py-2 text-sm font-medium text-[#E9E3D6] transition-colors hover:border-[#DED9CE]/38 hover:bg-[#DED9CE]/16"
             >
-              <span>Contact</span>
-              <span aria-hidden="true">&rarr;</span>
-            </Link>
+              <span>Email me</span>
+            </a>
             <a
               href="#featured"
               className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#E9E3D6]/78 transition-colors hover:text-[#E9E3D6]"
             >
-              <span>Explore work</span>
+              <span>See the work</span>
               <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
 
-          <a
-            href="#featured"
-            aria-label="Scroll to featured work"
-            className="mt-10 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#DED9CE]/62 transition-colors hover:text-[#E9E3D6]"
-          >
-            <span>Scroll</span>
-            <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </a>
         </div>
 
         <div className="relative w-full md:flex-1">
