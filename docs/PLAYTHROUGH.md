@@ -136,8 +136,9 @@ Measure with what `analytics.ts` / `visitorStats.ts` already record; no new trac
 
 ## Build order
 
-The job search comes first. Each phase is gated on that week's sends meeting
-the pledge, so this doesn't become a building loop in place of applications.
+Building and sending are one activity here: each phase ships something a
+specific application or warm note can carry (Hardwood → specific
+studios; the tour → any game-studio contact).
 
 1. **Phase 1 is the controller-navigation campaign, week 1.** Build
    `inputKind`, `glyphs`, the focus navigator, and Coach on **Hardwood only**.
