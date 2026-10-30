@@ -28,7 +28,7 @@ export const AVAILABILITY = 'Open to full-time roles — remote, or hybrid in Or
 // site-wide meta description all read from here so they cannot drift apart.
 export const HERO_SUMMARY =
   'Full-stack software engineer with a front-end lean. I build fast, accessible interfaces ' +
-  'in React, Vue and TypeScript and the Python and Node services behind them.'
+  'in React, Vue and TypeScript, for products and for game clients, and the services behind them.'
 
 // Search results and link previews. Kept under ~160 characters so it is not cut off.
 export const SITE_DESCRIPTION =

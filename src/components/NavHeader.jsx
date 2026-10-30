@@ -12,12 +12,10 @@ const NAV_LINKS = [
   {
     label: 'Projects',
     children: [
+      route('hardwood'),
       route('basketballPlatform'),
-      route('nba'),
       route('tradeMachine'),
-      route('modelArena'),
-      route('chat'),
-      route('guestbook'),
+      route('nba'),
     ],
   },
   {
@@ -29,7 +27,6 @@ const NAV_LINKS = [
       route('go'),
       route('passAndCut'),
       route('readAndReact'),
-      route('hardwood'),
       route('moments'),
       route('nanuPikaTd'),
     ],
