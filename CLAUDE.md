@@ -115,6 +115,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/pages/api/tools/ai-gateway.ts` — POST: unified LLM gateway. Routes a chat request to a selected provider/model via the Vercel AI SDK (OpenRouter / OpenAI-compatible providers in `src/lib/ai-providers/`). Rate-limited 30/hr per IP. Backs the Chat Sandbox and Model Arena.
 - `src/pages/api/tools/generate-profile.ts` — POST: generates an AI character profile from a name + one-liner; sanitizes input/output. Rate-limited 10/hr.
 - `src/pages/api/tools/characters.ts` — Persistence for Chat Sandbox characters
+- `src/pages/api/tools/rig-report.ts` — GET: assembles the daily case file for `/tools/rig-report`. Reads Neon odds/predictions first; refreshes one Odds API snapshot into `rig_report_cache` only when `ODDS_API_KEY` is set and the cache is over 6 hours old; with no key and no data it serves labeled `demo` fixtures. Rate-limited 30 / 10 min per IP. The analysis is pure and lives in `src/lib/rig/`
 
 **NBA / sports tech** (the medallion data + prediction pipeline)
 - `src/pages/api/nba/admin/ingest.ts` — Cron/admin: ingest players + standings from stats.nba.com (auth: `CRON_SECRET` or `ADMIN_KEY`)
