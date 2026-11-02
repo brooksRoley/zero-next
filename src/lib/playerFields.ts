@@ -4,6 +4,14 @@
 // them — but it can refuse nonsense: wrong types, out-of-range ratings,
 // unbounded arrays, and display names that aren't plain short text. A field
 // that fails its rule is dropped, never written; numbers are clamped.
+//
+// Threat model. What the server enforces: types, ranges, array lengths, object
+// size, and plain-text names. What it cannot: whether a value in range is true.
+// A client can still claim any rating from 400 to 2400, a million solved
+// puzzles, or a perfect streak, because the games run in the browser. Closing
+// that would need the server to recompute ratings from the recorded moves.
+// Until then these fields are bragging rights, never a basis for anything paid
+// or privileged. Every rule must be bounded; playerFields.test.ts fails if not.
 
 export type FieldRule =
   | { kind: 'int'; min: number; max: number }
