@@ -14,7 +14,7 @@ describe('work page', () => {
   })
 
   it('names every domain Brooks asked it to show', () => {
-    for (const domain of ['Robotics', 'Sustainability', 'Healthcare', 'Finance', 'Ecology', 'Computer science and game design']) {
+    for (const domain of ['Robotics', 'Sustainability', 'Healthcare', 'Finance', 'Insurance', 'Computer science and game design']) {
       expect(src).toContain(domain)
     }
   })
