@@ -29,7 +29,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/intake` (`src/pages/intake.jsx`) — Contact: email, LinkedIn and Calendly links only. Nothing is uploaded or stored (see Security & privacy)
 - `/funding` — **retired 2026-10-23** (redirects to `/`). Brooks asked for the whole support ask to be "a little less beggy": no tip jar, no "support development" links, no mention of AI tokens or server bills. The replacement is `src/components/UpdatesCard.tsx`, a brief, optional, one-time "want a note when something new goes up?" card, and it is **switched off** (`UPDATES_CARD_ENABLED = false`). Do not re-add a tip jar, a funding route or a money ask on any page; `src/lib/__tests__/noTipJar.test.ts` fails if one comes back. Turning the card on is Brooks's call.
 - `/basketball-platform` (`src/pages/basketball-platform.jsx`) — Case-study showcase for the Basketball Data Platform project
-- `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the interactive MarioButton. `src/lib/__tests__/resume.test.ts` guards the wording
+- `/resume` (`src/pages/resume.js`) — The resume as real text (summary, experience, skills, education) rendered from `src/lib/resume.ts`, plus the PDF download link and the BallButton easter egg (the site's basketball mascot). `src/lib/__tests__/resume.test.ts` guards the wording
 - `/theater` (`src/pages/theater.tsx`) — "The Zero Theater": gallery/landing that stages every game on the site as framed productions (its `REPERTORY` list is one of three route lists that must stay in sync — see NavHeader note)
 
 **Private / admin** (gated — see Authentication)
@@ -78,7 +78,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `src/components/layout.js` — Minimal container wrapper (not widely used)
 - `src/components/TiltCard.tsx` — Cursor-tracking 3D tilt card with radial glow border and specular highlight (used on the landing page)
 - `src/components/Reveal.jsx` — Scroll-triggered reveal animation wrapper
-- `src/components/mario.js` — Animated Mario "?" block button that triggers confetti and randomized CSS animations
+- `src/components/BallButton.jsx` — The resume's easter egg: the basketball mascot (`public/BRBaller.png`) bounces and throws confetti. Site imagery is Brooks's own; no borrowed franchise art
 
 **Visual / hero**
 - `src/components/PhysicsField.tsx`, `src/components/PhysicsHero.tsx` — Physics-driven particle/field visuals
@@ -192,9 +192,9 @@ Premium puzzle and competitive tiers are shelved with all paid work until there 
 free game to be worth returning to; see Players under Daily Agent Instructions.
 
 ### Styling
-- Tailwind CSS is primary; `src/styles/globals.css` has global resets and `.cover-photo` background utility
-- `src/styles/GameBoard.css` has game-specific styles and keyframe animations used by MarioButton and Pente board
-- Resume page uses `.cover-photo` which sets `covertitle.jpg` as background
+- Tailwind CSS is primary; `src/styles/globals.css` has global resets and the `.terrain-*` backgrounds the home and resume pages share
+- `src/styles/GameBoard.css` has game-specific styles and keyframe animations used by BallButton and the Pente board
+- Resume page uses `.terrain-page-bg` with Brooks's signature (`public/BRLogoTransparent.png`) as a faint watermark
 
 ### Component imports
 Internal components use the `src/` path alias (e.g., `import ScoreBoard from 'src/components/Scoreboard.js'`), configured in `tsconfig.json`.

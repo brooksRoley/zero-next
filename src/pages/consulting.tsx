@@ -37,7 +37,7 @@ const DOMAINS: Domain[] = [
   {
     domain: 'Healthcare',
     org: 'Zipongo (now Foodsmart)',
-    role: 'Senior Software Engineer',
+    role: 'Senior Associate and Software Engineer',
     dates: '2017 – 2019',
     line: 'Led front-end for role-based access control with SAML single sign-on, built to HIPAA requirements, and the provider nutrition tools.',
   },
@@ -53,15 +53,7 @@ const DOMAINS: Domain[] = [
     org: 'Limelight Health (now part of FINEOS)',
     role: 'Software Engineer',
     dates: '2015 – 2016',
-    line: 'Early engineering hire on a platform generating employer insurance quotes, including a D3 quote-visualization service.',
-  },
-  {
-    domain: 'Ecology',
-    org: 'Tend: The Watershed',
-    role: 'Independent',
-    dates: '2026',
-    line: 'California from the alpine peaks to the deep-sea floor: who eats whom, and how energy moves through it.',
-    href: '/games/tend/watershed',
+    line: 'Early hire. Built the Node.js quoting APIs and the PDF service that charted insurance costs in D3.',
   },
 ]
 
@@ -71,27 +63,7 @@ const BUILDS: Build[] = [
   {
     title: 'Hardwood Autochess',
     href: '/games/hardwood',
-    cs: 'A C++ simulation engine compiled to WebAssembly under a Vue 3 client, and a desktop launcher in Electron, React and TypeScript whose content-defined chunking ships a one-line change as 16 KB of a 1.07 MB build.',
-  },
-  {
-    title: 'Pass & Cut',
-    href: '/games/pass-and-cut',
-    cs: 'The Shannon switching game played as basketball. An exact game-tree solver runs the defense, so every level is a fair test of graph connectivity and min-cut.',
-  },
-  {
-    title: 'Read & React',
-    href: '/games/read-and-react',
-    cs: 'Play-calling against an adaptive defense. A minimax solver sets par and reveals the mixed strategy that beats a perfect read.',
-  },
-  {
-    title: 'Pente and Go',
-    href: '/posts/pente',
-    cs: 'Classic board games with bots that think in a Web Worker, puzzles, ELO ratings and online play.',
-  },
-  {
-    title: 'Basketball data platform',
-    href: '/basketball-platform',
-    cs: 'Four codebases sharing one model of the game: a Python data pipeline, the C++ engine, the Vue game and a SwiftUI iOS app.',
+    cs: 'An NBA auto-battler, built with Claude Code to learn how an engine and a UI fit together: a C++ simulation compiled to WebAssembly under a Vue 3 client, and an Electron launcher whose content-defined chunking ships a one-line change as 16 KB of a 1.07 MB build.',
   },
 ]
 
@@ -123,8 +95,8 @@ export default function Work() {
           <Reveal delay={80}>
             <p className="mt-5 text-lg leading-relaxed text-ink-200">
               Software engineer with a front-end lean. Ten years shipping product in robotics,
-              healthcare, finance and sustainability, and a long habit of building games where the
-              computer science is the game.
+              healthcare, finance and sustainability. Over the past year I have been learning to
+              build with AI coding agents by making basketball games.
             </p>
           </Reveal>
           <Reveal delay={140}>
@@ -173,6 +145,13 @@ export default function Work() {
           <h2 id="builds" className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-400">
             Computer science and game design
           </h2>
+          <p className="mt-3 text-sm text-ink-400">
+            Every other game on the site is in the{' '}
+            <Link href={route('theater').href} className="text-brass-300 hover:text-brass-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400">
+              Theater
+            </Link>
+            .
+          </p>
           <ul className="mt-6 divide-y divide-ink-700 border-y border-ink-700">
             {BUILDS.map((b) => (
               <li key={b.title}>

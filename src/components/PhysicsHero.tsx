@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ReactNode, useEffect, useRef } from 'react'
 import Matter from 'matter-js'
 import EmberText from 'src/components/EmberText'
-import { AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
+import { AI_NOTE, AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
 
 const PALETTE = {
   mist: '#E9E3D6',
@@ -397,6 +397,7 @@ export default function PhysicsHero({ featured }: { featured?: ReactNode }) {
             {HERO_SUMMARY}{' '}
             <span className="font-medium text-[#DED9CE]">{AVAILABILITY}</span>
           </p>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#E9E3D6]/70 sm:text-base sm:leading-7">{AI_NOTE}</p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link

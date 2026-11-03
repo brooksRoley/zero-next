@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link'
-import MarioButton from 'src/components/mario';
+import Image from 'next/image';
+import BallButton from 'src/components/BallButton';
 import Reveal from 'src/components/Reveal';
 import { AVAILABILITY, EDUCATION, EXPERIENCE, INTERLUDES, LOCATION, SKILLS, SUMMARY } from 'src/lib/resume';
 import { track } from 'src/lib/analytics'
@@ -21,15 +22,25 @@ const Resume = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen cover-photo">
+    <div className="relative min-h-screen overflow-hidden terrain-page-bg">
       <Head>
         <title>Resume | Brooks Roley</title>
         <meta name="description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." />
         <meta property="og:title" content="Resume | Brooks Roley" key="og:title" />
         <meta property="og:description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." key="og:description" />
-        <meta property="og:image" content="/covertitle.jpg" key="og:image" />
       </Head>
-      <div className="absolute inset-0 bg-ink-950/70" />
+      {/* Brooks's signature (public/BRLogoTransparent.png) as a faint watermark,
+          lightened for the dark ground. Decorative only. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+        <Image
+          src="/BRLogoTransparent.png"
+          alt=""
+          width={1000}
+          height={1000}
+          priority
+          className="w-[160%] max-w-none opacity-[0.07] invert sm:w-[110%] md:w-[900px]"
+        />
+      </div>
       <div className="relative max-w-2xl mx-auto px-4 py-10 sm:py-16 flex flex-col items-center gap-6 sm:gap-8">
         {/* Identity card */}
         <Reveal>
@@ -140,10 +151,10 @@ const Resume = () => {
           </p>
         </section>
 
-        {/* Mario easter egg */}
+        {/* Easter egg: the basketball mascot */}
         <Reveal delay={300}>
           <div className="flex flex-col items-center gap-2">
-            <MarioButton />
+            <BallButton />
             <p className="text-xs text-ink-300/50">Try me</p>
           </div>
         </Reveal>

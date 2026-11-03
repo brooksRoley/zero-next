@@ -52,12 +52,6 @@
   }
 }
 
-.cover-photo {
-  background-image: url('/covertitle.jpg');
-  background-size: cover;
-  background-position: center;
-}
-
 img {
   margin: auto;
 }

@@ -350,11 +350,11 @@
 }
 .rotate-button:active { animation: rotate 0.3s linear; }
 
-@keyframes mario-jump {
+@keyframes ball-bounce {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-20px); }
 }
-.mario-jump { animation: mario-jump 0.5s ease-in-out; }
+.ball-bounce { animation: ball-bounce 0.5s ease-in-out; }
 
 @keyframes float {
   0%   { transform: translate(-50%, 0); }
