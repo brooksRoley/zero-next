@@ -92,14 +92,14 @@ export default function GameOverDrawer({
                 }`}>
                   {entry.annotation}
                 </span>
-                <span className="float-right text-ink-600 font-mono">
+                <span className="float-right text-ink-400 font-mono">
                   {(entry.evaluation / 1000).toFixed(1)}k
                 </span>
               </button>
             );
           })}
           {analysisViewTurn !== null && (
-            <p className="text-xs text-ink-500 pt-1">
+            <p className="text-xs text-ink-400 pt-1">
               Viewing move #{analysisViewTurn + 1}.{' '}
               <button
                 onClick={() => setAnalysisViewTurn(null)}
@@ -136,7 +136,7 @@ export default function GameOverDrawer({
           <button
             onClick={() => setConsultingCtaDismissed(true)}
             aria-label="Dismiss"
-            className="flex-shrink-0 text-ink-500 hover:text-ink-300 transition-colors text-sm leading-none"
+            className="flex-shrink-0 text-ink-400 hover:text-ink-300 transition-colors text-sm leading-none"
           >
             ✕
           </button>

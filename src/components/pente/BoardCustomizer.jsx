@@ -24,7 +24,7 @@ const STONE_PREVIEWS = {
 export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
   if (!open) return null;
 
-  const sectionLabel = 'text-[10px] uppercase tracking-wider text-ink-500 mb-1.5';
+  const sectionLabel = 'text-[10px] uppercase tracking-wider text-ink-400 mb-1.5';
 
   return (
     <div className="fixed right-3 top-28 z-50 w-60 rounded-2xl border border-ink-700/50 bg-ink-950/95 backdrop-blur-md shadow-2xl shadow-black/50 p-4">
@@ -33,7 +33,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
         <button
           onClick={onClose}
           aria-label="Close board style panel"
-          className="text-ink-500 hover:text-ink-200 transition-colors text-sm leading-none"
+          className="text-ink-400 hover:text-ink-200 transition-colors text-sm leading-none"
         >
           ✕
         </button>
@@ -115,7 +115,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
           );
         })}
       </div>
-      <p className="text-[10px] text-ink-500 mt-2 leading-snug">
+      <p className="text-[10px] text-ink-400 mt-2 leading-snug">
         Saved on this device — your opponent sees their own style.
       </p>
     </div>
