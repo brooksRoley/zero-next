@@ -24,24 +24,24 @@ const STONE_PREVIEWS = {
 export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
   if (!open) return null;
 
-  const sectionLabel = 'text-[10px] uppercase tracking-wider text-ink-400 mb-1.5';
+  const sectionLabel = 'font-mono text-xs uppercase tracking-[0.2em] text-ink-400 mb-2';
 
   return (
-    <div className="fixed right-3 top-28 z-50 w-60 rounded-2xl border border-ink-700/50 bg-ink-950/95 backdrop-blur-md shadow-2xl shadow-black/50 p-4">
+    <div className="fixed right-3 top-28 z-50 w-64 max-w-[calc(100vw-24px)] rounded-2xl bg-[#141F30]/95 backdrop-blur-md shadow-2xl shadow-black/40 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-white tracking-wide">Board Style</h3>
+        <h3 className="text-xs font-semibold text-[#E9E3D6] tracking-wide">Board style</h3>
         <button
           onClick={onClose}
           aria-label="Close board style panel"
-          className="text-ink-400 hover:text-ink-200 transition-colors text-sm leading-none"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-full text-ink-300 hover:text-[#E9E3D6] transition-colors text-sm leading-none"
         >
-          ✕
+          &times;
         </button>
       </div>
 
       {/* Board skins */}
       <p className={sectionLabel}>Skin</p>
-      <div className="grid grid-cols-5 gap-1.5 mb-4">
+      <div className="grid grid-cols-6 gap-1.5 mb-4">
         {BOARD_THEMES.map(theme => {
           const active = prefs.theme === theme.key;
           return (
@@ -53,15 +53,15 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               aria-pressed={active}
               className={`aspect-square rounded-lg transition-all duration-150 ${
                 active
-                  ? 'ring-2 ring-brass-400 ring-offset-2 ring-offset-ink-950 scale-105'
-                  : 'ring-1 ring-ink-700/60 hover:ring-ink-500 hover:scale-105'
+                  ? 'ring-2 ring-brass-400 ring-offset-2 ring-offset-[#141F30]'
+                  : 'ring-1 ring-[#E9E3D6]/10 hover:ring-[#E9E3D6]/30'
               }`}
               style={{ background: theme.swatch }}
             />
           );
         })}
       </div>
-      <p className="text-[10px] text-ink-400 -mt-3 mb-4">
+      <p className="text-xs text-ink-300 -mt-2 mb-4">
         {BOARD_THEMES.find(t => t.key === prefs.theme)?.label}
       </p>
 
@@ -77,17 +77,17 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               onClick={() => onChange({ stones: style.key })}
               title={style.description}
               aria-pressed={active}
-              className={`flex-1 flex flex-col items-center gap-1 rounded-lg px-1 py-2 border transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 rounded-xl px-1 py-2 transition-colors ${
                 active
-                  ? 'bg-ink-800/80 border-brass-400/60 text-white'
-                  : 'bg-ink-900/60 border-ink-700/40 text-ink-400 hover:text-ink-200 hover:border-ink-500'
+                  ? 'bg-[#E9E3D6]/[0.12] text-[#E9E3D6]'
+                  : 'text-ink-300 hover:text-[#E9E3D6] hover:bg-[#E9E3D6]/[0.05]'
               }`}
             >
               <span className="flex -space-x-1">
                 <span className="w-4 h-4 rounded-full" style={dark} />
                 <span className="w-4 h-4 rounded-full" style={light} />
               </span>
-              <span className="text-[10px]">{style.label}</span>
+              <span className="text-xs">{style.label}</span>
             </button>
           );
         })}
@@ -104,10 +104,10 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
               onClick={() => onChange({ effects: mode.key })}
               title={mode.description}
               aria-pressed={active}
-              className={`flex-1 rounded-lg px-2 py-2 text-[11px] border transition-colors ${
+              className={`flex-1 rounded-full px-2 py-2 text-xs transition-colors ${
                 active
-                  ? 'bg-ink-800/80 border-brass-400/60 text-white'
-                  : 'bg-ink-900/60 border-ink-700/40 text-ink-400 hover:text-ink-200 hover:border-ink-500'
+                  ? 'bg-[#E9E3D6]/[0.12] text-[#E9E3D6]'
+                  : 'text-ink-300 hover:text-[#E9E3D6] hover:bg-[#E9E3D6]/[0.05]'
               }`}
             >
               {mode.label}
@@ -115,7 +115,7 @@ export default function BoardCustomizer({ open, prefs, onChange, onClose }) {
           );
         })}
       </div>
-      <p className="text-[10px] text-ink-400 mt-2 leading-snug">
+      <p className="text-xs text-ink-400 mt-3 leading-snug">
         Saved on this device — your opponent sees their own style.
       </p>
     </div>

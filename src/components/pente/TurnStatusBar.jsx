@@ -15,6 +15,7 @@ export default function TurnStatusBar({
   botThinking,
   moveCount,
   lastBotStats,
+  showEngineStats = false,
   activePlayers,
   gameMode,
   captures,
@@ -25,13 +26,13 @@ export default function TurnStatusBar({
     <div className="flex items-center px-3 pb-2 gap-2">
       {/* Turn dot */}
       <div
-        className="turn-dot w-4 h-4 rounded-full border-2 shrink-0 transition-colors duration-300"
+        className="turn-dot w-3 h-3 rounded-full shrink-0 transition-colors duration-300"
         style={{
           backgroundColor: PLAYER_COLORS[currentPlayer]?.hex || '#1a1a1a',
-          borderColor: currentPlayer === WHITE ? '#9ca3af' : 'rgba(255,255,255,0.3)',
+          boxShadow: currentPlayer === WHITE ? 'none' : '0 0 0 1px rgba(233,227,214,0.35)',
         }}
       />
-      <span className="text-white text-xs font-semibold leading-none">
+      <span className="text-[#E9E3D6] text-xs font-medium leading-none">
         {playerName}
         {botEnabled && currentPlayer !== humanColor ? ' (Bot)' : ''}
         {botThinking ? '…' : '’s turn'}
@@ -39,23 +40,24 @@ export default function TurnStatusBar({
       {moveCount > 0 && (
         <span className="text-ink-400 text-xs font-mono">#{moveCount}</span>
       )}
-      {lastBotStats && botEnabled && !botThinking && (
-        <span className="text-ink-700 text-[10px] font-mono opacity-60" title="Engine search depth / nodes evaluated">
+      {/* Search depth and node count are for the curious: shown only with the Tutor on. */}
+      {showEngineStats && lastBotStats && botEnabled && !botThinking && (
+        <span className="text-ink-400 text-xs font-mono" title="Engine search depth / nodes evaluated">
           d{lastBotStats.depth} {lastBotStats.nodes > 1000 ? `${(lastBotStats.nodes / 1000).toFixed(1)}k` : lastBotStats.nodes}n
         </span>
       )}
 
       {/* Score + captures — right-aligned */}
-      <div className="ml-auto flex items-center gap-2 text-xs font-mono">
+      <div className="ml-auto flex items-center gap-2 text-xs font-mono" title="Captured pairs">
         {/* Compact score display for all active players */}
         {activePlayers.map((p, i) => (
           <span key={p} className="flex items-center gap-0.5">
-            {i > 0 && <span className="text-ink-700 mx-0.5">{i === 1 ? '–' : ':'}</span>}
+            {i > 0 && <span className="text-ink-400 mx-1" aria-hidden>{i === 1 ? '–' : ':'}</span>}
             <span
               className="inline-block w-2 h-2 rounded-full"
               style={{ backgroundColor: PLAYER_COLORS[p]?.hex }}
             />
-            <span style={{ color: currentPlayer === p ? '#fff' : '#9ca3af' }}>
+            <span style={{ color: currentPlayer === p ? '#E9E3D6' : '#BCB8B3' }}>
               {gameMode?.teams
                 ? (captures[`team${gameMode.teams.findIndex(t => t.includes(p))}`] || 0)
                 : (captures[p] || 0)
