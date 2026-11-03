@@ -22,6 +22,7 @@ const NAV_LINKS = [
       route('pentePuzzles'),
       route('go'),
       route('nanuPikaTd'),
+      route('cloudfall'),
     ],
   },
   route('github'),
