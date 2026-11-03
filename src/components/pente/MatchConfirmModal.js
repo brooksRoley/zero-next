@@ -32,7 +32,7 @@ export default function MatchConfirmModal({ opponent, confirmTimer, onAccept, on
 
         {/* Countdown */}
         <div className="text-center">
-          <span className={`text-xs font-mono ${urgency ? 'text-red-400' : 'text-ink-500'}`}>
+          <span className={`text-xs font-mono ${urgency ? 'text-red-400' : 'text-ink-400'}`}>
             {confirmTimer}s
           </span>
           <div className="mt-1 h-1 rounded-full bg-ink-800 overflow-hidden">

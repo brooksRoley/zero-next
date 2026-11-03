@@ -36,7 +36,7 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
       <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
         <Link
           href="/"
-          className="text-[11px] text-ink-500 hover:text-brass-400 transition-colors pr-3 mr-1 border-r border-ink-800/60"
+          className="text-[11px] text-ink-400 hover:text-brass-400 transition-colors pr-3 mr-1 border-r border-ink-800/60"
           aria-label="Back to home"
         >
           &larr;
