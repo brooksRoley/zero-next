@@ -28,20 +28,25 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
     null
   )
 
+  // Quiet (2026-11-03): no bar, no borders. The section name is a mono
+  // eyebrow as on the home page; the current tab is a mist pill. Still sticky
+  // (the puzzles page scrolls), blurred rather than painted.
   return (
     <nav
       aria-label="Pente sections"
-      className="sticky top-0 z-30 backdrop-blur bg-ink-950/70 border-b border-ink-800/60"
+      className="sticky top-0 z-30 backdrop-blur-md"
     >
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 h-11 flex items-center gap-1">
+      <div className="max-w-5xl mx-auto px-3 h-12 flex items-center gap-1">
         <Link
           href="/"
-          className="text-[11px] text-ink-400 hover:text-brass-400 transition-colors pr-3 mr-1 border-r border-ink-800/60"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-300 hover:text-[#E9E3D6] transition-colors"
           aria-label="Back to home"
         >
-          &larr;
+          <svg viewBox="0 0 20 20" width={14} height={14} aria-hidden fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 10H4m5-5-5 5 5 5" />
+          </svg>
         </Link>
-        <Label className="text-xs font-semibold text-white tracking-wide mr-3">Pente</Label>
+        <Label className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/90 mr-3">Pente</Label>
         <div
           className="flex gap-0.5 overflow-x-auto"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -52,10 +57,11 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
               <Link
                 key={tab.key}
                 href={tab.href}
-                className={`text-xs px-3 py-1.5 rounded-md transition-colors whitespace-nowrap ${
+                aria-current={isActive ? 'page' : undefined}
+                className={`text-xs px-3 py-1.5 rounded-full transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'bg-brass-500/15 text-brass-300 ring-1 ring-brass-400/30'
-                    : 'text-ink-400 hover:text-brass-300 hover:bg-ink-800/40'
+                    ? 'bg-[#E9E3D6]/[0.1] text-[#E9E3D6]'
+                    : 'text-ink-300 hover:text-[#E9E3D6]'
                 }`}
               >
                 {tab.label}
@@ -64,7 +70,7 @@ export default function PenteTopNav({ active, heading = false, tagline = null })
           })}
         </div>
         {tagline && (
-          <p className="ml-auto pl-3 hidden md:block text-[11px] text-ink-400 truncate">{tagline}</p>
+          <p className="ml-auto pl-3 hidden md:block text-xs text-ink-300 truncate">{tagline}</p>
         )}
       </div>
     </nav>

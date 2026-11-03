@@ -180,7 +180,7 @@ export default function PuzzleCatalog({
                     {'★'.repeat(puzzle.difficulty)}{'☆'.repeat(4 - puzzle.difficulty)}
                   </span>
                   {aboveLevel && !solved && (
-                    <span className="text-[10px] text-ink-600 ml-auto">above level</span>
+                    <span className="text-xs text-ink-400 ml-auto">above level</span>
                   )}
                 </div>
               </button>

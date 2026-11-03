@@ -6,11 +6,11 @@ import PuzzleSolver from 'src/components/PuzzleSolver'
 import EndlessPuzzle from 'src/components/EndlessPuzzle'
 import DailyChallenge from 'src/components/pente/DailyChallenge'
 import PenteTopNav from 'src/components/pente/PenteTopNav'
-import SolarField from 'src/components/pente/SolarField'
+import StillField from 'src/components/pente/StillField'
+import { modeBtnClass } from 'src/lib/pente/boardDisplay'
 import Leaderboard from 'src/components/pente/Leaderboard'
 import UpdatesCard from 'src/components/UpdatesCard'
 import usePlayerProfile from 'src/hooks/usePlayerProfile'
-import { getZone } from 'src/lib/pente/elo'
 import { puzzles, getRecommendedPuzzle, getPuzzleById, DIFFICULTY_LABELS } from 'src/lib/pente/puzzles'
 import { dueForReview, nextDue, penteAttempts } from 'src/lib/review'
 import ReviewLane from 'src/components/ReviewLane'
@@ -131,10 +131,8 @@ export default function PentePuzzlesPage() {
     setMode('catalog')
   }, [])
 
-  const zone = getZone(puzzleElo)
-
   return (
-    <div className="min-h-screen bg-ink-950 relative">
+    <div className="pente-zen terrain-page-bg min-h-screen relative">
       <Head>
         <title>Pente Puzzles | Brooks Roley</title>
         <meta name="description" content="Practice Pente tactics with puzzles — captures, five-in-a-row, defense, and more. Track your rating as you climb." />
@@ -143,28 +141,25 @@ export default function PentePuzzlesPage() {
       </Head>
 
       <div aria-hidden className="fixed inset-0 pointer-events-none z-0">
-        <SolarField intensity={0.75} accentHex={zone?.color} />
+        <StillField />
       </div>
 
       <PenteTopNav active={mode === 'endless' ? 'endless' : 'catalog'} />
 
       <div className="relative z-10 max-w-5xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3 px-1">
           <div>
-            <h1 className="text-2xl font-bold text-white">Pente Puzzles</h1>
-            <p className="text-sm text-ink-400 mt-1">Climb the mountain — sharpen your tactics.</p>
+            <h1 className="text-xs font-semibold uppercase tracking-[0.3em] text-[#E9E3D6]/88">Pente puzzles</h1>
+            <p className="mt-2 text-sm text-ink-300">Find the move. Each solve raises your rating.</p>
           </div>
           {mode !== 'solving' && (
-            <div className="flex rounded-lg border border-ink-700/40 overflow-hidden">
+            <div className="flex gap-0.5 rounded-full bg-[#E9E3D6]/[0.05] p-0.5">
               {MODES.map(m => (
                 <button
                   key={m.key}
                   onClick={() => setMode(m.key)}
-                  className={`text-xs px-3 py-1.5 transition-colors ${
-                    mode === m.key
-                      ? 'bg-brass-600/20 text-brass-400 border-brass-500/30'
-                      : 'text-ink-400 hover:text-ink-200'
-                  }`}
+                  aria-pressed={mode === m.key}
+                  className={modeBtnClass(mode === m.key)}
                 >
                   {m.label}
                 </button>
@@ -176,7 +171,7 @@ export default function PentePuzzlesPage() {
         {mode === 'catalog' && now && <ReviewLane items={review.items} nextDueAt={review.next} now={now} />}
 
         {/* Content area */}
-        <div className="rounded-xl bg-ink-900/60 border border-ink-700/40 p-4 sm:p-6">
+        <div className="rounded-2xl bg-[#101B2B]/55 p-4 backdrop-blur-sm sm:p-6">
           {mode === 'solving' && selectedPuzzle ? (
             <PuzzleSolver
               key={selectedPuzzle.id}

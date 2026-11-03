@@ -33,6 +33,38 @@
    BOARD SKINS
    ══════════════════════════════════════════════════════════════════ */
 
+/* ── Mist — the default (2026-11-03): the home page's mist on a slate stage ──
+   A pale, flat board with slate hairlines, a brass accent and one long soft
+   shadow, so it reads as an object resting in the page's terrain rather than
+   a lit prop. Paired with matte stones and calm motion by default. */
+.game-board[data-theme='mist'] {
+  --pente-accent: #966F2F;
+  --pente-accent-soft: rgba(150, 111, 47, 0.45);
+  --pente-accent-glow: rgba(150, 111, 47, 0.35);
+  background: linear-gradient(172deg, #E4DED2 0%, #DAD4C7 55%, #CEC7B9 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 40px 90px -36px rgba(6, 12, 22, 0.8),
+    0 2px 10px rgba(6, 12, 22, 0.25);
+}
+.game-board[data-theme='mist'] .board-cell.last-move {
+  box-shadow:
+    0 0 0 1.5px var(--pente-accent),
+    0 2px 5px rgba(20, 31, 48, 0.3);
+}
+.game-board[data-theme='mist'][data-stones='matte'] .board-cell.black {
+  background: #1A2638;
+  box-shadow: inset 0 1px 0 rgba(233, 227, 214, 0.12), 0 2px 5px rgba(20, 31, 48, 0.35);
+}
+.game-board[data-theme='mist'][data-stones='matte'] .board-cell.white {
+  background: #FAF8F3;
+  box-shadow: inset 0 0 0 1px rgba(47, 60, 80, 0.22), 0 2px 5px rgba(20, 31, 48, 0.28);
+}
+.game-board[data-theme='mist'][data-stones='matte'] .board-cell.last-move.black,
+.game-board[data-theme='mist'][data-stones='matte'] .board-cell.last-move.white {
+  box-shadow: 0 0 0 1.5px var(--pente-accent), 0 2px 5px rgba(20, 31, 48, 0.3);
+}
+
 /* ── Midnight Walnut — dark wood, brass accent ── */
 .game-board[data-theme='walnut'] {
   --pente-accent: #fbbf24;
@@ -344,6 +376,7 @@
    points mark the centre and the corners. Scoped away from the Go board,
    which shares .game-board and draws its own grid (GoBoard.css). */
 .game-board { --pente-line: rgba(90, 60, 20, 0.55); }
+.game-board[data-theme='mist'] { --pente-line: rgba(47, 60, 80, 0.34); }
 .game-board[data-theme='walnut'] { --pente-line: rgba(255, 226, 183, 0.4); }
 .game-board[data-theme='nebula'] { --pente-line: rgba(196, 181, 253, 0.42); }
 .game-board[data-theme='holo'] { --pente-line: rgba(103, 232, 249, 0.45); }
@@ -386,4 +419,16 @@
   border-radius: 50%;
   background: var(--pente-line);
   opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   THE PLAY PAGE'S ROOM — more air around the board (/posts/pente only)
+   ══════════════════════════════════════════════════════════════════
+   The shared cell size leaves ~100px for chrome, so under the site and Pente
+   navs the board ran past the fold. On the play page it reserves room for
+   both navs and the quiet header, and stops at 32px, so the board sits in
+   the page with space on every side. Puzzles and Go keep the shared size. */
+.pente-zen .game-board:not(.go-board) .board-cell {
+  width:  min(calc((100vw - 20px) / 19), calc((100svh - 320px) / 19), 32px);
+  height: min(calc((100vw - 20px) / 19), calc((100svh - 320px) / 19), 32px);
 }

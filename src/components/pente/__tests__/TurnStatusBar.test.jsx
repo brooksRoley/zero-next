@@ -67,7 +67,20 @@ describe('TurnStatusBar', () => {
     expect(screen.queryByText(/^#\d/)).toBeNull()
   })
 
-  it('shows engine search stats for the bot, abbreviating large node counts', () => {
+  it('shows engine search stats with the Tutor on, abbreviating large node counts', () => {
+    render(
+      <TurnStatusBar
+        {...baseProps}
+        botEnabled
+        botThinking={false}
+        showEngineStats
+        lastBotStats={{ depth: 3, nodes: 4200 }}
+      />
+    )
+    expect(screen.getByText('d3 4.2kn')).toBeTruthy()
+  })
+
+  it('hides engine search stats by default, so a first-time player sees no debug text', () => {
     render(
       <TurnStatusBar
         {...baseProps}
@@ -76,7 +89,7 @@ describe('TurnStatusBar', () => {
         lastBotStats={{ depth: 3, nodes: 4200 }}
       />
     )
-    expect(screen.getByText('d3 4.2kn')).toBeTruthy()
+    expect(screen.queryByText('d3 4.2kn')).toBeNull()
   })
 
   it('renders per-player capture counts against the threshold, keyed by player in non-team modes', () => {

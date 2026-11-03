@@ -16,15 +16,13 @@ import { PenteBot, BOT_LEVELS } from 'src/components/PentePlayerbot';
 import { BotWorkerManager } from 'src/lib/pente/botWorker';
 import { getAdaptiveBotConfig } from 'src/lib/pente/adaptiveBot';
 import { PenteTutor } from 'src/components/PenteTutor';
-import PreText from 'src/components/PreText';
 import PenteTopNav from 'src/components/pente/PenteTopNav';
-import SolarField from 'src/components/pente/SolarField';
+import StillField from 'src/components/pente/StillField';
 import InterventionCard from 'src/components/pente/InterventionCard';
 import UpdatesCard from 'src/components/UpdatesCard';
 import EndlessPuzzle from 'src/components/EndlessPuzzle';
 import { analyzeLoss } from 'src/lib/pente/blunderAnalyzer';
 import { logGameResult } from 'src/lib/pente/gameResults';
-import { getZone } from 'src/lib/pente/elo';
 import useMatchmaking from 'src/hooks/useMatchmaking';
 import QueueBanner from 'src/components/pente/QueueBanner';
 import MatchConfirmModal from 'src/components/pente/MatchConfirmModal';
@@ -610,11 +608,9 @@ const GameBoard = () => {
 
   // ─────────────────────────────────────────────────────────────────────────
 
-  const penteZone = getZone(gameElo);
-
   return (
     <div
-      className="flex flex-col bg-ink-950 overflow-hidden relative"
+      className="pente-zen terrain-page-bg flex flex-col overflow-hidden relative"
       style={{ height: '100dvh' }}
     >
       <Head>
@@ -626,7 +622,7 @@ const GameBoard = () => {
       </Head>
 
       <div aria-hidden className="absolute inset-0 pointer-events-none z-0">
-        <SolarField intensity={0.55} accentHex={penteZone?.color} />
+        <StillField boardRef={boardRef} rippleCell={rippleCell} />
       </div>
 
       <div className="relative z-10 flex flex-col flex-1 min-h-0">
@@ -642,17 +638,21 @@ const GameBoard = () => {
       {/* ══════════════════════════════════════════════════════════════
           COMPACT HEADER
       ══════════════════════════════════════════════════════════════ */}
-      <header className="flex-shrink-0 border-b border-ink-800/60 bg-ink-950/70 backdrop-blur">
+      <header className="flex-shrink-0 mx-auto w-full max-w-5xl">
 
         {/* Row 1 — Mode tabs + action buttons. Wraps on phones so New and
             Rules stay on screen; the tabs scroll sideways if they run out of room. */}
         <div className="flex flex-wrap items-center gap-2 px-3 pt-2.5 pb-1.5">
           {/* Mode tabs */}
-          <div className="flex min-w-0 max-w-full overflow-x-auto rounded-lg border border-ink-700/40">
-            {MODE_PRESETS.map((preset, i) => (
+          <div
+            className="flex min-w-0 max-w-full gap-0.5 overflow-x-auto rounded-full bg-[#E9E3D6]/[0.05] p-0.5"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {MODE_PRESETS.map((preset) => (
               <button
                 key={preset.key}
-                className={`${modeBtnClass(modePreset === preset.key)} ${i > 0 ? 'border-l border-ink-700/40' : ''}`}
+                className={modeBtnClass(modePreset === preset.key)}
+                aria-pressed={modePreset === preset.key}
                 onClick={() => switchPreset(preset.key)}
               >
                 {preset.label}
@@ -661,15 +661,16 @@ const GameBoard = () => {
           </div>
 
           {/* Action buttons */}
-          <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <div className="ml-auto flex shrink-0 items-center gap-0.5">
             {!isOnline && !gameOver && (!gameMode || gameMode.key === 'classic') && (
               <button
                 className={actionBtnClass(tutorEnabled)}
                 onClick={handleToggleTutor}
+                aria-pressed={tutorEnabled}
                 disabled={botEnabled && localCurrentPlayer !== humanColor}
                 title={tutorEnabled ? 'Tutor active' : 'Get move hints'}
               >
-                {tutorEnabled ? 'Tutor \u2726' : 'Tutor'}
+                Tutor
               </button>
             )}
             {!isOnline && (
@@ -681,34 +682,32 @@ const GameBoard = () => {
             <button
               className={actionBtnClass(showCustomizer)}
               onClick={() => setShowCustomizer(s => !s)}
+              aria-pressed={showCustomizer}
+              aria-label="Board style"
               title="Board style"
-              aria-label="Customize board style"
             >
-              🎨
+              Style
             </button>
             <button
               className={actionBtnClass(showRules)}
               onClick={() => setShowRules(r => !r)}
+              aria-pressed={showRules}
               title="Rules"
             >
-              ?
+              Rules
             </button>
           </div>
         </div>
 
         {/* Adaptive bot ELO display (bot modes only) */}
         {botEnabled && !gameOver && (
-          <div className="flex items-center gap-2 px-3 pb-1.5">
-            <span className="text-[10px] text-ink-400 uppercase tracking-wider">Adaptive Bot</span>
-            <span className="text-[10px] text-ink-300 font-mono">
-              ~{botEffectiveElo ?? getAdaptiveBotConfig(gameElo, gamesPlayed).effectiveElo} ELO
-            </span>
+          <p className="flex flex-wrap items-baseline gap-x-2 px-3 pb-1 font-mono text-xs text-ink-400">
+            <span className="uppercase tracking-[0.2em]">Bot</span>
+            <span className="text-ink-300">~{botEffectiveElo ?? getAdaptiveBotConfig(gameElo, gamesPlayed).effectiveElo}</span>
             {gamesPlayed < 5 && (
-              <span className="text-[10px] text-brass-300 italic">
-                calibrating ({5 - gamesPlayed} games left)
-              </span>
+              <span>calibrating, {5 - gamesPlayed} games to go</span>
             )}
-          </div>
+          </p>
         )}
 
         {/* Queue banner — shown while matchmaking */}
@@ -727,6 +726,7 @@ const GameBoard = () => {
           botThinking={botThinking}
           moveCount={moveCount}
           lastBotStats={lastBotStats}
+          showEngineStats={tutorEnabled}
           activePlayers={activePlayers}
           gameMode={gameMode}
           captures={captures}
@@ -736,7 +736,7 @@ const GameBoard = () => {
             line is hidden below md, so a phone player otherwise sees only
             "Black's turn" over an empty board. */}
         {moveCount === 0 && !gameOver && !isOnline && !showLobby && (
-          <p data-testid="pente-first-move" className="px-3 pb-2 text-xs text-ink-200">
+          <p data-testid="pente-first-move" className="px-3 pb-2 text-xs text-[#E9E3D6]/80">
             Place a stone on any point. Five in a row, or five captured pairs, wins.
           </p>
         )}
@@ -769,36 +769,24 @@ const GameBoard = () => {
 
         {/* Hint toast */}
         {hintExplanation && !showLobby && (
-          <div className="mx-3 mb-2 rounded-lg bg-cyan-900/30 border border-cyan-700/40 px-3 py-2 text-xs flex items-center gap-2">
-            <PreText
-              text="\u2726"
-              mode="pulse"
-              color="#22d3ee"
-              fontSize="0.7rem"
-              fontWeight="700"
-              className="shrink-0"
-            />
-            <span className="text-cyan-200 flex-1 leading-snug">{hintExplanation}</span>
+          <div className="mx-3 mb-2 flex items-center gap-3 rounded-2xl bg-[#E9E3D6]/[0.06] px-4 py-2 text-xs">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brass-400" aria-hidden />
+            <span className="flex-1 leading-snug text-[#E9E3D6]/85">{hintExplanation}</span>
             <button
               onClick={() => { setHintCell(null); setHintExplanation(null); }}
-              className="text-cyan-600 hover:text-cyan-300 ml-1 shrink-0"
+              aria-label="Dismiss hint"
+              className="ml-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-ink-300 transition-colors hover:text-[#E9E3D6]"
             >
-              \u2715
+              &times;
             </button>
           </div>
         )}
 
         {/* Thin eval strip — mobile only (classic mode) */}
         {showEval && (
-          <div className="md:hidden mx-3 mb-2 h-1.5 rounded-full bg-gray-900 border border-ink-800/40 overflow-hidden flex">
-            <div
-              className="bg-gradient-to-r from-gray-800 to-gray-500 transition-all duration-500"
-              style={{ width: `${100 - evalPercent}%` }}
-            />
-            <div
-              className="bg-gradient-to-l from-white to-gray-300 transition-all duration-500"
-              style={{ width: `${evalPercent}%` }}
-            />
+          <div className="md:hidden mx-3 mb-2 flex h-0.5 overflow-hidden rounded-full" aria-hidden>
+            <div className="bg-[#E9E3D6]/[0.12] transition-all duration-500" style={{ width: `${100 - evalPercent}%` }} />
+            <div className="bg-[#E9E3D6]/55 transition-all duration-500" style={{ width: `${evalPercent}%` }} />
           </div>
         )}
 
@@ -809,9 +797,10 @@ const GameBoard = () => {
       {/* ══════════════════════════════════════════════════════════════
           BOARD / CONTENT AREA
       ══════════════════════════════════════════════════════════════ */}
-      {/* Top-aligned on phones: centred, a 19×19 board that is as wide as the
-          screen floated mid-height and left a dead band under the controls. */}
-      <main className="flex-1 min-h-0 flex items-start md:items-center justify-center overflow-hidden p-2 sm:p-3">
+      {/* Top-aligned: centred, a 19×19 board that is as wide as the screen
+          floated mid-height on phones, and on desktop the page sits under the
+          site nav (100dvh plus the nav), so "centre" fell below the fold. */}
+      <main className="flex-1 min-h-0 flex items-start justify-center overflow-hidden p-2 sm:p-3 md:pt-5">
 
         {/* Lobby */}
         {showLobby && (
@@ -826,23 +815,19 @@ const GameBoard = () => {
 
         {/* Game board */}
         {!showLobby && mp.gameStatus !== 'error' && (
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-5 sm:gap-8">
 
             {/* Eval bar — desktop sidebar (classic only) */}
             {showEval && (
-              <div className="hidden md:flex flex-col items-center gap-1 shrink-0">
-                <span className="text-[10px] text-ink-400 uppercase tracking-wider">Eval</span>
-                <div className="w-4 h-52 rounded-full bg-gray-900 border border-ink-700/40 overflow-hidden relative">
+              <div className="hidden md:flex flex-col items-center gap-2 shrink-0" title="Engine evaluation: White up, Black down">
+                <span className="font-mono text-xs uppercase tracking-[0.2em] text-ink-400">Eval</span>
+                <div className="relative h-52 w-px overflow-hidden rounded-full bg-[#E9E3D6]/20">
                   <div
-                    className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white to-gray-300 transition-all duration-500"
+                    className="absolute bottom-0 left-0 right-0 bg-[#E9E3D6]/70 transition-all duration-500"
                     style={{ height: `${evalPercent}%` }}
                   />
-                  <div
-                    className="absolute top-0 left-0 right-0 bg-gradient-to-b from-gray-900 to-gray-700 transition-all duration-500"
-                    style={{ height: `${100 - evalPercent}%` }}
-                  />
                 </div>
-                <span className="text-[10px] text-ink-400 font-mono">
+                <span className="font-mono text-xs text-ink-400">
                   {evalClamped > 0 ? '+' : ''}{(evalClamped / 1000).toFixed(1)}k
                 </span>
               </div>
@@ -855,7 +840,7 @@ const GameBoard = () => {
               data-theme={boardPrefs.theme}
               data-stones={boardPrefs.stones}
               data-effects={boardPrefs.effects}
-              className={`game-board rounded-xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''} ${intervention && !trainingActive ? 'shattered' : ''} ${themeWarp ? 'theme-warp' : ''}`}
+              className={`game-board rounded-2xl ${hoverClass(currentPlayer)} ${boardDisabled ? 'opacity-90' : ''} ${intervention && !trainingActive ? 'shattered' : ''} ${themeWarp ? 'theme-warp' : ''}`}
               style={boardDisabled || (intervention && !trainingActive) ? { pointerEvents: 'none' } : undefined}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -913,7 +898,7 @@ const GameBoard = () => {
 
             {/* In-page training puzzle mount — no reload, same surface */}
             {trainingActive && intervention && (
-              <div className="absolute inset-0 z-40 rounded-xl overflow-auto bg-ink-950/95 backdrop-blur-sm border border-ink-700/40 p-4 sm:p-5">
+              <div className="absolute inset-0 z-40 rounded-2xl overflow-auto bg-[#141F30]/95 backdrop-blur-sm p-4 sm:p-5">
                 <EndlessPuzzle
                   playerId={playerId}
                   elo={puzzleElo}
@@ -965,9 +950,9 @@ const GameBoard = () => {
       />
       {/* Post-multiplayer game result */}
       {isOnline && mp.gameStatus === 'finished' && (
-        <div className="flex-shrink-0 border-t border-ink-700/40 bg-ink-900/90 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+        <div className="flex-shrink-0 bg-[#141F30]/80 backdrop-blur px-4 py-3">
+          <div className="mx-auto flex max-w-5xl items-center justify-between">
+            <h2 className="text-sm font-semibold text-[#E9E3D6] flex items-center gap-2">
               <span
                 className="inline-block w-3 h-3 rounded-full"
                 style={{ backgroundColor: mp.winner === 1 ? '#1a1a1a' : '#fff' }}
@@ -985,7 +970,7 @@ const GameBoard = () => {
                   resetLocalBoard();
                   mm.enterQueue();
                 }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-brass-500 to-brass-600 text-white font-semibold hover:from-brass-400 hover:to-brass-500 transition-all"
+                className="text-xs px-4 py-2 rounded-full bg-[#966F2F]/80 text-white font-semibold hover:bg-[#966F2F] transition-colors"
               >
                 Play Again
               </button>
@@ -997,7 +982,7 @@ const GameBoard = () => {
                   setBotInstances([]);
                   resetLocalBoard();
                 }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-ink-700/60 text-white border border-ink-600 hover:bg-ink-600/60 transition-colors"
+                className="text-xs px-4 py-2 rounded-full bg-[#E9E3D6]/[0.08] text-[#E9E3D6] hover:bg-[#E9E3D6]/[0.14] transition-colors"
               >
                 Back to Menu
               </button>
