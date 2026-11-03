@@ -60,7 +60,7 @@ export const MODE_RULES = {
 }
 
 export function modeBtnClass(active) {
-  return `px-3 py-2 text-xs transition-colors ${
+  return `shrink-0 whitespace-nowrap px-3 py-2 text-xs transition-colors ${
     active
       ? 'bg-ink-700/70 text-white'
       : 'bg-ink-900/60 text-ink-400 hover:text-ink-200'

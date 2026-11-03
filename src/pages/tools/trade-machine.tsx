@@ -12,7 +12,7 @@
  * visible step gaps), status colors only for trade verdicts, always paired
  * with an icon + word.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { track } from "src/lib/analytics";
@@ -139,11 +139,27 @@ function SystemLadder() {
 function PayrollChart({ teams }: { teams: SalaryTeam[] }) {
   const [hover, setHover] = useState<{ team: SalaryTeam; x: number; y: number } | null>(null);
 
-  const W = 780;
+  // Lay the chart out at the width it is given, one SVG unit per CSS pixel, so
+  // a phone gets the whole chart at readable type instead of a sideways scroll
+  // through a 640px minimum. 780 is the server render and the desktop width.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [boxW, setBoxW] = useState(780);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => setBoxW(Math.round(entry.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const W = Math.max(300, boxW);
+  // On a narrow chart the five lines sit within ~75px of each other, so each
+  // label takes its own row; on a wide one they alternate between two.
+  const narrow = W < 560;
   const ROW = 21;
-  const TOP = 40;
-  const LEFT = 46;
-  const RIGHT = 58;
+  const TOP = narrow ? 72 : 40;
+  const LEFT = narrow ? 38 : 46;
+  const RIGHT = narrow ? 50 : 58;
   const H = TOP + teams.length * ROW + 8;
   const domainMax = Math.max(SECOND_APRON + 10_000_000, ...teams.map((t) => t.payroll)) * 1.02;
   const x = (v: number) => LEFT + (v / domainMax) * (W - LEFT - RIGHT);
@@ -166,18 +182,18 @@ function PayrollChart({ teams }: { teams: SalaryTeam[] }) {
           </span>
         ))}
       </div>
-      <div className="overflow-x-auto">
+      <div ref={boxRef}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="w-full min-w-[640px] h-auto"
+          className="w-full h-auto"
           role="img"
           aria-label={`Team payrolls for ${CAP_SEASON_LABEL} against the cap, tax, and apron lines`}
           onMouseLeave={() => setHover(null)}
         >
-          {thresholds.map((t) => (
+          {thresholds.map((t, ti) => (
             <g key={t.label}>
               <line x1={x(t.v)} x2={x(t.v)} y1={TOP - 4} y2={H - 6} stroke={INK.axis} strokeWidth={1} strokeDasharray="3 3" />
-              <text x={x(t.v)} y={t.row === 0 ? 12 : 26} textAnchor="middle" fontSize={10} fill={INK.muted}>
+              <text x={x(t.v)} y={narrow ? 12 + ti * 12 : t.row === 0 ? 12 : 26} textAnchor="middle" fontSize={10} fill={INK.muted}>
                 {t.label} {fmtM0(t.v)}
               </text>
             </g>
@@ -557,9 +573,23 @@ function CapTrajectory() {
   }));
 
   const all = [...CAP_HISTORY.map(([label, v]) => ({ label, v })), ...projection.map((p) => ({ label: p.label, v: p.mid }))];
-  const W = 780;
-  const H = 260;
-  const PAD = { l: 46, r: 16, t: 16, b: 28 };
+  // Same layout rule as PayrollChart: one SVG unit per CSS pixel at the width
+  // the container gives, so a phone sees the whole line instead of scrolling.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [boxW, setBoxW] = useState(780);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => setBoxW(Math.round(entry.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const W = Math.max(300, boxW);
+  const narrow = W < 560;
+  const H = narrow ? 220 : 260;
+  // Right padding leaves room for half of the centred "2030-31" tick label.
+  const PAD = { l: narrow ? 40 : 46, r: 24, t: 16, b: 28 };
   const maxV = projection[projection.length - 1].high * 1.05;
   const x = (i: number) => PAD.l + (i / (all.length - 1)) * (W - PAD.l - PAD.r);
   const y = (v: number) => H - PAD.b - (v / maxV) * (H - PAD.t - PAD.b);
@@ -586,10 +616,10 @@ function CapTrajectory() {
 
   return (
     <div className="relative">
-      <div className="overflow-x-auto">
+      <div ref={boxRef}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="w-full min-w-[640px] h-auto"
+          className="w-full h-auto"
           role="img"
           aria-label="Salary cap by season since 2015-16 with a projected range through 2030-31"
           onMouseLeave={() => setHover(null)}
@@ -600,10 +630,10 @@ function CapTrajectory() {
             setHover(Math.max(0, Math.min(all.length - 1, i)));
           }}
         >
-          {[80e6, 120e6, 160e6, 200e6].map((v) => (
+          {[40e6, 80e6, 120e6, 160e6, 200e6].map((v) => (
             <g key={v}>
               <line x1={PAD.l} x2={W - PAD.r} y1={y(v)} y2={y(v)} stroke={INK.grid} strokeWidth={1} />
-              <text x={PAD.l - 6} y={y(v) + 3} textAnchor="end" fontSize={9.5} fill={INK.muted}>
+              <text x={PAD.l - 6} y={y(v) + 3} textAnchor="end" fontSize={10} fill={INK.muted}>
                 {fmtM0(v)}
               </text>
             </g>
@@ -611,8 +641,10 @@ function CapTrajectory() {
           <polygon points={band} fill="#3987e5" opacity={0.14} />
           <polyline points={histLine} fill="none" stroke="#3987e5" strokeWidth={2} />
           <polyline points={midLine} fill="none" stroke="#3987e5" strokeWidth={2} strokeDasharray="5 4" />
-          {[0, 4, 8, histN - 1, all.length - 1].map((i) => (
-            <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize={9.5} fill={INK.muted}>
+          {/* A season label is ~40px wide; on a phone a season step is ~20px, so
+              keep at least four steps between ticks there. */}
+          {(narrow ? [0, 5, histN - 1, all.length - 1] : [0, 4, 8, histN - 1, all.length - 1]).map((i) => (
+            <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize={10} fill={INK.muted}>
               {all[i].label}
             </text>
           ))}

@@ -31,7 +31,7 @@ export default function RulesPanel({ gameMode }) {
           <strong className="text-ink-200">Five in a row:</strong>{' '}
           Any direction — horizontal, vertical, or diagonal.
           {gameMode?.teams && (
-            <span className="text-ink-500"> (Your stones only — teammate stones don&rsquo;t count.)</span>
+            <span className="text-ink-400"> (Your stones only — teammate stones don&rsquo;t count.)</span>
           )}
         </li>
         {(!gameMode || gameMode.key === 'classic') && (

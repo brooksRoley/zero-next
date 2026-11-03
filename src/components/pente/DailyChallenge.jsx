@@ -29,17 +29,17 @@ function StreakHeader({ daily }) {
               {daily.streak}
               <span className="text-base">🔥</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-ink-500 mt-1">
+            <div className="text-[10px] uppercase tracking-wider text-ink-400 mt-1">
               Day streak
             </div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-white leading-none">{daily.bestStreak}</div>
-            <div className="text-[10px] uppercase tracking-wider text-ink-500 mt-1">Best</div>
+            <div className="text-[10px] uppercase tracking-wider text-ink-400 mt-1">Best</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-white leading-none">{daily.totalCompleted}</div>
-            <div className="text-[10px] uppercase tracking-wider text-ink-500 mt-1">Solved</div>
+            <div className="text-[10px] uppercase tracking-wider text-ink-400 mt-1">Solved</div>
           </div>
         </div>
 
@@ -95,7 +95,7 @@ function PremiumTeaser({ daily }) {
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-brass-300 leading-none">${DAILY_PRO_PRICE}</div>
-          <div className="text-[10px] uppercase tracking-wider text-ink-500">per month</div>
+          <div className="text-[10px] uppercase tracking-wider text-ink-400">per month</div>
         </div>
       </div>
 

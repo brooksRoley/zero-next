@@ -47,7 +47,7 @@ export default function Leaderboard({ currentPlayerId }) {
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-white">Leaderboard</h2>
-        <span className="text-xs text-ink-500">Top 20 by rating</span>
+        <span className="text-xs text-ink-400">Top 20 by rating</span>
       </div>
 
       {status === 'loading' && (
@@ -64,7 +64,7 @@ export default function Leaderboard({ currentPlayerId }) {
       {status === 'error' && (
         <p className="text-sm text-ink-400 py-6 text-center">
           Couldn&apos;t load the leaderboard right now.
-          <span className="block text-xs text-ink-600 mt-1">{error}</span>
+          <span className="block text-xs text-ink-400 mt-1">{error}</span>
         </p>
       )}
 
@@ -89,7 +89,7 @@ export default function Leaderboard({ currentPlayerId }) {
               >
                 <span
                   className={`w-6 shrink-0 text-right font-mono tabular-nums ${
-                    p.rank <= 3 ? 'text-brass-400 font-bold' : 'text-ink-500'
+                    p.rank <= 3 ? 'text-brass-400 font-bold' : 'text-ink-400'
                   }`}
                 >
                   {p.rank}
@@ -104,7 +104,7 @@ export default function Leaderboard({ currentPlayerId }) {
                   {p.name}
                   {isYou && <span className="ml-2 text-xs text-brass-300">you</span>}
                 </span>
-                <span className="hidden sm:block text-xs text-ink-500 shrink-0">
+                <span className="hidden sm:block text-xs text-ink-400 shrink-0">
                   {p.puzzles_solved} solved
                 </span>
                 <span className="w-12 shrink-0 text-right font-mono tabular-nums text-white">
