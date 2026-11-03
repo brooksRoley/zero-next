@@ -33,3 +33,21 @@ describe('pente legibility', () => {
     expect(plain).toEqual([])
   })
 })
+
+describe('pente turn line', () => {
+  // "Black's turn #6 d1 40n" read as debug output to a first-time player.
+  it('shows engine search stats only while the Tutor is on', () => {
+    expect(read('src/components/pente/TurnStatusBar.jsx')).toMatch(/showEngineStats && lastBotStats/)
+    expect(read('src/pages/posts/pente.js')).toContain('showEngineStats={tutorEnabled}')
+  })
+})
+
+describe('pente puzzles page', () => {
+  // Same family as the play page (2026-11-03): the quiet backdrop and pill tabs.
+  it('uses the zen backdrop, not the old SolarField', () => {
+    const page = read('src/pages/posts/pente-puzzles.js')
+    expect(page).toContain('<StillField')
+    expect(page).not.toContain('SolarField')
+    expect(page).toContain('terrain-page-bg')
+  })
+})

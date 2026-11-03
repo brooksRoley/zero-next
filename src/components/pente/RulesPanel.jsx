@@ -11,7 +11,7 @@ export default function RulesPanel({ gameMode }) {
   const rules = gameMode && MODE_RULES[gameMode.key]
 
   return (
-    <div className="mx-3 mb-2 rounded-xl bg-ink-900/80 border border-ink-700/40 px-4 py-3">
+    <div className="mx-3 mb-2 max-w-[65ch] rounded-2xl bg-[#141F30]/70 backdrop-blur px-4 py-3">
       <p className="text-xs text-ink-300 mb-2 leading-relaxed">
         {rules
           ? <strong className="text-ink-100">{rules.title}</strong>

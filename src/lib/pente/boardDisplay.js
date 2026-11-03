@@ -59,18 +59,20 @@ export const MODE_RULES = {
   },
 }
 
+// Quiet chrome (2026-11-03): no borders, pill shapes, the home page's mist
+// for the active state and brass only for a toggle that is on.
 export function modeBtnClass(active) {
-  return `shrink-0 whitespace-nowrap px-3 py-2 text-xs transition-colors ${
+  return `shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-xs transition-colors ${
     active
-      ? 'bg-ink-700/70 text-white'
-      : 'bg-ink-900/60 text-ink-400 hover:text-ink-200'
+      ? 'bg-[#E9E3D6]/[0.12] text-[#E9E3D6]'
+      : 'text-ink-300 hover:text-[#E9E3D6]'
   }`
 }
 
 export function actionBtnClass(active = false) {
-  return `text-xs px-3 py-2 rounded-lg border transition-colors min-h-[36px] ${
+  return `inline-flex items-center justify-center rounded-full px-3 py-2 text-xs transition-colors min-h-[36px] min-w-[36px] ${
     active
-      ? 'bg-cyan-900/50 text-cyan-300 border-cyan-600/50'
-      : 'bg-ink-900/60 text-ink-400 hover:text-ink-200 border-ink-700/40 hover:border-ink-500'
+      ? 'bg-brass-500/[0.14] text-brass-300'
+      : 'text-ink-300 hover:text-[#E9E3D6] hover:bg-[#E9E3D6]/[0.06]'
   }`
 }

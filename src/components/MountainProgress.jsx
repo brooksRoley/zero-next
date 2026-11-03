@@ -33,7 +33,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
             cx={12}
             cy={20 - (altPercent / 100) * 16}
             r="2"
-            fill="#ff69b4"
+            fill="#CDA35F"
           />
         </svg>
         <div className="flex flex-col">
@@ -45,7 +45,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
   }
 
   return (
-    <div className="rounded-xl bg-ink-900/60 border border-ink-700/40 p-4 overflow-hidden">
+    <div className="rounded-2xl bg-[#101B2B]/55 p-4 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div>
@@ -73,26 +73,26 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
         <defs>
           {/* Mountain gradient */}
           <linearGradient id="mountainGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#e2e8f0" />
-            <stop offset="25%" stopColor="#94a3b8" />
-            <stop offset="50%" stopColor="#6b7280" />
-            <stop offset="75%" stopColor="#2d6a4f" />
-            <stop offset="100%" stopColor="#1a3a2a" />
+            <stop offset="0%" stopColor="#E9E3D6" />
+            <stop offset="25%" stopColor="#B1ADA8" />
+            <stop offset="50%" stopColor="#5A687C" />
+            <stop offset="75%" stopColor="#2F3C50" />
+            <stop offset="100%" stopColor="#1A2638" />
           </linearGradient>
           {/* Snow cap */}
           <linearGradient id="snowGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f8fafc" />
-            <stop offset="100%" stopColor="#e2e8f0" stopOpacity="0" />
+            <stop offset="0%" stopColor="#F4F0E8" />
+            <stop offset="100%" stopColor="#E9E3D6" stopOpacity="0" />
           </linearGradient>
           {/* Player glow */}
           <radialGradient id="playerGlow">
-            <stop offset="0%" stopColor="#ff69b4" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#ff69b4" stopOpacity="0" />
+            <stop offset="0%" stopColor="#CDA35F" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#CDA35F" stopOpacity="0" />
           </radialGradient>
         </defs>
 
         {/* Background sky */}
-        <rect width="300" height="200" fill="#0c1f17" rx="8" />
+        <rect width="300" height="200" fill="#101B2B" rx="8" />
 
         {/* Stars */}
         {[30, 80, 140, 200, 260, 55, 170, 240].map((x, i) => (
@@ -129,7 +129,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
           <polyline
             points={trailPoints}
             fill="none"
-            stroke="#ff69b4"
+            stroke="#CDA35F"
             strokeWidth="1.5"
             opacity="0.4"
             strokeLinejoin="round"
@@ -144,7 +144,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
               cy={180 - (peakPercent / 100) * 160}
               r="3"
               fill="none"
-              stroke="#fbbf24"
+              stroke="#D8B783"
               strokeWidth="1"
               opacity="0.5"
             />
@@ -152,7 +152,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
               x={158}
               y={180 - (peakPercent / 100) * 160 + 2}
               fontSize="6"
-              fill="#fbbf24"
+              fill="#D8B783"
               opacity="0.5"
             >
               Peak {peakElo}
@@ -173,7 +173,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
           cx={150}
           cy={180 - (altPercent / 100) * 160}
           r="4"
-          fill="#ff69b4"
+          fill="#CDA35F"
           stroke="#fff"
           strokeWidth="1.5"
         >
@@ -184,7 +184,7 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
       {/* Altitude bar */}
       <div className="mt-3 flex items-center gap-2">
         <span className="text-[10px] text-ink-600 w-8">400</span>
-        <div className="flex-1 h-2 rounded-full bg-ink-800 overflow-hidden relative">
+        <div className="flex-1 h-2 rounded-full bg-[#E9E3D6]/[0.08] overflow-hidden relative">
           {/* Zone gradient */}
           <div className="absolute inset-0 rounded-full"
             style={{
@@ -199,13 +199,13 @@ export default function MountainProgress({ elo, peakElo, eloHistory, compact = f
             className="absolute top-0 bottom-0 left-0 rounded-full transition-all duration-700"
             style={{
               width: `${altPercent}%`,
-              background: 'linear-gradient(to right, #2d6a4f, #ff69b4)',
+              background: 'linear-gradient(to right, #2F3C50, #CDA35F)',
             }}
           />
           {/* Peak marker */}
           {peakElo > elo && (
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-yellow-400/50"
+              className="absolute top-0 bottom-0 w-0.5 bg-brass-300/50"
               style={{ left: `${peakPercent}%` }}
             />
           )}
