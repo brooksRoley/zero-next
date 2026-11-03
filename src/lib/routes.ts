@@ -27,6 +27,12 @@ export type RouteDef = {
   label: string
   /** Absolute URLs: opened in a new tab, and skipped by the page-file check. */
   external?: true
+  /**
+   * Basketball work. The nav reaches all of it through one Basketball link to
+   * the `/basketball` hub, and `__tests__/basketballHub.test.ts` fails if a
+   * route marked here is missing from the hub or links straight from the nav.
+   */
+  basketball?: true
 }
 
 const REGISTRY = {
@@ -37,12 +43,13 @@ const REGISTRY = {
   intake: { href: '/intake', label: 'Contact' },
 
   // ── NBA / sports tech ──
-  basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform' },
-  nba: { href: '/nba', label: 'NBA Explorer — League Lens' },
-  tradeMachine: { href: '/tools/trade-machine', label: 'Trade Machine' },
-  rigReport: { href: '/tools/rig-report', label: 'The Rig Report' },
-  nbaAccuracy: { href: '/tools/nba-accuracy', label: 'Prediction Accuracy' },
-  basketballTactics: { href: '/posts/basketball-tactics', label: 'Lakers Tactics' },
+  basketball: { href: '/basketball', label: 'Basketball' },
+  basketballPlatform: { href: '/basketball-platform', label: 'Basketball Data Platform', basketball: true },
+  nba: { href: '/nba', label: 'NBA Explorer — League Lens', basketball: true },
+  tradeMachine: { href: '/tools/trade-machine', label: 'Trade Machine', basketball: true },
+  rigReport: { href: '/tools/rig-report', label: 'The Rig Report', basketball: true },
+  nbaAccuracy: { href: '/tools/nba-accuracy', label: 'Prediction Accuracy', basketball: true },
+  basketballTactics: { href: '/posts/basketball-tactics', label: 'Lakers Tactics', basketball: true },
 
   // ── AI tools ──
   chat: { href: '/tools/chat', label: 'Chat Sandbox' },
@@ -55,10 +62,10 @@ const REGISTRY = {
   go: { href: '/posts/go', label: 'Go' },
   goLearn: { href: '/posts/go/learn', label: 'Go — Learn' },
   goPuzzles: { href: '/posts/go/puzzles', label: 'Go Puzzles' },
-  passAndCut: { href: '/games/pass-and-cut', label: 'Pass & Cut' },
-  readAndReact: { href: '/games/read-and-react', label: 'Read & React' },
-  hardwood: { href: '/games/hardwood', label: 'Hardwood Autochess' },
-  moments: { href: '/games/moments', label: 'Playoff Moments' },
+  passAndCut: { href: '/games/pass-and-cut', label: 'Pass & Cut', basketball: true },
+  readAndReact: { href: '/games/read-and-react', label: 'Read & React', basketball: true },
+  hardwood: { href: '/games/hardwood', label: 'Hardwood Autochess', basketball: true },
+  moments: { href: '/games/moments', label: 'Playoff Moments', basketball: true },
   tend: { href: '/games/tend', label: 'Tend' },
   tendWatershed: { href: '/games/tend/watershed', label: 'Tend — The Watershed' },
   tendJournal: { href: '/games/tend/journal', label: 'Tend — The Journal' },
@@ -110,3 +117,6 @@ export const ROUTE_KEYS = Object.keys(ROUTES) as RouteKey[]
 
 /** Keys that point at a page in this repo (i.e. everything not `external`). */
 export const INTERNAL_ROUTE_KEYS = ROUTE_KEYS.filter((key) => !ROUTES[key].external)
+
+/** Keys marked `basketball`: the work the `/basketball` hub collects. */
+export const BASKETBALL_ROUTE_KEYS = ROUTE_KEYS.filter((key) => ROUTES[key].basketball)
