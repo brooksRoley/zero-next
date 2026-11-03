@@ -644,10 +644,11 @@ const GameBoard = () => {
       ══════════════════════════════════════════════════════════════ */}
       <header className="flex-shrink-0 border-b border-ink-800/60 bg-ink-950/70 backdrop-blur">
 
-        {/* Row 1 — Mode tabs + action buttons */}
-        <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
+        {/* Row 1 — Mode tabs + action buttons. Wraps on phones so New and
+            Rules stay on screen; the tabs scroll sideways if they run out of room. */}
+        <div className="flex flex-wrap items-center gap-2 px-3 pt-2.5 pb-1.5">
           {/* Mode tabs */}
-          <div className="flex rounded-lg overflow-hidden border border-ink-700/40 shrink-0">
+          <div className="flex min-w-0 max-w-full overflow-x-auto rounded-lg border border-ink-700/40">
             {MODE_PRESETS.map((preset, i) => (
               <button
                 key={preset.key}
@@ -660,7 +661,7 @@ const GameBoard = () => {
           </div>
 
           {/* Action buttons */}
-          <div className="ml-auto flex items-center gap-1.5">
+          <div className="ml-auto flex shrink-0 items-center gap-1.5">
             {!isOnline && !gameOver && (!gameMode || gameMode.key === 'classic') && (
               <button
                 className={actionBtnClass(tutorEnabled)}
@@ -730,6 +731,15 @@ const GameBoard = () => {
           gameMode={gameMode}
           captures={captures}
         />
+
+        {/* First move: one instruction, on every screen size. The nav's goal
+            line is hidden below md, so a phone player otherwise sees only
+            "Black's turn" over an empty board. */}
+        {moveCount === 0 && !gameOver && !isOnline && !showLobby && (
+          <p data-testid="pente-first-move" className="px-3 pb-2 text-xs text-ink-200">
+            Place a stone on any point. Five in a row, or five captured pairs, wins.
+          </p>
+        )}
 
         {/* Multiplayer status */}
         {isOnline && mp.gameStatus !== 'loading' && mp.gameStatus !== 'error' && (
@@ -821,7 +831,7 @@ const GameBoard = () => {
             {/* Eval bar — desktop sidebar (classic only) */}
             {showEval && (
               <div className="hidden md:flex flex-col items-center gap-1 shrink-0">
-                <span className="text-[10px] text-ink-500 uppercase tracking-wider">Eval</span>
+                <span className="text-[10px] text-ink-400 uppercase tracking-wider">Eval</span>
                 <div className="w-4 h-52 rounded-full bg-gray-900 border border-ink-700/40 overflow-hidden relative">
                   <div
                     className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white to-gray-300 transition-all duration-500"
@@ -832,7 +842,7 @@ const GameBoard = () => {
                     style={{ height: `${100 - evalPercent}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-ink-500 font-mono">
+                <span className="text-[10px] text-ink-400 font-mono">
                   {evalClamped > 0 ? '+' : ''}{(evalClamped / 1000).toFixed(1)}k
                 </span>
               </div>

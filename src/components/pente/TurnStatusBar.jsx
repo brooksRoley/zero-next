@@ -37,7 +37,7 @@ export default function TurnStatusBar({
         {botThinking ? '…' : '’s turn'}
       </span>
       {moveCount > 0 && (
-        <span className="text-ink-600 text-xs font-mono">#{moveCount}</span>
+        <span className="text-ink-400 text-xs font-mono">#{moveCount}</span>
       )}
       {lastBotStats && botEnabled && !botThinking && (
         <span className="text-ink-700 text-[10px] font-mono opacity-60" title="Engine search depth / nodes evaluated">
@@ -61,7 +61,7 @@ export default function TurnStatusBar({
                 : (captures[p] || 0)
               }
             </span>
-            <span className="text-ink-600">/{gameMode?.captureThreshold || 5}</span>
+            <span className="text-ink-400">/{gameMode?.captureThreshold || 5}</span>
           </span>
         ))}
       </div>
