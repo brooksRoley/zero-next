@@ -9,6 +9,7 @@
  */
 
 export const BOARD_THEMES = [
+  { key: 'mist',    label: 'Mist',            swatch: 'linear-gradient(135deg, #E9E3D6 0%, #CFC8BA 100%)', accent: '#966F2F' },
   { key: 'classic', label: 'Classic Wood',    swatch: 'linear-gradient(135deg, #dfc48b 0%, #c9a65a 100%)', accent: '#ff69b4' },
   { key: 'walnut',  label: 'Midnight Walnut', swatch: 'linear-gradient(135deg, #6b4226 0%, #2e1c10 100%)', accent: '#fbbf24' },
   { key: 'nebula',  label: 'Nebula',          swatch: 'linear-gradient(135deg, #312e81 0%, #0c0a1f 100%)', accent: '#a78bfa' },
@@ -28,9 +29,9 @@ export const EFFECT_MODES = [
 ]
 
 export const DEFAULT_BOARD_PREFS = {
-  theme: 'classic',
-  stones: 'glass',
-  effects: 'full',
+  theme: 'mist',
+  stones: 'matte',
+  effects: 'calm',
 }
 
 /** Drop unknown keys/values from persisted prefs (registry may change between visits). */
