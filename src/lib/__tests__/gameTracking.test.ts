@@ -55,8 +55,8 @@ describe('createGameTracker', () => {
 
 // The Go pages had zero analytics calls for a month while briefs re-flagged it.
 // Every game surface must fire at least one event from the shared vocabulary.
-// Hardwood is absent on purpose: it is an iframe with no message bridge, so the
-// page can only see that the embed loaded (`hardwood_embed_load`), not a game.
+// Hardwood is not in this list because its game code is not in this repo: it
+// is a vendored BballTactics build in public/hardwood/, checked separately below.
 describe('every game surface is instrumented', () => {
   const SURFACES = [
     'src/pages/posts/go/index.js',
@@ -77,6 +77,21 @@ describe('every game surface is instrumented', () => {
   it.each(SURFACES)('%s uses trackGame or useGameTracking', (file) => {
     const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8')
     expect(source).toMatch(/trackGame\(|useGameTracking\(/)
+  })
+
+  // Hardwood is a built bundle (BballTactics client/game/telemetry.js) served
+  // same-origin at /hardwood/. Its game_start / game_end must reach /api/events
+  // under the slug 'hardwood' and the same visitor ids as analytics.ts, or a
+  // rebuild from an older source would silently stop counting runs.
+  it('the vendored Hardwood bundle fires game_start and game_end', () => {
+    const dir = path.join(process.cwd(), 'public/hardwood')
+    const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8')
+    const entry = html.match(/src="\/hardwood\/(assets\/index-[^"]+\.js)"/)
+    expect(entry).not.toBeNull()
+    const bundle = fs.readFileSync(path.join(dir, entry![1]), 'utf8')
+    for (const needle of ['game_start', 'game_end', '/api/events', '"hardwood"', 'br_session_id', 'br_anon_id']) {
+      expect(bundle).toContain(needle)
+    }
   })
 
   it('keeps the vocabulary small and stable', () => {

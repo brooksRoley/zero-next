@@ -14,22 +14,27 @@ without also bumping this file, so KEEP THIS FILE HONEST AND CURRENT.
 
 CURRENTLY-DEPLOYED BUNDLE
 -------------------------
-Rebuilt 2026-10-23 (zero-next branch games/hardwood-open-gym).
+Rebuilt 2026-11-03 (zero-next branch feat/hardwood-events-vendor).
 
-BballTactics source: dd0004b5e2ca1088aaaf0ac34758de1de56b904a (main, clean
-tree: "Merge pull request #8 from brooksRoley/game/open-gym").
-Adds BballTactics PRs #7 and #8 over 54a1fce: the Open Gym opening screen
-(How to Play cards, the controls tour, Run It), synthesized sound for every
-click and court event, and press feel. Sound starts muted on this embed
-(client/audio/sfx.js defaultMuted for base /hardwood/); the speaker button
-turns it on.
+BballTactics source: e0813b42eea23dc4c48016e354c59a9005e958d7 (main: "Merge
+pull request #12 from brooksRoley/feat/hardwood-game-events").
 
-Build: VITE_API_BASE='' npx vite build --base=/hardwood/ --outDir <scratch dir>
-Copied: index.html and all ten files in assets/ (previous asset files
+What changed for players: the game now sends the site's shared events,
+game_start on a run's first lock-in and game_end when the season is won or
+the team is eliminated (metadata: game 'hardwood', mode 'autochess', result
+'win' | 'loss', round, wins, losses, duration_ms), to same-origin
+/api/events with the site's br_session_id / br_anon_id. Built from current
+main, it also carries BballTactics PRs #9 (unused score popups removed),
+#10 (Full Court, a 5v5 live mode reached from Open Gym) and #11 (tests only)
+over dd0004b.
+
+Build: npm run build:hardwood (VITE_API_BASE='' vite build --base=/hardwood/
+--outDir dist-hardwood)
+Copied: index.html and all nine files in assets/ (previous nine asset files
 removed). engine.js, engine.wasm and engine_roster.json were byte-identical
 and are unchanged. Every copied file verified with cmp against the build.
 
-PREVIOUS BUNDLE: 2026-10-22, BballTactics 54a1fce (zero-next PR #73). Before that: 2026-10-21, 7e6fbd5 (PR #70).
+PREVIOUS BUNDLE: 2026-10-23, BballTactics dd0004b (zero-next branch games/hardwood-open-gym). Before that: 2026-10-22, 54a1fce (PR #73). Before that: 2026-10-21, 7e6fbd5 (PR #70).
 
 PROVENANCE VERIFIED 2026-10-20
   Before changing anything, BballTactics b75f7f0 was built unmodified with the
