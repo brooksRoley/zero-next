@@ -22,17 +22,24 @@ export const SUMMARY =
 
 export const LOCATION = 'Orange County, CA'
 
-export const AVAILABILITY = 'Open to full-time roles — remote, or hybrid in Orange County.'
+export const AVAILABILITY = 'Open to full-time roles, remote or hybrid in Orange County.'
 
 // The home hero's one-paragraph pitch. The hero, its loading fallback and the
 // site-wide meta description all read from here so they cannot drift apart.
 export const HERO_SUMMARY =
-  'Full-stack software engineer with a front-end lean. I build fast, accessible interfaces ' +
-  'in React, Vue and TypeScript, for products and for game clients, and the services behind them.'
+  'Full-stack software engineer with a front-end lean. Ten years building product interfaces ' +
+  'in React, Vue and TypeScript, and the Node and Python services behind them.'
+
+// Said up front so the AI work reads as a choice (review, 2026-11-02):
+// what I was learning, and how. Keep it true: CI runs on every pull request and
+// Brooks merges by hand. Do not claim CI blocks merges (resume.test.ts).
+export const AI_NOTE =
+  'For the past year I have been learning to build with AI coding agents, mostly Claude Code, ' +
+  'by making basketball games and tools. Tests run on every pull request, and I review each change before I merge it.'
 
 // Search results and link previews. Kept under ~160 characters so it is not cut off.
 export const SITE_DESCRIPTION =
-  'Brooks Roley — full-stack software engineer with a front-end lean: React, TypeScript, Node and Python. ' +
+  'Brooks Roley, full-stack software engineer with a front-end lean: React, TypeScript, Node and Python. ' +
   'Open to full-time roles.'
 
 // One line per break between roles, each placed after the entry at its index.
@@ -52,9 +59,8 @@ export const EXPERIENCE: ResumeRole[] = [
     dates: '2025 – Present',
     bullets: [
       'Built a bilingual intake system for Centerpointe for Children, a pediatric therapy clinic. Answers are encrypted in the browser (RSA-OAEP, AES-256-GCM), so the server and inbox hold only ciphertext.',
-      'Built and run this site on Next.js, TypeScript and PostgreSQL. CI runs 1,700+ tests and Lighthouse on every change, and a scheduled AI coding agent opens pull requests that I review before they merge.',
-      'Built a basketball data platform across four codebases: a Python API, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
-      'Built a desktop launcher in Electron, React and TypeScript. Updates ship only changed chunks (16 KB of a 1.07 MB build for a one-line change); installs are verified, resumable and roll back.',
+      'Spent the past year learning to build with AI coding agents (Claude Code) on this site: Next.js, TypeScript and PostgreSQL. A scheduled agent opens pull requests, CI runs 1,700+ tests and Lighthouse on each one, and I review every change before I merge it.',
+      'Built Hardwood Autochess, an NBA auto-battler: a C++ simulation engine compiled to WebAssembly under a Vue 3 client. Its Electron launcher ships only changed chunks (16 KB of a 1.07 MB build for a one-line change), with verified, resumable installs and rollback.',
     ],
   },
   {
@@ -110,7 +116,7 @@ export const SKILLS: SkillGroup[] = [
   { label: 'Infrastructure and tools', items: ['AWS (S3, SageMaker)', 'Docker', 'Kubernetes', 'Terraform', 'Vercel', 'Git', 'Bash', 'Webpack'] },
   { label: 'Accessibility and standards', items: ['WCAG', 'HIPAA', 'SSO/SAML', 'A/B testing'] },
   { label: 'Monitoring and delivery', items: ['Datadog', 'Grafana', 'CI/CD with GitHub Actions'] },
-  { label: 'AI', items: ['LLM API integration', 'Claude Code', 'Agent workflows under test and review'] },
+  { label: 'AI', items: ['Claude Code', 'LLM API integration (Vercel AI SDK)', 'Reviewing and testing agent-written code'] },
 ]
 
 export const EDUCATION = {

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import Reveal from 'src/components/Reveal'
 import TiltCard from 'src/components/TiltCard'
-import { AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
+import { AI_NOTE, AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
 import { route } from 'src/lib/routes'
 import { glintStyle } from 'src/lib/ember/weather'
 
@@ -28,6 +28,7 @@ const PhysicsHero = dynamic(() => import('src/components/PhysicsHero'), {
             {HERO_SUMMARY}{' '}
             <span className="font-medium text-[#DED9CE]">{AVAILABILITY}</span>
           </p>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#E9E3D6]/70 sm:text-base sm:leading-7">{AI_NOTE}</p>
         </div>
       </div>
     </section>
@@ -103,14 +104,6 @@ const ArtLabel = ({ children }: { children: string }) => (
   <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#E9E3D6]/70">{children}</span>
 )
 
-// A lane names which kind of role the cards under it speak to.
-const Lane = ({ label, children }: { label: string; children: ReactNode }) => (
-  <div className="mt-8 first:mt-0">
-    <h3 className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-[#B1ADA8]/85">{label}</h3>
-    <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">{children}</PhysicsField>
-  </div>
-)
-
 const EMAIL = 'brooksroley@gmail.com'
 
 export default function Home() {
@@ -123,47 +116,23 @@ export default function Home() {
         featured={
           <>
             <SectionHeading number="01" label="Work" />
-            <Reveal>
-              <p className="mb-6 sm:mb-8 max-w-2xl text-sm sm:text-base text-[#E9E3D6]/78 leading-relaxed">
-                Two kinds of interface work: game clients, and products people rely on every day.
-              </p>
-            </Reveal>
-
-            <Lane label="Game client & UI">
-              <Card
-                href={route('hardwood').href}
-                title="Hardwood Autochess"
-                line="A C++ engine compiled to WebAssembly under a Vue 3 client, and an Electron launcher that ships a one-line change as 16 KB of a 1.07 MB build."
-                art={<ArtLabel>Engine · Client · Launcher</ArtLabel>}
-                artClass="bg-[#552583]"
-                delay={100}
-              />
-              <Card
-                href={route('basketballPlatform').href}
-                title="Basketball Data Platform"
-                line="One system across four codebases: a Python API, the C++/WASM engine, a Vue 3 game and a SwiftUI iOS app."
-                art={<Image src="/BRBaller.png" alt="" width={140} height={70} className="object-contain opacity-70 card-img-hover" />}
-                artClass="bg-[#2F3C50]/34"
-                delay={200}
-              />
-            </Lane>
-
-            <Lane label="Product web">
+            <PhysicsField className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
               <Card
                 href={route('resume').href}
                 title="Ten years of product UI"
                 line="Grove, Zoox, Zipongo and SigFig: personalization for 1.5M+ customers, a Backbone-to-Vue migration, HIPAA and WCAG work."
                 art={<Image src="/cover.png" alt="" fill className="object-cover opacity-60 card-img-hover" />}
-                delay={300}
+                delay={100}
               />
               <Card
-                href={route('tradeMachine').href}
-                title="Trade Machine"
-                line="An NBA salary-cap explorer: build a trade, check it against the CBA's rules and see the cap math for 2026-27."
-                art={<ArtLabel>Payroll · Cap · Aprons</ArtLabel>}
-                delay={400}
+                href={route('hardwood').href}
+                title="Hardwood Autochess"
+                line="An NBA auto-battler I built with Claude Code to learn engine-to-UI work: a C++ engine in WebAssembly under a Vue 3 client, and a launcher that ships a one-line change as 16 KB."
+                art={<ArtLabel>Engine · Client · Launcher</ArtLabel>}
+                artClass="bg-[#552583]"
+                delay={200}
               />
-            </Lane>
+            </PhysicsField>
           </>
         }
       />
