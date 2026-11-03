@@ -32,21 +32,18 @@ afterEach(() => cleanup());
 describe("NavHeader desktop dropdown a11y", () => {
   const trigger = (label) => screen.getByRole("button", { name: label });
 
-  it("marks dropdown triggers as popup owners that start collapsed", () => {
+  it("marks the dropdown trigger as a popup owner that starts collapsed", () => {
     render(<NavHeader />);
-    for (const label of ["Projects", "Games"]) {
-      const btn = trigger(label);
-      expect(btn.getAttribute("aria-haspopup")).toBe("true");
-      expect(btn.getAttribute("aria-expanded")).toBe("false");
-    }
+    const btn = trigger("Games");
+    expect(btn.getAttribute("aria-haspopup")).toBe("true");
+    expect(btn.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("flips aria-expanded to true when its menu opens, and only that menu", () => {
+  it("flips aria-expanded to true when its menu opens", () => {
     render(<NavHeader />);
-    fireEvent.click(trigger("Projects"));
-    expect(trigger("Projects").getAttribute("aria-expanded")).toBe("true");
-    // Sibling dropdown stays collapsed — only one menu opens at a time.
-    expect(trigger("Games").getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(trigger("Games"));
+    expect(trigger("Games").getAttribute("aria-expanded")).toBe("true");
+    expect(document.getElementById("nav-submenu-Games")).not.toBeNull();
   });
 
   it("collapses again when the open trigger is clicked a second time", () => {
@@ -55,5 +52,24 @@ describe("NavHeader desktop dropdown a11y", () => {
     expect(trigger("Games").getAttribute("aria-expanded")).toBe("true");
     fireEvent.click(trigger("Games"));
     expect(trigger("Games").getAttribute("aria-expanded")).toBe("false");
+  });
+});
+
+describe("NavHeader Basketball entry", () => {
+  it("is a plain link to the hub, not a dropdown", () => {
+    render(<NavHeader />);
+    expect(screen.queryByRole("button", { name: "Basketball" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Projects" })).toBeNull();
+    const links = screen.getAllByRole("link", { name: "Basketball" });
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/basketball"]);
+  });
+
+  it("appears once in the open mobile menu too", () => {
+    render(<NavHeader />);
+    fireEvent.click(screen.getByRole("button", { name: "Toggle menu" }));
+    const menu = document.getElementById("mobile-menu");
+    const hrefs = [...menu.querySelectorAll("a")].map((a) => a.getAttribute("href"));
+    expect(hrefs.filter((h) => h === "/basketball")).toHaveLength(1);
+    expect(hrefs).not.toContain("/games/hardwood");
   });
 });

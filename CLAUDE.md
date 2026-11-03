@@ -40,6 +40,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/zero-paradox`, `/education-tracker`, `/digital-products` — unfinished pages, gated by `src/proxy.ts` since 2026-10-07 (`/stat-galaxy` joined them 2026-10-20: its public heading read "Prototype") and unlinked from public chrome (an entity that does not exist, a personal tracker that reads 0% to visitors, a storefront for an unwritten PDF). To publish one: finish it, remove its `matcher` entry, and add it back to `src/lib/routes.ts`. `src/lib/__tests__/hiringReadiness.test.ts` guards this
 
 **NBA / sports tech**
+- `/basketball` (`src/pages/basketball.tsx`) — The one home for every basketball game, tool and case study (data in `src/lib/basketballHub.ts`, routes flagged `basketball: true` in `src/lib/routes.ts`). The nav has one Basketball item; `basketballHub.test.ts` fails if a flagged route is missing from the hub
 - `/nba` (`src/pages/nba.tsx`) — NBA API Explorer: players, teams, standings, predictions
 - `/stat-galaxy` (`src/pages/stat-galaxy.tsx`) — "Stat Galaxy" NBA physics-based stat visualizer. Gated (see Private / admin) until it is finished
 - `/tools/nba-accuracy` (`src/pages/tools/nba-accuracy.tsx`) — Prediction-accuracy dashboard (ATS cover rate, model vs Vegas, break-even line)

@@ -2,22 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { route } from 'src/lib/routes';
+import { BASKETBALL_ROUTE_KEYS, route } from 'src/lib/routes';
 
 // Destinations come from the shared registry (src/lib/routes.ts) so this list,
 // the landing page, and the Theater can't drift apart. Grouping and order are
 // still this component's call — only the hrefs are shared.
+//
+// Basketball work (routes marked `basketball: true`) is reached through the one
+// Basketball link to the /basketball hub, never listed here directly;
+// src/lib/__tests__/basketballHub.test.ts holds that line.
 const NAV_LINKS = [
   route('resume'),
-  {
-    label: 'Projects',
-    children: [
-      route('hardwood'),
-      route('basketballPlatform'),
-      route('tradeMachine'),
-      route('nba'),
-    ],
-  },
+  route('basketball'),
   {
     label: 'Games',
     children: [
@@ -25,15 +21,18 @@ const NAV_LINKS = [
       route('pente'),
       route('pentePuzzles'),
       route('go'),
-      route('passAndCut'),
-      route('readAndReact'),
-      route('moments'),
       route('nanuPikaTd'),
     ],
   },
   route('github'),
   route('intake'),
 ];
+
+// The Basketball link stays lit on every page the hub collects, not just the hub.
+const BASKETBALL_HREFS = new Set([
+  route('basketball').href,
+  ...BASKETBALL_ROUTE_KEYS.map((key) => route(key).href),
+]);
 
 export default function NavHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -62,7 +61,10 @@ export default function NavHeader() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isActive = (href) => router.pathname === href;
+  const isActive = (href) =>
+    href === route('basketball').href
+      ? BASKETBALL_HREFS.has(router.pathname)
+      : router.pathname === href;
 
   return (
     <nav className="sticky top-0 z-50 bg-ink-900/90 backdrop-blur-md border-b border-ink-700/40 shadow-sm">
