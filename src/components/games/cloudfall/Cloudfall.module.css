@@ -1,0 +1,44 @@
+/* Phone first: one column, the board in the middle, the buttons under the thumb. */
+.layout {
+  display: grid;
+  justify-content: center;
+  justify-items: center;
+  row-gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'title'
+    'bar'
+    'say'
+    'board'
+    'pad'
+    'note';
+}
+
+.title { grid-area: title; }
+.bar { grid-area: bar; width: 100%; }
+.say { grid-area: say; width: 100%; }
+.board { grid-area: board; }
+.pad { grid-area: pad; width: 100%; }
+.note { grid-area: note; }
+.side { grid-area: side; display: none; }
+.next { grid-area: next; display: none; }
+
+/* Wide screens: the frame and score on the left, the well in the middle, what comes next on the right. */
+@media (min-width: 1024px) {
+  .layout {
+    column-gap: 1.75rem;
+    row-gap: 0.75rem;
+    align-items: start;
+    justify-items: stretch;
+    grid-template-columns: 260px auto 190px;
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      'title say next'
+      'note board next'
+      'side board next'
+      'pad board next';
+  }
+  .bar { display: none; }
+  .side, .next { display: flex; }
+  .board { justify-self: center; }
+}

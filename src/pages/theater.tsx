@@ -118,6 +118,15 @@ const REPERTORY: Act[] = [
         href: route('nanuPikaTd').href,
         accent: '#a78bfa',
       },
+      {
+        id: 'cloudfall',
+        title: 'Cloudfall',
+        metaphor: 'the clear sky',
+        logline: 'A falling-block puzzle under a bright sky: seven shapes, ten columns, and every full row clears.',
+        note: 'The lightest production in the house. Pieces drop out of the clouds; keep the stack low and the sky stays open.',
+        href: route('cloudfall').href,
+        accent: '#3fd6f5',
+      },
     ],
   },
   {
