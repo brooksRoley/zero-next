@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'fs'
 import path from 'path'
-import { AVAILABILITY } from 'src/lib/resume'
+import { AI_NOTE, AVAILABILITY } from 'src/lib/resume'
 import { INTERNAL_ROUTE_KEYS, ROUTES, SITE_ORIGIN } from 'src/lib/routes'
 import { buildSitemapXml } from 'src/lib/sitemap'
 
@@ -109,12 +109,21 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
   })
 
-  it('leads the work with Hardwood and keeps the resume in it', () => {
+  // Decided 2026-11-02 after review: the home work section is the
+  // resume and one project, Hardwood. The other builds live in the Theater.
+  it('shows the resume and Hardwood as the only work on the home page', () => {
     const home = read('src/pages/index.tsx')
-    const at = (key: string) => home.indexOf(`route('${key}')`)
-    expect(at('hardwood')).toBeGreaterThan(-1)
-    expect(at('hardwood')).toBeLessThan(at('basketballPlatform'))
-    expect(at('resume')).toBeGreaterThan(-1)
+    const featured = home.slice(home.indexOf('label="Work"'), home.indexOf('label="Contact"'))
+    const routes = [...featured.matchAll(/route\('(\w+)'\)/g)].map((m) => m[1])
+    expect(routes).toEqual(['resume', 'hardwood'])
+  })
+
+  // review: say the AI work up front so it reads as intentional.
+  it('says in the hero what the AI work was for, from the resume data', () => {
+    expect(AI_NOTE).toMatch(/learning to build with AI coding agents/)
+    expect(AI_NOTE).not.toMatch(/blocks? (the |a )?merge/i)
+    expect(read('src/components/PhysicsHero.tsx')).toContain('{AI_NOTE}')
+    expect(read('src/pages/index.tsx')).toContain('{AI_NOTE}')
   })
 
   // Decided 2026-10-30: a recruiter's first page shows the two lanes (game client,
