@@ -15,6 +15,7 @@ const HEADING_SOURCE: Record<string, { file: string; pattern: RegExp }> = {
   passAndCut: { file: 'src/pages/games/pass-and-cut.tsx', pattern: /<h1/ },
   readAndReact: { file: 'src/pages/games/read-and-react.tsx', pattern: /<h1/ },
   moments: { file: 'src/pages/games/moments.tsx', pattern: /<h1/ },
+  cloudfall: { file: 'src/pages/games/cloudfall.tsx', pattern: /<h1/ },
   hardwood: { file: 'src/pages/games/hardwood.tsx', pattern: /<h1/ },
   tend: { file: 'src/pages/games/tend.tsx', pattern: /<h1/ },
   nanuPikaTd: { file: 'src/components/nanu-pika-td.jsx', pattern: /<h1/ },
