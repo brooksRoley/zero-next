@@ -347,3 +347,31 @@ img {
   .ember-glint { background: none; -webkit-text-fill-color: currentColor; }
   .ember-lit .ember-text, .ember-lit .ember-text span { color: CanvasText; }
 }
+
+/* ── Quiet home (2026-11-03): light by default, dark on toggle. Every text
+   token clears WCAG AA on its background (fg 15.6/13.5, body 8.4/10.0,
+   muted 5.3/6.5, accent 4.9/7.4). ── */
+.quiet-home {
+  --q-bg: #F6F3EC;
+  --q-fg: #101B2B;
+  --q-body: #3F4855;
+  --q-muted: #5E6670;
+  --q-accent: #8A6326;
+  --q-rule: rgba(16, 27, 43, 0.22);
+  background: var(--q-bg);
+  color: var(--q-body);
+  color-scheme: light;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.quiet-home[data-theme='dark'] {
+  --q-bg: #101B2B;
+  --q-fg: #E9E3D6;
+  --q-body: #C9C4BA;
+  --q-muted: #A39E96;
+  --q-accent: #CDA35F;
+  --q-rule: rgba(233, 227, 214, 0.25);
+  color-scheme: dark;
+}
+.quiet-home .font-mono {
+  font-family: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}

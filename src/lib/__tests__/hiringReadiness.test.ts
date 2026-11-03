@@ -85,64 +85,51 @@ describe('hiring readiness — check 4: no entity claim', () => {
 })
 
 describe('hiring readiness — check 5: the hero leads with the job search', () => {
-  it('states availability for full-time roles in the hero, from the resume data', () => {
+  const home = read('src/pages/index.tsx')
+  // The home page's one row of links, in order (2026-11-03 quiet home).
+  const linkKeys = [...home.matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1])
+
+  it('states availability for full-time roles on the home page, from the resume data', () => {
     expect(AVAILABILITY).toMatch(/full-time/)
-    expect(read('src/components/PhysicsHero.tsx')).toContain('{AVAILABILITY}')
+    expect(home).toContain('{AVAILABILITY}')
   })
 
   it('mentions consulting only after full-time roles on the landing page', () => {
-    const home = read('src/pages/index.tsx')
-    const fullTime = home.indexOf('{AVAILABILITY}')
-    // The footer's "Selected work" link (the /consulting page) comes after it.
-    const consulting = home.indexOf("route('consulting')")
-    expect(fullTime).toBeGreaterThan(-1)
-    expect(consulting).toBeGreaterThan(fullTime)
+    // The link row renders after the availability line.
+    expect(home.indexOf('{AVAILABILITY}')).toBeGreaterThan(-1)
+    expect(home.indexOf('LINKS.map')).toBeGreaterThan(home.indexOf('{AVAILABILITY}'))
+    expect(linkKeys).toContain('consulting')
   })
 
-  it('keeps consulting out of the hero, the featured grid and the top nav', () => {
-    const hero = read('src/components/PhysicsHero.tsx')
-    expect(hero).not.toMatch(/games and tools/i)
-    expect(hero).not.toContain("'/consulting'")
-    const home = read('src/pages/index.tsx')
-    const featured = home.slice(home.indexOf('label="Work"'), home.indexOf('label="Contact"'))
-    expect(featured).not.toContain("route('consulting')")
+  // Savanna's review (2026-11-02): the resume and one project lead; the work
+  // page (consulting) comes after them and is never in the top nav.
+  it('links the resume, then Hardwood, before anything else', () => {
+    expect(linkKeys.slice(0, 2)).toEqual(['resume', 'hardwood'])
+    expect(linkKeys.indexOf('consulting')).toBeGreaterThan(linkKeys.indexOf('basketball'))
     expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
   })
 
-  // Decided 2026-11-02 after Savanna's review: the home work section is the
-  // resume and one project, Hardwood. The other builds live in the Theater.
-  it('shows the resume and Hardwood as the only work on the home page', () => {
-    const home = read('src/pages/index.tsx')
-    const featured = home.slice(home.indexOf('label="Work"'), home.indexOf('label="Contact"'))
-    const routes = [...featured.matchAll(/route\('(\w+)'\)/g)].map((m) => m[1])
-    expect(routes).toEqual(['resume', 'hardwood'])
-  })
-
   // Savanna's review: say the AI work up front so it reads as intentional.
-  it('says in the hero what the AI work was for, from the resume data', () => {
+  it('says on the home page what the AI work was for, from the resume data', () => {
     expect(AI_NOTE).toMatch(/learning to build with AI coding agents/)
     expect(AI_NOTE).not.toMatch(/blocks? (the |a )?merge/i)
-    expect(read('src/components/PhysicsHero.tsx')).toContain('{AI_NOTE}')
-    expect(read('src/pages/index.tsx')).toContain('{AI_NOTE}')
+    expect(home).toContain('{AI_NOTE}')
   })
 
-  // Decided 2026-10-30: a recruiter's first page shows the two lanes (game client,
-  // product web) and a way to write. Satire, art pieces and the games index stay
-  // at their URLs but off the home page, where they read as noise or as risk.
+  // Decided 2026-10-30: satire, art pieces and the games index stay at their
+  // URLs but off the home page, where they read as noise or as risk.
   it('keeps satire, art pieces and the games index off the home page', () => {
-    const home = read('src/pages/index.tsx')
     for (const key of ['rigReport', 'modelArena', 'luminousFlow', 'theater']) {
+      expect(linkKeys, key).not.toContain(key)
       expect(home, key).not.toContain(`route('${key}')`)
     }
   })
 
   it('puts email one click from the home page', () => {
-    expect(read('src/pages/index.tsx')).toContain('mailto:')
-    expect(read('src/components/PhysicsHero.tsx')).toContain('mailto:')
+    expect(home).toContain('mailto:')
   })
 
-  it('uses no emoji as card art on the home page', () => {
-    const home = read('src/pages/index.tsx')
+  it('uses no emoji on the home page', () => {
     // Both the HTML-entity form (&#x1F3C0;) and literal pictographs.
     expect(home).not.toMatch(/&#x(1F[0-9A-F]{3}|2[67][0-9A-F]{2});/i)
     expect(home).not.toMatch(/\p{Extended_Pictographic}/u)
