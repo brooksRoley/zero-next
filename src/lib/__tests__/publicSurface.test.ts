@@ -22,8 +22,8 @@ function pageFiles(dir: string): string[] {
 const PRIVATE = ['login', 'tracker', 'zero-paradox', 'education-tracker', 'digital-products', 'stat-galaxy']
 
 describe('hero and meta copy come from one place', () => {
-  it('the hero and its loading fallback both render HERO_SUMMARY and AVAILABILITY', () => {
-    for (const file of ['src/components/PhysicsHero.tsx', 'src/pages/index.tsx']) {
+  it('the home page renders HERO_SUMMARY and AVAILABILITY', () => {
+    for (const file of ['src/pages/index.tsx']) {
       const src = read(file)
       expect(src, file).toContain('{HERO_SUMMARY}')
       expect(src, file).toContain('{AVAILABILITY}')

@@ -2,7 +2,7 @@
  * The single source of truth for every public route this site links to.
  *
  * Three surfaces used to keep their own hand-written copy of the route list —
- * NavHeader's NAV_LINKS, the landing page's TiltCard grid, and the Theater's
+ * NavHeader's NAV_LINKS, the landing page's link row, and the Theater's
  * REPERTORY. Nothing tied them together, so a page could ship and stay
  * invisible in the nav (or the theater) until someone noticed by hand. That is
  * a silent conversion leak, not a cosmetic one: a route nobody can reach earns

@@ -81,7 +81,7 @@ describe('Reveal', () => {
 })
 
 describe('motion components honor reduced motion', () => {
-  it.each(['src/components/TiltCard.tsx', 'src/components/PhysicsField.tsx', 'src/components/Reveal.jsx'])(
+  it.each(['src/components/TiltCard.tsx', 'src/components/PhysicsField.tsx', 'src/components/Reveal.jsx', 'src/components/QuietField.tsx'])(
     '%s checks prefersReducedMotion()',
     (file) => {
       expect(read(file)).toContain('prefersReducedMotion()')
