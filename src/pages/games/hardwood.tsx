@@ -7,7 +7,7 @@ import { absoluteUrl } from 'src/lib/routes'
 // backend with no CORS in the path.
 const GAME_URL = '/hardwood'
 
-// Why this project exists, said plainly (Savanna's review, 2026-11-02): what
+// Why this project exists, said plainly (review, 2026-11-02): what
 // Brooks set out to learn, how, and why basketball. Keep every line true.
 const WHY: [string, string][] = [
   ['What I wanted to learn', 'How a game engine and its interface fit together, and how to ship updates that players don’t wait for.'],

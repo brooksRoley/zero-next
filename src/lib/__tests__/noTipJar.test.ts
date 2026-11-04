@@ -3,7 +3,7 @@ import path from 'path'
 import { describe, expect, it } from 'vitest'
 import { UPDATES_CARD_ENABLED } from 'src/components/UpdatesCard'
 
-// The tip jar was retired on 2026-10-23 (Brooks: "a little less beggy").
+// The tip jar was retired on 2026-10-23.
 // These keep it from creeping back in through a page or an agent PR.
 const ROOT = path.join(process.cwd(), 'src')
 const SKIP = new Set(['__tests__', '__apiTests__'])

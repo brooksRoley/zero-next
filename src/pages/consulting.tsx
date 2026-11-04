@@ -6,8 +6,8 @@ import { route } from 'src/lib/routes'
 
 // The work, by domain (2026-10-23). This page used to be a sales funnel:
 // pricing tiers, a "most popular" badge, a sticky "book a free call" bar and a
-// lead form. Brooks asked for it to highlight the work and read less
-// desperate. Every line here is a fact from src/lib/resume.ts or from a page
+// lead form. It now highlights the work and reads plainly.
+// Every line here is a fact from src/lib/resume.ts or from a page
 // on this site; keep it that way. No prices, no urgency, no money ask.
 
 type Domain = {

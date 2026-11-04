@@ -30,7 +30,7 @@ export const HERO_SUMMARY =
   'Full-stack software engineer with a front-end lean. Ten years building product interfaces ' +
   'in React, Vue and TypeScript, and the Node and Python services behind them.'
 
-// Said up front so the AI work reads as a choice (Savanna's review, 2026-11-02):
+// Said up front so the AI work reads as a choice (review, 2026-11-02):
 // what I was learning, and how. Keep it true: CI runs on every pull request and
 // Brooks merges by hand. Do not claim CI blocks merges (resume.test.ts).
 export const AI_NOTE =
