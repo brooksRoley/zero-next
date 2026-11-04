@@ -24,7 +24,7 @@ Personal portfolio + livelihood platform built with Next.js 16 (Pages Router), T
 The Pages Router has grown well past the original handful of routes; below is the current map grouped by purpose.
 
 **Portfolio / funnel**
-- `/` (`src/pages/index.tsx`) — Landing page with TiltCard links out to projects, tools, games, resume, and consulting
+- `/` (`src/pages/index.tsx`) — Quiet landing page (2026-11-03): name, role, availability, the AI note and one row of mono links (resume, hardwood, basketball, work, GitHub, LinkedIn, email) over a faint ridgeline field (`src/components/QuietField.tsx`). Light by default, dark toggle remembered per browser; the site nav is hidden on `/` only (`_app.tsx`)
 - `/consulting` (`src/pages/consulting.tsx`) — **Work**: the work by domain (robotics, sustainability, healthcare, finance, insurance, ecology) and the computer science behind the games. No prices, no form, no sticky CTA (2026-10-23, Brooks: "less preachy and desperate"). `/api/consulting/leads` and `/checkout` remain but nothing on the site calls them
 - `/intake` (`src/pages/intake.jsx`) — Contact: email, LinkedIn and Calendly links only. Nothing is uploaded or stored (see Security & privacy)
 - `/funding` — **retired 2026-10-23** (redirects to `/`). Brooks asked for the whole support ask to be "a little less beggy": no tip jar, no "support development" links, no mention of AI tokens or server bills. The replacement is `src/components/UpdatesCard.tsx`, a brief, optional, one-time "want a note when something new goes up?" card, and it is **switched off** (`UPDATES_CARD_ENABLED = false`). Do not re-add a tip jar, a funding route or a money ask on any page; `src/lib/__tests__/noTipJar.test.ts` fails if one comes back. Turning the card on is Brooks's call.
@@ -78,12 +78,12 @@ The Pages Router has grown well past the original handful of routes; below is th
 **Shared / layout**
 - `src/components/NavHeader.jsx` — Site navigation header
 - `src/components/layout.js` — Minimal container wrapper (not widely used)
-- `src/components/TiltCard.tsx` — Cursor-tracking 3D tilt card with radial glow border and specular highlight (used on the landing page)
+- `src/components/TiltCard.tsx` — Cursor-tracking 3D tilt card with radial glow border and specular highlight (not currently on a page; kept as an instrument)
 - `src/components/Reveal.jsx` — Scroll-triggered reveal animation wrapper
 - `src/components/BallButton.jsx` — The resume's easter egg: the basketball mascot (`public/BRBaller.png`) bounces and throws confetti. Site imagery is Brooks's own; no borrowed franchise art
 
 **Visual / hero**
-- `src/components/PhysicsField.tsx`, `src/components/PhysicsHero.tsx` — Physics-driven particle/field visuals
+- `src/components/PhysicsField.tsx` — Physics-driven particle/field layout (not currently on a page; kept as an instrument)
 - `src/components/WaterHero.tsx` — Water-effect hero visual
 - `src/components/WaxSeal.jsx`, `src/components/PreText.jsx` (+ `PreText.d.ts`) — Wax-seal and typography/letterform components (guest book)
 

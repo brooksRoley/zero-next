@@ -77,7 +77,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <NavHeader />
+      {/* The quiet home page carries its own row of links instead of the site nav. */}
+      {router.pathname !== '/' && <NavHeader />}
       <div
         className="transition-opacity duration-300 ease-in-out"
         style={{ opacity: transitioning ? 0 : 1 }}
