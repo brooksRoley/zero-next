@@ -1,14 +1,18 @@
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import EmberText from 'src/components/EmberText'
 import { glintStyle } from 'src/lib/ember/weather'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { track } from 'src/lib/analytics'
 import { route } from 'src/lib/routes'
 import { loadJournal, saveJournal, touch } from 'src/lib/playJournal'
 import { readSnapshot } from 'src/lib/returningSnapshot'
 import { welcomeBack, type Billing, type Welcome } from 'src/lib/welcomeBack'
 import { loadRecent, pickLine, remember, saveRecent } from 'src/lib/narrator'
+
+// Loaded only when a visitor turns it on, so the Theater ships no game code by default.
+const BackstageBlocks = dynamic(() => import('src/components/games/cloudfall/BackstageBlocks'), { ssr: false })
 
 /**
  * The Zero Theater — the games staged as productions.
@@ -305,8 +309,70 @@ function Playbill({ production, act, progress }: { production: Production; act: 
   )
 }
 
+/**
+ * The experimental stage: Cloudfall played faintly over this page with W A S D
+ * and Space. Off until a visitor turns it on; never remembered between visits,
+ * so nobody arrives to a page that has already taken their Space bar.
+ */
+function Experimental({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  // Keyboard-only: a phone has no W A S D, so it gets a plain note instead of a dead button.
+  const [keyboard, setKeyboard] = useState(true)
+  useEffect(() => {
+    setKeyboard(window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ?? true)
+  }, [])
+  return (
+    <section aria-label="Experimental" className="mt-12">
+      <div className="mb-5 flex items-baseline gap-3">
+        <h2 className="font-mono text-sm uppercase tracking-[0.25em] text-ink-400">Experimental</h2>
+        <span className="text-lg font-semibold text-ink-200">Backstage</span>
+        <span aria-hidden className="h-px flex-1 self-center bg-ink-800/70" />
+      </div>
+      <div className="relative overflow-hidden rounded-xl border border-ink-800/60 bg-ink-900/40 p-5 sm:flex sm:items-center sm:gap-6">
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-px opacity-60"
+          style={{ background: 'linear-gradient(90deg, transparent, #3fd6f5, transparent)' }}
+        />
+        <div className="flex-1">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#3fd6f5]">the stage floor</p>
+          <h3 className="mt-2 text-xl font-semibold text-white">Cloudfall, backstage</h3>
+          <p className="mt-2 text-sm leading-relaxed text-ink-300">
+            Turn it on and Cloudfall plays over this page, faint enough to read through.
+            A and D move, W turns, S drops a row, Space drops the piece. Esc puts it away.
+          </p>
+          <p className="mt-3 border-l-2 border-ink-800 pl-3 text-xs italic leading-relaxed text-ink-400">
+            An experiment in a game you can keep half an eye on: no window of its own,
+            no clicks, just the keys under your left hand.
+          </p>
+        </div>
+        {keyboard ? (
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-pressed={on}
+            data-testid="backstage-toggle"
+            className={`mt-4 shrink-0 rounded-full px-5 py-2 font-mono text-xs uppercase tracking-[0.18em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400 sm:mt-0 ${
+              on ? 'bg-[#E9E3D6]/[0.14] text-[#E9E3D6]' : 'text-ink-300 ring-1 ring-ink-700 hover:text-[#E9E3D6] hover:ring-ink-500'
+            }`}
+          >
+            {on ? 'Put it away' : 'Play backstage'}
+          </button>
+        ) : (
+          <p className="mt-4 shrink-0 font-mono text-xs text-ink-400 sm:mt-0">Needs a keyboard</p>
+        )}
+      </div>
+    </section>
+  )
+}
+
 export default function Theater() {
   const welcome = useWelcome()
+  const [backstage, setBackstage] = useState(false)
+  const toggleBackstage = useCallback(() => {
+    track('cta_click', { page: '/theater', metadata: { location: 'theater_backstage', on: !backstage } })
+    setBackstage(!backstage)
+  }, [backstage])
+  const closeBackstage = useCallback(() => setBackstage(false), [])
   return (
     <main className="min-h-screen bg-ink-950 text-white font-sans">
       <Head>
@@ -359,6 +425,8 @@ export default function Theater() {
           ))}
         </div>
 
+        <Experimental on={backstage} onToggle={toggleBackstage} />
+
         {/* ── The frame: house note ── */}
         <footer className="mt-16 rounded-xl border border-ink-800/60 bg-ink-900/30 p-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-brass-400/80">
@@ -376,6 +444,7 @@ export default function Theater() {
           </p>
         </footer>
       </div>
+      {backstage && <BackstageBlocks onExit={closeBackstage} />}
     </main>
   )
 }
