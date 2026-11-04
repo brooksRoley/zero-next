@@ -22,7 +22,7 @@ export const config = {
     '/tracker/:path*',
     '/admin',
     '/admin/:path*',
-    // Unfinished pages stay private until they work (see CLAUDE.md, Hiring Readiness).
+    // Unfinished pages stay private until they work (hiringReadiness.test.ts guards this).
     '/zero-paradox',
     '/education-tracker',
     '/digital-products',
