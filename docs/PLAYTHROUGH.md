@@ -16,14 +16,12 @@ This design serves three readers at once:
 1. **A first-time player.** Their first minute should already be fun, in any game.
 2. **A hiring manager for a game-client or UI role.** They get a three-minute
    guided playthrough that shows the craft and ends at the resume.
-3. **Brooks.** It's the first campaign (controller navigation) made visible:
-   input-aware prompts, focus management and onboarding are exactly the
-   game-client UI work the north-star postings ask for.
+3. **The builder.** Input-aware prompts, focus management and onboarding are
+   game-client UI work, and this makes that work visible.
 
 ## Principles
 
-These come from the delight philosophy and
-`docs/ART_DIRECTION.md`.
+These come from the delight philosophy and `docs/ART_DIRECTION.md`.
 
 - **Teach by doing, one verb at a time.** Each step asks for one action and waits
   for the game to report it. No step is a wall of text. A step says at most 12 words.
@@ -136,16 +134,13 @@ Measure with what `analytics.ts` / `visitorStats.ts` already record; no new trac
 
 ## Build order
 
-Building and sending are one activity here: each phase ships something a
-specific application or warm note can carry (Hardwood → specific
-studios; the tour → any game-studio contact).
+Each phase ships something a visitor can use on its own.
 
-1. **Phase 1 is the controller-navigation campaign, week 1.** Build
+1. **Phase 1 is the controller navigation.** Build
    `inputKind`, `glyphs`, the focus navigator, and Coach on **Hardwood only**.
-   Ship it, then write a devlog about it. This is the campaign's build, not
-   new game work.
+   Ship it, then write a devlog about it.
 2. **Phase 2 is the tour,** with three stops and the director's notes. Link it
-   from the Hardwood case study and from warm notes to game-studio contacts.
+   from the Hardwood case study.
 3. **Phase 3 is the rest of the catalogue,** one game per week. Each one gets a
    Players playtest row before it merges.
 
