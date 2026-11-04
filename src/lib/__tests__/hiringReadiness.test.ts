@@ -101,7 +101,7 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(linkKeys).toContain('consulting')
   })
 
-  // review (2026-11-02): the resume and one project lead; the work
+  // Review (2026-11-02): the resume and one project lead; the work
   // page (consulting) comes after them and is never in the top nav.
   it('links the resume, then Hardwood, before anything else', () => {
     expect(linkKeys.slice(0, 2)).toEqual(['resume', 'hardwood'])
@@ -109,7 +109,7 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
   })
 
-  // review: say the AI work up front so it reads as intentional.
+  // Review: say the AI work up front so it reads as intentional.
   it('says on the home page what the AI work was for, from the resume data', () => {
     expect(AI_NOTE).toMatch(/learning to build with AI coding agents/)
     expect(AI_NOTE).not.toMatch(/blocks? (the |a )?merge/i)

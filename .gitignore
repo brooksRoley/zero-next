@@ -41,3 +41,6 @@ next-env.d.ts
 # Agent worktrees (Claude Code `isolation: worktree`) live inside the repo.
 # Not ignoring them means `git add -A` sweeps entire checkouts into a commit.
 .claude/worktrees/
+
+# Private owner instructions (split from CLAUDE.md 2026-11-04)
+CLAUDE.local.md
