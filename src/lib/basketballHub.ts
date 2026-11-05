@@ -10,7 +10,13 @@ import { route, type RouteKey } from 'src/lib/routes'
  * here; `__tests__/basketballHub.test.ts` enforces it.
  */
 
-export type HubItem = { key: RouteKey; title?: string; line: string }
+/**
+ * `input` says how the game is played (checked against each game's handlers).
+ * `source` links the code, so a technical reviewer can read it in one click.
+ */
+export type HubItem = { key: RouteKey; title?: string; line: string; input?: string; source?: string }
+
+const ZERO_NEXT = 'https://github.com/brooksRoley/zero-next/tree/main/'
 export type HubSection = { id: string; heading: string; items: HubItem[] }
 
 export const HUB_SECTIONS: HubSection[] = [
@@ -21,18 +27,26 @@ export const HUB_SECTIONS: HubSection[] = [
       {
         key: 'hardwood',
         line: 'An NBA auto-battler. Draft a squad, place it on a 5×5 court, pick your schemes and play ten rounds against ghost boards.',
+        input: 'Mouse or touch. Full Court adds keyboard on desktop.',
+        source: 'https://github.com/brooksRoley/BballTactics',
       },
       {
         key: 'passAndCut',
         line: 'A passing puzzle built on the Shannon switching game. Claim lanes to connect the inbounder to the rim before the defense cuts them off.',
+        input: 'Mouse or touch.',
+        source: `${ZERO_NEXT}src/lib/games/passcut`,
       },
       {
         key: 'readAndReact',
         line: 'Call plays against a defense that learns your habits. The way to reach par is to mix your calls well.',
+        input: 'Mouse or touch.',
+        source: `${ZERO_NEXT}src/lib/games/readreact`,
       },
       {
         key: 'moments',
         line: 'Famous playoff plays stopped one beat before they happen. Read the spacing and the speed, then click the spot.',
+        input: 'Mouse or touch.',
+        source: `${ZERO_NEXT}src/lib/moments`,
       },
     ],
   },
@@ -66,6 +80,7 @@ export const HUB_SECTIONS: HubSection[] = [
       {
         key: 'basketballPlatform',
         line: 'One model of the game shared by four codebases: a Python data pipeline, a C++ engine compiled to WebAssembly, a Vue 3 game and a SwiftUI iOS app.',
+        source: 'https://github.com/brooksRoley/shared-core',
       },
       {
         key: 'basketballTactics',

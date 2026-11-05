@@ -446,7 +446,7 @@ export default function GoPage() {
               Puzzles
             </Link>
           </div>
-          <SoundToggle className="ml-auto rounded-md p-1.5 text-ink-400 hover:bg-ink-800/40 hover:text-brass-300" />
+          <SoundToggle withLabel className="ml-auto rounded-md p-1.5 text-ink-400 hover:bg-ink-800/40 hover:text-brass-300" />
         </div>
       </nav>
 

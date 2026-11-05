@@ -54,10 +54,13 @@ export default function Basketball() {
               {section.items.map((item) => {
                 const { href, title } = hubLink(item)
                 return (
-                  <li key={item.key}>
+                  <li
+                    key={item.key}
+                    className="flex h-full flex-col rounded-xl border border-ink-700 bg-charcoal p-5 transition-colors focus-within:border-brass-600 hover:border-brass-600"
+                  >
                     <Link
                       href={href}
-                      className="group block h-full rounded-xl border border-ink-700 bg-charcoal p-5 transition-colors hover:border-brass-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400"
+                      className="group block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400"
                     >
                       <span className="flex items-baseline justify-between gap-3">
                         <span className="font-semibold text-white">
@@ -74,6 +77,21 @@ export default function Basketball() {
                       </span>
                       <span className="mt-2 block text-sm leading-relaxed text-ink-200">{item.line}</span>
                     </Link>
+                    {(item.input || item.source) && (
+                      <p className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 font-mono text-xs text-ink-400">
+                        {item.input && <span>{item.input}</span>}
+                        {item.source && (
+                          <a
+                            href={item.source}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-sm text-brass-300 underline decoration-ink-600 underline-offset-4 transition-colors hover:text-brass-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400"
+                          >
+                            source<span className="sr-only"> code for {title} on GitHub</span> ↗
+                          </a>
+                        )}
+                      </p>
+                    )}
                   </li>
                 )
               })}

@@ -678,7 +678,7 @@ const GameBoard = () => {
                 New
               </button>
             )}
-            <SoundToggle className={actionBtnClass()} />
+            <SoundToggle withLabel className={actionBtnClass()} />
             <button
               className={actionBtnClass(showCustomizer)}
               onClick={() => setShowCustomizer(s => !s)}

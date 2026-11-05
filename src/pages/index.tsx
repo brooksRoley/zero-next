@@ -81,7 +81,7 @@ export default function Home() {
         <h1 className="text-[clamp(2.4rem,8vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em] text-[var(--q-fg)]">
           Brooks Roley
         </h1>
-        <p className="mt-3 font-mono text-sm text-[var(--q-muted)]">Software engineer · Orange County, CA</p>
+        <p className="mt-3 font-mono text-sm text-[var(--q-muted)]">Full-stack engineer · browser games and interactive tools · Orange County, CA</p>
 
         <p className="mt-8 text-[15px] leading-7 text-[var(--q-body)]">
           {HERO_SUMMARY}{' '}
