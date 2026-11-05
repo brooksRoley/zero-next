@@ -385,7 +385,10 @@ export function tick(state: GameState, dtMs: number): GameState {
   const grounded = !fits(s.board, { ...piece, y: piece.y + 1 })
   s = { ...s, active: piece, fallMs: grounded ? 0 : fallMs }
   if (piece.y > s.lowestY) s = { ...s, lowestY: piece.y, lockResets: 0, lockMs: 0 }
-  if (!grounded) return { ...s, lockMs: 0 }
+  // Lifted off the ground (a turn can kick a piece up a row): the lock clock waits, but
+  // once the piece has spent its resets it keeps its count, or turning back and forth
+  // would hold a piece in the air forever.
+  if (!grounded) return { ...s, lockMs: s.lockResets >= MAX_LOCK_RESETS ? s.lockMs : 0 }
   const lockMs = s.lockMs + dtMs
   if (lockMs >= LOCK_DELAY_MS) return lock(s)
   return { ...s, lockMs }
