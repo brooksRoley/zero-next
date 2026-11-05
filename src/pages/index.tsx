@@ -13,12 +13,13 @@ import { route, type RouteKey } from 'src/lib/routes'
 const EMAIL = 'brooksroley@gmail.com'
 const THEME_KEY = 'br_home_theme'
 
-// In reading order: the job search first, the work page (consulting) after it.
+// In reading order: the professional links first (resume, then the work page),
+// then one link to every game. Brooks, 2026-11-05: single game links here read
+// as less professional than the Theater, which sorts the games into its own sections.
 const LINKS: { key: RouteKey; label: string }[] = [
   { key: 'resume', label: 'resume' },
-  { key: 'hardwood', label: 'hardwood' },
-  { key: 'basketball', label: 'basketball' },
   { key: 'consulting', label: 'work' },
+  { key: 'theater', label: 'games' },
   { key: 'github', label: 'github' },
   { key: 'linkedin', label: 'linkedin' },
 ]

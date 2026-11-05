@@ -2,13 +2,15 @@ import Head from 'next/head'
 import Link from 'next/link'
 import Reveal from 'src/components/Reveal'
 import { track } from 'src/lib/analytics'
+import { WORK_DESCRIPTION, WORK_INTRO, WORK_THESIS } from 'src/lib/narrative'
 import { route } from 'src/lib/routes'
 
 // The work, by domain (2026-10-23). This page used to be a sales funnel:
 // pricing tiers, a "most popular" badge, a sticky "book a free call" bar and a
-// lead form. It now highlights the work and reads plainly.
-// Every line here is a fact from src/lib/resume.ts or from a page
-// on this site; keep it that way. No prices, no urgency, no money ask.
+// lead form. It now highlights the work and reads plainly. The intro's
+// wording lives in src/lib/narrative.ts (2026-11-05). Every line here is a
+// fact from src/lib/resume.ts or from a page on this site; keep it that way.
+// No prices, no urgency, no money ask.
 
 type Domain = {
   domain: string
@@ -25,7 +27,7 @@ const DOMAINS: Domain[] = [
     org: 'Zoox',
     role: 'Software Engineer (contract)',
     dates: '2024 – 2025',
-    line: 'Owned the Site Reliability team’s OnCall notification system across Vue, Python, AWS, Terraform and Grafana.',
+    line: 'Owned the Site Reliability team’s OnCall notification system across Vue, Python, AWS, Terraform and Grafana, and integrated the Zoox Intelligence AI into it and its Slack bot.',
   },
   {
     domain: 'Sustainability',
@@ -58,12 +60,66 @@ const DOMAINS: Domain[] = [
 ]
 
 type Build = { title: string; href: string; cs: string }
+type BuildGroup = { name: string; builds: Build[] }
 
-const BUILDS: Build[] = [
+// The games, grouped by the computer science each one is built on
+// (Brooks, 2026-11-05: the page had narrowed to Hardwood alone). Each line
+// names something the code really does; narrative.test.ts checks every link.
+const BUILD_GROUPS: BuildGroup[] = [
   {
-    title: 'Hardwood Autochess',
-    href: '/games/hardwood',
-    cs: 'An NBA auto-battler, built with Claude Code to learn how an engine and a UI fit together: a C++ simulation compiled to WebAssembly under a Vue 3 client, and an Electron launcher whose content-defined chunking ships a one-line change as 16 KB of a 1.07 MB build.',
+    name: 'Engines and simulation',
+    builds: [
+      {
+        title: 'Hardwood Autochess',
+        href: route('hardwood').href,
+        cs: 'An NBA auto-battler, built with Claude Code to learn how an engine and a UI fit together: a C++ simulation compiled to WebAssembly under a Vue 3 client, and an Electron launcher whose content-defined chunking ships a one-line change as 16 KB of a 1.07 MB build.',
+      },
+      {
+        title: 'Pente',
+        href: route('pente').href,
+        cs: 'A minimax bot with alpha-beta pruning, iterative deepening and a Zobrist transposition table, running in a Web Worker so the board never stalls. Modes for one, two and four players.',
+      },
+      {
+        title: 'Tower Defense: Nanu Pika',
+        href: route('nanuPikaTd').href,
+        cs: 'An eight-level campaign on a fixed-timestep engine, so a wave plays out the same at any frame rate. A bot measures each level, and a test fails if the difficulty stops rising.',
+      },
+    ],
+  },
+  {
+    name: 'Algorithms as puzzles',
+    builds: [
+      {
+        title: 'Pass & Cut',
+        href: route('passAndCut').href,
+        cs: 'The Shannon switching game as a basketball puzzle: secure passing lanes from the inbounder to the rim. Graph connectivity and minimum cuts.',
+      },
+      {
+        title: 'Read & React',
+        href: route('readAndReact').href,
+        cs: 'Find the mixed strategy that beats an adaptive defense. An exact minimax solver sets par for every matrix.',
+      },
+      {
+        title: 'Playoff Moments',
+        href: route('moments').href,
+        cs: 'Famous plays frozen one beat early, solved as geometry: where each player can reach in time.',
+      },
+    ],
+  },
+  {
+    name: 'Learning and practice',
+    builds: [
+      {
+        title: 'Pente Puzzles',
+        href: route('pentePuzzles').href,
+        cs: 'A curated catalog plus endless puzzles generated in a Web Worker, with difficulty that follows your rating.',
+      },
+      {
+        title: 'Go',
+        href: route('go').href,
+        cs: 'A play mode, a staged tutorial and a puzzle trainer. Missed puzzles come back on a 1, 3 and 7 day spaced-review schedule.',
+      },
+    ],
   },
 ]
 
@@ -77,7 +133,7 @@ export default function Work() {
         <title>Work | Brooks Roley</title>
         <meta
           name="description"
-          content="Brooks Roley, software engineer: ten years across robotics, healthcare, finance and sustainability, and games built on real computer science."
+          content={WORK_DESCRIPTION}
         />
         <meta property="og:title" content="Work | Brooks Roley" key="og:title" />
         <meta property="og:url" content="https://www.brooksroley.com/consulting" key="og:url" />
@@ -93,11 +149,8 @@ export default function Work() {
             <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Work</h1>
           </Reveal>
           <Reveal delay={80}>
-            <p className="mt-5 text-lg leading-relaxed text-ink-200">
-              Software engineer with a front-end lean. Ten years shipping product in robotics,
-              healthcare, finance and sustainability. Over the past year I have been learning to
-              build with AI coding agents by making basketball games.
-            </p>
+            <p className="mt-5 text-xl font-medium leading-snug text-white">{WORK_THESIS}</p>
+            <p className="mt-4 text-lg leading-relaxed text-ink-200">{WORK_INTRO}</p>
           </Reveal>
           <Reveal delay={140}>
             <p className="mt-4 text-sm text-ink-400">
@@ -146,27 +199,32 @@ export default function Work() {
             Computer science and game design
           </h2>
           <p className="mt-3 text-sm text-ink-400">
-            Every other game on the site is in the{' '}
+            Grouped by the idea each one is built on. Every game on the site is also in the{' '}
             <Link href={route('theater').href} className="text-brass-300 hover:text-brass-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400">
               Theater
             </Link>
             .
           </p>
-          <ul className="mt-6 divide-y divide-ink-700 border-y border-ink-700">
-            {BUILDS.map((b) => (
-              <li key={b.title}>
-                <Link
-                  href={b.href}
-                  className="group grid gap-2 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400 sm:grid-cols-[14rem_1fr] sm:gap-8"
-                >
-                  <span className="font-semibold text-white transition-colors group-hover:text-brass-300">
-                    {b.title}
-                  </span>
-                  <span className="text-sm leading-relaxed text-ink-200">{b.cs}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {BUILD_GROUPS.map((g) => (
+            <div key={g.name} className="mt-8">
+              <h3 className="text-sm font-semibold text-ink-200">{g.name}</h3>
+              <ul className="mt-3 divide-y divide-ink-700 border-y border-ink-700">
+                {g.builds.map((b) => (
+                  <li key={b.title}>
+                    <Link
+                      href={b.href}
+                      className="group grid gap-2 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400 sm:grid-cols-[14rem_1fr] sm:gap-8"
+                    >
+                      <span className="font-semibold text-white transition-colors group-hover:text-brass-300">
+                        {b.title}
+                      </span>
+                      <span className="text-sm leading-relaxed text-ink-200">{b.cs}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </section>
 
         <footer className="mt-16 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">

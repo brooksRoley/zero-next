@@ -101,11 +101,13 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(linkKeys).toContain('consulting')
   })
 
-  // Review (2026-11-02): the resume and one project lead; the work
-  // page (consulting) comes after them and is never in the top nav.
-  it('links the resume, then Hardwood, before anything else', () => {
-    expect(linkKeys.slice(0, 2)).toEqual(['resume', 'hardwood'])
-    expect(linkKeys.indexOf('consulting')).toBeGreaterThan(linkKeys.indexOf('basketball'))
+  // Brooks (2026-11-05), replacing the 2026-11-02 order: the professional
+  // links lead (resume, then work), and the games sit behind one Theater link
+  // instead of single-game links. The work page is still never in the top nav.
+  it('links the resume, then work, then one games link', () => {
+    expect(linkKeys.slice(0, 3)).toEqual(['resume', 'consulting', 'theater'])
+    expect(linkKeys).not.toContain('hardwood')
+    expect(linkKeys).not.toContain('basketball')
     expect(read('src/components/NavHeader.jsx')).not.toContain("route('consulting')")
   })
 
@@ -116,10 +118,11 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
     expect(home).toContain('{AI_NOTE}')
   })
 
-  // Decided 2026-10-30: satire, art pieces and the games index stay at their
-  // URLs but off the home page, where they read as noise or as risk.
-  it('keeps satire, art pieces and the games index off the home page', () => {
-    for (const key of ['rigReport', 'modelArena', 'luminousFlow', 'theater']) {
+  // Decided 2026-10-30: satire and art pieces stay at their URLs but off the
+  // home page, where they read as noise or as risk. The games index (Theater)
+  // was on this list until Brooks chose one "games" link on 2026-11-05.
+  it('keeps satire and art pieces off the home page', () => {
+    for (const key of ['rigReport', 'modelArena', 'luminousFlow']) {
       expect(linkKeys, key).not.toContain(key)
       expect(home, key).not.toContain(`route('${key}')`)
     }
