@@ -4,6 +4,7 @@ import {
   ROWS,
   HIDDEN_ROWS,
   LOCK_DELAY_MS,
+  MAX_LOCK_RESETS,
   PIECES,
   cellValue,
   clearLines,
@@ -178,6 +179,24 @@ describe('dropping and locking', () => {
     const s = staged('O', 4, ROWS - 2)
     expect(tick(s, LOCK_DELAY_MS - 1).pieces).toBe(0)
     expect(tick(tick(s, LOCK_DELAY_MS - 1), 1).pieces).toBe(1)
+  })
+
+  it('a grounded piece cannot be held up forever by turning it back and forth', () => {
+    // A turn on the floor can kick the T up a row; turning back leaves it in the air.
+    // Each airborne frame used to reset the lock clock, so spinning never locked it.
+    let s = start(createGame(1))
+    s = { ...s, active: { kind: 'T', rot: 0, x: 3, y: s.active!.y } }
+    while (fits(s.board, { ...s.active!, y: s.active!.y + 1 })) s = softDrop(s)
+    const placed = s.pieces
+    let ms = 0
+    let dir: 1 | -1 = 1
+    while (s.pieces === placed && ms < 30_000) {
+      s = tick(rotate(s, dir), 16)
+      dir = dir === 1 ? -1 : 1
+      ms += 16
+    }
+    expect(s.pieces).toBe(placed + 1)
+    expect(ms).toBeLessThan((MAX_LOCK_RESETS + 2) * LOCK_DELAY_MS)
   })
 
   it('pausing freezes time and moves', () => {
