@@ -1,18 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sql } from "src/lib/db";
 import { applyBballCors } from "src/lib/bballCors";
+import { lossDamage } from "src/lib/bballDamage";
 
 const MAX_ROUNDS = 10; // mirrors economy.js MAX_ROUNDS
-const LOSS_DAMAGE = 20;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (applyBballCors(req, res)) return;
   if (req.method !== "POST") return res.status(405).end();
 
-  const { run_id, round_number, result } = (req.body ?? {}) as {
+  const { run_id, round_number, result, margin, overtime } = (req.body ?? {}) as {
     run_id?: unknown;
     round_number?: unknown;
     result?: unknown;
+    margin?: unknown; // points the round was lost by (optional; older clients omit it)
+    overtime?: unknown; // true when lost in sudden-death overtime
   };
   if (typeof run_id !== "string" || !Number.isInteger(round_number)) {
     return res.status(400).json({ error: "run_id and round_number required" });
@@ -34,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Atomic, round-bound update: the WHERE clause makes a stale or repeated
   // resolve (replay, double-report, race) a no-op instead of extra damage
   // or free round advancement.
-  const damage = result === "loss" ? LOSS_DAMAGE : 0;
+  const damage = result === "loss" ? lossDamage(margin, overtime) : 0;
   const rows = await sql`
     UPDATE bball_runs
     SET health = health - ${damage},
