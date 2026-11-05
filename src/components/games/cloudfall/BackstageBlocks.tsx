@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { PIECE_COLORS } from 'src/components/games/cloudfall/paint'
 import { createGameTracker, trackGame } from 'src/lib/analytics'
 import { COLS, createGame, tick, VISIBLE_ROWS, type GameState } from 'src/lib/games/cloudfall/engine'
+import { WELL_ASPECT } from 'src/lib/games/cloudfall/dimensions'
+import { startFrameClock } from 'src/lib/ui/frameClock'
 import {
   actionForKey,
   applyAction,
@@ -72,18 +74,7 @@ export default function BackstageBlocks({ onExit }: { onExit: () => void }) {
 
   // Gravity. requestAnimationFrame stops in a hidden tab, and the step is
   // capped, so coming back to the tab never drops a piece by surprise.
-  useEffect(() => {
-    let raf = 0
-    let last = performance.now()
-    const frame = (now: number) => {
-      raf = requestAnimationFrame(frame)
-      const dt = Math.min(100, now - last)
-      last = now
-      commit(tick(stateRef.current, dt))
-    }
-    raf = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(raf)
-  }, [commit])
+  useEffect(() => startFrameClock((dt) => commit(tick(stateRef.current, dt))), [commit])
 
   // A game left running is paused when the overlay goes away, and counted.
   useEffect(() => () => {
@@ -107,7 +98,7 @@ export default function BackstageBlocks({ onExit }: { onExit: () => void }) {
         <div
           className="grid h-full max-w-[calc(100vw-32px)] gap-[2px] border-x border-[#E9E3D6]/[0.06]"
           style={{
-            aspectRatio: `${COLS} / ${VISIBLE_ROWS}`,
+            aspectRatio: WELL_ASPECT,
             gridTemplateColumns: `repeat(${COLS}, 1fr)`,
             gridTemplateRows: `repeat(${VISIBLE_ROWS}, 1fr)`,
             opacity: view.status === 'over' ? 0.5 : 1,
