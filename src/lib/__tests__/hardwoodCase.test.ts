@@ -12,8 +12,10 @@ describe('Hardwood case study', () => {
       const bytes = fs.readFileSync(path.join(DIR, m.file))
       expect(bytes.length, `${m.file} raw`).toBe(m.raw)
       const gz = zlib.gzipSync(bytes, { level: 9 }).length
-      // zlib and the gzip CLI differ by a header's worth of bytes.
-      expect(Math.abs(gz - m.gzip) / m.gzip, `${m.file} gzip`).toBeLessThan(0.01)
+      // The quoted sizes come from the gzip CLI. Node's bundled zlib differs by
+      // version (1.3% on engine.wasm between Node 22 and 25); a rebuild moves
+      // far more than 3%.
+      expect(Math.abs(gz - m.gzip) / m.gzip, `${m.file} gzip`).toBeLessThan(0.03)
     }
   })
 
