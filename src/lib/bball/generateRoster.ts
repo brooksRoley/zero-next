@@ -16,7 +16,7 @@ import { zScores } from "src/lib/nba/analysis";
  * Cost is the schema's salary-cap tiering replaced by composite-rank quotas:
  * we have no salary feed, and fixed tier sizes keep the shop's combine odds
  * stable no matter how the league's stat distribution shifts. Quotas shape
- * the pool like TFT: few 5-costs, a wide 1-cost floor.
+ * the pool like other autobattlers: few 5-costs, a wide 1-cost floor.
  *
  * Team comes from the *current* ESPN roster, not the season stats — that is
  * the free-agency signal. Qualified players on no roster stay draftable as

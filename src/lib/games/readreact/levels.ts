@@ -6,7 +6,7 @@
  * matchup; the EV matrix the solver/game use is derived as make% × points, so
  * make% is the single source of truth (it also drives random shot resolution).
  *
- * Numbers are grounded in the TFT `ZONES` base efficiencies (paint ~0.62 x 2,
+ * Numbers are grounded in the autobattler engine's `ZONES` base efficiencies (paint ~0.62 x 2,
  * corner-3 ~0.39 x 3, mid ~0.42 x 2) shifted by each scheme's intent (drop
  * protects the paint, blitz walls the paint but concedes threes, etc.).
  *
@@ -139,7 +139,7 @@ export const LEVELS: RRLevel[] = [
       [0.35, 0.45], // Corner3: 1.05 vs drop, 1.35 vs blitz
     ],
     teaching:
-      "A blitz sends a second defender at the ball to wall off the paint — but that defender comes from somewhere, and here it's the corner. Attack the paint against a Drop; when they blitz, kick to the open corner three (1.35). This is the real read the TFT engine models: every scheme takes something away and gives something up.",
+      "A blitz sends a second defender at the ball to wall off the paint — but that defender comes from somewhere, and here it's the corner. Attack the paint against a Drop; when they blitz, kick to the open corner three (1.35). This is the real read the autobattler engine models: every scheme takes something away and gives something up.",
     intendedType: "mixed",
     possessions: 12,
   },

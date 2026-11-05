@@ -5,7 +5,7 @@ import ShootingDrill from 'src/components/basketball-platform/ShootingDrill'
 import JumpshotSimulator from 'src/components/basketball-platform/JumpshotSimulator'
 import LayerCard, { SYSTEM_LAYERS } from 'src/components/basketball-platform/SystemLayers'
 import ArchitectureDiagram from 'src/components/basketball-platform/ArchitectureDiagram'
-import TftBacktestSection from 'src/components/basketball-platform/TftBacktestSection'
+import AutobattlerBacktestSection from 'src/components/basketball-platform/AutobattlerBacktestSection'
 
 const TECH_STACK = [
   { category: 'Languages', items: ['Python', 'C++17', 'Swift', 'TypeScript', 'JavaScript'] },
@@ -177,7 +177,7 @@ export default function BasketballPlatformPage() {
 
         <section className="mt-24 border-t border-white/10 pt-16">
           <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-3xl font-semibold mb-2">TFT Engine: Backtest 2025-26</h2>
+            <h2 className="text-3xl font-semibold mb-2">Autobattler Engine: Backtest 2025-26</h2>
             <p className="opacity-80 mb-8">
               A regression-tuned NBA tactical simulator. The engine&apos;s coefficients are
               fit against the completed 2025-26 season across three targets: team W-L
@@ -185,7 +185,7 @@ export default function BasketballPlatformPage() {
               distributions (spatial). Shot-origin priors are synthesized from public
               aggregates until raw shot-chart data is re-sourced.
             </p>
-            <TftBacktestSection />
+            <AutobattlerBacktestSection />
           </div>
         </section>
 

@@ -7,7 +7,7 @@
 ## Concept
 
 A zero-sum matrix game in a jersey. Rows = **offense plays**, columns = **defense schemes**;
-each cell is the **expected points** (EV) of that matchup, grounded in the TFT `ZONES`
+each cell is the **expected points** (EV) of that matchup, grounded in the autobattler engine's `ZONES`
 (`makePct × pts`) shifted by each scheme's coverage. Optimal play is a **mixed-strategy
 equilibrium** (von Neumann minimax): you must vary your looks or a smart defense keys on you.
 
