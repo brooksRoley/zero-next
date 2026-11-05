@@ -39,3 +39,11 @@ Every pull request runs:
 | Lighthouse | accessibility or SEO scores below 90; performance and best practices only warn |
 
 Tests sit next to the code in `__tests__` folders. Some guard the site itself: every route in `src/lib/routes.ts` must resolve to a real page, and public pages may not carry placeholder copy.
+
+## License
+
+[Functional Source License 1.1, MIT Future License](LICENSE.md) (FSL-1.1-MIT): free to use, change and share for any purpose except a competing commercial product, and each release becomes MIT two years after it is published.
+
+NBA player names, team names and statistics in this repository come from their original sources (stats.nba.com, ESPN, balldontlie) and stay under those sources' terms. This license does not cover them, and no NBA or team logos, marks or player likenesses are licensed here.
+
+Images, photos and documents in `public/` (outside `public/hardwood/`), including the BR logos and mascot, the resume PDF, and the resume text in `src/lib/resume.ts`, are not covered by this license. All rights reserved by Brooks Roley or their respective owners.
