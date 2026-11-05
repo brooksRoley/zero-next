@@ -1,6 +1,6 @@
 // True when a Postgres error is "undefined_table" (SQLSTATE 42P01) — the queried
 // table has not been provisioned in this environment yet. This happens when the
-// TFT tables exist in a Preview branch DB but the setup/backtest/activate scripts
+// Autobattler tables exist in a Preview branch DB but the setup/backtest/activate scripts
 // were never run against production Neon, so the live query throws instead of
 // returning rows. Neon surfaces the SQLSTATE on `.code`; we also match the
 // message text as a fallback in case the error arrives wrapped.

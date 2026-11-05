@@ -3,7 +3,7 @@
  * Falls back to a pure TypeScript simulator when WASM is unavailable.
  */
 import type { EnginePlayer } from "./stat-mapper";
-import { ZONES } from "src/lib/nba/tft/zones";
+import { ZONES } from "src/lib/nba/autobattler/zones";
 
 export interface SimScore {
   homeScore: number;

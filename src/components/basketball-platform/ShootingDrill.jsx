@@ -3,10 +3,10 @@
  *
  * Renders the same eight-zone model the C++ simulation engine and game
  * matchmaking use, so the page demonstrates the real geometry rather than a
- * mock of it. Zone polygons come from src/lib/nba/tft/zones.
+ * mock of it. Zone polygons come from src/lib/nba/autobattler/zones.
  */
 import { useState } from 'react'
-import { ZONES } from 'src/lib/nba/tft/zones'
+import { ZONES } from 'src/lib/nba/autobattler/zones'
 
 // ── Court geometry ────────────────────────────────────────────────────────────
 const CX = 230

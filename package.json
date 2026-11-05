@@ -15,8 +15,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "resume:pdf": "tsx --tsconfig tsconfig.json scripts/build-resume-pdf.ts",
-    "tft:backtest": "tsx --tsconfig tsconfig.json scripts/tft-backtest.ts",
-    "tft:activate": "tsx --tsconfig tsconfig.json scripts/tft-activate.ts"
+    "autobattler:backtest": "tsx --tsconfig tsconfig.json scripts/autobattler-backtest.ts",
+    "autobattler:activate": "tsx --tsconfig tsconfig.json scripts/autobattler-activate.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.42",

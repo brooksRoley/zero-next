@@ -61,7 +61,7 @@ describe("zToRating", () => {
 });
 
 describe("costCounts", () => {
-  it("sums exactly to the roster size with a TFT-shaped pyramid", () => {
+  it("sums exactly to the roster size with an autobattler-shaped pyramid", () => {
     const counts = costCounts(96);
     const total = [...counts.values()].reduce((a, b) => a + b, 0);
     expect(total).toBe(96);
