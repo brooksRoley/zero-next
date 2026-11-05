@@ -4,10 +4,8 @@ import SkyBackdrop from 'src/components/games/cloudfall/SkyBackdrop'
 import styles from 'src/components/games/cloudfall/Cloudfall.module.css'
 import { drawBoard, drawPreview, FLASH_MS, OUTLINE, type Flash } from 'src/components/games/cloudfall/paint'
 import {
-  COLS,
   LINES_PER_LEVEL,
   PREVIEW_COUNT,
-  VISIBLE_ROWS,
   createGame,
   describeEvent,
   hardDrop,
@@ -23,7 +21,10 @@ import {
   type PieceKind,
   type Status,
 } from 'src/lib/games/cloudfall/engine'
+import { CELL_DEFAULT, PREVIEW, fitCell, wellSize } from 'src/lib/games/cloudfall/dimensions'
 import { createGameTracker, trackGame } from 'src/lib/analytics'
+import { cappedDpr, fitCanvas, backingSize } from 'src/lib/ui/canvas'
+import { startFrameClock } from 'src/lib/ui/frameClock'
 import { prefersReducedMotion } from 'src/lib/motion'
 import { absoluteUrl } from 'src/lib/routes'
 
@@ -135,18 +136,9 @@ const fmt = (n: number) => n.toLocaleString('en-US')
 
 /** Cell size that fits the well, the score bar and the buttons in the viewport. */
 function useCellSize(): number {
-  const [cell, setCell] = useState(26)
+  const [cell, setCell] = useState(CELL_DEFAULT)
   useEffect(() => {
-    const measure = () => {
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      const wide = vw >= 1024
-      // Below the nav (64px): the instruction line on wide screens; on phones also the title, score bar and buttons.
-      const reserved = wide ? 64 + 110 : 64 + 270
-      const fromH = (vh - reserved) / VISIBLE_ROWS
-      const fromW = wide ? 32 : (vw - 32) / COLS
-      setCell(Math.max(14, Math.min(32, Math.floor(Math.min(fromH, fromW)))))
-    }
+    const measure = () => setCell(fitCell(window.innerWidth, window.innerHeight))
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
@@ -154,17 +146,14 @@ function useCellSize(): number {
   return cell
 }
 
-function Preview({ kind, size, dimmed = false }: { kind: PieceKind | null; size: [number, number]; dimmed?: boolean }) {
+function Preview({ kind, size, dimmed = false }: { kind: PieceKind | null; size: readonly [number, number]; dimmed?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const [w, h] = size
   useEffect(() => {
     const canvas = ref.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
-    canvas.width = Math.round(w * dpr)
-    canvas.height = Math.round(h * dpr)
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    fitCanvas(canvas, ctx, w, h)
     drawPreview(ctx, kind, w, h, dimmed)
   }, [kind, w, h, dimmed])
   return <canvas ref={ref} aria-hidden="true" style={{ width: w, height: h }} />
@@ -346,9 +335,8 @@ export default function CloudfallPage() {
   useEffect(() => {
     const canvas = boardRef.current
     if (!canvas) return
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
-    canvas.width = Math.round(COLS * cell * dpr)
-    canvas.height = Math.round(VISIBLE_ROWS * cell * dpr)
+    const { w, h } = wellSize(cell)
+    Object.assign(canvas, backingSize(w, h, cappedDpr()))
   }, [cell])
 
   // The game clock: held-key repeats, gravity, and a fresh drawing each frame.
@@ -356,12 +344,8 @@ export default function CloudfallPage() {
     const canvas = boardRef.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
-    let raf = 0
-    let last = performance.now()
-    const frame = (now: number) => {
-      raf = requestAnimationFrame(frame)
-      const dt = Math.min(100, now - last)
-      last = now
+    const { w } = wellSize(cell)
+    return startFrameClock((dt, now) => {
       let s = stateRef.current
       for (const held of heldRef.current.values()) {
         if (now >= held.nextAt) {
@@ -370,14 +354,12 @@ export default function CloudfallPage() {
         }
       }
       commit(tick(s, dt))
-      const scale = canvas.width / (COLS * cell)
+      const scale = canvas.width / w
       ctx.setTransform(scale, 0, 0, scale, 0, 0)
       const flash = flashRef.current
       if (flash && now - flash.startedAt > FLASH_MS) flashRef.current = null
       drawBoard(ctx, stateRef.current, cell, flashRef.current, now)
-    }
-    raf = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(raf)
+    })
   }, [cell, commit])
 
   // Keyboard, and pausing when the tab is hidden.
@@ -445,8 +427,7 @@ export default function CloudfallPage() {
   const say = instruction(hud, touch, showEvent)
   const overReason = hud.status === 'over' ? describeEvent(hud.event) : null
   const canPause = hud.status === 'playing' || hud.status === 'paused'
-  const boardW = COLS * cell
-  const boardH = VISIBLE_ROWS * cell
+  const well = wellSize(cell)
 
   const stats = (
     <dl className="grid grid-cols-3 gap-2 text-center lg:grid-cols-1 lg:gap-3 lg:text-left">
@@ -522,12 +503,12 @@ export default function CloudfallPage() {
         <Card className={`${styles.bar} flex items-center justify-between gap-2 px-2 py-1`}>
           <div className="flex flex-col items-center">
             <Label>Hold</Label>
-            <Preview kind={hud.hold} size={[44, 26]} dimmed={!hud.canHold} />
+            <Preview kind={hud.hold} size={PREVIEW.bar} dimmed={!hud.canHold} />
           </div>
           <div className="flex-1">{stats}</div>
           <div className="flex flex-col items-center">
             <Label>Next</Label>
-            <Preview kind={hud.next[0] ?? null} size={[44, 26]} />
+            <Preview kind={hud.next[0] ?? null} size={PREVIEW.bar} />
           </div>
           {pauseButton}
         </Card>
@@ -540,13 +521,13 @@ export default function CloudfallPage() {
           {say && <span className="rounded-2xl bg-white/90 px-3 py-1">{say}</span>}
         </p>
 
-        <div className={`${styles.board} relative`} style={{ width: boardW + 6, height: boardH + 6 }}>
+        <div className={`${styles.board} relative`} style={{ width: well.framedW, height: well.framedH }}>
           <canvas
             ref={boardRef}
             role="img"
             aria-label={`Cloudfall well. Score ${hud.score}, ${hud.lines} lines, level ${hud.level}.`}
             className="block rounded-xl border-[3px]"
-            style={{ width: boardW + 6, height: boardH + 6, borderColor: OUTLINE, touchAction: 'none' }}
+            style={{ width: well.framedW, height: well.framedH, borderColor: OUTLINE, touchAction: 'none' }}
           />
           {hud.status !== 'playing' && (
             <div className="absolute inset-0 flex items-center justify-center p-4">
@@ -610,7 +591,7 @@ export default function CloudfallPage() {
           <Card className="p-4">{stats}</Card>
           <Card className="flex items-center justify-between p-3">
             <Label>Hold</Label>
-            <Preview kind={hud.hold} size={[96, 52]} dimmed={!hud.canHold} />
+            <Preview kind={hud.hold} size={PREVIEW.hold} dimmed={!hud.canHold} />
           </Card>
           <Card className="flex items-center justify-between p-3">
             <Label>Best</Label>
@@ -622,7 +603,7 @@ export default function CloudfallPage() {
           <Card className="flex flex-col items-center gap-1 p-3">
             <Label>Next</Label>
             {Array.from({ length: PREVIEW_COUNT }, (_, i) => (
-              <Preview key={i} kind={hud.next[i] ?? null} size={[120, 60]} dimmed={i > 0} />
+              <Preview key={i} kind={hud.next[i] ?? null} size={PREVIEW.next} dimmed={i > 0} />
             ))}
           </Card>
           {pauseButton}

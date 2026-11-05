@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { prefersReducedMotion } from 'src/lib/motion'
+import { fitCanvas } from 'src/lib/ui/canvas'
+import { startFrameClock } from 'src/lib/ui/frameClock'
 
 // The home page's backdrop: a few faint ridgelines, the site's terrain motif,
 // drifting slowly enough that you notice them only when you stop reading.
@@ -37,16 +39,12 @@ export default function QuietField({ dark }: Props) {
     const accent = dark ? 'rgba(205, 163, 95, 0.16)' : 'rgba(161, 116, 47, 0.14)'
     let w = 0
     let h = 0
-    let frame = 0
-    let last = 0
+    let stop = () => {}
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
       w = window.innerWidth
       h = window.innerHeight
-      canvas.width = Math.round(w * dpr)
-      canvas.height = Math.round(h * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      fitCanvas(canvas, ctx, w, h)
     }
 
     const draw = (t: number) => {
@@ -65,13 +63,6 @@ export default function QuietField({ dark }: Props) {
       }
     }
 
-    const loop = (now: number) => {
-      frame = requestAnimationFrame(loop)
-      if (now - last < FRAME_MS) return
-      last = now
-      draw(now)
-    }
-
     resize()
     const onResize = () => {
       resize()
@@ -79,10 +70,10 @@ export default function QuietField({ dark }: Props) {
     }
     window.addEventListener('resize', onResize)
     if (still) draw(0)
-    else frame = requestAnimationFrame(loop)
+    else stop = startFrameClock((_dt, now) => draw(now), { minFrameMs: FRAME_MS })
 
     return () => {
-      cancelAnimationFrame(frame)
+      stop()
       window.removeEventListener('resize', onResize)
     }
   }, [dark])

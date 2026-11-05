@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { prefersReducedMotion } from 'src/lib/motion'
+import { fitCanvas } from 'src/lib/ui/canvas'
+import { startFrameClock } from 'src/lib/ui/frameClock'
 import { drawSky } from './paint'
 
 /**
@@ -15,34 +17,24 @@ export default function SkyBackdrop() {
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
     const still = prefersReducedMotion()
-    let raf = 0
-    let last = 0
+    let stop = () => {}
     let w = 0
     let h = 0
     const begin = performance.now()
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       w = window.innerWidth
       h = window.innerHeight
-      canvas.width = Math.round(w * dpr)
-      canvas.height = Math.round(h * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      fitCanvas(canvas, ctx, w, h, 1.5)
       drawSky(ctx, w, h, still ? 0 : (performance.now() - begin) / 1000)
-    }
-
-    const frame = (now: number) => {
-      raf = requestAnimationFrame(frame)
-      if (document.hidden || now - last < 33) return
-      last = now
-      drawSky(ctx, w, h, (now - begin) / 1000)
     }
 
     resize()
     window.addEventListener('resize', resize)
-    if (!still) raf = requestAnimationFrame(frame)
+    // 30 fps is plenty for a backdrop; the browser pauses it in a hidden tab.
+    if (!still) stop = startFrameClock((_dt, now) => drawSky(ctx, w, h, (now - begin) / 1000), { minFrameMs: 33 })
     return () => {
-      cancelAnimationFrame(raf)
+      stop()
       window.removeEventListener('resize', resize)
     }
   }, [])
