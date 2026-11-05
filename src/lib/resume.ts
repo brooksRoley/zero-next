@@ -111,12 +111,12 @@ export const EXPERIENCE: ResumeRole[] = [
 ]
 
 export const SKILLS: SkillGroup[] = [
-  { label: 'Languages and frameworks', items: ['TypeScript', 'JavaScript', 'Python', 'C++', 'React', 'Next.js', 'Vue', 'Angular', 'Node.js', 'Django', 'FastAPI', 'D3.js', 'WebAssembly (Emscripten)'] },
-  { label: 'Data', items: ['PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Redis', 'Memcached', 'Snowflake', 'Celery'] },
-  { label: 'Infrastructure and tools', items: ['AWS (S3, SageMaker)', 'Docker', 'Kubernetes', 'Terraform', 'Vercel', 'Git', 'Bash', 'Webpack'] },
+  { label: 'Front end and rendering', items: ['TypeScript', 'JavaScript', 'React', 'Next.js', 'Vue', 'Angular', 'Tailwind CSS', 'Canvas 2D', 'PixiJS', 'D3.js', 'WebAssembly (Emscripten)'] },
+  { label: 'Back end and state', items: ['Node.js', 'Python', 'Django', 'FastAPI', 'PostgreSQL', 'Supabase Realtime (WebSockets)', 'MySQL', 'SQLite', 'Redis', 'Memcached', 'Snowflake', 'Celery'] },
+  { label: 'Engine and desktop', items: ['C++', 'Electron'] },
+  { label: 'Automation and tooling', items: ['Claude Code', 'LLM API integration (Vercel AI SDK)', 'Reviewing and testing agent-written code', 'CI/CD with GitHub Actions: tests and Lighthouse on every pull request'] },
+  { label: 'Infrastructure and monitoring', items: ['AWS (S3, SageMaker)', 'Docker', 'Kubernetes', 'Terraform', 'Vercel', 'Git', 'Bash', 'Webpack', 'Datadog', 'Grafana'] },
   { label: 'Accessibility and standards', items: ['WCAG', 'HIPAA', 'SSO/SAML', 'A/B testing'] },
-  { label: 'Monitoring and delivery', items: ['Datadog', 'Grafana', 'CI/CD with GitHub Actions'] },
-  { label: 'AI', items: ['Claude Code', 'LLM API integration (Vercel AI SDK)', 'Reviewing and testing agent-written code'] },
 ]
 
 export const EDUCATION = {

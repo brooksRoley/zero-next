@@ -21,7 +21,16 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('SoundToggle', () => {
+  it('starts muted, and says so in words when asked', () => {
+    render(<SoundToggle withLabel />)
+    const button = screen.getByRole('button', { name: 'Mute sound in every game' })
+    expect(button.getAttribute('aria-pressed')).toBe('true')
+    expect(button.textContent).toContain('Sound off')
+    expect(getAudioContext()).toBeNull()
+  })
+
   it('mutes every game at once, and every toggle on the page agrees', () => {
+    window.localStorage.setItem(MUTE_KEY, '0')
     render(
       <>
         <SoundToggle />

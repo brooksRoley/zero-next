@@ -25,12 +25,21 @@ beforeEach(() => {
 })
 
 describe('site-wide mute', () => {
-  it('starts with sound on', () => {
-    expect(isMuted()).toBe(false)
+  it('starts muted, so no game makes a sound before the visitor asks', () => {
+    expect(isMuted()).toBe(true)
+    expect(getAudioContext()).toBeNull()
+  })
+
+  it('plays once the visitor turns sound on, and remembers it', () => {
+    setMuted(false)
     expect(getAudioContext()).toBeInstanceOf(FakeContext)
+    expect(window.localStorage.getItem(MUTE_KEY)).toBe('0')
+    resetAudioForTests()
+    expect(isMuted()).toBe(false)
   })
 
   it('silences every game: no context is handed out while muted', () => {
+    setMuted(false)
     const ctx = getAudioContext()
     setMuted(true)
     expect(getAudioContext()).toBeNull()

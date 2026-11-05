@@ -4,6 +4,8 @@
 //
 // The site-wide mute lives here too, so one switch silences every game: while
 // muted, getAudioContext() returns null and every sound helper does nothing.
+// Sound starts OFF (2026-11-04): a visitor turns it on with the speaker toggle,
+// and the choice is remembered. Hardwood's own sound also starts muted here.
 
 export const MUTE_KEY = 'site_sound_muted'
 
@@ -13,9 +15,10 @@ const listeners = new Set()
 
 function readMuted() {
   try {
-    return typeof window !== 'undefined' && window.localStorage.getItem(MUTE_KEY) === '1'
+    // Muted unless this browser has turned sound on.
+    return typeof window === 'undefined' || window.localStorage.getItem(MUTE_KEY) !== '0'
   } catch {
-    return false
+    return true
   }
 }
 
