@@ -46,8 +46,8 @@ export type Measure = { label: string; file: string; raw: number; gzip: number; 
 export const BUNDLE: Measure[] = [
   { label: 'C++ engine', file: 'engine.wasm', raw: 236_662, gzip: 87_635, note: 'The whole simulation.' },
   { label: 'Engine glue', file: 'engine.js', raw: 90_681, gzip: 24_389, note: 'Emscripten’s loader and the embind bindings.' },
-  { label: 'Game client', file: 'assets/index-BgWkuoK7.js', raw: 551_983, gzip: 187_353, note: 'Vue, PixiJS core and the game UI.' },
-  { label: 'WebGL renderer', file: 'assets/WebGLRenderer-BC-rSgr6.js', raw: 72_238, gzip: 19_617, note: 'Split out: loaded only when PixiJS picks WebGL. The WebGPU and Canvas renderers are separate chunks too.' },
+  { label: 'Game client', file: 'assets/index-DO9F6rAL.js', raw: 556_457, gzip: 189_266, note: 'Vue, PixiJS core and the game UI.' },
+  { label: 'WebGL renderer', file: 'assets/WebGLRenderer-b4HM0agk.js', raw: 72_238, gzip: 19_619, note: 'Split out: loaded only when PixiJS picks WebGL. The WebGPU and Canvas renderers are separate chunks too.' },
 ]
 
 export const LAUNCHER_UPDATE = {
