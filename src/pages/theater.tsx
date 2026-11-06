@@ -131,6 +131,15 @@ const REPERTORY: Act[] = [
         href: route('cloudfall').href,
         accent: '#3fd6f5',
       },
+      {
+        id: 'barrel',
+        title: 'BARREL',
+        metaphor: 'the moving stage',
+        logline: 'Paddle in, pop up on the crest, and ride a wave whose lip folds over into a real tube.',
+        note: 'The stage itself moves: a Gerstner wave rebuilt in Box2D sixty times a second, in C++ compiled to WebAssembly. Pick a reef, read the live swell, and stay in the barrel.',
+        href: route('barrel').href,
+        accent: '#5cccce',
+      },
     ],
   },
   {

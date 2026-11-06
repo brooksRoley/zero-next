@@ -69,6 +69,7 @@ describe('every game surface is instrumented', () => {
     'src/pages/games/moments.tsx',
     'src/pages/games/cloudfall.tsx',
     'src/components/games/cloudfall/BackstageBlocks.tsx',
+    'src/pages/games/barrel.tsx',
     'src/pages/games/tend.tsx',
     'src/pages/games/tend/watershed.tsx',
     'src/pages/games/tend/journal.tsx',
