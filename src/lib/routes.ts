@@ -67,6 +67,7 @@ const REGISTRY = {
   hardwood: { href: '/games/hardwood', label: 'Hardwood Autochess', basketball: true },
   moments: { href: '/games/moments', label: 'Playoff Moments', basketball: true },
   cloudfall: { href: '/games/cloudfall', label: 'Cloudfall' },
+  barrel: { href: '/games/barrel', label: 'BARREL' },
   tend: { href: '/games/tend', label: 'Tend' },
   tendWatershed: { href: '/games/tend/watershed', label: 'Tend — The Watershed' },
   tendJournal: { href: '/games/tend/journal', label: 'Tend — The Journal' },

@@ -44,3 +44,7 @@ next-env.d.ts
 
 # Private owner instructions (split from CLAUDE.md 2026-11-04)
 CLAUDE.local.md
+
+# BARREL native build: fetched Box2D source and object files (native/barrel/build.sh)
+native/barrel/.deps/
+native/barrel/.build/

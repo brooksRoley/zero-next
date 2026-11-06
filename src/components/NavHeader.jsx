@@ -23,6 +23,7 @@ const NAV_LINKS = [
       route('go'),
       route('nanuPikaTd'),
       route('cloudfall'),
+      route('barrel'),
     ],
   },
   route('github'),
