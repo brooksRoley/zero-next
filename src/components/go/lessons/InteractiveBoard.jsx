@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react'
 import { EMPTY, BLACK, WHITE } from 'src/lib/go/gameLogic'
 

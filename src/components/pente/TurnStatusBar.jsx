@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react'
 import { WHITE, PLAYER_COLORS } from 'src/lib/pente/constants'
 

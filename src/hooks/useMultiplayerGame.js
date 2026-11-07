@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from 'src/lib/supabase'
 import { BLACK, WHITE } from 'src/lib/pente/constants'

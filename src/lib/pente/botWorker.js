@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * botWorker.js
  * Wrapper around the Pente AI Web Worker.

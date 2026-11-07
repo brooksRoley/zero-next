@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * PenteTutor.js
  * Evaluation bar, hints, and post-game analysis for Pente.

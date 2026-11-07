@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Standard Elo update for puzzle solves.
  *

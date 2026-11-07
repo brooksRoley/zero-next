@@ -1,3 +1,4 @@
+// @ts-check
 import { EMPTY, BLACK, WHITE, getNeighbors } from './gameLogic'
 
 /**

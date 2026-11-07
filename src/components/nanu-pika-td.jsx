@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useRef, useCallback } from "react";
 import useGameTracking from "src/hooks/useGameTracking";
 import { prefersReducedMotion } from "src/lib/motion";

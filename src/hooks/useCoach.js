@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useCallback, useRef } from 'react'
 import { BLACK, WHITE, findGroup, getNeighbors } from 'src/lib/go/gameLogic'
 import { findEyeRegions } from 'src/lib/go/lifeAndDeath'

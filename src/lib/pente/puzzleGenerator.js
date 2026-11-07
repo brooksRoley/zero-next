@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Pente Puzzle Generator (dev-time tool)
  *

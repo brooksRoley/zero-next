@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useRef, useState, useCallback } from 'react'
 import { BLACK, WHITE, RED, BLUE, EMPTY, PLAYER_COLORS } from 'src/lib/pente/constants'
 import useTactileFeedback from 'src/hooks/useTactileFeedback'

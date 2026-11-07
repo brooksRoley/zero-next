@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * penteEngine.js
  * Minimax engine with alpha-beta pruning, iterative deepening,

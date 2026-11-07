@@ -1,3 +1,4 @@
+// @ts-check
 import { BLACK, WHITE, EMPTY } from 'src/lib/pente/constants'
 
 /**

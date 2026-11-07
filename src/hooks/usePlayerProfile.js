@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { STARTING_ELO, MIN_ELO, MAX_ELO, calculateEloChange, calculatePuzzleEloChange, getZone } from 'src/lib/pente/elo'
 import { getPlayerId } from 'src/lib/playerId'

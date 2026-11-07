@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * "Jumpshot Lab" — a canvas physics toy for /basketball-platform.
  *

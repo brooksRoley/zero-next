@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * PentePlayerBot.js
  * A heuristic-based AI for playing Pente with configurable difficulty.

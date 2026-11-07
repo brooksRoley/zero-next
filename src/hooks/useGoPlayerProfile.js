@@ -1,3 +1,4 @@
+// @ts-check
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { STARTING_ELO, eloUpdate } from 'src/lib/go/elo'
 import { getPlayerId } from 'src/lib/playerId'

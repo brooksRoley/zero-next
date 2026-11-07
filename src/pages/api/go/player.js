@@ -1,3 +1,4 @@
+// @ts-check
 import { supabase } from 'src/lib/supabase'
 import { createRateLimiter } from 'src/lib/rate-limit'
 import { normalizeUuid } from 'src/lib/playerId'

@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react';
 import { BLACK, WHITE, RED, BLUE, PLAYER_COLORS, getTeamIndex } from 'src/lib/pente/constants';
 

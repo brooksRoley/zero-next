@@ -1,3 +1,4 @@
+// @ts-check
 import { useCallback } from 'react'
 import useGameSounds from 'src/hooks/useGameSounds'
 import { buzz } from 'src/lib/ui/haptics'

@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'

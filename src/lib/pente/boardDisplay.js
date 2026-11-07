@@ -1,3 +1,4 @@
+// @ts-check
 import { BLACK, WHITE, RED, BLUE, PLAYER_COLORS } from 'src/lib/pente/constants'
 
 /**

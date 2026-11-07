@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * zobrist.js
  * Zobrist hashing for Pente board positions.

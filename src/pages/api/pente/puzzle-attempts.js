@@ -1,3 +1,4 @@
+// @ts-check
 import { supabase } from 'src/lib/supabase'
 import { calculateEloChange, MIN_ELO, MAX_ELO } from 'src/lib/pente/elo'
 import { createRateLimiter } from 'src/lib/rate-limit'

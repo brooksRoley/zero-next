@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useEffect, useRef } from 'react'
 import { prefersReducedMotion } from 'src/lib/motion'
 

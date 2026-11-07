@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Adaptive bot configuration for Go.
  * Maps player ELO to engine parameters (level, randomRate, timeBudget)

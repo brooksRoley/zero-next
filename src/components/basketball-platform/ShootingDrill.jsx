@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Interactive shot-zone drill for /basketball-platform.
  *

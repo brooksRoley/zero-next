@@ -1,3 +1,4 @@
+// @ts-check
 import Head from 'next/head';
 import NanuPikaAdventures from 'src/components/nanu-pika-td.jsx';
 

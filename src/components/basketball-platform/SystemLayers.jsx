@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * The four-layer breakdown of the platform (data pipeline, engine, game, iOS).
  *

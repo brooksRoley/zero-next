@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Coverage for the only live DB-write path in the app: POST /api/pente/game-result
  * (Supabase, live since migration 0004 on 2026-07-14, previously untested).

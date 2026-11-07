@@ -1,3 +1,4 @@
+// @ts-check
 import { useCallback } from 'react';
 import { getAudioContext } from 'src/lib/ui/audioContext';
 

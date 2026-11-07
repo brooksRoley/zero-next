@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react';
 import { BOARD_THEMES, STONE_STYLES, EFFECT_MODES } from 'src/lib/pente/boardThemes';
 

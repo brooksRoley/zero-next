@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useGameSounds from 'src/hooks/useGameSounds'
 import { BLACK, applyMove } from 'src/lib/go/gameLogic'

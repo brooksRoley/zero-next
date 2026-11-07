@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Fire-and-forget client helper to persist a completed Pente game to the
  * game_results table via POST /api/pente/game-result.

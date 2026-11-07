@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Live results of the autobattler engine's 2025-26 backtest, read from /api/nba/autobattler/*.
  *

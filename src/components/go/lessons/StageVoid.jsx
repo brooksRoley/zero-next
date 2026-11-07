@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useCallback, useEffect, useState } from 'react'
 import useGameSounds from 'src/hooks/useGameSounds'
 import { EMPTY, BLACK, WHITE, createEmptyBoard } from 'src/lib/go/gameLogic'

@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_BOARD_PREFS, sanitizeBoardPrefs } from 'src/lib/pente/boardThemes';
 
