@@ -1,3 +1,4 @@
+// @ts-check
 import { supabase } from 'src/lib/supabase'
 
 export default async function handler(req, res) {

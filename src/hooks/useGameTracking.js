@@ -1,3 +1,4 @@
+// @ts-check
 import { useEffect, useRef } from 'react'
 import { createGameTracker } from 'src/lib/analytics'
 

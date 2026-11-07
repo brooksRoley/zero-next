@@ -1,3 +1,4 @@
+// @ts-check
 // src/lib/pente/adaptiveBot.js
 
 /**

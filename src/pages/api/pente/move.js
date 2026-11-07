@@ -1,3 +1,4 @@
+// @ts-check
 import { supabase } from 'src/lib/supabase'
 import { applyMove } from 'src/lib/pente/gameLogic'
 import { BLACK, WHITE } from 'src/lib/pente/constants'

@@ -1,3 +1,4 @@
+// @ts-check
 // Shared timing & easing constants so every tactile interaction speaks the
 // same language. Change a value here, it propagates across the UI.
 

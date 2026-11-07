@@ -1,3 +1,4 @@
+// @ts-check
 import Head from 'next/head'
 import Reveal from 'src/components/Reveal'
 import { track } from 'src/lib/analytics'

@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Static SVG of the platform's data flow: external APIs on the left, service
  * layer in the middle, engines and clients on the right.

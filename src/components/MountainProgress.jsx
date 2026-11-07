@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useMemo } from 'react'
 import { ALTITUDE_ZONES, MIN_ELO, MAX_ELO, getAltitudePercent, getZone } from 'src/lib/pente/elo'
 

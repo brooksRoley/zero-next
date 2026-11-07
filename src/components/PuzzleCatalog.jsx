@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useState, useMemo } from 'react'
 import { puzzles, PUZZLE_CATEGORIES, DIFFICULTY_LABELS, getRecommendedPuzzle } from 'src/lib/pente/puzzles'
 import MountainProgress from 'src/components/MountainProgress'

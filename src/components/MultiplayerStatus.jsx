@@ -1,3 +1,4 @@
+// @ts-check
 import { useState } from 'react'
 import { BLACK } from 'src/lib/pente/constants'
 

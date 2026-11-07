@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react'
 import Link from 'next/link'
 import { INTERVAL_DAYS } from 'src/lib/review'

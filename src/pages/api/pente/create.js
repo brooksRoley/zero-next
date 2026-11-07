@@ -1,3 +1,4 @@
+// @ts-check
 import { supabase } from 'src/lib/supabase'
 import { createEmptyBoard } from 'src/lib/pente/gameLogic'
 import { createRateLimiter } from 'src/lib/rate-limit'

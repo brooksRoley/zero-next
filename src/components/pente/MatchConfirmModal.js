@@ -1,3 +1,4 @@
+// @ts-check
 // src/components/pente/MatchConfirmModal.js
 export default function MatchConfirmModal({ opponent, confirmTimer, onAccept, onDecline }) {
   if (!opponent) return null

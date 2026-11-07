@@ -1,3 +1,4 @@
+// @ts-check
 // src/hooks/useMatchmaking.js
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from 'src/lib/supabase'

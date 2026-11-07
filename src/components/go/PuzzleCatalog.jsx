@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import useGoPlayerProfile from 'src/hooks/useGoPlayerProfile'

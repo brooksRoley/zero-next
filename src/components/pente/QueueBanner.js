@@ -1,3 +1,4 @@
+// @ts-check
 // src/components/pente/QueueBanner.js
 export default function QueueBanner({ onLeave }) {
   return (

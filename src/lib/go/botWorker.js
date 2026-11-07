@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Promise-based wrapper around the Go Web Worker. Mirrors the Pente
  * `BotWorkerManager` pattern. Each call gets a unique request id; responses

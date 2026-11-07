@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'

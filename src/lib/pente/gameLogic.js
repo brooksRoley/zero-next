@@ -1,3 +1,4 @@
+// @ts-check
 import { BOARD_SIZE, EMPTY, BLACK, WHITE, GAME_MODES, getTeamIndex, isOpponent } from './constants'
 
 export function createEmptyBoard() {

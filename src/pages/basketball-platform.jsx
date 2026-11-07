@@ -1,3 +1,4 @@
+// @ts-check
 import Head from 'next/head'
 import Link from 'next/link'
 import Reveal from 'src/components/Reveal'

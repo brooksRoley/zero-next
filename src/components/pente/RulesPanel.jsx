@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react'
 import { PLAYER_COLORS } from 'src/lib/pente/constants'
 import { MODE_RULES } from 'src/lib/pente/boardDisplay'

@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import PuzzleSolver from 'src/components/PuzzleSolver'
 import useDailyChallenge from 'src/hooks/useDailyChallenge'

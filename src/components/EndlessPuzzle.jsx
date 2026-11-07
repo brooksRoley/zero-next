@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import PuzzleBoard from 'src/components/PuzzleBoard'

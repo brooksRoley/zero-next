@@ -1,3 +1,4 @@
+// @ts-check
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as Chart from "chart.js";
 

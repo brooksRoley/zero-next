@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useRef, useEffect, useCallback } from 'react'
 import { BOARD_SIZE, BLACK, WHITE, RED, BLUE, EMPTY, PLAYER_COLORS } from 'src/lib/pente/constants'
 

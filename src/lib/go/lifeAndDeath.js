@@ -1,3 +1,4 @@
+// @ts-check
 import { EMPTY, findGroup, getNeighbors } from './gameLogic'
 
 /**
