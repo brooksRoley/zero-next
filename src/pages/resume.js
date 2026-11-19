@@ -24,10 +24,10 @@ const Resume = () => {
   return (
     <div className="relative min-h-screen overflow-hidden terrain-page-bg">
       <Head>
-        <title>Resume | Brooks Roley</title>
-        <meta name="description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." />
-        <meta property="og:title" content="Resume | Brooks Roley" key="og:title" />
-        <meta property="og:description" content="Full-stack software engineer with a front-end lean: React, Vue, TypeScript, Python. Accessibility, performance, migrations. Orange County, CA." key="og:description" />
+        <title>Resume · Brooks Roley · Senior Software Engineer</title>
+        <meta name="description" content="Brooks Roley, senior software engineer in Orange County, CA. React, TypeScript, Python, C++ and WebAssembly; Zoox, Grove Collaborative, Limelight Health." />
+        <meta property="og:title" content="Resume · Brooks Roley · Senior Software Engineer" key="og:title" />
+        <meta property="og:description" content="Brooks Roley, senior software engineer in Orange County, CA. React, TypeScript, Python, C++ and WebAssembly; Zoox, Grove Collaborative, Limelight Health." key="og:description" />
       </Head>
       {/* Brooks's signature (public/BRLogoTransparent.png) as a faint watermark,
           lightened for the dark ground. Decorative only. */}
@@ -47,7 +47,7 @@ const Resume = () => {
           <div className="w-full rounded-2xl bg-ink-900/95 backdrop-blur-md shadow-xl border border-ink-700/40 p-6 sm:p-8 text-center">
             <p className="text-xs sm:text-sm uppercase tracking-widest text-white mb-3">Resume</p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Brooks Roley</h1>
-            <p className="text-lg text-brass-400 font-medium mt-1">Software Engineer</p>
+            <p className="text-lg text-brass-400 font-medium mt-1">Senior Software Engineer</p>
             <p className="text-sm text-ink-100 mt-2">{LOCATION} · {AVAILABILITY}</p>
             <p className="text-sm text-ink-300 mt-3">
               {email ? (

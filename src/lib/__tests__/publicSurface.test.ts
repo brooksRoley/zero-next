@@ -44,7 +44,7 @@ describe('hero and meta copy come from one place', () => {
     expect(SITE_DESCRIPTION.length).toBeLessThanOrEqual(160)
     expect(SITE_DESCRIPTION).toMatch(/full-time/)
     expect(HERO_SUMMARY.length).toBeGreaterThan(0)
-    expect(AVAILABILITY).toMatch(/full-time/)
+    expect(AVAILABILITY).toMatch(/^Open to senior .*roles/)
   })
 })
 

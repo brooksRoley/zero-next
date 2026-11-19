@@ -22,25 +22,34 @@ export const SUMMARY =
 
 export const LOCATION = 'Orange County, CA'
 
-export const AVAILABILITY = 'Open to full-time roles, remote or hybrid in Orange County.'
+export const AVAILABILITY =
+  'Open to senior full-stack, front-end systems, and tooling roles in Orange County (Irvine) or remote.'
+
+// The home page's one-line headline under the name. A level, not a past title:
+// the role titles in EXPERIENCE stay as they were held.
+export const HEADLINE =
+  'Senior Software Engineer · Interactive Systems, Web Performance & Tooling · Orange County, CA'
 
 // The home hero's one-paragraph pitch. The hero, its loading fallback and the
 // site-wide meta description all read from here so they cannot drift apart.
 export const HERO_SUMMARY =
-  'Full-stack software engineer with a front-end lean. Ten years building product interfaces ' +
-  'in React, Vue and TypeScript, and the Node and Python services behind them.'
+  'Ten years building low-latency web applications in React and TypeScript, the Python and Node ' +
+  'services behind them, and reliability tooling, at Zoox, Grove Collaborative (IPO) and Limelight Health (acquired).'
 
-// Said up front so the AI work reads as a choice (review, 2026-11-02):
-// what I was learning, and how. Keep it true: CI runs on every pull request and
-// Brooks merges by hand. Do not claim CI blocks merges (resume.test.ts).
-export const AI_NOTE =
-  'For the past year I have been learning to build with AI coding agents, mostly Claude Code, ' +
-  'by making basketball games and tools. Tests run on every pull request, and I review each change before I merge it.'
+// What I'm working on now, said plainly so the AI work reads as a choice.
+// Keep it true: CI runs on every pull request and Brooks merges by hand.
+// Do not claim CI blocks merges (resume.test.ts, hiringReadiness.test.ts).
+export const FOCUS_NOTE =
+  'Lately: browser simulation engines in C++ compiled to WebAssembly, and deterministic test harnesses ' +
+  'for AI-assisted work: automated checks on every pull request, and I review every diff before it merges.'
 
 // Search results and link previews. Kept under ~160 characters so it is not cut off.
 export const SITE_DESCRIPTION =
-  'Brooks Roley, full-stack software engineer with a front-end lean: React, TypeScript, Node and Python. ' +
+  'Brooks Roley, senior software engineer in Orange County, CA: React, TypeScript, Python, C++ and WebAssembly. ' +
   'Open to full-time roles.'
+
+// Person structured data (schema.org) for the home page. Facts only from this file.
+export const KNOWS_ABOUT = ['TypeScript', 'React', 'C++', 'WebAssembly', 'Python', 'Distributed Systems']
 
 // One line per break between roles, each placed after the entry at its index.
 // Brooks chose (2026-10-28) one line for the years between Grove and Zoox and
