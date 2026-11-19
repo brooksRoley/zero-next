@@ -147,6 +147,15 @@ const REPERTORY: Act[] = [
     name: 'Seasons',
     productions: [
       {
+        id: 'shootaround',
+        title: 'Shootaround',
+        metaphor: 'the daily routine',
+        logline: 'Five stations a day: puzzles from Hardwood, Pass & Cut and Read & React, then one real Hardwood round.',
+        note: 'Practice before the game. Each station teaches the idea under a rule: a hash map in the shop, a knapsack under the cap, a min cut in the passing lanes, a matrix in the scouting report.',
+        href: route('shootaround').href,
+        accent: '#FDB927',
+      },
+      {
         id: 'hardwood',
         title: 'Hardwood Autochess',
         metaphor: 'court as stage',

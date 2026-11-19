@@ -63,6 +63,7 @@ The Pages Router has grown well past the original handful of routes; below is th
 - `/games/read-and-react` (`src/pages/games/read-and-react.tsx`) — Read & React: basketball game-theory puzzle; find the mixed strategy that beats an adaptive defense (exact minimax solver sets par). The defense keeps a scouting report on you between visits (`src/lib/games/readreact/scouting.ts`, decayed play-call counts) and opens each series leaning on your habits; the equilibrium mix still earns par against every scheme
 - `/games/hardwood` (`src/pages/games/hardwood.tsx`) — Hardwood Autochess: NBA auto-battler — draft a squad on a 5×5 court, pick schemes, fight ghost boards over 10 rounds
 - `/games/moments` (`src/pages/games/moments.tsx`) — Playoff Moments: famous NBA plays frozen one beat early, replayed as court shape-and-speed click puzzles
+- `/games/shootaround` (`src/pages/games/shootaround.tsx`) — Shootaround: a daily quest of five stations. Puzzles built from Hardwood's rules and roster, Pass & Cut boards and Read & React matrices teach a hash map, knapsack DP, min cut and matrix × vector; the fifth station is a real Hardwood round, detected from Hardwood's `tactics_mastery` save. Seeded per day, local streak. Design note: `docs/shootaround.md`
 - `/theater` (`src/pages/theater.tsx`) — See Portfolio/funnel; the games gallery that indexes all of the above
 
 **Misc / experiments**

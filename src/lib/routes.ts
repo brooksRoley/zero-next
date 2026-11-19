@@ -68,6 +68,7 @@ const REGISTRY = {
   moments: { href: '/games/moments', label: 'Playoff Moments', basketball: true },
   cloudfall: { href: '/games/cloudfall', label: 'Cloudfall' },
   barrel: { href: '/games/barrel', label: 'BARREL' },
+  shootaround: { href: '/games/shootaround', label: 'Shootaround — daily quest' },
   tend: { href: '/games/tend', label: 'Tend' },
   tendWatershed: { href: '/games/tend/watershed', label: 'Tend — The Watershed' },
   tendJournal: { href: '/games/tend/journal', label: 'Tend — The Journal' },
