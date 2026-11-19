@@ -18,6 +18,7 @@ const NAV_LINKS = [
     label: 'Games',
     children: [
       route('theater'),
+      route('shootaround'),
       route('pente'),
       route('pentePuzzles'),
       route('go'),

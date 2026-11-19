@@ -1,0 +1,244 @@
+/* PlayerSprite motion. Every effect is hidden until its group gets .run
+   (the special move) or a ★★ burst mounts; the idle bounce runs otherwise. */
+
+.sprite {
+  overflow: visible;
+  display: block;
+}
+
+.sprite g,
+.sprite use,
+.sprite path,
+.sprite circle,
+.sprite rect,
+.sprite text {
+  transform-box: fill-box;
+}
+
+.muted {
+  filter: grayscale(0.75);
+  opacity: 0.55;
+}
+
+/* ── Idle ───────────────────────────────────────────── */
+.body {
+  transform-origin: 50% 100%;
+  animation: bob 2.4s ease-in-out infinite;
+}
+.lean {
+  transform-origin: 50% 100%;
+  transform: skewX(var(--lean, 0deg));
+}
+.shadow {
+  transform-origin: center;
+  animation: shadow 2.4s ease-in-out infinite;
+}
+.armL {
+  transform-origin: 50% 8%;
+}
+.armR {
+  transform-origin: 50% 8%;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+@keyframes shadow {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.94); }
+}
+
+/* Hidden until the move runs */
+.wall,
+.ring,
+.shot,
+.streaks,
+.sparkles {
+  opacity: 0;
+}
+
+/* ── Sharpshooter: Splash ───────────────────────────── */
+.sharpshooter .body.run {
+  animation: rise 1.2s ease-out both;
+}
+.sharpshooter .run .armR {
+  animation: shootArm 1.2s ease-out both;
+}
+.sharpshooter .run .shot {
+  opacity: 1;
+}
+.sharpshooter .run .ball {
+  animation: arc 1.2s var(--ease-responsive) both;
+}
+.sharpshooter .run .swish {
+  transform-origin: center;
+  animation: swish 1.2s ease-out both;
+}
+@keyframes rise {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-6px); }
+  55%, 100% { transform: translateY(0); }
+}
+@keyframes shootArm {
+  0% { transform: rotate(0); }
+  20%, 45% { transform: rotate(-160deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes arc {
+  0% { transform: translate(52px, 40px); opacity: 0; }
+  12% { transform: translate(55px, 28px); opacity: 1; }
+  45% { transform: translate(62px, 2px); }
+  70% { transform: translate(68px, 6px); opacity: 1; }
+  88% { transform: translate(70px, 16px); opacity: 0; }
+  100% { transform: translate(70px, 16px); opacity: 0; }
+}
+@keyframes swish {
+  0%, 70% { transform: scale(0.4); opacity: 0; }
+  82% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ── Slasher: Blur ──────────────────────────────────── */
+.slasher .body.run {
+  animation: dash 0.9s var(--ease-responsive) both;
+}
+.ghost {
+  opacity: 0;
+}
+.slasher .run .ghost1 {
+  animation: ghost1 0.9s ease-out both;
+}
+.slasher .run .ghost2 {
+  animation: ghost2 0.9s ease-out both;
+}
+.slasher .run .streaks {
+  animation: streaks 0.9s ease-out both;
+}
+@keyframes dash {
+  0% { transform: translateX(-14px) skewX(-10deg); }
+  40% { transform: translateX(4px) skewX(-6deg); }
+  70% { transform: translateX(-1px) skewX(0); }
+  100% { transform: translateX(0); }
+}
+@keyframes ghost1 {
+  0% { transform: translateX(-20px); opacity: 0.45; }
+  100% { transform: translateX(-6px); opacity: 0; }
+}
+@keyframes ghost2 {
+  0% { transform: translateX(-30px); opacity: 0.25; }
+  100% { transform: translateX(-12px); opacity: 0; }
+}
+@keyframes streaks {
+  0% { transform: translateX(6px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(-10px); opacity: 0; }
+}
+
+/* ── Anchor: The Wall ───────────────────────────────── */
+.anchor .run .armL {
+  animation: wallArmL 1.3s ease-out both;
+}
+.anchor .run .armR {
+  animation: wallArmR 1.3s ease-out both;
+}
+.anchor .run .wall {
+  transform-origin: center;
+  animation: wall 1.3s ease-out both;
+}
+.anchor .body.run {
+  animation: plant 1.3s ease-out both;
+}
+@keyframes wallArmL {
+  0% { transform: rotate(0); }
+  25%, 70% { transform: rotate(165deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes wallArmR {
+  0% { transform: rotate(0); }
+  25%, 70% { transform: rotate(-165deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes wall {
+  0% { transform: scale(0.5); opacity: 0; }
+  30% { transform: scale(1.06); opacity: 1; }
+  60% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+@keyframes plant {
+  0% { transform: translateY(0) scaleY(1); }
+  20% { transform: translateY(2px) scaleY(0.96); }
+  40%, 100% { transform: translateY(0) scaleY(1); }
+}
+
+/* ── Two-Way: Glue ──────────────────────────────────── */
+.twoWay .run .ring {
+  transform-origin: center;
+  animation: ring 1.3s ease-out both;
+}
+.twoWay .run .sparkles {
+  animation: sparkle 1.3s ease-out both;
+}
+.twoWay .body.run {
+  animation: spin 1.3s ease-in-out both;
+}
+@keyframes ring {
+  0% { transform: rotate(0) scale(0.7); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: rotate(240deg) scale(1.05); opacity: 0; }
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  35%, 65% { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+  0% { transform: scaleX(1); }
+  25% { transform: scaleX(-1); }
+  50% { transform: scaleX(1); }
+  100% { transform: scaleX(1); }
+}
+
+/* ── ★★ merge ───────────────────────────────────────── */
+.aura {
+  transform-origin: center;
+  animation: aura 1.6s ease-out both;
+}
+.stars {
+  transform-origin: center;
+  animation: stars 1.6s var(--ease-overshoot) both;
+}
+@keyframes aura {
+  0% { transform: rotate(0) scale(0.3); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: rotate(90deg) scale(1.15); opacity: 0.85; }
+}
+@keyframes stars {
+  0% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprite *,
+  .sprite {
+    animation: none !important;
+  }
+  .run .wall,
+  .run .ring,
+  .run .shot,
+  .run .streaks,
+  .run .sparkles,
+  .run .ghost {
+    opacity: 0 !important;
+  }
+}
+
+/* The shooter's ball leaves the hip when the shot goes up. */
+.run .heldBall {
+  animation: release 1.2s ease-out both;
+}
+@keyframes release {
+  0%, 8% { opacity: 1; }
+  12%, 85% { opacity: 0; }
+  100% { opacity: 1; }
+}
