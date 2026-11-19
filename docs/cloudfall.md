@@ -12,7 +12,9 @@ adds about 1,750 lines, so this note records where they go and why.
 | `src/components/games/cloudfall/paint.ts` | ~300 | Canvas drawing only: candy blocks, the well, previews, the sky and hills |
 | `src/components/games/cloudfall/SkyBackdrop.tsx` | ~60 | The parallax backdrop canvas |
 | `src/lib/games/cloudfall/dimensions.ts` | ~55 | Every size on screen: cell fit, well and frame, previews, aspect ratio |
-| `src/pages/games/cloudfall.tsx` | ~630 | Input (keys, held-key repeat, touch pad), the frame loop, the HUD, events, best score, layout |
+| `src/lib/games/cloudfall/controls.ts` | ~90 | The keys the page listens for and the How to play key printed beside the well; `controls.test.ts` fails if they drift apart |
+| `src/components/games/cloudfall/ControlsKey.tsx` | ~45 | Draws that key: keyboard keycaps, or the touch pad's button names on touch screens |
+| `src/pages/games/cloudfall.tsx` | ~680 | Input (keys, held-key repeat, touch pad, R to start over with a confirm mid-game), the frame loop, the HUD, events, best score, layout |
 
 ## Decisions and tradeoffs
 

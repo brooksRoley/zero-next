@@ -2,6 +2,8 @@ import Head from 'next/head'
 import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import SkyBackdrop from 'src/components/games/cloudfall/SkyBackdrop'
 import styles from 'src/components/games/cloudfall/Cloudfall.module.css'
+import ControlsKey from 'src/components/games/cloudfall/ControlsKey'
+import { KEYS, PAUSE_KEYS, RESTART_KEY, type Action } from 'src/lib/games/cloudfall/controls'
 import { drawBoard, drawPreview, FLASH_MS, OUTLINE, type Flash } from 'src/components/games/cloudfall/paint'
 import {
   LINES_PER_LEVEL,
@@ -35,25 +37,7 @@ const EVENT_SHOW_MS = 3500
 const REPEAT_DELAY_MS = 170
 const OVER_GRACE_MS = 800
 
-type Action = 'left' | 'right' | 'rotate' | 'rotateBack' | 'soft' | 'hard' | 'hold'
 const REPEAT_MS: Partial<Record<Action, number>> = { left: 50, right: 50, soft: 40 }
-
-const KEYS: Record<string, Action> = {
-  a: 'left',
-  arrowleft: 'left',
-  d: 'right',
-  arrowright: 'right',
-  w: 'rotate',
-  arrowup: 'rotate',
-  x: 'rotate',
-  z: 'rotateBack',
-  q: 'rotateBack',
-  s: 'soft',
-  arrowdown: 'soft',
-  ' ': 'hard',
-  c: 'hold',
-  shift: 'hold',
-}
 
 function apply(s: GameState, action: Action): GameState {
   switch (action) {
@@ -191,6 +175,22 @@ function CandyButton({ onClick, children, autoFocus }: { onClick: () => void; ch
   )
 }
 
+function QuietButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.currentTarget.blur()
+        onClick()
+      }}
+      className="min-h-[44px] rounded-full border-2 bg-white px-5 py-2 text-sm font-bold text-ink-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-950"
+      style={{ borderColor: OUTLINE }}
+    >
+      {children}
+    </button>
+  )
+}
+
 const ICONS: Record<Action, ReactNode> = {
   left: <path d="M15 5l-7 7 7 7" />,
   right: <path d="M9 5l7 7-7 7" />,
@@ -211,13 +211,16 @@ const PAD: { action: Action; label: string }[] = [
 ]
 
 /** The one line of guidance under the title: what to do now, or why something just happened. */
-function instruction(hud: Hud, touch: boolean, showEvent: boolean): string {
+function instruction(hud: Hud, touch: boolean, showEvent: boolean, confirming: boolean): string {
   if (hud.status === 'ready') {
     return touch
       ? 'Tap Start. Left and Right move, Turn rotates, Drop lands the piece.'
       : 'Press Space to start. A/D move, W rotate, Space drops.'
   }
-  if (hud.status === 'paused') return touch ? 'Paused. Tap Resume to carry on.' : 'Paused. Press P to carry on.'
+  if (hud.status === 'paused' && confirming) {
+    return touch ? 'Start over? This game ends.' : 'Press R again to start over, or P to keep playing.'
+  }
+  if (hud.status === 'paused') return touch ? 'Paused. Tap Resume to carry on.' : 'Paused. Press P to carry on, R to start over.'
   if (hud.status === 'over') return ''
   if (showEvent) {
     const said = describeEvent(hud.event)
@@ -247,6 +250,13 @@ export default function CloudfallPage() {
   const [newBest, setNewBest] = useState(false)
   const [touch, setTouch] = useState(false)
   const [showEvent, setShowEvent] = useState(false)
+  // Restarting mid-game asks once: the game pauses and a second R (or the button) confirms.
+  const [confirming, setConfirming] = useState(false)
+  const confirmingRef = useRef(false)
+  const setConfirm = useCallback((on: boolean) => {
+    confirmingRef.current = on
+    setConfirming(on)
+  }, [])
 
   const commit = useCallback((next: GameState) => {
     const prev = stateRef.current
@@ -285,8 +295,9 @@ export default function CloudfallPage() {
   const newGame = useCallback(() => {
     heldRef.current.clear()
     setNewBest(false)
+    setConfirm(false)
     commit(start(freshGame()))
-  }, [commit])
+  }, [commit, setConfirm])
 
   const press = useCallback(
     (action: Action, id: string) => {
@@ -309,8 +320,25 @@ export default function CloudfallPage() {
 
   const pause = useCallback(() => {
     heldRef.current.clear()
+    setConfirm(false)
     commit(togglePause(stateRef.current))
-  }, [commit])
+  }, [commit, setConfirm])
+
+  /** R: start now when nothing is at stake, otherwise pause and ask, and start over on the second press. */
+  const restart = useCallback(() => {
+    const status = stateRef.current.status
+    if (status === 'ready') {
+      commit(start(stateRef.current))
+    } else if (status === 'over' || confirmingRef.current || stateRef.current.pieces === 0) {
+      newGame()
+    } else if (status === 'playing') {
+      heldRef.current.clear()
+      commit(togglePause(stateRef.current))
+      setConfirm(true)
+    } else if (status === 'paused') {
+      setConfirm(true)
+    }
+  }, [commit, newGame, setConfirm])
 
   // A fresh, random game and the saved best score, once the page is in the browser.
   useEffect(() => {
@@ -370,11 +398,19 @@ export default function CloudfallPage() {
       if (e.metaKey || e.ctrlKey || e.altKey || editable(e.target)) return
       const key = e.key.toLowerCase()
       const status = stateRef.current.status
-      if (key === 'p' || key === 'escape') {
+      if ((PAUSE_KEYS as readonly string[]).includes(key)) {
         if (status === 'playing' || status === 'paused') {
           e.preventDefault()
           pause()
         }
+        return
+      }
+      if (key === RESTART_KEY) {
+        e.preventDefault()
+        if (e.repeat) return
+        // The same grace as Space: a key still held from the last game shouldn't skip its result.
+        if (status === 'over' && performance.now() - overAtRef.current < OVER_GRACE_MS) return
+        restart()
         return
       }
       // After a game, Space and Enter belong to the focused "Play again" button, but not
@@ -411,7 +447,7 @@ export default function CloudfallPage() {
       window.removeEventListener('blur', onBlur)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [press, release, pause])
+  }, [press, release, pause, restart])
 
   const onPadDown = (action: Action) => (e: PointerEvent<HTMLButtonElement>) => {
     e.preventDefault() // keep focus off the button, and stop the long-press menu
@@ -424,7 +460,7 @@ export default function CloudfallPage() {
   }
   const onPadUp = (action: Action) => () => release(`pad:${action}`)
 
-  const say = instruction(hud, touch, showEvent)
+  const say = instruction(hud, touch, showEvent, confirming)
   const overReason = hud.status === 'over' ? describeEvent(hud.event) : null
   const canPause = hud.status === 'playing' || hud.status === 'paused'
   const well = wellSize(cell)
@@ -532,7 +568,24 @@ export default function CloudfallPage() {
           {hud.status !== 'playing' && (
             <div className="absolute inset-0 flex items-center justify-center p-4">
               {hud.status === 'ready' && <CandyButton onClick={() => press('hard', 'start')}>Start</CandyButton>}
-              {hud.status === 'paused' && <CandyButton onClick={pause}>Resume</CandyButton>}
+              {hud.status === 'paused' && !confirming && (
+                <div className="flex flex-col items-center gap-3">
+                  <CandyButton onClick={pause}>Resume</CandyButton>
+                  <QuietButton onClick={() => setConfirm(true)}>Start over</QuietButton>
+                </div>
+              )}
+              {hud.status === 'paused' && confirming && (
+                <Card className="w-full max-w-[17rem] p-4 text-center">
+                  <p className="text-lg font-black text-ink-950">Start over?</p>
+                  <p className="mt-1 text-sm leading-snug text-ink-800">
+                    This game ends at {fmt(hud.score)} points and a new one begins.
+                  </p>
+                  <div className="mt-4 flex flex-col items-center gap-3">
+                    <CandyButton onClick={newGame}>Start over</CandyButton>
+                    <QuietButton onClick={pause}>Keep playing</QuietButton>
+                  </div>
+                </Card>
+              )}
               {hud.status === 'over' && (
                 <Card className="w-full max-w-[17rem] p-4 text-center">
                   <p className="text-lg font-black text-ink-950">Game over</p>
@@ -607,7 +660,11 @@ export default function CloudfallPage() {
             ))}
           </Card>
           {pauseButton}
+          <ControlsKey touch={touch} />
         </div>
+
+        {/* Phones and narrow windows: the same key, under the controls. */}
+        <ControlsKey touch={touch} className={`${styles.keys} max-w-[20rem]`} />
       </div>
     </main>
   )

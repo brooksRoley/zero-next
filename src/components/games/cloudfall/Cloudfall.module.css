@@ -11,6 +11,7 @@
     'say'
     'board'
     'pad'
+    'keys'
     'note';
 }
 
@@ -20,6 +21,7 @@
 .board { grid-area: board; }
 .pad { grid-area: pad; width: 100%; }
 .note { grid-area: note; }
+.keys { grid-area: keys; }
 .side { grid-area: side; display: none; }
 .next { grid-area: next; display: none; }
 
@@ -38,7 +40,7 @@
       'side board next'
       'pad board next';
   }
-  .bar { display: none; }
+  .bar, .keys { display: none; }
   .side, .next { display: flex; }
   .board { justify-self: center; }
 }
