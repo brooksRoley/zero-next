@@ -59,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Brooks Roley | Software Engineer</title>
+        <title>Brooks Roley · Senior Software Engineer · Orange County, CA</title>
         <meta name="description" content={SITE_DESCRIPTION} />
         {/*
           Site-wide Open Graph defaults. The `key` is load-bearing: next/head
@@ -68,7 +68,7 @@ export default function App({ Component, pageProps }: AppProps) {
           this generic one. Any page overriding these must reuse the same keys.
         */}
         <meta property="og:type" content="website" key="og:type" />
-        <meta property="og:title" content="Brooks Roley | Software Engineer" key="og:title" />
+        <meta property="og:title" content="Brooks Roley · Senior Software Engineer · Orange County, CA" key="og:title" />
         <meta property="og:description" content={SITE_DESCRIPTION} key="og:description" />
         {/* Scrapers do not resolve relative URLs: og:image and og:url must be absolute. */}
         <meta property="og:image" content={`${SITE_ORIGIN}/cover.png`} key="og:image" />

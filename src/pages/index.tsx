@@ -2,8 +2,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import QuietField from 'src/components/QuietField'
-import { AI_NOTE, AVAILABILITY, HERO_SUMMARY } from 'src/lib/resume'
-import { route, type RouteKey } from 'src/lib/routes'
+import { AVAILABILITY, EDUCATION, FOCUS_NOTE, HEADLINE, HERO_SUMMARY, KNOWS_ABOUT, SITE_DESCRIPTION } from 'src/lib/resume'
+import { route, SITE_ORIGIN, type RouteKey } from 'src/lib/routes'
 
 // The home page, quiet on purpose (2026-11-03): a name, what Brooks does, his
 // availability (AVAILABILITY), the AI note, and one row of links. Everything
@@ -12,6 +12,28 @@ import { route, type RouteKey } from 'src/lib/routes'
 
 const EMAIL = 'brooksroley@gmail.com'
 const THEME_KEY = 'br_home_theme'
+const TITLE = 'Brooks Roley · Senior Software Engineer · Orange County, CA'
+
+// schema.org Person for search engines. No email or employer: only what the
+// page already says, plus the two profiles it links.
+export const PERSON_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Brooks Roley',
+  jobTitle: 'Senior Software Engineer',
+  url: SITE_ORIGIN,
+  address: { '@type': 'PostalAddress', addressLocality: 'Orange County', addressRegion: 'CA', addressCountry: 'US' },
+  sameAs: [route('github').href, route('linkedin').href],
+  alumniOf: { '@type': 'CollegeOrUniversity', name: EDUCATION.school },
+  knowsAbout: KNOWS_ABOUT,
+}
+
+// The three proof points, one line each, each a link to where it is shown.
+const SELECTED: { label: string; fact: string; href: string }[] = [
+  { label: 'Zoox', fact: 'on-call reliability tooling for Site Reliability', href: `${route('resume').href}#resume-experience` },
+  { label: 'Hardwood', fact: 'a C++ simulation engine compiled to WebAssembly', href: `${route('hardwood').href}#hw-architecture` },
+  { label: 'Electron launcher', fact: 'content-defined chunking: 16 KB of a 1.07 MB build', href: `${route('hardwood').href}#hw-measured` },
+]
 
 // In reading order: the job search first, the work page (consulting) after it.
 const LINKS: { key: RouteKey; label: string }[] = [
@@ -24,7 +46,7 @@ const LINKS: { key: RouteKey; label: string }[] = [
 ]
 
 const linkClass =
-  'rounded-sm underline decoration-[var(--q-rule)] underline-offset-4 transition-colors hover:text-[var(--q-fg)] hover:decoration-[var(--q-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--q-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--q-bg)]'
+  'inline-block py-1 rounded-sm underline decoration-[var(--q-rule)] underline-offset-4 transition-colors hover:text-[var(--q-fg)] hover:decoration-[var(--q-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--q-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--q-bg)]'
 
 const Sun = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
@@ -63,7 +85,14 @@ export default function Home() {
   return (
     <main data-theme={dark ? 'dark' : 'light'} className="quiet-home relative min-h-[100svh] overflow-hidden">
       <Head>
-        <title>Brooks Roley | Software Engineer</title>
+        <title>Brooks Roley · Senior Software Engineer · Orange County, CA</title>
+        <meta property="og:title" content={TITLE} key="og:title" />
+        <meta property="og:description" content={SITE_DESCRIPTION} key="og:description" />
+        <script
+          type="application/ld+json"
+          // Static data from this file, not user input.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_JSON_LD) }}
+        />
         <meta name="theme-color" content={dark ? '#101B2B' : '#F6F3EC'} />
       </Head>
       <QuietField dark={dark} />
@@ -81,13 +110,27 @@ export default function Home() {
         <h1 className="text-[clamp(2.4rem,8vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em] text-[var(--q-fg)]">
           Brooks Roley
         </h1>
-        <p className="mt-3 font-mono text-sm text-[var(--q-muted)]">Full-stack engineer · browser games and interactive tools · Orange County, CA</p>
+        <p className="mt-3 font-mono text-sm text-[var(--q-muted)]">{HEADLINE}</p>
 
         <p className="mt-8 text-[15px] leading-7 text-[var(--q-body)]">
           {HERO_SUMMARY}{' '}
           <span className="font-medium text-[var(--q-fg)]">{AVAILABILITY}</span>
         </p>
-        <p className="mt-4 text-[15px] leading-7 text-[var(--q-body)]">{AI_NOTE}</p>
+        <p className="mt-4 text-[15px] leading-7 text-[var(--q-body)]">{FOCUS_NOTE}</p>
+
+        <section aria-labelledby="selected-work" className="mt-8 w-full">
+          <h2 id="selected-work" className="sr-only">Selected work</h2>
+          <ul className="space-y-1.5 font-mono text-[13px] leading-6 text-[var(--q-muted)]">
+            {SELECTED.map(({ label, fact, href }) => (
+              <li key={label}>
+                <Link href={href} className={linkClass}>
+                  {label}
+                </Link>{' '}
+                · {fact}
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <nav aria-label="Links" className="mt-10">
           <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 font-mono text-sm text-[var(--q-body)]">

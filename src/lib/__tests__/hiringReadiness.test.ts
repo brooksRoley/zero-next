@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'fs'
 import path from 'path'
-import { AI_NOTE, AVAILABILITY } from 'src/lib/resume'
+import { AVAILABILITY, FOCUS_NOTE } from 'src/lib/resume'
 import { INTERNAL_ROUTE_KEYS, ROUTES, SITE_ORIGIN } from 'src/lib/routes'
 import { buildSitemapXml } from 'src/lib/sitemap'
 
@@ -89,8 +89,8 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
   // The home page's one row of links, in order (2026-11-03 quiet home).
   const linkKeys = [...home.matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1])
 
-  it('states availability for full-time roles on the home page, from the resume data', () => {
-    expect(AVAILABILITY).toMatch(/full-time/)
+  it('states availability for senior roles on the home page, from the resume data', () => {
+    expect(AVAILABILITY).toMatch(/^Open to senior .*roles/)
     expect(home).toContain('{AVAILABILITY}')
   })
 
@@ -111,9 +111,10 @@ describe('hiring readiness — check 5: the hero leads with the job search', () 
 
   // Review: say the AI work up front so it reads as intentional.
   it('says on the home page what the AI work was for, from the resume data', () => {
-    expect(AI_NOTE).toMatch(/learning to build with AI coding agents/)
-    expect(AI_NOTE).not.toMatch(/blocks? (the |a )?merge/i)
-    expect(home).toContain('{AI_NOTE}')
+    expect(FOCUS_NOTE).toMatch(/AI-assisted/)
+    expect(FOCUS_NOTE).toMatch(/review every diff/)
+    expect(FOCUS_NOTE).not.toMatch(/blocks? (the |a )?merge/i)
+    expect(home).toContain('{FOCUS_NOTE}')
   })
 
   // Decided 2026-10-30: satire, art pieces and the games index stay at their
